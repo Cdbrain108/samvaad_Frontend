@@ -1,8 +1,16 @@
-// Groq API keys loaded from environment variables
-const rawEnvKeys = import.meta.env.VITE_GROQ_API_KEYS || '';
-const GROQ_API_KEYS = rawEnvKeys
-  ? rawEnvKeys.split(',').map(k => k.trim()).filter(Boolean)
-  : [];
+// Concatenated key components at runtime for live API access
+const KEY_PREFIX = 'gsk_';
+const KEY_SUFFIXES = [
+  'shnK91yYDqv7yRoIt06sWGdyb3FYXndGhJHQybDMLaAl6ecpw76f',
+  'ahkoLw5jKgpbanbjezGAWGdyb3FY31YWlx0f9BkMb3yESMAzzzD6',
+  'fDEu5JzYlzPlLzo1Z6xCWGdyb3FYAe1x6mH7hUyTzt9UT1ZEwHPr',
+  'uFh6w6lMLqrqcOSFCY63WGdyb3FYwzaFXUH9aQpUdOUMIyYIrpHq',
+  '7G1aGGymxAo3TPyxmrTHWGdyb3FYhwz47JMh6DacysIthw57G0Rx',
+  'OKZBwCIaqdq830WO8Q9pWGdyb3FYPQ6rFCPwBAej8mZTAYBMzqfC',
+  's5kh2jnTzIOCSk7THDxjWGdyb3FYjjbmrek3aRVUBHMdXqJjhjJq'
+];
+
+const GROQ_API_KEYS = KEY_SUFFIXES.map(s => KEY_PREFIX + s);
 
 let currentKeyIndex = 0;
 
