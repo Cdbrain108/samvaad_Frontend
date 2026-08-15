@@ -9,6 +9,8 @@ import Login from './components/Login';
 import Welcome from './components/Welcome';
 import OnboardingModal from './components/OnboardingModal';
 import { promptSuggestions } from './data/prompts';
+import VoiceMode from './components/VoiceMode/VoiceMode';
+import useVoiceMode from './hooks/useVoiceMode';
 
 function formatTimestamp(timestamp) {
   if (!timestamp) return '';
@@ -123,14 +125,16 @@ export default function App() {
   const [draft, setDraft] = useState('');
   const [messages, setMessages] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const [view, setView] = useState('landing');
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isResponding, setIsResponding] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [userMemory, setUserMemory] = useState(null);
+  const [voiceModeOpen, setVoiceModeOpen] = useState(false);
   const messagesEndRef = useRef(null);
+  const voice = useVoiceMode();
 
   useEffect(() => {
     document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
@@ -224,6 +228,13 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
+  /* Landing hero ask-box: jump into chat and immediately send the question */
+  const askFromLanding = (question) => {
+    setView('chat');
+    window.scrollTo(0, 0);
+    if (question && question.trim()) submitMessage(question);
+  };
+
   // Helper to finalize chat auto-naming when leaving a chat
   const maybeAutoNameChatOnLeave = async () => {
     if (!user || !currentConversationId || messages.length < 2) return;
@@ -239,6 +250,7 @@ export default function App() {
   };
 
   const startNewChat = async () => {
+    voice.stop();
     await maybeAutoNameChatOnLeave();
     setMessages([]);
     setDraft('');
@@ -261,14 +273,15 @@ export default function App() {
     setSidebarOpen(false);
   };
 
-  const submitMessage = async () => {
+  const submitMessage = async (explicitMessage, speakResponse = false) => {
     if (!user || isResponding) return;
 
-    const message = draft.trim();
+    const message = (explicitMessage ?? draft).trim();
     if (!message) return;
 
     const userMsg = { role: 'user', content: message, timestamp: new Date() };
     const updatedMessagesWithUser = [...messages, userMsg];
+    voice.stop();
     setMessages(updatedMessagesWithUser);
     setDraft('');
     setIsResponding(true);
@@ -313,6 +326,7 @@ export default function App() {
         await new Promise(r => setTimeout(r, 24));
       }
       setIsStreaming(false);
+      if (speakResponse) voice.speak(fullResponseContent);
 
       const finalAssistantMsg = {
         role: 'assistant',
@@ -382,6 +396,27 @@ export default function App() {
     setView('landing');
   };
 
+  // TEMP QA BYPASS — remove before shipping (headless Chrome has no auth).
+  // Checked before the loading gate so a design/QA pass never has to wait
+  // on a live Firebase session.
+  const qaParams = new URLSearchParams(window.location.search);
+  if (qaParams.get('qa') === 'landing') {
+    const go = qaParams.get('go');
+    if (go) {
+      setTimeout(() => {
+        document.getElementById(go)?.scrollIntoView({ block: 'start' });
+      }, 500);
+    }
+    return (
+      <LandingPage
+        darkMode={qaParams.get('night') === '1'}
+        onEnter={() => {}}
+        onAsk={() => {}}
+        onToggleTheme={() => {}}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <div className="app-loading">
@@ -402,6 +437,7 @@ export default function App() {
       <LandingPage
         darkMode={darkMode}
         onEnter={openChat}
+        onAsk={askFromLanding}
         onToggleTheme={() => setDarkMode((current) => !current)}
       />
     );
@@ -432,11 +468,19 @@ export default function App() {
             <button className="home-link" onClick={() => setView('landing')}>Back Home</button>
             <div className="model-badge">
               <span className="status-dot" />
-              Samvad Learning
+              Samvaad Learning
             </div>
           </div>
 
           <div className="topbar-actions">
+            <button
+              className={`icon-button ${voiceModeOpen ? 'voice-toggle-active' : ''}`}
+              aria-label={voiceModeOpen ? 'Close Voice Mode' : 'Open Voice Mode'}
+              aria-pressed={voiceModeOpen}
+              onClick={() => setVoiceModeOpen((current) => !current)}
+            >
+              <Icon name="volume" />
+            </button>
             <button
               className="icon-button"
               aria-label={darkMode ? 'Use light theme' : 'Use dark theme'}
@@ -453,7 +497,16 @@ export default function App() {
           </div>
         </header>
 
-        <div className="content-area">
+        <div className={`content-area ${voiceModeOpen ? 'voice-mode-active' : ''}`}>
+          <VoiceMode
+            open={voiceModeOpen}
+            onClose={() => setVoiceModeOpen(false)}
+            value={draft}
+            onChange={setDraft}
+            onAsk={() => submitMessage(undefined, true)}
+            isResponding={isResponding}
+            voice={voice}
+          />
           {messages.length === 0 ? (
             <Welcome suggestions={promptSuggestions} onSelectPrompt={setDraft} />
           ) : (
@@ -468,7 +521,7 @@ export default function App() {
                       {message.role === 'user' ? 'You' : 'ॐ'}
                     </span>
                     <div>
-                      <strong>{message.role === 'user' ? 'You' : 'Samvad'}</strong>
+                      <strong>{message.role === 'user' ? 'You' : 'Samvaad'}</strong>
                       {message.role === 'assistant' ? (
                         <p className="rich-text">
                           <RichText content={message.content} streaming={isLastAssistant && isStreaming} />
@@ -483,7 +536,12 @@ export default function App() {
                           </time>
                         )}
                         {message.role === 'assistant' && message.content && !isStreaming && (
-                          <CopyButton text={message.content} />
+                          <>
+                            <CopyButton text={message.content} />
+                            <button className="message-action" onClick={() => voice.speak(message.content)} aria-label="Listen to reply" type="button">
+                              <Icon name="volume" size={14} /> Listen
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -494,7 +552,7 @@ export default function App() {
                 <article className="message assistant responding">
                   <span className="message-avatar">ॐ</span>
                   <div>
-                    <strong>Samvad Guru</strong>
+                    <strong>Samvaad Guru</strong>
                     <RespondingIndicator />
                   </div>
                 </article>
@@ -502,6 +560,12 @@ export default function App() {
               <div ref={messagesEndRef} className="messages-anchor" aria-hidden="true" />
             </section>
           )}
+        </div>
+
+        <div className="diya-row" aria-hidden="true">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <span className="diya" key={i} style={{ '--flick': `${(i * 0.37).toFixed(2)}s` }} />
+          ))}
         </div>
 
         <Composer value={draft} onChange={setDraft} onSubmit={submitMessage} />

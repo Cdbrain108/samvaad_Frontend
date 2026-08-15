@@ -27,7 +27,7 @@ export default function OnboardingModal({ isOpen, onSubmit }) {
       <div className="onboarding-card">
         <div className="onboarding-header">
           <div className="om-seal" aria-hidden="true">ॐ</div>
-          <h2>Welcome to Samvad AI</h2>
+          <h2>Welcome to Samvaad AI</h2>
           <p>Share your details so your spiritual companion can guide you personally.</p>
         </div>
 

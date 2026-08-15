@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import Icon from './Icon'
 import ScriptureBook from './ScriptureBook'
 import LiveQADemo from './LiveQADemo'
+import heroSunrise from '../assets/hero-sunrise.jpg'
+import heroNightTemple from '../assets/hero-night-temple.png'
+import logoWordmark from '../assets/logo-wordmark.webp'
+import brandIcon from '../assets/brand-icon.webp'
+import guruCutout from '../assets/guru-cutout.webp'
 
 const scriptures = [
   'Bhajan Marg Q&A',
@@ -13,6 +18,10 @@ const scriptures = [
   'Hanuman Chalisa',
   'Yoga Sutras',
 ]
+
+/* Guru Ji's cutout is kept fully intact (asset, CSS, measurements) —
+   flip this flag to true to bring him back into the hero exactly as before. */
+const SHOW_GURU = false
 
 const features = [
   {
@@ -35,30 +44,36 @@ const features = [
   },
 ]
 
-const pipeline = [
+const flowSteps = [
   {
     icon: 'video',
-    title: 'Listen',
-    stat: '4000+ videos',
-    text: 'Public discourses from the Bhajan Marg YouTube channel, where devotees ask questions and Premanand Ji Maharaj answers in a natural, pleasant manner.',
-  },
-  {
-    icon: 'mic',
-    title: 'Transcribe',
-    stat: 'Hindi + English',
-    text: 'Speech is carefully transcribed and aligned with video subtitles in both languages, preserving the warmth of the original words.',
+    title: 'Extract',
+    chip: 'YouTube → text',
+    text: 'Public Bhajan Marg videos are gathered and their speech is transcribed into Hindi + English text.',
   },
   {
     icon: 'layers',
-    title: 'Shape',
-    stat: 'Q&A pairs',
-    text: 'Transcripts are segmented, cleaned and shaped into question-answer learning examples ready for retrieval practice.',
+    title: 'QA Pairs',
+    chip: 'shape the data',
+    text: 'Transcripts are segmented and cleaned into question–answer learning examples — 50,000+ Hindi + English Q&A pairs.',
   },
   {
     icon: 'brain',
-    title: 'Reflect',
-    stat: 'Live memory',
-    text: 'When you ask, Samvad searches related teachings and your remembered context, then replies in a calm, devotional style.',
+    title: 'Fine-tune',
+    chip: 'teach the style',
+    text: 'A base model is fine-tuned on those pairs so it learns the gentle, natural answering style of Maharaj Ji.',
+  },
+  {
+    icon: 'book',
+    title: 'RAG',
+    chip: 'scripture knowledge',
+    text: 'Extra knowledge — Gita, Chalisa, Upanishads, Vedas — is embedded and retrieved on demand for grounding.',
+  },
+  {
+    icon: 'spark',
+    title: 'Answer',
+    chip: 'relevant output',
+    text: 'Retrieved verses plus remembered context generate a calm, relevant reply in Hindi and English.',
   },
 ]
 
@@ -81,12 +96,20 @@ const videoExamples = [
 ]
 
 const questionExamples = [
-  'How do I steady my mind during naam jap?',
+  'How do I find inner peace?',
   'मन भजन में कैसे टिके?',
-  'Why do worldly desires fade when longing awakens?',
+  'What is true love (prem)?',
   'दैनिक जीवन में अभ्यास कैसे रखें?',
-  'How should a devotee continue practice in daily life?',
+  'Meaning of karma?',
   'नाम का सहारा कैसे लें?',
+]
+
+const topics = [
+  { emoji: '🪷', label: 'Bhagavad Gita', prompt: 'What does the Bhagavad Gita teach about staying calm in difficult times?' },
+  { emoji: '❤️', label: 'Bhakti', prompt: 'How can I grow true bhakti and love for God in my daily life?' },
+  { emoji: '🕉️', label: 'Dharma', prompt: 'How do I understand my dharma in a confusing situation?' },
+  { emoji: '🍃', label: 'Life Guidance', prompt: 'Please guide me on balancing family duties with spiritual practice.' },
+  { emoji: '🌳', label: 'Mind & Peace', prompt: 'How can I quiet a restless mind and find inner peace?' },
 ]
 
 /* ---------- full-screen phases ---------- */
@@ -166,44 +189,77 @@ function StatBlock({ end, suffix = '', label, started, delay = 0 }) {
   )
 }
 
-function SpiritualBrand() {
-  return (
-    <span className="spiritual-brand" aria-label="Samvad AI">
-      <span className="om-seal" aria-hidden="true">Om</span>
-      <span className="spiritual-wordmark">Samvad AI</span>
-    </span>
-  )
-}
+/* ---------- animated data pipeline ---------- */
 
-function HeroAmbience() {
+function FlowPipeline() {
+  const wrapRef = useRef(null)
+  const [live, setLive] = useState(false)
+  const [active, setActive] = useState(0)
+
+  useEffect(() => {
+    const node = wrapRef.current
+    if (!node) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setLive(entry.isIntersecting),
+      { threshold: 0.25 }
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!live) return
+    const cycle = setInterval(
+      () => setActive((current) => (current + 1) % flowSteps.length),
+      2400
+    )
+    return () => clearInterval(cycle)
+  }, [live])
+
   return (
-    <div className="hero-ambience" aria-hidden="true">
-      <span className="mandala-ring ring-slow" />
-      <span className="mandala-ring ring-fast" />
-      <span className="hero-ember ember-a" />
-      <span className="hero-ember ember-b" />
-      <span className="hero-ember ember-c" />
-      <span className="hero-ember ember-d" />
-      <span className="hero-ember ember-e" />
-      <span className="hero-ember ember-f" />
+    <div className="flow-pipeline" ref={wrapRef} aria-label="How the learning data flows">
+      {flowSteps.map((step, index) => (
+        <div
+          key={step.title}
+          className={`flow-step ${index === active ? 'is-active' : ''} ${index < active ? 'is-done' : ''}`}
+        >
+          <span className="flow-node">
+            <Icon name={step.icon} size={20} />
+            <em className="flow-index">{index + 1}</em>
+          </span>
+          <span className="flow-chip">{step.chip}</span>
+          <h3>{step.title}</h3>
+          <p>{step.text}</p>
+          {index < flowSteps.length - 1 && (
+            <span className="flow-link" aria-hidden="true"><i /></span>
+          )}
+        </div>
+      ))}
     </div>
   )
 }
 
 /* ---------- page ---------- */
 
-export default function LandingPage({ onEnter }) {
+export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme }) {
   const scrollRef = useRef(null)
+  const askInputRef = useRef(null)
   const activeRef = useRef(0)
   const statsRef = useRef(null)
   const [progress, setProgress] = useState(0)
   const [active, setActive] = useState(0)
   const [statsStarted, setStatsStarted] = useState(false)
+  const [question, setQuestion] = useState('')
 
   const goToPhase = (id) => {
     scrollRef.current
       ?.querySelector(`#${id}`)
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const focusAsk = () => {
+    goToPhase('hero')
+    setTimeout(() => askInputRef.current?.focus({ preventScroll: true }), 650)
   }
 
   const stepPhase = (dir) => {
@@ -242,7 +298,7 @@ export default function LandingPage({ onEnter }) {
   useEffect(() => {
     const onKey = (event) => {
       if (event.target !== document.body && event.target !== scrollRef.current) return
-      if (event.key === 'ArrowDown' || event.key === 'PageDown' || event.key === ' ') {
+      if (event.key === 'ArrowDown' || event.key === 'PageDown') {
         event.preventDefault()
         stepPhase(1)
       } else if (event.key === 'ArrowUp' || event.key === 'PageUp') {
@@ -276,25 +332,57 @@ export default function LandingPage({ onEnter }) {
     return () => observer.disconnect()
   }, [])
 
+  const askQuestion = (text) => {
+    const value = (text ?? question).trim()
+    if (!value) {
+      focusAsk()
+      return
+    }
+    onAsk?.(value)
+  }
+
   return (
-    <div className="spiritual-page landing-scroll" ref={scrollRef}>
+    <div className={`spiritual-page landing-scroll ${darkMode ? 'night' : ''}`} ref={scrollRef}>
       <span className="scroll-progress" style={{ transform: `scaleX(${progress})` }} aria-hidden="true" />
 
+      {/* Floating Marigold Petals Background Animation */}
+      <div className="floating-petals-layer" aria-hidden="true">
+        <span className="petal" />
+        <span className="petal" />
+        <span className="petal" />
+        <span className="petal" />
+        <span className="petal" />
+      </div>
+
       <header className="spiritual-header">
-        <button className="spiritual-brand-button" onClick={() => scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <SpiritualBrand />
+        <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
+          <img className="brand-icon" src={brandIcon} alt="" />
+          <span className="brand-text">
+            <span className="spiritual-wordmark">Samvaad</span>
+            <span className="brand-tagline">प्रश्न आपका, कृपा उसकी</span>
+          </span>
         </button>
 
         <nav className="spiritual-nav" aria-label="Main navigation">
-          <a href="#story" onClick={(event) => { event.preventDefault(); goToPhase('story') }}>Data Story</a>
-          <a href="#scriptures" onClick={(event) => { event.preventDefault(); goToPhase('scriptures') }}>Scriptures</a>
-          <a href="#features" onClick={(event) => { event.preventDefault(); goToPhase('features') }}>Experience</a>
-          <a href="#dataset" onClick={(event) => { event.preventDefault(); goToPhase('dataset') }}>Dataset</a>
+          <a href="#hero" onClick={(event) => { event.preventDefault(); goToPhase('hero') }}><Icon name="home" size={15} />Home</a>
+          <a href="#hero" onClick={(event) => { event.preventDefault(); focusAsk() }}><Icon name="help" size={15} />Ask</a>
+          <a href="#scriptures" onClick={(event) => { event.preventDefault(); goToPhase('scriptures') }}><Icon name="book" size={15} />Scriptures</a>
+          <a href="#education" onClick={(event) => { event.preventDefault(); goToPhase('education') }}><Icon name="info" size={15} />About</a>
         </nav>
 
         <div className="spiritual-header-actions">
-          <a className="outline-button compact-button" href="#education" onClick={(event) => { event.preventDefault(); goToPhase('education') }}>Purpose</a>
-          <button className="rust-button compact-button" onClick={onEnter}>Open Chat</button>
+          <button
+            className={`theme-toggle ${darkMode ? 'is-night' : ''}`}
+            onClick={onToggleTheme}
+            aria-label={darkMode ? 'Switch to day theme' : 'Switch to night theme'}
+          >
+            <span className="toggle-thumb" aria-hidden="true"><Icon name={darkMode ? 'moon' : 'sun'} size={13} /></span>
+            <Icon name="moon" size={13} />
+            <Icon name="sun" size={13} />
+          </button>
+          <button className="rust-button cta-button" onClick={onEnter}>
+            <span aria-hidden="true">🙏</span> Start Asking
+          </button>
         </div>
       </header>
 
@@ -314,52 +402,87 @@ export default function LandingPage({ onEnter }) {
       <main>
         {/* ---------- PHASE 1 · HERO ---------- */}
         <section className="spiritual-hero phase phase-hero" id="hero">
-          <HeroAmbience />
-
+          <div
+                      className="hero-bg"
+                      style={{ backgroundImage: `url(${darkMode ? heroNightTemple : heroSunrise})` }}
+                      aria-hidden="true"
+                    />
+          {darkMode && (
+            <div className="night-sky" aria-hidden="true">
+              <span className="sky-moon" />
+              <i className="sky-star" style={{ top: '16%', right: '30%' }} />
+              <i className="sky-star" style={{ top: '9%', right: '12%', animationDelay: '.9s' }} />
+              <i className="sky-star" style={{ top: '27%', right: '6%', animationDelay: '1.6s' }} />
+              <i className="sky-star" style={{ top: '34%', right: '24%', animationDelay: '2.3s' }} />
+            </div>
+          )}
           <div className="hero-copy-panel">
-            <div className="sacred-divider" aria-hidden="true"><span />Bhajan Marg inspired<span /></div>
+            <span className="hero-welcome">
+              <span className="diya-container"><Icon name="diya" size={16} /></span>
+              Welcome to
+              <span className="diya-container"><Icon name="diya" size={16} /></span>
+            </span>
+            <h1 className="hero-wordmark">
+              <img
+                className="hero-logo"
+                src={logoWordmark}
+                alt="Samvaad — प्रश्न आपका, कृपा उसकी · Ask, Learn, Reflect, Grow"
+              />
+            </h1>
+            <p className="hero-tagline">Where AI speaks with the <em>heart</em> of a Guru</p>
+            <p className="hero-desc">
+              Ask your questions about life, devotion, dharma, karma and Hindu scriptures.
+              Get answers inspired by the teachings and love of Premanand Ji Maharaj —
+              shaped from 4000+ Bhajan Marg discourses.
+            </p>
             <span className="spiritual-pill">Personal AI learning playground · Education only</span>
-            <h1>Samvad AI</h1>
-            <p>
-              Explore devotional questions through a responsive, living chat — shaped by the
-              Q&A style of 4000+ Bhajan Marg video discourses, scripture notes and your
-              remembered reflections.
+
+            <form
+              className="hero-askbox"
+              onSubmit={(event) => { event.preventDefault(); askQuestion() }}
+            >
+              <span className="askbox-lotus" aria-hidden="true">🪷</span>
+              <input
+                ref={askInputRef}
+                value={question}
+                onChange={(event) => setQuestion(event.target.value)}
+                placeholder="Ask your question..."
+                aria-label="Ask your question"
+              />
+              <button className="askbox-send" type="submit" aria-label="Send question">
+                <Icon name="arrow-right" size={18} />
+              </button>
+            </form>
+            <p className="hero-examples">
+              e.g. “How to find inner peace?”, “What is true love (prem)?”, “Meaning of karma?”
             </p>
 
-            <div className="spiritual-hero-actions">
-              <button className="rust-button glow-button" onClick={onEnter}>Start a Samvad</button>
-              <a className="outline-button" href="#story" onClick={(event) => { event.preventDefault(); goToPhase('story') }}>See the Data Story</a>
-            </div>
-
-            <div className="hero-stats" aria-label="Project signals">
-              <span><strong>4000+</strong> videos studied</span>
-              <span><strong>Hindi + English</strong> bilingual</span>
-              <span><strong>Live</strong> memory chat</span>
+            <div className="topic-chips" aria-label="Popular topics">
+              {topics.map((topic) => (
+                <button key={topic.label} onClick={() => askQuestion(topic.prompt)}>
+                  <span aria-hidden="true">{topic.emoji}</span>
+                  {topic.label}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="hero-visual" aria-label="Premanand Ji Maharaj and Bhajan Marg learning examples">
-            <div className="maharaj-frame">
-              <img
-                alt="Premanand Ji Maharaj video thumbnail from Bhajan Marg"
-                src="https://i.ytimg.com/vi/Lgn-rroObt0/hqdefault.jpg"
-              />
-              <div className="video-badge"><i />Bhajan Marg video source</div>
-            </div>
-            <div className="floating-question question-one">
-              <span>Devotee asks</span>
-              <strong>How can my mind stay fixed in naam?</strong>
-            </div>
-            <div className="floating-question question-two">
-              <span>Samvad retrieves</span>
-              <strong>Related Q&A, memory and scripture context</strong>
+          <div className="hero-visual" aria-label="Premanand Ji Maharaj and a teaching quote">
+            {SHOW_GURU && (
+              <div className="maharaj-frame">
+                <img alt="पूज्य प्रेमानंद जी महाराज in a namaste pose" src={guruCutout} />
+              </div>
+            )}
+            <div className="hero-quote-card">
+              <p>“मन को शांत करने का एक ही उपाय है – नाम जप और प्रेम !”</p>
+              <span><i aria-hidden="true">🙏</i> — पूज्य प्रेमानंद जी महाराज</span>
             </div>
           </div>
 
           <div className="video-marquee" aria-label="Example questions">
             <div>
-              {[...questionExamples, ...questionExamples].map((question, index) => (
-                <span key={`${question}-${index}`}>{question}</span>
+              {[...questionExamples, ...questionExamples].map((item, index) => (
+                <span key={`${item}-${index}`}>{item}</span>
               ))}
             </div>
           </div>
@@ -376,57 +499,39 @@ export default function LandingPage({ onEnter }) {
             <span>The data story · कैसे काम करता है</span>
             <h2>From 4000+ discourses to a thoughtful chat.</h2>
             <p>
-              On the Bhajan Marg channel, devotees ask heartfelt questions and Premanand Ji
-              Maharaj answers in a natural, pleasant manner. This personal playground studies
-              that beautiful question-answer style — nothing more, nothing less.
+              Watch the learning pipeline come alive: videos are extracted from the Bhajan Marg
+              channel, shaped into Q&A pairs, fine-tuned, grounded with RAG scripture knowledge,
+              and finally answered with relevance and love.
             </p>
           </Reveal>
 
-          <div className="story-grid">
-            <div className="story-copy">
-              <div className="story-stats" ref={statsRef}>
-                <StatBlock end={4000} suffix="+" label="Bhajan Marg videos studied" started={statsStarted} />
-                <StatBlock end={2} label="Languages — Hindi & English" started={statsStarted} delay={120} />
-                <StatBlock end={1} label="Purpose — pure learning" started={statsStarted} delay={240} />
-              </div>
-
-              <ol className="pipeline" aria-label="How the learning data flows">
-                {pipeline.map((step, index) => (
-                  <Reveal as="li" delay={index * 110} key={step.title} className="pipeline-step">
-                    <span className="pipeline-icon">
-                      <Icon name={step.icon} size={19} />
-                    </span>
-                    <div className="pipeline-body">
-                      <div className="pipeline-head">
-                        <h3>{step.title}</h3>
-                        <span className="pipeline-stat">{step.stat}</span>
-                      </div>
-                      <p>{step.text}</p>
-                    </div>
-                    {index < pipeline.length - 1 && <span className="pipeline-link" aria-hidden="true" />}
-                  </Reveal>
-                ))}
-              </ol>
-            </div>
-
-            <Reveal delay={160} className="story-demo-wrap">
-              <LiveQADemo />
-              <p className="story-demo-note">
-                The demo above is a recreated illustration of the discourse style, produced for
-                education. It is not a real transcript and is not affiliated with Bhajan Marg.
-              </p>
-            </Reveal>
+          <div className="story-stats" ref={statsRef}>
+            <StatBlock end={4000} suffix="+" label="Bhajan Marg videos studied" started={statsStarted} />
+            <StatBlock end={50000} suffix="+" label="Hindi + English Q&A pairs" started={statsStarted} delay={120} />
+            <StatBlock end={5} label="Pipeline stages, fully animated" started={statsStarted} delay={240} />
           </div>
+
+          <FlowPipeline />
+
+          <Reveal delay={160} className="story-demo-wrap">
+            <LiveQADemo />
+            <p className="story-demo-note">
+              The demo above is a recreated illustration of the discourse style, produced for
+              education. It is not a real transcript and is not affiliated with Bhajan Marg.
+            </p>
+          </Reveal>
         </section>
 
         {/* ---------- PHASE 3 · 3D SCRIPTURES ---------- */}
         <section className="scripture-section phase" id="scriptures">
           <Reveal className="spiritual-section-heading light-heading">
-            <span>Animated sacred texts</span>
-            <h2>Scriptures, brought to life.</h2>
+            <span>प्राचीन ग्रंथ · Ancient manuscripts</span>
+            <h2>Where ancient manuscripts still speak.</h2>
             <p>
-              A living manuscript floats beside your questions. Move your pointer over the
-              pothi to tilt it in 3D, and watch verses from the Gita and Chalisa turn with it.
+              Centuries ago the words of God were preserved in these manuscripts, and in them
+              dharma and karma still breathe today. Open the pothi — its cover lifts, the pages
+              turn, and a Sanskrit shloka writes itself slowly, carrying the wisdom that makes
+              our ancient history our richest treasure.
             </p>
           </Reveal>
 
@@ -441,7 +546,7 @@ export default function LandingPage({ onEnter }) {
             <span>Designed for gentle learning</span>
             <h2>A front page that explains the soul of the project.</h2>
             <p>
-              The interface tells visitors what Samvad is, what powers it, and why the
+              The interface tells visitors what Samvaad is, what powers it, and why the
               responses should always be treated as educational guidance.
             </p>
           </Reveal>
@@ -501,27 +606,31 @@ export default function LandingPage({ onEnter }) {
         <section className="spiritual-quote phase" id="education">
           <Reveal>
             <div className="quote-om">ॐ</div>
-            <blockquote>Built for learning, reflection and experimentation.</blockquote>
+            <blockquote>“प्रेम ही भगवान तक पहुँचने का सरल मार्ग है !”</blockquote>
+            <p className="quote-attrib">— पूज्य प्रेमानंद जी महाराज</p>
             <p>
-              Samvad AI is an independent <strong>personal education project</strong> — a playground for
+              Samvaad is an independent <strong>personal education project</strong> — a playground for
               learning RAG, memory systems and bilingual UI design. It is <strong>not affiliated</strong> with
               Bhajan Marg or Premanand Ji Maharaj, and important guidance should always be
               verified with trusted sources and living teachers.
             </p>
-            <button className="rust-button glow-button" onClick={onEnter}>Begin your Samvad</button>
+            <button className="rust-button cta-button" onClick={onEnter}><span aria-hidden="true">🙏</span> Begin your Samvaad</button>
           </Reveal>
         </section>
 
         {/* ---------- PHASE 7 · CONTACT / CLOSING ---------- */}
         <section className="phase phase-final" id="contact">
           <div className="final-stack">
-            <SpiritualBrand />
+            <img className="final-icon" src={brandIcon} alt="Samvaad app icon" />
             <span className="final-kicker">Personal project · Education only</span>
-            <a className="final-mail" href="mailto:hello@samvad.ai">hello@samvad.ai</a>
-            <button className="rust-button glow-button" onClick={onEnter}>Open the Chat</button>
-            <p className="final-note">
-              2026 Samvad AI · Independent educational playground · Not affiliated with Bhajan Marg
-            </p>
+            <a className="final-mail" href="mailto:hello@samvaad.ai">hello@samvaad.ai</a>
+            <button className="rust-button cta-button" onClick={onEnter}><span aria-hidden="true">🙏</span> Start Asking</button>
+          </div>
+
+          <div className="final-bar">
+            <span className="final-om" aria-hidden="true">〜 ॐ 〜</span>
+            <span className="final-mantra"><i aria-hidden="true">🪷</i> Serve · Learn · Love <i aria-hidden="true">🪷</i></span>
+            <span className="final-built">Built with <i aria-hidden="true">❤️</i> for Dharma</span>
           </div>
         </section>
       </main>

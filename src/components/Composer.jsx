@@ -44,7 +44,7 @@ export default function Composer({ value, onChange, onSubmit }) {
           <Icon name="attach" />
         </button>
         <textarea
-          aria-label="Message Samvad"
+          aria-label="Message Samvaad"
           onChange={(event) => onChange(event.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Ask a devotional question, or continue your learning journey..."

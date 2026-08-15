@@ -10,6 +10,7 @@ A React-based spiritual learning companion with authentication and persistent ch
 - **AI Integration Ready** - Easy to connect with any LLM API
 - **Responsive Design** - Works on desktop and mobile
 - **Dark/Light Theme** - User preference persistence
+- **Voice Mode** - Free browser-native Hindi/English/Hinglish speech playback, custom controls, and optional speech-to-text where supported
 
 ## Tech Stack
 
@@ -78,7 +79,35 @@ npm install
 npm run dev
 ```
 
-### 6. Build for Production
+### 6. Configure the Samvaad API
+
+The browser must never contain an LLM or TTS secret. Start the FastAPI service from the repository root and place its provider key only in `AI_Guru/.env`:
+
+```bash
+GROQ_API_KEY=your_server_only_groq_key
+```
+
+Then configure the frontend (`samvad-ai-ui.preview.emergentagent.com/.env.local`):
+
+```bash
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+Run the backend from `AI_Guru`:
+
+```bash
+uvicorn backend.main:app --reload --port 8000
+```
+
+The frontend calls `POST /api/generate`. It accepts `{ messages, temperature, max_tokens }` and returns `{ content }`. In production, deploy this FastAPI app separately (for example on a free-tier container service) and set `VITE_API_BASE_URL` to its HTTPS URL before building GitHub Pages.
+
+### 7. Voice Mode
+
+Voice Mode uses the browser's Web Speech API by default: it has no API key, no audio files, and works with the existing static GitHub Pages frontend. Open the speaker button in chat, ask a question from the Voice Mode panel, and use its custom pause, stop, replay, speed, volume, and mute controls. The optional microphone only asks for permission after its button is pressed.
+
+Speech quality, Hindi/Sanskrit pronunciation, and microphone availability depend on voices installed by the browser/operating system. This is the free-tier limitation. `src/services/ttsService.js` is the provider boundary; replace `generateSpeech()` with a secure server TTS request later if consistent cross-platform voices are needed. The UI and avatar-state hooks do not need to change.
+
+### 8. Build for Production
 
 ```bash
 npm run build
@@ -163,7 +192,17 @@ const assistantMessage = {
 ### Netlify
 Similar process - connect repo, add env vars, deploy.
 
-## Environment Variables (Optional)
+## Environment Variables
+
+```bash
+# Frontend, public URL only — never a provider secret
+VITE_API_BASE_URL=https://your-samvaad-api.example.com
+
+# Backend only
+GROQ_API_KEY=your_server_only_groq_key
+```
+
+Firebase configuration may remain Vite variables:
 
 For production, use environment variables instead of hardcoding Firebase config:
 

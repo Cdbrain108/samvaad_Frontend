@@ -1,0 +1,1557 @@
+/* ============================================================
+   Samvaad theme — saffron / golden / cream / deep blue
+   Reskins the landing phases to the Samvaad brand board:
+   Saffron #FFB300 · Golden #FEC84B · Cream #FFF8E1
+   Deep Blue #0D3B66 · Sage #2E7D32 · wordmark brown #6B3A15
+   Loaded last, so it extends spiritual.css + spiritual-v2.css.
+   ============================================================ */
+
+/* ---------- palette ---------- */
+
+.spiritual-page {
+  --sv-saffron: #FFB300;
+  --sv-gold: #FEC84B;
+  --sv-cream: #FFF8E1;
+  --sv-deep: #0D3B66;
+  --sv-sage: #2E7D32;
+  --sv-brown: #6B3A15;
+  --sv-ink: #4A2E14;
+  --sv-muted: #8A6B4D;
+
+  --spiritual-bg: var(--sv-cream);
+  --spiritual-surface: #FFFDF6;
+  --spiritual-text: var(--sv-ink);
+  --spiritual-muted: var(--sv-muted);
+  --spiritual-rust: #E68A00;
+  --spiritual-rust-dark: #B4560A;
+  --spiritual-line: rgba(180, 120, 40, 0.22);
+  --samvad-gold: #E6A400;
+  --samvad-teal: var(--sv-sage);
+  --samvad-indigo: var(--sv-deep);
+
+  background: var(--sv-cream);
+  color: var(--sv-ink);
+}
+
+/* ---------- floating cream header ---------- */
+
+.spiritual-page .spiritual-header {
+  top: 10px;
+  width: min(1240px, calc(100% - 28px));
+  height: 62px;
+  margin: 10px auto 0;
+  padding-inline: 18px;
+  border: 1px solid rgba(230, 138, 0, 0.28);
+  border-radius: 18px;
+  background: rgba(255, 248, 225, 0.88);
+  box-shadow: 0 12px 32px rgba(120, 70, 10, 0.1);
+  backdrop-filter: blur(16px);
+}
+
+.spiritual-page .spiritual-brand-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  justify-self: start;
+}
+
+.spiritual-page .brand-mark { filter: drop-shadow(0 4px 10px rgba(230, 138, 0, 0.25)); }
+
+.brand-text { display: grid; text-align: left; line-height: 1.05; }
+
+.spiritual-page .spiritual-wordmark {
+  color: var(--sv-brown);
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.brand-tagline { color: #B4560A; font-size: 10px; letter-spacing: 0.06em; }
+
+.spiritual-page .spiritual-nav { gap: 26px; }
+
+.spiritual-page .spiritual-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sv-deep);
+  font-size: 13px;
+  font-weight: 600;
+  transition: color 160ms ease;
+}
+
+.spiritual-page .spiritual-nav a:hover { color: #E68A00; }
+
+/* day / night toggle */
+
+.theme-toggle {
+  position: relative;
+  display: inline-flex;
+  width: 64px;
+  height: 32px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  border: 1px solid rgba(230, 138, 0, 0.35);
+  border-radius: 999px;
+  background: #FFF3D6;
+  color: #A9805A;
+  cursor: pointer;
+  transition: background 240ms ease, border-color 240ms ease;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sv-saffron), var(--sv-gold));
+  color: #5B3305;
+  box-shadow: 0 3px 8px rgba(230, 138, 0, 0.4);
+  transition: transform 260ms cubic-bezier(0.3, 0.8, 0.3, 1.1), background 240ms ease;
+}
+
+.theme-toggle.is-night { background: #10263F; border-color: rgba(254, 200, 75, 0.4); color: #7E97B4; }
+
+.theme-toggle.is-night .toggle-thumb {
+  transform: translateX(31px);
+  background: linear-gradient(135deg, #0D3B66, #155187);
+  color: var(--sv-gold);
+}
+
+/* golden CTA */
+
+.spiritual-page .cta-button {
+  border: 0;
+  background: linear-gradient(135deg, var(--sv-saffron), var(--sv-gold));
+  color: #5B3305 !important;
+  font-weight: 800;
+  box-shadow: 0 10px 26px rgba(255, 179, 0, 0.35);
+}
+
+.spiritual-page .cta-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #F0A800, #FFD37A);
+  transform: translateY(-1px);
+}
+
+/* ---------- hero ---------- */
+
+.spiritual-page .spiritual-hero {
+  padding: 98px max(22px, calc((100vw - 1180px) / 2)) 64px;
+  background: linear-gradient(135deg, #FFF8E1 0%, #FFF3D0 52%, #FFEBB8 100%);
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center right;
+  pointer-events: none;
+}
+.spiritual-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, var(--sv-cream) 0%, rgba(255, 248, 225, 0.95) 32%, rgba(255, 248, 225, 0.6) 54%, rgba(255, 248, 225, 0.06) 80%, rgba(255, 248, 225, 0) 100%),
+    linear-gradient(180deg, rgba(255, 248, 225, 0.6) 0%, rgba(255, 248, 225, 0) 22%, rgba(255, 248, 225, 0) 78%, var(--spiritual-bg) 100%);
+}
+
+.hero-copy-panel { max-width: 640px; }
+
+.hero-welcome {
+  color: var(--sv-deep);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: clamp(20px, 2.2vw, 27px);
+  font-style: italic;
+}
+
+.hero-wordmark {
+  margin: 2px 0 0;
+  color: var(--sv-brown);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: clamp(58px, 7.2vw, 104px);
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  line-height: 0.95;
+  text-shadow: 0 3px 22px rgba(255, 179, 0, 0.25);
+}
+
+.flute-mark { display: block; width: min(300px, 78%); height: 14px; margin-top: 4px; }
+
+.hero-tagline {
+  margin: 14px 0 0;
+  color: var(--sv-deep);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: clamp(17px, 1.8vw, 22px);
+}
+
+.hero-tagline em { color: #E68A00; font-style: italic; }
+
+.hero-desc {
+  max-width: 560px;
+  margin: 12px 0 0;
+  color: var(--sv-muted);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+.spiritual-page .spiritual-hero .spiritual-pill {
+  margin-top: 16px;
+  border-color: rgba(230, 138, 0, 0.35);
+  background: rgba(255, 255, 255, 0.8);
+  color: #B4560A;
+  backdrop-filter: blur(8px);
+}
+
+/* hero ask box */
+
+.hero-askbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 560px;
+  margin-top: 22px;
+  padding: 9px 9px 9px 18px;
+  border: 1px solid rgba(180, 120, 40, 0.25);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 44px rgba(120, 70, 10, 0.14);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.hero-askbox:focus-within {
+  border-color: var(--sv-saffron);
+  box-shadow: 0 18px 44px rgba(120, 70, 10, 0.14), 0 0 0 4px rgba(255, 179, 0, 0.16);
+}
+
+.askbox-lotus { font-size: 18px; }
+
+.hero-askbox input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--sv-ink);
+  font-size: 14.5px;
+  font-family: inherit;
+}
+
+.hero-askbox input::placeholder { color: #B99B77; }
+
+.askbox-send {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sv-saffron), var(--sv-gold));
+  color: #5B3305;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.askbox-send:hover { transform: scale(1.07); box-shadow: 0 8px 18px rgba(255, 179, 0, 0.4); }
+
+.hero-examples { margin: 10px 0 0; color: rgba(138, 107, 77, 0.9); font-size: 11.5px; }
+
+/* topic chips */
+
+.topic-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+.topic-chips button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid rgba(180, 120, 40, 0.25);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #6B4A22;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.topic-chips button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 179, 0, 0.55);
+  box-shadow: 0 10px 22px rgba(120, 70, 10, 0.12);
+}
+
+/* hero visual + quote card */
+
+.spiritual-page .hero-visual { min-height: 480px; }
+
+.spiritual-page .maharaj-frame {
+  inset: 20px 6px auto auto;
+  border: 3px solid rgba(255, 179, 0, 0.55);
+  border-radius: 22px;
+  box-shadow: 0 30px 80px rgba(75, 45, 5, 0.3);
+}
+
+.spiritual-page .maharaj-frame img { border-radius: 19px; }
+
+.spiritual-page .video-badge {
+  border-color: rgba(254, 200, 75, 0.4);
+  background: rgba(13, 59, 102, 0.72);
+  color: #FFE9B8;
+}
+
+.spiritual-page .video-badge i { background: var(--sv-gold); box-shadow: 0 0 0 6px rgba(254, 200, 75, 0.18); }
+
+.hero-quote-card {
+  position: absolute;
+  bottom: 6px;
+  left: 0;
+  z-index: 3;
+  max-width: 330px;
+  padding: 14px 18px;
+  border: 1px solid rgba(230, 138, 0, 0.4);
+  border-radius: 16px;
+  background: rgba(255, 243, 208, 0.95);
+  box-shadow: 0 18px 44px rgba(75, 45, 5, 0.2);
+  backdrop-filter: blur(10px);
+  animation: card-breathe 5.4s ease-in-out infinite;
+}
+
+.hero-quote-card p { margin: 0; color: var(--sv-brown); font-size: 14px; font-weight: 700; line-height: 1.55; }
+
+.hero-quote-card span { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; color: var(--sv-muted); font-size: 11px; }
+
+/* marquee + scroll cue */
+
+.spiritual-page .video-marquee { border-block-color: rgba(180, 120, 40, 0.18); }
+
+.spiritual-page .video-marquee span {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(180, 120, 40, 0.16);
+  color: #7A5A2E;
+}
+
+.spiritual-page .scroll-cue { color: #B4560A; }
+
+/* phase dots + progress */
+
+.spiritual-page .phase-dot { background: rgba(138, 107, 77, 0.4); box-shadow: 0 0 0 3px rgba(255, 248, 225, 0.6); }
+
+.spiritual-page .phase-dot.is-active {
+  background: var(--sv-saffron);
+  box-shadow: 0 0 0 4px rgba(255, 179, 0, 0.25);
+}
+
+.spiritual-page .phase-dot-label { background: rgba(75, 46, 20, 0.9); color: #FFF3D6; }
+
+.spiritual-page .scroll-progress { background: linear-gradient(90deg, var(--sv-saffron), var(--sv-gold), var(--sv-saffron)); }
+
+/* ---------- story phase ---------- */
+
+.spiritual-page .story-section {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255, 179, 0, 0.1), transparent 34%),
+    #FFFDF6;
+}
+
+.spiritual-page .story-stat { background: rgba(255, 255, 255, 0.9); border-color: rgba(180, 120, 40, 0.2); }
+
+.spiritual-page .story-stat strong { color: var(--sv-deep); }
+
+.spiritual-page .pipeline-step:hover { background: rgba(255, 179, 0, 0.07); }
+
+.spiritual-page .pipeline-icon {
+  background: linear-gradient(135deg, rgba(255, 179, 0, 0.16), rgba(254, 200, 75, 0.24));
+  color: #B4560A;
+  box-shadow: inset 0 0 0 1px rgba(230, 138, 0, 0.22);
+}
+
+.spiritual-page .pipeline-step:nth-child(even) .pipeline-icon {
+  background: linear-gradient(135deg, rgba(13, 59, 102, 0.12), rgba(46, 125, 50, 0.12));
+  color: var(--sv-deep);
+  box-shadow: inset 0 0 0 1px rgba(13, 59, 102, 0.2);
+}
+
+.spiritual-page .pipeline-stat { background: rgba(255, 179, 0, 0.16); color: #B4560A; }
+
+.spiritual-page .live-demo {
+  border-color: rgba(254, 200, 75, 0.18);
+  background:
+    radial-gradient(circle at 85% 0%, rgba(255, 179, 0, 0.18), transparent 42%),
+    linear-gradient(160deg, #10263F, #0B1E33);
+  box-shadow: 0 30px 70px rgba(9, 30, 55, 0.4);
+}
+
+/* ---------- scriptures phase (deep blue night sky) ---------- */
+
+.spiritual-page .scripture-section {
+  background:
+    radial-gradient(circle at 78% 18%, rgba(255, 179, 0, 0.16), transparent 42%),
+    radial-gradient(circle at 10% 86%, rgba(46, 125, 50, 0.14), transparent 38%),
+    linear-gradient(180deg, #0B1E33, #0D3B66 130%);
+}
+
+/* ---------- features phase ---------- */
+
+.spiritual-page .spiritual-features {
+  padding: 80px max(24px, calc((100vw - 1160px) / 2)) 84px;
+  background: var(--sv-cream);
+}
+
+.spiritual-page .spiritual-feature-card {
+  min-height: 0;
+  border-color: rgba(180, 120, 40, 0.22);
+  border-radius: 20px;
+  background: #FFFDF6;
+}
+
+.spiritual-page .spiritual-feature-card:hover { box-shadow: 0 22px 50px rgba(120, 70, 10, 0.12); }
+
+.spiritual-page .feature-symbol {
+  border-radius: 14px;
+  background: rgba(255, 179, 0, 0.16);
+  color: #B4560A;
+}
+
+.spiritual-page .spiritual-feature-card:nth-child(2) .feature-symbol {
+  background: rgba(13, 59, 102, 0.12);
+  color: var(--sv-deep);
+}
+
+.spiritual-page .spiritual-feature-card:nth-child(3) .feature-symbol {
+  background: rgba(46, 125, 50, 0.14);
+  color: var(--sv-sage);
+}
+
+.spiritual-page .feature-label { color: #B4560A; }
+
+.spiritual-page .spiritual-feature-card button { color: #B4560A; }
+
+/* ---------- dataset phase ---------- */
+
+.spiritual-page .video-examples {
+  padding: 84px max(24px, calc((100vw - 1160px) / 2)) 80px;
+  background: #FFFDF6;
+}
+
+.spiritual-page .video-example-card {
+  border-radius: 18px;
+  background: var(--sv-cream);
+  border-color: rgba(180, 120, 40, 0.2);
+}
+
+.spiritual-page .video-example-card:hover { border-color: rgba(255, 179, 0, 0.5); box-shadow: 0 18px 46px rgba(120, 70, 10, 0.14); }
+
+.spiritual-page .video-example-card img { border-radius: 12px; }
+
+.spiritual-page .video-examples .scripture-row span {
+  border-color: rgba(180, 120, 40, 0.22);
+  background: #FFFFFF;
+  color: #7A5A2E;
+}
+
+/* ---------- education / quote phase ---------- */
+
+.spiritual-page .spiritual-quote {
+  padding: 88px 24px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 179, 0, 0.14), transparent 46%),
+    #FFF3D0;
+}
+
+.spiritual-page .quote-om {
+  border-color: rgba(230, 138, 0, 0.45);
+  background: rgba(255, 255, 255, 0.6);
+  color: #E68A00;
+}
+
+.spiritual-page .spiritual-quote blockquote { color: var(--sv-brown); }
+
+.spiritual-page .spiritual-quote > p { color: var(--sv-muted); }
+
+/* ---------- final phase + footer bar ---------- */
+
+.spiritual-page .phase-final {
+  background:
+    radial-gradient(circle at 20% 18%, rgba(255, 179, 0, 0.18), transparent 40%),
+    radial-gradient(circle at 84% 82%, rgba(46, 125, 50, 0.2), transparent 46%),
+    linear-gradient(180deg, #0D3B66, #092A4A);
+  color: #FFF8E1;
+}
+
+.spiritual-page .final-stack { padding-bottom: 96px; }
+
+.spiritual-page .final-kicker { color: var(--sv-gold); }
+
+.spiritual-page .final-mail { color: #FFF8E1; }
+
+.spiritual-page .final-mail:hover { color: var(--sv-gold); }
+
+.final-bar {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 15px max(20px, calc((100vw - 1180px) / 2));
+  border-top: 1px solid rgba(255, 248, 225, 0.16);
+  background: rgba(6, 26, 51, 0.6);
+  backdrop-filter: blur(8px);
+  font-size: 11px;
+}
+
+.final-om { color: rgba(255, 248, 225, 0.55); letter-spacing: 0.2em; }
+
+.final-mantra {
+  color: #FFE9B8;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 15px;
+  font-style: italic;
+  letter-spacing: 0.06em;
+}
+
+.final-built { color: rgba(255, 248, 225, 0.7); }
+
+/* ============================================================
+   NIGHT MODE — .night on .spiritual-page
+   ============================================================ */
+
+.spiritual-page.night {
+  --spiritual-bg: #0A1A2F;
+  --spiritual-surface: #10263F;
+  --spiritual-text: #F4E9D4;
+  --spiritual-muted: #A8B6C8;
+  --spiritual-line: rgba(254, 200, 75, 0.2);
+  background: #0A1A2F;
+  color: #F4E9D4;
+}
+
+.night .spiritual-header {
+  border-color: rgba(254, 200, 75, 0.25);
+  background: rgba(10, 26, 47, 0.85);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.night .spiritual-wordmark { color: var(--sv-gold); }
+.night .brand-tagline { color: #C89B4B; }
+.night .spiritual-nav a { color: #CBD8E8; }
+.night .spiritual-nav a:hover { color: var(--sv-gold); }
+
+.night .spiritual-hero { background: linear-gradient(135deg, #0A1A2F 0%, #0B1E33 60%, #0A1A2F 100%); }
+
+.night .hero-bg { filter: brightness(0.42) saturate(0.85); }
+
+.night .spiritual-hero::before {
+  background:
+    linear-gradient(90deg, rgba(10, 26, 47, 0.96) 0%, rgba(10, 26, 47, 0.88) 38%, rgba(10, 26, 47, 0.5) 66%, rgba(10, 26, 47, 0.12) 100%),
+    linear-gradient(180deg, rgba(10, 26, 47, 0.5) 0%, rgba(10, 26, 47, 0) 24%, rgba(10, 26, 47, 0) 78%, var(--spiritual-bg) 100%);
+}
+
+.night .hero-welcome { color: #CBD8E8; }
+.night .hero-wordmark { color: #FFE9B8; text-shadow: 0 3px 26px rgba(255, 179, 0, 0.35); }
+.night .hero-tagline { color: #E4EDF7; }
+.night .hero-tagline em { color: var(--sv-gold); }
+.night .hero-desc { color: #A8B6C8; }
+
+.night .spiritual-hero .spiritual-pill {
+  border-color: rgba(254, 200, 75, 0.35);
+  background: rgba(254, 200, 75, 0.12);
+  color: var(--sv-gold);
+}
+
+.night .hero-askbox {
+  border-color: rgba(254, 200, 75, 0.3);
+  background: rgba(16, 38, 63, 0.92);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+}
+
+.night .hero-askbox input { color: #F4E9D4; }
+.night .hero-askbox input::placeholder { color: #7E97B4; }
+.night .hero-examples { color: #7E97B4; }
+
+.night .topic-chips button {
+  border-color: rgba(254, 200, 75, 0.28);
+  background: rgba(16, 38, 63, 0.9);
+  color: #E4EDF7;
+}
+
+.night .topic-chips button:hover { border-color: rgba(254, 200, 75, 0.55); box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4); }
+
+.night .maharaj-frame { border-color: rgba(254, 200, 75, 0.4); }
+
+.night .hero-quote-card {
+  border-color: rgba(254, 200, 75, 0.35);
+  background: rgba(16, 38, 63, 0.92);
+}
+
+.night .hero-quote-card p { color: #FFE9B8; }
+.night .hero-quote-card span { color: #A8B6C8; }
+
+.night .video-marquee { border-block-color: rgba(254, 200, 75, 0.16); }
+.night .video-marquee span { background: rgba(16, 38, 63, 0.85); border-color: rgba(254, 200, 75, 0.14); color: #CBD8E8; }
+.night .scroll-cue { color: var(--sv-gold); }
+
+.night .phase-dot { background: rgba(168, 182, 200, 0.4); box-shadow: 0 0 0 3px rgba(10, 26, 47, 0.6); }
+.night .phase-dot-label { background: rgba(254, 200, 75, 0.92); color: #0A1A2F; }
+
+.night .story-section { background: radial-gradient(circle at 12% 8%, rgba(255, 179, 0, 0.08), transparent 34%), #0B1E33; }
+.night .spiritual-section-heading h2 { color: #F4E9D4; }
+.night .spiritual-section-heading > p { color: #A8B6C8; }
+.night .story-stat { background: rgba(16, 38, 63, 0.9); border-color: rgba(254, 200, 75, 0.18); }
+.night .story-stat strong { color: var(--sv-gold); }
+.night .story-stat span { color: #A8B6C8; }
+.night .pipeline-head h3 { color: #F4E9D4; }
+.night .pipeline-body p { color: #A8B6C8; }
+.night .pipeline-step:hover { background: rgba(254, 200, 75, 0.06); }
+.night .story-demo-note { color: #7E97B4; }
+
+.night .scripture-section {
+  background:
+    radial-gradient(circle at 78% 18%, rgba(255, 179, 0, 0.14), transparent 42%),
+    linear-gradient(180deg, #081525, #0A1A2F);
+}
+
+.night .spiritual-features { background: #0A1A2F; }
+.night .spiritual-feature-card { background: #10263F; border-color: rgba(254, 200, 75, 0.18); }
+.night .spiritual-feature-card h3 { color: #F4E9D4; }
+.night .spiritual-feature-card p { color: #A8B6C8; }
+.night .spiritual-feature-card button { color: var(--sv-gold); }
+
+.night .video-examples { background: #0B1E33; }
+.night .video-example-card { background: #10263F; border-color: rgba(254, 200, 75, 0.16); color: #F4E9D4; }
+.night .video-example-card strong { color: #F4E9D4; }
+.night .video-examples .traditions-label { color: #7E97B4; }
+.night .video-examples .scripture-row span { background: rgba(16, 38, 63, 0.9); border-color: rgba(254, 200, 75, 0.16); color: #CBD8E8; }
+
+.night .spiritual-quote { background: radial-gradient(circle at 50% 0%, rgba(255, 179, 0, 0.1), transparent 46%), #0B1E33; }
+.night .quote-om { border-color: rgba(254, 200, 75, 0.4); background: rgba(254, 200, 75, 0.1); color: var(--sv-gold); }
+.night .spiritual-quote blockquote { color: #FFE9B8; }
+.night .spiritual-quote > p { color: #A8B6C8; }
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 900px) {
+  .spiritual-page .spiritual-header { grid-template-columns: 1fr auto; padding-inline: 14px; }
+  .spiritual-page .spiritual-hero { padding-top: 88px; }
+  .hero-bg { background-position: 68% center; }
+  .brand-tagline { display: none; }
+  .hero-quote-card { max-width: min(330px, 86%); }
+  .final-bar { justify-content: center; text-align: center; }
+}
+
+@media (max-width: 600px) {
+  .spiritual-page .spiritual-header { height: 58px; }
+  .spiritual-page .spiritual-hero { padding: 82px 18px 56px; }
+  .spiritual-page .spiritual-wordmark { font-size: 19px; }
+  .theme-toggle { width: 56px; }
+  .theme-toggle.is-night .toggle-thumb { transform: translateX(23px); }
+  .hero-askbox { padding-left: 14px; }
+  .hero-visual { min-height: 420px; }
+  .hero-quote-card { left: 4px; bottom: 0; }
+  .final-bar { flex-direction: column; gap: 6px; padding-bottom: 18px; }
+  .spiritual-page .final-stack { padding-bottom: 130px; }
+}
+
+/* ============================================================
+   ORIGINAL BRAND ASSETS — wordmark, app icon, guru cutout
+   ============================================================ */
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(120, 70, 10, 0.18);
+}
+
+.night .brand-icon { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5); }
+
+.final-icon {
+  width: 78px;
+  height: 78px;
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.hero-logo {
+  display: block;
+  width: min(600px, 100%);
+  height: auto;
+  margin-top: 2px;
+  filter: drop-shadow(0 10px 26px rgba(120, 70, 10, 0.18));
+}
+
+.night .hero-logo {
+  filter: brightness(1.22) saturate(1.05) drop-shadow(0 6px 30px rgba(254, 200, 75, 0.35));
+}
+
+/* guru cutout — clean transparent figure, no card frame */
+
+.spiritual-page .maharaj-frame {
+  position: absolute;
+  inset: 0 0 34px auto;
+  width: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.spiritual-page .maharaj-frame::before {
+  content: '';
+  position: absolute;
+  inset: 6% -14% -2% -14%;
+  z-index: -1;
+  background: radial-gradient(circle at 50% 40%, rgba(255, 179, 0, 0.3), rgba(255, 179, 0, 0.12) 46%, transparent 72%);
+}
+
+.spiritual-page .maharaj-frame img {
+  width: auto;
+  height: 100%;
+  max-height: 600px;
+  object-fit: contain;
+  object-position: bottom right;
+  border-radius: 0;
+  filter: drop-shadow(0 26px 44px rgba(75, 45, 5, 0.3));
+}
+
+.night .maharaj-frame::before {
+  background: radial-gradient(circle at 50% 40%, rgba(254, 200, 75, 0.22), rgba(254, 200, 75, 0.08) 46%, transparent 72%);
+}
+
+.night .maharaj-frame img {
+  filter: drop-shadow(0 0 34px rgba(254, 200, 75, 0.28)) brightness(0.98);
+}
+
+/* ---------- night sky: moon + stars over the hero ---------- */
+
+.night-sky { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+
+.sky-moon {
+  position: absolute;
+  top: 88px;
+  right: 7%;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 62% 60%, rgba(148, 143, 116, 0.45) 0 7%, transparent 8%),
+    radial-gradient(circle at 38% 68%, rgba(148, 143, 116, 0.35) 0 5%, transparent 6%),
+    radial-gradient(circle at 30% 32%, #FFFDF0, #EFE8CC 58%, #D9D2B2 100%);
+  box-shadow:
+    0 0 30px 8px rgba(244, 239, 214, 0.5),
+    0 0 90px 40px rgba(224, 236, 255, 0.22),
+    0 0 220px 120px rgba(224, 236, 255, 0.1);
+  animation: moon-breathe 7s ease-in-out infinite;
+}
+
+.sky-star {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #FFF6D8;
+  box-shadow: 0 0 8px 2px rgba(255, 246, 216, 0.5);
+  animation: star-twinkle 3.2s ease-in-out infinite;
+}
+
+@keyframes moon-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 30px 8px rgba(244, 239, 214, 0.5),
+      0 0 90px 40px rgba(224, 236, 255, 0.22),
+      0 0 220px 120px rgba(224, 236, 255, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 40px 12px rgba(244, 239, 214, 0.65),
+      0 0 120px 60px rgba(224, 236, 255, 0.3),
+      0 0 260px 150px rgba(224, 236, 255, 0.14);
+  }
+}
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.night .spiritual-hero {
+  background:
+    radial-gradient(circle at 84% 10%, rgba(224, 236, 255, 0.16), transparent 44%),
+    linear-gradient(135deg, #0A1A2F 0%, #0B1E33 60%, #0A1A2F 100%);
+}
+
+/* ============================================================
+   ANIMATED DATA PIPELINE — extract → QA → fine-tune → RAG → answer
+   ============================================================ */
+
+.flow-pipeline {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  width: min(1160px, calc(100% - 48px));
+  margin: 34px auto 8px;
+}
+
+.flow-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 12px 16px;
+  border: 1px solid rgba(180, 120, 40, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.75);
+  text-align: center;
+  transition: transform 0.45s ease, box-shadow 0.45s ease, border-color 0.45s ease, background 0.45s ease;
+}
+
+.flow-step.is-active {
+  transform: translateY(-6px);
+  border-color: rgba(255, 179, 0, 0.65);
+  background: #FFFDF6;
+  box-shadow: 0 18px 44px rgba(255, 179, 0, 0.22), 0 0 0 4px rgba(255, 179, 0, 0.12);
+}
+
+.flow-step.is-done { border-color: rgba(46, 125, 50, 0.35); }
+
+.flow-node {
+  position: relative;
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sv-saffron), var(--sv-gold));
+  color: #5B3305;
+  box-shadow: 0 8px 20px rgba(230, 138, 0, 0.28);
+  transition: transform 0.45s ease;
+}
+
+.flow-step.is-active .flow-node { transform: scale(1.12); animation: node-pulse 2.4s ease-in-out infinite; }
+
+.flow-step.is-done .flow-node { background: linear-gradient(135deg, #2E7D32, #4C9A50); color: #FFF8E1; }
+
+.flow-index {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--sv-deep);
+  color: #FFE9B8;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 800;
+  box-shadow: 0 0 0 3px rgba(255, 248, 225, 0.9);
+}
+
+.flow-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(13, 59, 102, 0.08);
+  color: var(--sv-deep);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.flow-step h3 {
+  margin: 2px 0 0;
+  color: var(--sv-brown);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 20px;
+}
+
+.flow-step p { margin: 0; color: var(--sv-muted); font-size: 12px; line-height: 1.55; }
+
+.flow-link {
+  position: absolute;
+  top: 44px;
+  left: calc(50% + 34px);
+  width: calc(100% - 52px);
+  height: 2px;
+  z-index: 1;
+  background: repeating-linear-gradient(90deg, rgba(180, 120, 40, 0.5) 0 6px, transparent 6px 12px);
+}
+
+.flow-link i {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFF6C8, var(--sv-saffron) 70%);
+  box-shadow: 0 0 12px 4px rgba(255, 179, 0, 0.5);
+  opacity: 0;
+  animation: flow-travel 2.4s linear infinite;
+}
+
+.flow-step.is-active .flow-link i,
+.flow-step.is-done .flow-link i { opacity: 1; }
+
+@keyframes flow-travel {
+  from { left: 0; opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  to { left: calc(100% - 10px); opacity: 0; }
+}
+
+@keyframes node-pulse {
+  0%, 100% { box-shadow: 0 8px 20px rgba(230, 138, 0, 0.28), 0 0 0 0 rgba(255, 179, 0, 0.35); }
+  50% { box-shadow: 0 8px 20px rgba(230, 138, 0, 0.28), 0 0 0 12px rgba(255, 179, 0, 0); }
+}
+
+.night .flow-step { background: rgba(16, 38, 63, 0.85); border-color: rgba(254, 200, 75, 0.16); }
+
+.night .flow-step.is-active {
+  background: #10263F;
+  border-color: rgba(254, 200, 75, 0.6);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45), 0 0 0 4px rgba(254, 200, 75, 0.12);
+}
+
+.night .flow-step h3 { color: #FFE9B8; }
+.night .flow-step p { color: #A8B6C8; }
+.night .flow-chip { background: rgba(254, 200, 75, 0.12); color: var(--sv-gold); }
+.night .flow-index { box-shadow: 0 0 0 3px rgba(10, 26, 47, 0.9); }
+.night .flow-link { background: repeating-linear-gradient(90deg, rgba(254, 200, 75, 0.45) 0 6px, transparent 6px 12px); }
+
+/* ============================================================
+   CHAT RESKIN — Samvaad palette across the app shell
+   ============================================================ */
+
+:root {
+  --bg: #FFF6DE;
+  --panel: #FFFDF6;
+  --sidebar: #FFF1CC;
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-solid: #FFFDF6;
+  --text: #4A2E14;
+  --muted: #8A6B4D;
+  --line: rgba(180, 120, 40, 0.22);
+  --accent: #E68A00;
+  --accent-dark: #B4560A;
+  --accent-soft: #FFE9B8;
+  --green: #2E7D32;
+  --shadow: 0 18px 50px rgba(120, 70, 10, 0.1);
+}
+
+:root[data-theme='dark'] {
+  --bg: #0A1A2F;
+  --panel: #0B1E33;
+  --sidebar: #081525;
+  --surface: rgba(254, 200, 75, 0.07);
+  --surface-solid: #10263F;
+  --text: #F4E9D4;
+  --muted: #A8B6C8;
+  --line: rgba(254, 200, 75, 0.18);
+  --accent: #FEC84B;
+  --accent-dark: #FFD37A;
+  --accent-soft: rgba(254, 200, 75, 0.16);
+  --green: #7CB99A;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
+}
+
+.brand-name, .auth-wordmark, .auth-header h1 { font-family: 'EB Garamond', Georgia, serif; }
+
+.main-panel {
+  background:
+    radial-gradient(circle at 82% 0%, rgba(255, 179, 0, 0.09), transparent 30%),
+    linear-gradient(180deg, #FFFDF6, #FFF8E1);
+}
+
+.topbar { background: rgba(255, 248, 225, 0.86); }
+
+.composer-wrap { background: linear-gradient(180deg, rgba(255, 248, 225, 0), var(--panel) 30%); }
+
+.composer { border-radius: 18px; border-color: rgba(180, 120, 40, 0.28); box-shadow: 0 16px 42px rgba(120, 70, 10, 0.12); }
+
+.send-button { background: linear-gradient(135deg, #FFB300, #FEC84B); color: #5B3305; border-radius: 14px; }
+
+.suggestion-card { border-radius: 18px; }
+.suggestion-icon { background: rgba(255, 179, 0, 0.16); color: #B4560A; }
+.welcome-kicker { color: #B4560A; }
+.welcome h1 span { color: #E68A00; }
+
+.message.user p { background: #FFF3D6; border-color: rgba(230, 138, 0, 0.3); color: #4A2E14; }
+
+.message.assistant .message-avatar {
+  background: linear-gradient(135deg, #FFB300, #FEC84B);
+  color: #5B3305;
+}
+
+/* ---------- dark chat: moonlight + moon ---------- */
+
+:root[data-theme='dark'] .main-panel {
+  position: relative;
+  background:
+    radial-gradient(circle at 84% 10%, rgba(214, 228, 255, 0.1), transparent 42%),
+    linear-gradient(180deg, #0B1E33, #0A1A2F);
+}
+
+:root[data-theme='dark'] .main-panel::before {
+  content: '';
+  position: absolute;
+  top: 92px;
+  right: 6%;
+  z-index: 0;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 62% 60%, rgba(148, 143, 116, 0.45) 0 7%, transparent 8%),
+    radial-gradient(circle at 38% 68%, rgba(148, 143, 116, 0.35) 0 5%, transparent 6%),
+    radial-gradient(circle at 30% 32%, #FFFDF0, #EFE8CC 58%, #D9D2B2 100%);
+  box-shadow:
+    0 0 30px 8px rgba(244, 239, 214, 0.4),
+    0 0 90px 40px rgba(224, 236, 255, 0.16),
+    0 0 220px 120px rgba(224, 236, 255, 0.08);
+  animation: moon-breathe 7s ease-in-out infinite;
+}
+
+:root[data-theme='dark'] .content-area { position: relative; z-index: 1; }
+
+:root[data-theme='dark'] .topbar { background: rgba(8, 21, 37, 0.86); }
+
+:root[data-theme='dark'] .composer-wrap { background: linear-gradient(180deg, rgba(10, 26, 47, 0), #0A1A2F 30%); }
+
+:root[data-theme='dark'] .message.user p { background: #14304F; border-color: rgba(254, 200, 75, 0.3); color: #F4E9D4; }
+
+/* ---------- animated diyas under the chat ---------- */
+
+.diya-row {
+  position: relative;
+  display: none;
+  justify-content: center;
+  gap: clamp(30px, 8vw, 110px);
+  height: 46px;
+  padding-bottom: 2px;
+  pointer-events: none;
+}
+
+:root[data-theme='dark'] .diya-row { display: flex; }
+
+/* warm light washing upward over the conversation */
+.diya-row::before {
+  content: '';
+  position: absolute;
+  inset: -170px -10% -8px;
+  background: radial-gradient(ellipse at 50% 100%, rgba(255, 166, 60, 0.3), rgba(255, 166, 60, 0.12) 46%, transparent 72%);
+  mix-blend-mode: screen;
+}
+
+.diya { position: relative; width: 46px; height: 40px; }
+
+/* clay vessel */
+.diya::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 15px;
+  background: linear-gradient(180deg, #C97A10, #7A4408);
+  border-radius: 4px 4px 22px 22px / 4px 4px 16px 16px;
+  box-shadow: inset 0 2px 3px rgba(255, 210, 120, 0.5), 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* flickering flame */
+.diya::after {
+  content: '';
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  width: 12px;
+  height: 18px;
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  background: radial-gradient(circle at 50% 78%, #FFFBE0 0%, #FFD34E 42%, #FF9500 78%, rgba(255, 149, 0, 0) 100%);
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  box-shadow: 0 0 16px 6px rgba(255, 170, 60, 0.55), 0 0 46px 18px rgba(255, 150, 40, 0.22);
+  animation: flame-flicker 1.5s ease-in-out infinite;
+  animation-delay: var(--flick, 0s);
+}
+
+@keyframes flame-flicker {
+  0%, 100% { transform: translateX(-50%) scale(1) rotate(-1.5deg); }
+  30% { transform: translateX(-52%) scale(1.08, 1.16) rotate(1.6deg); }
+  55% { transform: translateX(-49%) scale(0.94, 0.9) rotate(-2deg); }
+  75% { transform: translateX(-51%) scale(1.05, 1.1) rotate(1deg); }
+}
+
+/* ---------- responsive additions ---------- */
+
+@media (max-width: 900px) {
+  .flow-pipeline { grid-template-columns: 1fr; max-width: 560px; gap: 0; }
+
+  .flow-step {
+    display: grid;
+    grid-template-columns: 54px 1fr;
+    column-gap: 16px;
+    align-items: start;
+    padding: 0 0 26px;
+    border: 0;
+    background: transparent;
+    text-align: left;
+  }
+
+  .flow-step.is-active { transform: none; box-shadow: none; }
+  .flow-node { grid-column: 1; grid-row: 1 / 5; }
+  .flow-chip { grid-column: 2; justify-self: start; }
+  .flow-step h3 { grid-column: 2; }
+  .flow-step p { grid-column: 2; }
+
+  .flow-link {
+    left: 26px;
+    top: 58px;
+    width: 2px;
+    height: calc(100% - 62px);
+    background: repeating-linear-gradient(180deg, rgba(180, 120, 40, 0.5) 0 6px, transparent 6px 12px);
+  }
+
+  .flow-link i { left: -4px; top: 0; margin-top: 0; animation: none; opacity: 1; }
+}
+
+@media (max-width: 600px) {
+  .spiritual-page .maharaj-frame { left: 50%; right: auto; transform: translateX(-50%); }
+  .sky-moon { width: 68px; height: 68px; top: 80px; right: 8%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle-thumb, .hero-quote-card, .sky-moon, .sky-star,
+  .diya::after, .flow-link i, .flow-step.is-active .flow-node,
+  :root[data-theme='dark'] .main-panel::before {
+    animation: none !important;
+    transition: none;
+  }
+}
+
+/* ============================================================
+   SINGLE-SCREEN HERO — zoomed backdrop, whole composition in
+   one viewport; the next phase arrives on scroll
+   ============================================================ */
+
+/* zoom the sunrise artwork so the scene fills the view like the mockup */
+.spiritual-page .hero-bg {
+  background-position: center;
+  transform: scale(1.22);
+}
+
+/* lighter wash — temple + lake stay visible on the right.
+   layering: copy panel (z2) above the wash, guru visual (z0) below it,
+   so the wash is uniform over the scene and no rectangular boundary
+   can appear around the guru column */
+.spiritual-hero::before {
+  background:
+    linear-gradient(90deg, rgba(255, 248, 225, 0.94) 0%, rgba(255, 248, 225, 0.82) 30%, rgba(255, 248, 225, 0.4) 52%, rgba(255, 248, 225, 0.08) 72%, rgba(255, 248, 225, 0) 100%),
+    linear-gradient(180deg, rgba(255, 248, 225, 0.5) 0%, rgba(255, 248, 225, 0) 20%, rgba(255, 248, 225, 0) 84%, rgba(255, 240, 205, 0.4) 100%);
+}
+
+.night .spiritual-hero::before {
+  background:
+    linear-gradient(90deg, rgba(6, 15, 30, 0.92) 0%, rgba(6, 15, 30, 0.78) 34%, rgba(6, 15, 30, 0.4) 58%, rgba(6, 15, 30, 0.1) 100%),
+    linear-gradient(180deg, rgba(6, 15, 30, 0.55) 0%, rgba(6, 15, 30, 0) 24%, rgba(6, 15, 30, 0) 80%, rgba(5, 13, 26, 0.5) 100%);
+}
+
+/* the hero now fits exactly one viewport */
+.spiritual-page .spiritual-hero {
+  height: 100svh;
+  min-height: 620px;
+  padding: 82px max(22px, calc((100vw - 1240px) / 2)) 10px;
+  grid-template-columns: minmax(0, 1.04fr) minmax(300px, 0.82fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 0 clamp(20px, 3.5vw, 54px);
+}
+
+/* centred, compact copy stack (mockup alignment) — kept above the wash */
+.phase-hero .hero-copy-panel {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+}
+
+.phase-hero .spiritual-pill { display: none; }
+.phase-hero .hero-welcome { font-size: clamp(15px, 1.6vw, 22px); }
+.phase-hero .hero-logo { width: clamp(280px, 36vw, 560px); }
+.phase-hero .hero-tagline { margin-top: 6px; font-size: clamp(14px, 1.5vw, 20px); }
+.phase-hero .hero-desc { max-width: 540px; margin-top: 8px; font-size: 13px; line-height: 1.55; }
+.phase-hero .hero-askbox { max-width: 540px; margin-top: 14px; padding: 7px 8px 7px 14px; }
+.phase-hero .hero-askbox input { font-size: 13.5px; }
+.phase-hero .askbox-send { width: 38px; height: 38px; }
+.phase-hero .hero-examples { margin-top: 6px; font-size: 10.5px; }
+.phase-hero .topic-chips { gap: 8px; margin-top: 12px; }
+.phase-hero .topic-chips button { padding: 8px 13px; font-size: 12px; }
+
+/* guru fills the right column; quote card sits bottom-right */
+.phase-hero .hero-visual { min-height: 0; align-self: stretch; }
+.spiritual-page .maharaj-frame { inset: 0 0 4px auto; }
+.spiritual-page .maharaj-frame img { max-height: none; max-width: 100%; }
+
+/* seamless blend — no box, no aura, no shadow: the frame is static and hugs
+   the img exactly, so no rectangular boundary can appear around the guru */
+.spiritual-page .hero-visual { z-index: 0; display: flex; align-items: flex-end; justify-content: flex-end; }
+.spiritual-page .video-marquee { z-index: 0; }
+.night-sky { z-index: 0; }
+
+.spiritual-page .maharaj-frame {
+  position: static;
+  inset: auto;
+  width: auto;
+  height: 100%;
+  overflow: visible;
+}
+
+.spiritual-page .maharaj-frame::before { display: none; }
+
+/* kill the old video-thumbnail leftovers: dark bottom gradient overlay,
+   float animation and 16:10 letterboxing — all of which painted a
+   rectangular "box" around the guru */
+.spiritual-page .maharaj-frame::after { display: none; }
+.spiritual-page .maharaj-frame { animation: none; }
+
+.spiritual-page .maharaj-frame img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+  object-fit: contain;
+  filter: none;
+}
+
+.night .maharaj-frame img { filter: brightness(0.98); }
+.spiritual-page .hero-quote-card { right: 0; bottom: 8px; left: auto; max-width: 310px; }
+.spiritual-page .video-marquee { margin-top: 8px; }
+.spiritual-page .video-marquee span { padding: 6px 12px; font-size: 11px; }
+.spiritual-page .scroll-cue { bottom: 44px; }
+
+@media (max-width: 900px) {
+  .spiritual-page .spiritual-hero {
+    height: auto;
+    min-height: 100svh;
+    grid-template-columns: 1fr;
+    padding-top: 84px;
+  }
+
+  .phase-hero .hero-visual { min-height: 430px; align-self: auto; justify-content: center; }
+
+  .spiritual-page .maharaj-frame { height: auto; width: min(430px, 92%); transform: none; }
+  .spiritual-page .maharaj-frame img { width: 100%; height: auto; max-height: 520px; }
+  .spiritual-page .hero-quote-card { right: auto; left: 4px; }
+}
+
+/* ============================================================
+   TRANSPARENT TASKBAR · MOON BEHIND THE WORDMARK ·
+   ANCIENT MANUSCRIPT SCRIPTURES PHASE
+   ============================================================ */
+
+/* taskbar goes transparent glass in both themes */
+.spiritual-page .spiritual-header {
+  background: rgba(255, 248, 225, 0.26);
+  border-color: rgba(230, 138, 0, 0.16);
+  box-shadow: 0 8px 26px rgba(120, 70, 10, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.night .spiritual-header {
+  background: rgba(10, 26, 47, 0.26);
+  border-color: rgba(254, 200, 75, 0.14);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.25);
+}
+
+/* at night the moon rises behind the Samvaad wordmark and makes it glow */
+.night .night-sky { z-index: 1; }
+
+.night .sky-moon {
+  top: 34%;
+  left: 29%;
+  right: auto;
+  width: 230px;
+  height: 230px;
+  transform: translate(-50%, -50%);
+}
+
+.night .hero-logo {
+  filter: brightness(1.34) saturate(1.1)
+    drop-shadow(0 0 26px rgba(254, 200, 75, 0.6))
+    drop-shadow(0 6px 30px rgba(254, 200, 75, 0.35));
+}
+
+/* ancient manuscript atmosphere: warm stone, palm-leaf texture, ॐ watermark */
+.spiritual-page .scripture-section {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 82% 10%, rgba(255, 179, 0, 0.16), transparent 42%),
+    radial-gradient(circle at 10% 90%, rgba(179, 67, 31, 0.22), transparent 44%),
+    repeating-linear-gradient(0deg, rgba(255, 214, 140, 0.035) 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, #2B1607, #1B0D04 52%, #241206);
+}
+
+.night .scripture-section {
+  background:
+    radial-gradient(circle at 82% 10%, rgba(255, 179, 0, 0.12), transparent 42%),
+    radial-gradient(circle at 10% 90%, rgba(179, 67, 31, 0.16), transparent 44%),
+    repeating-linear-gradient(0deg, rgba(255, 214, 140, 0.03) 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, #170B03, #0D0502 52%, #140903);
+}
+
+.scripture-section::before {
+  content: 'ॐ';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  font-size: min(58vh, 560px);
+  line-height: 1;
+  color: rgba(255, 190, 90, 0.05);
+  text-shadow: 0 0 80px rgba(255, 179, 0, 0.12);
+  pointer-events: none;
+}
+
+.scripture-section > * { position: relative; z-index: 1; }
+
+/* the pothi cover lifts open when the section enters the view */
+.pothi-cover {
+  transform-origin: left center;
+  transition: transform 1.7s cubic-bezier(0.45, 0.05, 0.2, 1) 0.25s;
+  backface-visibility: hidden;
+}
+
+.scripture-exhibit.is-open .pothi-cover { transform: rotateY(-165deg); }
+
+/* as the cover lifts, the loose pages turn aside like leafed folios,
+   uncovering the shloka page beneath */
+.scripture-exhibit.is-open .pothi-page {
+  animation: none;
+  transform: translateZ(var(--page-z)) rotateY(-160deg);
+  opacity: 0;
+  transition:
+    transform 1.5s cubic-bezier(0.45, 0.05, 0.2, 1),
+    opacity 1.1s ease;
+}
+
+.scripture-exhibit.is-open .pothi-page-1 { transition-delay: 0.45s, 0.8s; }
+.scripture-exhibit.is-open .pothi-page-2 { transition-delay: 0.65s, 1s; }
+.scripture-exhibit.is-open .pothi-page-3 { transition-delay: 0.85s, 1.2s; }
+
+/* the shloka folio grows to fill the open book */
+.scripture-exhibit.is-open .pothi-open-page {
+  inset: 2% 5px 5px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 27px, rgba(138, 96, 17, 0.1) 27px 28px),
+    linear-gradient(118deg, #f4e7cc, #e8d3ab);
+  transition: inset 1.3s cubic-bezier(0.45, 0.05, 0.2, 1) 0.7s, background 0.8s ease 0.7s;
+}
+
+/* the shloka writes itself onto the open page */
+.pothi-open-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 16px;
+  text-align: center;
+}
+
+.pothi-open-om {
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  font-size: 16px;
+  color: rgba(138, 96, 17, 0.28);
+}
+
+.pothi-shloka {
+  margin: 0;
+  min-height: 66px;
+  color: #5B3305;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 14.5px;
+  line-height: 1.95;
+  letter-spacing: 0.01em;
+}
+
+.shloka-caret {
+  display: inline-block;
+  width: 2px;
+  height: 0.95em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: #8A6B4D;
+  animation: caret-blink 0.9s steps(1) infinite;
+}
+
+@keyframes caret-blink { 50% { opacity: 0; } }
+
+.pothi-open-source {
+  font-size: 7.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(138, 96, 17, 0.55);
+}
+
+/* ============================================================
+   Final visual cohesion — shared glass, rhythm and chat polish
+   ============================================================ */
+
+/* The supplied temple scene is already night-lit. Preserve its detail instead
+   of treating it as a dimmed version of the daytime photograph. */
+.night .hero-bg {
+  background-position: center;
+  filter: brightness(0.78) saturate(0.92) contrast(1.06);
+}
+
+.spiritual-page .spiritual-header {
+  isolation: isolate;
+  transition: background-color 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+}
+
+.spiritual-page .spiritual-header::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(110deg, rgba(255, 255, 255, 0.3), transparent 42%);
+  pointer-events: none;
+}
+
+.night .spiritual-header::before {
+  background: linear-gradient(110deg, rgba(254, 200, 75, 0.08), transparent 42%);
+}
+
+/* Keep every long-form phase centred on the same reading measure. */
+.story-section,
+.spiritual-features,
+.video-examples,
+.spiritual-quote {
+  padding-inline: max(22px, calc((100vw - 1120px) / 2));
+}
+
+.spiritual-section-heading {
+  max-width: 720px;
+}
+
+/* The chat shares the landing page's deep-blue, gold and glass language. */
+.topbar {
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 8px 28px rgba(45, 27, 8, 0.06);
+}
+
+:root[data-theme='dark'] .topbar {
+  border-bottom-color: rgba(254, 200, 75, 0.14);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.26);
+}
+
+.model-badge {
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 4px 14px rgba(92, 54, 10, 0.06);
+}
+
+.content-area {
+  scrollbar-color: var(--accent-soft) transparent;
+}
+
+.welcome-copy {
+  max-width: 690px;
+}
+
+.suggestion-card,
+.message.assistant > div {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-solid) 88%, transparent);
+  box-shadow: 0 12px 30px rgba(68, 39, 7, 0.06);
+}
+
+:root[data-theme='dark'] .suggestion-card,
+:root[data-theme='dark'] .message.assistant > div {
+  background: rgba(16, 38, 63, 0.76);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.2);
+}
+
+.message.assistant > div {
+  border-radius: 16px;
+}
+
+.message.user p {
+  border-radius: 16px 4px 16px 16px;
+}
+
+.composer-wrap {
+  border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.composer {
+  background: color-mix(in srgb, var(--surface-solid) 90%, transparent);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.composer:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 62%, var(--line));
+  box-shadow: 0 16px 42px rgba(180, 120, 40, 0.18);
+  transform: translateY(-1px);
+}
+
+:root[data-theme='dark'] .composer:focus-within {
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.38), 0 0 0 3px rgba(254, 200, 75, 0.08);
+}
+
+.send-button:not(:disabled) {
+  box-shadow: 0 7px 16px rgba(230, 138, 0, 0.26);
+}
+
+@media (max-width: 700px) {
+  .story-section,
+  .spiritual-features,
+  .video-examples,
+  .spiritual-quote {
+    padding-inline: 20px;
+  }
+
+  .spiritual-page .spiritual-header {
+    width: calc(100% - 20px);
+    padding-inline: 12px;
+  }
+
+  .spiritual-nav { display: none; }
+  .spiritual-page .cta-button { padding-inline: 13px; font-size: 12px; }
+  .spiritual-page .cta-button span { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spiritual-page .spiritual-header,
+  .composer,
+  .send-button { transition: none; }
+}

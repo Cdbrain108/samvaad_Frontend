@@ -74,7 +74,7 @@ export default function Login({ onLogin }) {
         <div className="auth-header">
           <div className="auth-brand">
             <span className="om-seal" aria-hidden="true">ॐ</span>
-            <span className="auth-wordmark">Samvad AI</span>
+            <span className="auth-wordmark">Samvaad AI</span>
           </div>
           <h1>{isLogin ? 'Welcome back' : 'Create account'}</h1>
           <p>{isLogin ? 'Sign in to continue your journey' : 'Start your spiritual learning journey'}</p>

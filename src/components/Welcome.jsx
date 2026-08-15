@@ -4,7 +4,7 @@ export default function Welcome({ suggestions, onSelectPrompt }) {
   return (
     <section className="welcome" aria-labelledby="welcome-title">
       <div className="welcome-copy">
-        <span className="welcome-kicker">Samvad learning mode</span>
+        <span className="welcome-kicker">Samvaad learning mode</span>
         <h1 id="welcome-title">
           Ask with sincerity.
           <span> Reflect with clarity.</span>

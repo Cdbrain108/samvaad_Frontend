@@ -29,16 +29,43 @@ const verses = [
 ]
 
 /**
- * A pure-CSS 3D pothi (scripture manuscript) that slowly breathes in space,
- * flips its pages in a loop and cycles through sacred verses.
- * Move the pointer over it to tilt the manuscript in 3D.
+ * A CSS-3D pothi (scripture manuscript). When the section scrolls into view
+ * the cover lifts open and the current Sanskrit shloka writes itself onto the
+ * page, character by character, while verses cycle. Moving the pointer over
+ * the manuscript tilts it in 3D.
  */
 export default function ScriptureBook() {
   const [verseIndex, setVerseIndex] = useState(0)
   const [fading, setFading] = useState(false)
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
+  const [open, setOpen] = useState(false)
+  const [written, setWritten] = useState(0)
   const sceneRef = useRef(null)
+  const exhibitRef = useRef(null)
 
+  /* open the manuscript once it enters the viewport */
+  useEffect(() => {
+    const node = exhibitRef.current
+    if (!node) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setOpen(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.35 }
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  /* TEMP QA HOOK — force-open for headless screenshots; remove before shipping */
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('qaopen') === '1') setOpen(true)
+  }, [])
+
+  /* cycle verses */
   useEffect(() => {
     const cycle = setInterval(() => {
       setFading(true)
@@ -49,6 +76,23 @@ export default function ScriptureBook() {
     }, 6500)
     return () => clearInterval(cycle)
   }, [])
+
+  /* the shloka writes itself slowly whenever the verse changes (once open) */
+  useEffect(() => {
+    if (!open) return
+    setWritten(0)
+    const total = verses[verseIndex].devanagari.length
+    const tick = setInterval(() => {
+      setWritten((count) => {
+        if (count >= total) {
+          clearInterval(tick)
+          return count
+        }
+        return count + 1
+      })
+    }, 95)
+    return () => clearInterval(tick)
+  }, [open, verseIndex])
 
   const handleMove = (event) => {
     const frame = sceneRef.current?.getBoundingClientRect()
@@ -61,7 +105,7 @@ export default function ScriptureBook() {
   const verse = verses[verseIndex]
 
   return (
-    <div className="scripture-exhibit">
+    <div className={`scripture-exhibit ${open ? 'is-open' : ''}`} ref={exhibitRef}>
       <div
         className="pothi-scene"
         ref={sceneRef}
@@ -75,12 +119,6 @@ export default function ScriptureBook() {
           <div className="pothi-glow" aria-hidden="true" />
           <div className="pothi-base" aria-hidden="true" />
 
-          <div className="pothi-cover" aria-hidden="true">
-            <span className="pothi-cover-om">ॐ</span>
-            <span className="pothi-cover-title">श्रीमद्भगवद्गीता</span>
-            <span className="pothi-cover-sub">अध्यात्म · ज्ञान · भक्ति</span>
-          </div>
-
           {[0, 1, 2].map((page) => (
             <div className={`pothi-page pothi-page-${page + 1}`} key={page} aria-hidden="true">
               <span className="pothi-page-rule" />
@@ -91,6 +129,17 @@ export default function ScriptureBook() {
 
           <div className="pothi-open-page" aria-hidden="true">
             <span className="pothi-open-om">ॐ</span>
+            <p className="pothi-shloka" lang="sa">
+              {verse.devanagari.slice(0, written)}
+              {written < verse.devanagari.length && <i className="shloka-caret" />}
+            </p>
+            <span className="pothi-open-source">{verse.source}</span>
+          </div>
+
+          <div className="pothi-cover" aria-hidden="true">
+            <span className="pothi-cover-om">ॐ</span>
+            <span className="pothi-cover-title">श्रीमद्भगवद्गीता</span>
+            <span className="pothi-cover-sub">अध्यात्म · ज्ञान · भक्ति</span>
           </div>
 
           <span className="pothi-spark spark-a" aria-hidden="true" />

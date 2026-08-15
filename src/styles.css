@@ -48,7 +48,7 @@ body {
 
 button, textarea { font: inherit; }
 button { color: inherit; }
-button:focus-visible, textarea:focus-visible { outline: 3px solid rgba(231, 99, 54, 0.25); outline-offset: 2px; }
+button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid rgba(231, 99, 54, 0.35); outline-offset: 2px; }
 
 .app-shell { display: flex; min-height: 100vh; background: var(--bg); }
 
@@ -571,6 +571,41 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid rgba(231, 99, 
   to { transform: rotate(360deg); }
 }
 
+/* Voice Mode — native browser speech, styled to remain quiet and devotional. */
+.voice-toggle-active { border-color: var(--accent); color: var(--accent-dark); background: var(--accent-soft); }
+.content-area.voice-mode-active { display: block; padding-top: 28px; }
+.voice-mode {
+  width: min(720px, 100%); margin: 0 auto 28px; padding: clamp(20px, 4vw, 32px);
+  border: 1px solid rgba(231, 99, 54, .24); border-radius: 26px; background: linear-gradient(145deg, var(--surface-solid), var(--surface));
+  box-shadow: var(--shadow); animation: reveal 280ms ease both;
+}
+.voice-mode-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.voice-mode-heading p { margin: 0 0 3px; color: var(--accent-dark); font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.voice-mode-heading h2 { margin: 0; font-family: 'Newsreader', Georgia, serif; font-size: 30px; font-weight: 500; }
+.voice-close, .voice-controls button, .voice-mic { display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--text); cursor: pointer; }
+.voice-close:hover, .voice-controls button:hover:not(:disabled), .voice-mic:hover { border-color: var(--accent); color: var(--accent-dark); }
+.voice-controls button:disabled { cursor: not-allowed; opacity: .38; }
+.voice-avatar { position: relative; display: grid; min-height: 190px; place-items: center; margin: 22px 0 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 22px; background: radial-gradient(circle at 50% 28%, var(--accent-soft), transparent 48%), var(--surface); }
+.voice-halo { position: absolute; width: 118px; height: 118px; border: 1px solid rgba(231, 99, 54, .42); border-radius: 50%; box-shadow: 0 0 0 18px rgba(231, 99, 54, .06), 0 0 44px rgba(231, 99, 54, .12); }
+.voice-avatar-mark { position: relative; z-index: 1; display: grid; width: 76px; height: 76px; place-items: center; border-radius: 50%; background: var(--text); color: var(--panel); font-family: 'Newsreader', Georgia, serif; font-size: 39px; box-shadow: 0 10px 30px rgba(45, 35, 20, .18); }
+.voice-avatar-3d { position: relative; z-index: 1; width: 100%; height: 100%; min-height: 190px; }
+.voice-avatar-3d canvas { display: block; width: 100% !important; height: 100% !important; }
+.voice-avatar.speaking .voice-halo { animation: voice-pulse 1.4s ease-in-out infinite; }
+.voice-state { position: absolute; bottom: 40px; display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 600; }
+.voice-state-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+.voice-avatar.thinking .voice-state-dot { background: var(--accent); animation: blink 900ms ease infinite; }
+.voice-avatar.speaking .voice-state-dot { background: var(--accent); box-shadow: 0 0 0 5px var(--accent-soft); }
+.voice-avatar.paused .voice-state-dot, .voice-avatar.error .voice-state-dot { background: var(--muted); }
+.voice-wave { position: absolute; right: 22px; bottom: 20px; display: flex; height: 20px; align-items: center; gap: 3px; }
+.voice-wave i { display: block; width: 3px; height: 5px; border-radius: 999px; background: var(--accent); }
+.voice-avatar.speaking .voice-wave i { animation: voice-wave 700ms ease-in-out infinite alternate; }
+.voice-wave i:nth-child(2) { animation-delay: .2s !important; }.voice-wave i:nth-child(3) { animation-delay: .4s !important; }.voice-wave i:nth-child(4) { animation-delay: .1s !important; }.voice-wave i:nth-child(5) { animation-delay: .3s !important; }
+.voice-options { display: flex; gap: 12px; margin: 18px 0; }.voice-options label { display: grid; flex: 1; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 700; }.voice-options select { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--text); }
+.voice-player { padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }.voice-progress { display: grid; grid-template-columns: 38px 1fr 38px; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }.voice-progress progress { width: 100%; height: 5px; accent-color: var(--accent); }.voice-controls { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; }.voice-controls .voice-primary { border-color: var(--accent); background: var(--accent); color: #fff; }.voice-controls input { width: min(92px, 16vw); accent-color: var(--accent); }
+.voice-question { position: relative; display: flex; gap: 8px; align-items: center; margin-top: 18px; padding: 8px 10px 8px 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface-solid); }.voice-question textarea { width: 100%; resize: none; border: 0; outline: 0; background: transparent; color: var(--text); line-height: 1.45; }.voice-mic { flex: 0 0 auto; }.voice-mic.listening { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); animation: voice-pulse 1s ease-in-out infinite; }.voice-ask { display: flex; width: 100%; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; padding: 13px; border: 0; border-radius: 13px; background: var(--accent); color: #fff; cursor: pointer; font-weight: 700; }.voice-ask:disabled { cursor: not-allowed; opacity: .5; }.voice-error { margin: 12px 0 0; color: #b6402c; font-size: 13px; }.voice-disclosure { margin: 13px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; text-align: center; }
+@keyframes voice-pulse { 50% { transform: scale(1.06); box-shadow: 0 0 0 28px rgba(231, 99, 54, 0); } } @keyframes voice-wave { to { height: 19px; } } @keyframes blink { 50% { opacity: .35; } }
+@media (max-width: 560px) { .content-area.voice-mode-active { padding: 16px 16px 24px; }.voice-mode { padding: 18px; border-radius: 20px; }.voice-avatar { min-height: 164px; }.voice-options { flex-direction: column; }.voice-controls { gap: 6px; }.voice-controls button { width: 36px; height: 36px; }.voice-question { align-items: flex-end; } }
+
 .sidebar-empty {
   display: flex;
   flex-direction: column;
@@ -982,4 +1017,78 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid rgba(231, 99, 
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* Device hardening: keeps the chat and Voice Mode usable from 320px phones to tablets. */
+html, body { max-width: 100%; overflow-x: hidden; }
+.topbar-center, .topbar-actions, .message > div, .voice-mode, .voice-question, .voice-question textarea { min-width: 0; }
+.message p, .rich-line, .rich-bullet, .voice-disclosure, .voice-error { overflow-wrap: anywhere; }
+
+@media (max-width: 1024px) {
+  .content-area { width: 100%; max-width: 860px; padding-inline: clamp(24px, 4vw, 40px); }
+  .composer-wrap { width: min(840px, calc(100% - 48px)); }
+  .voice-mode { width: min(720px, 100%); }
+}
+
+@media (max-width: 700px) {
+  .app-shell, .main-panel { min-height: 100dvh; }
+  .topbar { padding-inline: 16px; }
+  .topbar-center { gap: 10px; }
+  .topbar-actions { gap: 6px; }
+  .content-area { padding: 28px 16px 20px; }
+  .content-area.voice-mode-active { padding: 16px 12px 20px; }
+  .messages { width: 100%; }
+  .composer-wrap { width: calc(100% - 24px); padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+  .composer { gap: 7px; padding: 8px; }
+  .composer-action, .send-button { width: 42px; height: 42px; }
+  .message-meta { flex-wrap: wrap; gap: 8px; }
+  .message-action { min-height: 32px; }
+  .voice-mode { margin-bottom: 20px; }
+  .voice-close, .voice-controls button, .voice-mic { min-width: 42px; min-height: 42px; }
+  .voice-options { gap: 10px; }
+  .voice-options select { min-height: 42px; }
+  .voice-ask { min-height: 46px; }
+}
+
+@media (max-width: 420px) {
+  .topbar { height: 58px; padding-inline: 12px; }
+  .topbar-center .home-link { display: none; }
+  .topbar-actions { gap: 4px; }
+  .topbar .icon-button, .topbar .user-avatar { width: 34px; height: 34px; }
+  .topbar .user-avatar { display: none; }
+  .content-area { padding-inline: 12px; }
+  .welcome h1 { font-size: clamp(37px, 12vw, 45px); }
+  .voice-mode { padding: 16px 14px; border-radius: 18px; }
+  .voice-mode-heading h2 { font-size: 25px; }
+  .voice-avatar { min-height: 150px; margin-top: 18px; }
+  .voice-avatar-3d { min-height: 150px; }
+  .voice-avatar-mark { width: 66px; height: 66px; font-size: 33px; }
+  .voice-halo { width: 102px; height: 102px; }
+  .voice-state { bottom: 30px; font-size: 12px; }
+  .voice-wave { right: 15px; bottom: 13px; }
+  .voice-player { padding: 12px 9px; }
+  .voice-progress { grid-template-columns: 33px minmax(0, 1fr) 33px; gap: 5px; }
+  .voice-controls { justify-content: space-between; gap: 4px; }
+  .voice-controls button { width: 38px; height: 38px; min-width: 38px; min-height: 38px; }
+  .voice-controls input { width: clamp(38px, 14vw, 55px); min-width: 38px; }
+  .voice-question { padding-left: 11px; }
+  .voice-question textarea { font-size: 14px; }
+  .composer-toolbar { margin-bottom: 7px; }
+  .composer-toolbar button { min-height: 36px; }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .topbar { height: 56px; }
+  .content-area { padding-top: 16px; }
+  .voice-avatar { min-height: 130px; margin: 12px 0; }
+  .voice-avatar-mark { width: 56px; height: 56px; font-size: 29px; }
+  .voice-state { bottom: 18px; }
+  .voice-options { margin: 10px 0; }
+  .voice-question { margin-top: 10px; }
+  .voice-disclosure { margin-top: 9px; }
+}
+
+@supports (padding: max(0px)) {
+  .topbar { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+  .content-area.voice-mode-active { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
 }

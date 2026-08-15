@@ -4,6 +4,7 @@ import App from './App'
 import './styles.css'
 import './spiritual.css'
 import './spiritual-v2.css'
+import './samvaad-theme.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

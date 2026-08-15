@@ -10,11 +10,11 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
+    "firebase": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "vite-plugin-singlefile": "latest",
-    "firebase": "latest"
-  },
-  "devDependencies": {}
+    "three": "^0.185.1",
+    "vite": "latest",
+    "vite-plugin-singlefile": "latest"
+  }
 }
