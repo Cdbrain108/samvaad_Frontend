@@ -941,7 +941,7 @@ html { scroll-behavior: smooth; }
   100% { transform: scale(1.02) rotate(-1deg); opacity: 0.96; filter: drop-shadow(0 0 10px #F59E0B); }
 }
 
-/* Floating Marigold & Lotus Petals Layer */
+/* Floating Authentic Marigold (गेंदा) & Lotus Petals Layer */
 .floating-petals-layer {
   position: absolute;
   inset: 0;
@@ -952,26 +952,24 @@ html { scroll-behavior: smooth; }
 
 .petal {
   position: absolute;
-  width: 14px;
-  height: 14px;
-  background: radial-gradient(circle, #FBBF24 0%, #D97706 70%, transparent 100%);
-  border-radius: 50% 0 50% 50%;
-  opacity: 0.65;
-  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.5));
-  animation: floatPetal 14s infinite linear;
+  top: -40px;
+  opacity: 0.85;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
+  animation: floatPetal 15s infinite ease-in-out;
 }
 
-.petal:nth-child(1) { left: 10%; animation-duration: 12s; animation-delay: 0s; }
-.petal:nth-child(2) { left: 28%; animation-duration: 16s; animation-delay: 3s; width: 18px; height: 18px; }
-.petal:nth-child(3) { left: 52%; animation-duration: 11s; animation-delay: 1.5s; }
-.petal:nth-child(4) { left: 74%; animation-duration: 15s; animation-delay: 4.5s; width: 16px; height: 16px; }
-.petal:nth-child(5) { left: 88%; animation-duration: 13s; animation-delay: 2s; }
+.petal-1 { left: 8%; animation-duration: 14s; animation-delay: 0s; }
+.petal-2 { left: 26%; animation-duration: 18s; animation-delay: 3.5s; }
+.petal-3 { left: 48%; animation-duration: 13s; animation-delay: 1s; }
+.petal-4 { left: 72%; animation-duration: 17s; animation-delay: 5s; }
+.petal-5 { left: 89%; animation-duration: 15s; animation-delay: 2s; }
 
 @keyframes floatPetal {
-  0% { transform: translateY(-50px) rotate(0deg) scale(0.8); opacity: 0; }
-  15% { opacity: 0.75; }
-  85% { opacity: 0.75; }
-  100% { transform: translateY(105vh) rotate(540deg) scale(1.1); opacity: 0; }
+  0% { transform: translateY(-40px) translateX(0) rotate(0deg) scale(0.9); opacity: 0; }
+  10% { opacity: 0.85; }
+  50% { transform: translateY(50vh) translateX(25px) rotate(220deg) scale(1.05); }
+  90% { opacity: 0.85; }
+  100% { transform: translateY(105vh) translateX(-15px) rotate(480deg) scale(0.95); opacity: 0; }
 }
 
 /* Background Rotating Mandala Aura */

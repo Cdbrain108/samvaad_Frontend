@@ -345,13 +345,37 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
     <div className={`spiritual-page landing-scroll ${darkMode ? 'night' : ''}`} ref={scrollRef}>
       <span className="scroll-progress" style={{ transform: `scaleX(${progress})` }} aria-hidden="true" />
 
-      {/* Floating Marigold Petals Background Animation */}
+      {/* Floating Authentic Marigold (गेंदा) & Lotus Petals */}
       <div className="floating-petals-layer" aria-hidden="true">
-        <span className="petal" />
-        <span className="petal" />
-        <span className="petal" />
-        <span className="petal" />
-        <span className="petal" />
+        <svg className="petal petal-1" viewBox="0 0 32 32" width="20" height="20">
+          <path d="M16 2 C10 8, 4 14, 4 21 A12 12 0 0 0 28 21 C28 14, 22 8, 16 2 Z" fill="url(#marigoldGrad1)" />
+          <path d="M16 8 C12 12, 8 16, 8 20 A8 8 0 0 0 24 20 C24 16, 20 12, 16 8 Z" fill="#FFE082" opacity="0.6" />
+          <defs>
+            <linearGradient id="marigoldGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FF7A00" />
+              <stop offset="60%" stopColor="#FFA000" />
+              <stop offset="100%" stopColor="#D97706" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <svg className="petal petal-2" viewBox="0 0 32 32" width="24" height="24">
+          <path d="M16 2 C10 8, 4 14, 4 21 A12 12 0 0 0 28 21 C28 14, 22 8, 16 2 Z" fill="url(#marigoldGrad2)" />
+          <defs>
+            <linearGradient id="marigoldGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FF9100" />
+              <stop offset="100%" stopColor="#E65100" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <svg className="petal petal-3" viewBox="0 0 32 32" width="18" height="18">
+          <path d="M16 2 C10 8, 4 14, 4 21 A12 12 0 0 0 28 21 C28 14, 22 8, 16 2 Z" fill="url(#marigoldGrad1)" />
+        </svg>
+        <svg className="petal petal-4" viewBox="0 0 32 32" width="22" height="22">
+          <path d="M16 2 C10 8, 4 14, 4 21 A12 12 0 0 0 28 21 C28 14, 22 8, 16 2 Z" fill="url(#marigoldGrad2)" />
+        </svg>
+        <svg className="petal petal-5" viewBox="0 0 32 32" width="16" height="16">
+          <path d="M16 2 C10 8, 4 14, 4 21 A12 12 0 0 0 28 21 C28 14, 22 8, 16 2 Z" fill="url(#marigoldGrad1)" />
+        </svg>
       </div>
 
       <header className="spiritual-header">
@@ -429,13 +453,13 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
                 alt="Samvaad — प्रश्न आपका, कृपा उसकी · Ask, Learn, Reflect, Grow"
               />
             </h1>
-            <p className="hero-tagline">Where AI speaks with the <em>heart</em> of a Guru</p>
+            <p className="hero-tagline">Fine-Tuned AI embodying the <em>Wisdom of Indian Gurus, Saints & Hindu Scriptures</em></p>
             <p className="hero-desc">
-              Ask your questions about life, devotion, dharma, karma and Hindu scriptures.
-              Get answers inspired by the teachings and love of Premanand Ji Maharaj —
-              shaped from 4000+ Bhajan Marg discourses.
+              Ask your real-life personal, emotional, or devotional problems. Samvaad is an advanced fine-tuned AI model
+              trained on 4,000+ Bhajan Marg discourses, Bhagavad Gita, Ramayana, Upanishads, and Vedas to guide you with
+              the warmth, calm, and grounded wisdom of पूज्य प्रेमानंद जी महाराज and traditional Indian saints.
             </p>
-            <span className="spiritual-pill">Personal AI learning playground · Education only</span>
+            <span className="spiritual-pill">🪷 Fine-Tuned LLM · Indian Gurus & Saints Wisdom · Devotional & Life Solutions</span>
 
             <form
               className="hero-askbox"
