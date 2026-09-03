@@ -2850,8 +2850,8 @@ select:focus-visible,
   }
 }
 
-/* ── Mobile: 480px ── */
-@media (max-width: 480px) {
+/* ── Mobile phones & phablets: up to 680px ── */
+@media (max-width: 680px) {
   /* Landing header */
   .spiritual-header {
     height: 60px !important;

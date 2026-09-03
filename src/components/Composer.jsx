@@ -58,9 +58,6 @@ export default function Composer({ value, onChange, onSubmit }) {
         ))}
       </div>
       <form className="composer" onSubmit={handleSend}>
-        <button className="composer-action" aria-label="Attach a file" type="button">
-          <Icon name="attach" />
-        </button>
         <textarea
           aria-label="Message Samvaad"
           onChange={(event) => onChange(event.target.value)}
