@@ -105,12 +105,15 @@ export function isComplexQuery(query) {
   return complexTerms.test(q);
 }
 
-const ORACLE_SIMPLE_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज हैं। साधक के सरल प्रश्न का उत्तर 2-3 सीधे, संक्षिप्त व सारगर्भित वाक्यों में दीजिए।`;
-const ORACLE_DEEP_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज हैं। साधक के गंभीर व विस्तृत प्रश्न का उत्तर पूर्ण शास्त्रीय गहराई, दृष्टांतों और विस्तार के साथ दीजिए।`;
+const ORACLE_SIMPLE_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज हैं। साधक के प्रश्न का उत्तर 2-3 सीधे, सारगर्भित व प्रभावशाली वाक्यों में दीजिए। दोहराव मत कीजिए।`;
+const ORACLE_DEEP_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज हैं। साधक के प्रश्न का अत्यंत गंभीर, सारगर्भित और व्यावहारिक समाधान लगभग 200-300 शब्दों में दीजिए। किसी भी वाक्य या विचार को दोहराए बिना एक ही बार में पूर्ण उत्तर दीजिए।`;
 
-const ORACLE_SIMPLE_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj. Answer the devotee's simple question directly and compactly in 2-3 sentences in English.`;
-const ORACLE_DEEP_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj. Answer the devotee's deep, complex question comprehensively with scriptural depth in English.`;
+const ORACLE_SIMPLE_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj. Answer the devotee directly in 2-3 clear, spiritually profound sentences in English. Do not repeat phrases.`;
+const ORACLE_DEEP_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj. Answer the devotee with spiritual depth in approximately 200-300 words in English. Conclude directly without repeating points.`;
 
+/**
+ * Strips incomplete trailing fragments if generation stopped mid-word or without terminal punctuation.
+ */
 function cleanIncompleteTrailing(text, isEnglish = false) {
   if (!text) return text;
   let t = text.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/  +/g, ' ').trim();
@@ -128,8 +131,58 @@ function cleanIncompleteTrailing(text, isEnglish = false) {
     return t.slice(0, lastPuncIdx + 1).trim();
   }
 
-  // Never discard substantial sentences or paragraphs! Gracefully append terminal punctuation
+  // Gracefully append terminal punctuation
   return isEnglish ? `${t}.` : `${t}।`;
+}
+
+/**
+ * Algorithmic Loop & Repetition Eliminator:
+ * Detects identical sentences, clauses, and n-gram loops produced by local quantized LLMs,
+ * cutting off repeats instantly while preserving 100% of authentic Maharaj Ji phrasing.
+ */
+export function deduplicateRepetitionLoops(text, isEnglish = false) {
+  if (!text || text.length < 50) return text;
+
+  // Split into sentences using punctuation boundaries
+  const rawSentences = text.split(/(?<=[।!?.\n])\s+/);
+  const seenFingerprints = [];
+  const cleanSentences = [];
+
+  for (const sentence of rawSentences) {
+    const trimmed = sentence.trim();
+    if (!trimmed) continue;
+
+    // Normalized fingerprint (strip spaces, punctuation, lowercase)
+    const norm = trimmed.replace(/[\s\p{P}\d]+/gu, '').toLowerCase();
+
+    // Short greetings or affirmative words don't count as loops
+    if (norm.length < 14) {
+      cleanSentences.push(trimmed);
+      continue;
+    }
+
+    // Check if this sentence was already uttered or contains an earlier sentence substring
+    const isDuplicate = seenFingerprints.some((prev) => {
+      if (norm === prev) return true;
+      if (norm.length > 20 && prev.length > 20) {
+        const subA = norm.slice(0, 24);
+        const subB = prev.slice(0, 24);
+        if (norm.includes(subB) || prev.includes(subA)) return true;
+      }
+      return false;
+    });
+
+    if (isDuplicate) {
+      // Loop begins! Break immediately so user never receives repeating paragraphs
+      break;
+    }
+
+    seenFingerprints.push(norm);
+    cleanSentences.push(trimmed);
+  }
+
+  const combined = cleanSentences.join(' ').trim();
+  return cleanIncompleteTrailing(combined || text, isEnglish);
 }
 
 /**
@@ -138,9 +191,9 @@ function cleanIncompleteTrailing(text, isEnglish = false) {
  */
 async function pruneTunedResponseWithGroq(draft, userMessage, isComplex, isDeep = false) {
   if (!draft || draft.trim().length < 30) return draft;
-  // Never let Groq cut or trim responses in Deep mode!
+  // In Deep mode, algorithmic deduplication runs directly without external truncation
   if (isDeep) {
-    return cleanIncompleteTrailing(draft, detectLanguage(userMessage) === 'english');
+    return deduplicateRepetitionLoops(draft, detectLanguage(userMessage) === 'english');
   }
 
   const prunePrompt = `You are a gentle text-editor for our fine-tuned spiritual model (Pujya Premanand Ji Maharaj).
@@ -182,10 +235,11 @@ Output ONLY the clean text without any prefix, markdown explanation, or meta-com
 /**
  * Direct HTTPS caller for dedicated 24/7 Oracle Cloud Q8_0 server
  */
-async function callDirectOracleAPI(messages, maxTokens = 850, stream = false, onChunk = null, isDeepMode = false) {
+async function callDirectOracleAPI(messages, maxTokens = 420, stream = false, onChunk = null, isDeepMode = false) {
   const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   const lang = detectLanguage(latestUserMsg);
   const complex = isDeepMode || isComplexQuery(latestUserMsg);
+  const wantsConcise = /\b(\d+\s*words?|300|200|100|short|brief|summar|संक्षेप|सार|कम शब्द)\b/i.test(latestUserMsg);
 
   let prompt;
   if (lang === 'english') {
@@ -194,10 +248,11 @@ async function callDirectOracleAPI(messages, maxTokens = 850, stream = false, on
     prompt = complex ? ORACLE_DEEP_HINDI : ORACLE_SIMPLE_HINDI;
   }
 
-  const effectiveTokens = isDeepMode ? Math.max(maxTokens, 850) : (complex ? Math.max(maxTokens, 550) : Math.min(maxTokens, 300));
+  // Optimize token count to ~200-300 words: stops model from exhausting ideas and looping
+  const effectiveTokens = wantsConcise ? 320 : (isDeepMode ? 420 : (complex ? 380 : 250));
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 45000);
+  const timeoutId = setTimeout(() => controller.abort(), 40000);
 
   try {
     const response = await fetch(ORACLE_PUBLIC_URL, {
@@ -213,9 +268,12 @@ async function callDirectOracleAPI(messages, maxTokens = 850, stream = false, on
           { role: 'system', content: prompt },
           ...messages
         ],
-        temperature: 0.35,
-        repeat_penalty: 1.22,
+        temperature: 0.42,
+        repeat_penalty: 1.25,
+        frequency_penalty: 0.5,
+        presence_penalty: 0.4,
         max_tokens: effectiveTokens,
+        stop: ["<|im_end|>", "</s>", "\n\nUser:", "\n\nQuestion:", "\nUser:", "User:"],
         stream: stream
       })
     });
@@ -227,6 +285,8 @@ async function callDirectOracleAPI(messages, maxTokens = 850, stream = false, on
       const decoder = new TextDecoder('utf-8');
       let accumulated = '';
       let buffer = '';
+      let loopAborted = false;
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -241,16 +301,36 @@ async function callDirectOracleAPI(messages, maxTokens = 850, stream = false, on
               const token = parsed.choices?.[0]?.delta?.content;
               if (token) {
                 accumulated += token;
+
+                // Live Loop-Breaker: If the trailing 35 characters already appeared earlier,
+                // the quantized model has entered an infinite repeat loop. Terminate stream early!
+                if (accumulated.length > 180) {
+                  const tail = accumulated.slice(-35);
+                  const earlier = accumulated.slice(0, -35);
+                  if (earlier.includes(tail)) {
+                    loopAborted = true;
+                    try { await reader.cancel(); } catch (e) {}
+                    break;
+                  }
+                }
+
                 onChunk(accumulated);
               }
             } catch (e) {}
           }
         }
+        if (loopAborted) break;
       }
-      return accumulated.trim() || null;
+
+      const cleanResult = deduplicateRepetitionLoops(accumulated.trim(), lang === 'english');
+      if (onChunk && cleanResult !== accumulated.trim()) {
+        onChunk(cleanResult);
+      }
+      return cleanResult || null;
     } else {
       const data = await response.json();
-      return data.choices?.[0]?.message?.content?.trim() || null;
+      const raw = data.choices?.[0]?.message?.content?.trim() || '';
+      return deduplicateRepetitionLoops(raw, lang === 'english') || null;
     }
   } catch (err) {
     console.warn('Direct Oracle API failed:', err);
@@ -400,17 +480,17 @@ export async function streamGuruResponse(
   const isComplex = isComplexQuery(userMessage);
 
   if (mode === 'deep') {
-    // Priority 1 in Deep Mode: Dedicated Oracle Cloud Q8_0 Server (full 950 token budget)
-    const oracleResult = await callDirectOracleAPI(messages, 950, true, onChunk, true);
+    // Priority 1 in Deep Mode: Dedicated Oracle Cloud Q8_0 Server (optimized ~200-300 words without repetition)
+    const wantsConcise = /\b(\d+\s*words?|300|200|100|short|brief|summar|संक्षेप|सार|कम शब्द)\b/i.test(userMessage);
+    const tokenBudget = wantsConcise ? 320 : 420;
+    const oracleResult = await callDirectOracleAPI(messages, tokenBudget, true, onChunk, true);
     if (oracleResult) {
-      // In Deep Mode, DO NOT let Groq cut the response down!
-      // Return Oracle's authentic spiritual discourse directly & cleanly.
-      return cleanIncompleteTrailing(oracleResult, isEnglish) || oracleResult;
+      return deduplicateRepetitionLoops(oracleResult, isEnglish) || oracleResult;
     }
-    // Deep fallback: Fast Groq engine with Deep persona & generous 1200 tokens
-    const groqResult = await callDirectGroqAPI(messages, 1200, true, onChunk, true);
+    // Deep fallback: Fast Groq engine with Deep persona (calibrated 400 tokens)
+    const groqResult = await callDirectGroqAPI(messages, tokenBudget + 50, true, onChunk, true);
     if (groqResult) {
-      return cleanIncompleteTrailing(groqResult, isEnglish) || groqResult;
+      return deduplicateRepetitionLoops(groqResult, isEnglish) || groqResult;
     }
   } else {
     // Priority 1 in Fast Mode: Instant Groq LPU (clean, direct response)
