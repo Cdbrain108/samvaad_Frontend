@@ -3152,3 +3152,623 @@ select:focus-visible,
   color: #38bdf8;
   border: 1px solid rgba(56, 189, 248, 0.3);
 }
+
+/* ============================================================
+   PALM-LEAF POTHĪ — hyper-realistic ancient manuscript
+   Horizontal tadpatra pothi with painted wooden pattas.
+   Deployed fix: explicit height, no absolute-inset collapse,
+   fallback reveal timer, visible even inside scroll-snap.
+   ============================================================ */
+
+.pothi-exhibit {
+  --pothi-gold: #D9A441;
+  --pothi-ink: #1F1206;
+  --pothi-saffron: #E68A00;
+  position: relative;
+  width: min(980px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  /* override the generic .spiritual-page .scripture-section 100svh clamp */
+  isolation: isolate;
+}
+
+.pothi-scene-wrap {
+  position: relative;
+  width: 100%;
+  height: clamp(360px, 44vh, 520px);
+  min-height: 360px;
+  border-radius: 18px;
+  overflow: hidden;
+  /* warm museum vignette behind the pothi so edges never look clipped */
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(255, 179, 0, 0.18), transparent 62%),
+    radial-gradient(ellipse at 50% 88%, rgba(120, 70, 10, 0.22), transparent 58%),
+    linear-gradient(180deg, rgba(255, 248, 225, 0.0), rgba(120, 70, 10, 0.08));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 18px 50px rgba(120, 70, 10, 0.18);
+  /* deployed safety: if phase has overflow:hidden, this still shows */
+  flex: none;
+}
+
+.night .pothi-scene-wrap,
+.spiritual-page.night .pothi-scene-wrap {
+  background:
+    radial-gradient(ellipse at 50% 32%, rgba(255, 179, 0, 0.16), transparent 60%),
+    radial-gradient(ellipse at 50% 90%, rgba(6, 26, 51, 0.9), transparent 58%),
+    linear-gradient(180deg, rgba(10, 26, 47, 0.0), rgba(10, 26, 47, 0.55));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 130, 0.12),
+    0 22px 60px rgba(0, 0, 0, 0.55);
+}
+
+.pothi-canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  touch-action: pan-y;
+}
+
+.pothi-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  outline: none;
+}
+
+/* whole tappable area — lifts next leaf */
+.pothi-tap-target {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pothi-tap-target:focus-visible {
+  outline: 2px solid rgba(230, 138, 0, 0.65);
+  outline-offset: -2px;
+  border-radius: 18px;
+}
+
+/* folio counter + dot nav */
+.pothi-ui {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 10px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.pothi-folio {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 248, 225, 0.88);
+  border: 1px solid rgba(180, 120, 40, 0.22);
+  color: #6B3A15;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgba(120, 70, 10, 0.14);
+}
+
+.night .pothi-folio {
+  background: rgba(16, 38, 63, 0.85);
+  border-color: rgba(254, 200, 75, 0.22);
+  color: #FFE9B8;
+}
+
+.pothi-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  pointer-events: auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 248, 225, 0.88);
+  border: 1px solid rgba(180, 120, 40, 0.18);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgba(120, 70, 10, 0.12);
+}
+
+.night .pothi-dots {
+  background: rgba(16, 38, 63, 0.85);
+  border-color: rgba(254, 200, 75, 0.18);
+}
+
+.pothi-dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(138, 107, 77, 0.38);
+  cursor: pointer;
+  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), background 220ms ease, box-shadow 220ms ease;
+}
+
+.pothi-dot.is-active {
+  background: #E68A00;
+  box-shadow: 0 0 0 4px rgba(230, 138, 0, 0.22);
+  transform: scale(1.22);
+}
+
+.night .pothi-dot { background: rgba(168, 182, 200, 0.42); }
+.night .pothi-dot.is-active { background: #FEC84B; box-shadow: 0 0 0 4px rgba(254, 200, 75, 0.22); }
+
+.pothi-hint {
+  bottom: 54px !important;
+  z-index: 4;
+  background: rgba(255, 248, 225, 0.92);
+  border: 1px solid rgba(230, 138, 0, 0.18);
+  backdrop-filter: blur(8px);
+  color: #6B3A15 !important;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 11px !important;
+  letter-spacing: 0.04em !important;
+  box-shadow: 0 8px 22px rgba(120, 70, 10, 0.14);
+  white-space: nowrap;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+.night .pothi-hint {
+  background: rgba(16, 38, 63, 0.92) !important;
+  border-color: rgba(254, 200, 75, 0.18) !important;
+  color: #FFE9B8 !important;
+}
+
+/* caption card under the 3D — perfectly readable */
+.pothi-caption {
+  width: min(720px, 100%);
+  padding: 16px 20px 18px;
+  border-radius: 16px;
+  background: rgba(255, 253, 248, 0.92);
+  border: 1px solid rgba(180, 120, 40, 0.18);
+  box-shadow: 0 14px 36px rgba(120, 70, 10, 0.12);
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.night .pothi-caption {
+  background: rgba(16, 38, 63, 0.88);
+  border-color: rgba(254, 200, 75, 0.16);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.42);
+}
+
+.pothi-caption-kicker {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(230, 138, 0, 0.12);
+  color: #B4560A;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.night .pothi-caption-kicker { background: rgba(254, 200, 75, 0.14); color: #FEC84B; }
+
+.pothi-caption-deva {
+  margin: 0;
+  color: #4A2A04;
+  font-family: 'Noto Sans Devanagari','Nirmala UI',serif;
+  font-size: clamp(17px, 1.8vw, 22px);
+  font-weight: 600;
+  line-height: 1.75;
+  text-wrap: balance;
+}
+
+.night .pothi-caption-deva { color: #FFE9B8; }
+
+.pothi-caption-meaning {
+  margin: 8px 0 0;
+  color: #6B4A22;
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.night .pothi-caption-meaning { color: #CBD8E8; }
+
+.pothi-caption-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 16px;
+  border: 1px solid rgba(230, 138, 0, 0.28);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #FFB300, #FEC84B);
+  color: #5B3305;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(230, 138, 0, 0.22);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.pothi-caption-next:hover { transform: translateY(-1px); box-shadow: 0 12px 26px rgba(230, 138, 0, 0.30); }
+.pothi-caption-next i { font-style: normal; transition: transform 180ms ease; }
+.pothi-caption-next:hover i { transform: translate(2px, -2px); }
+
+/* fallback when WebGL unavailable — same visual language without 3D */
+.pothi-fallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  gap: 16px;
+  padding: 24px;
+  align-content: center;
+}
+.pothi-fallback-frame {
+  width: min(680px, 96%);
+  padding: 10px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #7A2E0A, #5E2006);
+  box-shadow: 0 18px 44px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,220,130,0.22);
+}
+.pothi-fallback-leaf {
+  position: relative;
+  min-height: 134px;
+  padding: 18px 52px 22px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #F0DCB0, #E6C78E);
+  box-shadow: inset 0 0 0 1px rgba(138,96,17,0.18);
+  text-align: center;
+}
+.pothi-fallback-leaf::before,
+.pothi-fallback-leaf::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  height: 1px;
+  background: rgba(135,32,22,0.42);
+}
+.pothi-fallback-leaf::before { top: 34px; }
+.pothi-fallback-leaf::after { bottom: 34px; }
+.pothi-hole {
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 16px;
+  margin-top: -8px;
+  margin-left: -9px;
+  border-radius: 50%;
+  background: #1A0A04;
+  border: 2px solid #6B3A14;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+}
+.pothi-fallback-src { color: rgba(122,58,12,0.72); font-size: 11px; font-weight: 800; letter-spacing: 0.10em; text-transform: uppercase; }
+.pothi-fallback-deva {
+  margin: 10px 0 0;
+  color: #1F1206;
+  font-family: 'Noto Sans Devanagari','Nirmala UI',serif;
+  font-size: clamp(16px, 1.7vw, 20px);
+  font-weight: 600;
+  line-height: 1.7;
+}
+.pothi-fallback-meaning {
+  margin: 8px 0 0;
+  color: rgba(92,58,14,0.72);
+  font-size: 11.5px;
+  font-style: italic;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pothi-fallback-next {
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(230,138,0,0.28);
+  background: linear-gradient(135deg, #FFB300, #FEC84B);
+  color: #5B3305;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* ---- scripture-section overrides so pothi never clips inside 100svh snap ---- */
+.spiritual-page .scripture-section {
+  height: auto !important;
+  min-height: 100svh !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding-block: clamp(64px, 8vh, 96px) !important;
+  justify-content: flex-start !important;
+  gap: clamp(12px, 2vh, 18px);
+}
+
+.spiritual-page .scripture-section .spiritual-section-heading {
+  margin-bottom: 0 !important;
+  flex-shrink: 0;
+}
+
+/* the generic .sb-scene halo no longer needed — hide it for pothi */
+.pothi-exhibit .sb-scene::before { display: none !important; }
+
+@media (max-width: 700px) {
+  .pothi-scene-wrap { height: clamp(300px, 42vh, 420px); min-height: 300px; border-radius: 14px; }
+  .pothi-folio { font-size: 10px; padding: 0 10px; }
+  .pothi-caption { padding: 14px 16px 16px; border-radius: 14px; }
+  .pothi-caption-deva { font-size: 17px; }
+  .spiritual-page .scripture-section { padding: 72px 16px 40px !important; }
+}
+
+@media (max-width: 560px) {
+  .pothi-ui { flex-direction: column; align-items: stretch; gap: 8px; }
+  .pothi-folio { justify-content: center; text-align: center; }
+  .pothi-dots { justify-content: center; }
+  .pothi-hint { bottom: 110px !important; font-size: 10px !important; }
+  .pothi-scene-wrap { height: 320px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pothi-dot { transition: none; }
+  .pothi-caption-next { transition: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   OLD CHATS / CONVERSATION DRAWER (Mobile & Desktop Responsive)
+════════════════════════════════════════════════════════════════════════════ */
+.sidebar {
+  position: fixed !important;
+  inset: 0 auto 0 0 !important;
+  width: min(320px, 86vw) !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  background: rgba(9, 14, 26, 0.97) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 16px 0 50px rgba(0, 0, 0, 0.65) !important;
+  z-index: 100 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 20px 16px !important;
+  box-sizing: border-box !important;
+  transform: none;
+}
+
+.sidebar-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99 !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+
+.sidebar-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding-bottom: 16px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  margin-bottom: 16px !important;
+}
+
+.sidebar-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: #f8fafc !important;
+  letter-spacing: -0.01em !important;
+}
+
+.sidebar-title-icon {
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 8px !important;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.15)) !important;
+  color: #fbbf24 !important;
+  font-size: 15px !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.sidebar-close-btn {
+  display: grid !important;
+}
+
+.sidebar-empty {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 12px !important;
+  padding: 30px 16px !important;
+  color: #94a3b8 !important;
+}
+
+.sidebar-empty p {
+  font-size: 0.92rem !important;
+  margin: 0 !important;
+  color: #94a3b8 !important;
+}
+
+.sidebar-empty .rust-button {
+  margin-top: 8px !important;
+  background: linear-gradient(135deg, #ea580c, #c2410c) !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  padding: 8px 16px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  border: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3) !important;
+}
+
+.sidebar-nav {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  margin-right: -4px !important;
+  padding-right: 4px !important;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 5px !important;
+}
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-radius: 4px !important;
+}
+
+.conversation-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+
+.conversation-item-wrapper {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  transition: all 0.2s ease !important;
+}
+
+.conversation-item-wrapper:hover {
+  background: rgba(245, 158, 11, 0.07) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+.conversation-item {
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 10px 12px !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  color: inherit !important;
+  min-width: 0 !important;
+}
+
+.conversation-info {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.conversation-details {
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+  gap: 2px !important;
+}
+
+.conversation-title {
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  color: #f1f5f9 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: block !important;
+}
+
+.conversation-time {
+  font-size: 0.72rem !important;
+  color: #94a3b8 !important;
+}
+
+.conversation-delete {
+  background: transparent !important;
+  border: none !important;
+  color: #64748b !important;
+  cursor: pointer !important;
+  padding: 8px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 8px !important;
+  margin-right: 4px !important;
+  transition: color 0.15s ease, background 0.15s ease !important;
+}
+
+.conversation-delete:hover {
+  color: #f87171 !important;
+  background: rgba(239, 68, 68, 0.12) !important;
+}
+
+.sidebar-footer {
+  margin-top: auto !important;
+  padding-top: 14px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.user-profile {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.user-profile .avatar {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+.user-info {
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+}
+
+.user-info strong {
+  font-size: 0.84rem !important;
+  color: #f1f5f9 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.user-info small {
+  font-size: 0.72rem !important;
+  color: #22c55e !important;
+}

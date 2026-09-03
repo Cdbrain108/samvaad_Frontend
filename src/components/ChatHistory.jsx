@@ -58,12 +58,12 @@ export default function ChatHistory({ user, conversations = [], isOpen = false, 
       <motion.aside
         className={`sidebar ${isOpen ? 'is-open' : ''} ${conversations.length > 0 ? 'has-conversations' : ''}`}
         initial={false}
-        animate={{ x: isOpen ? 0 : -280 }}
+        animate={{ x: isOpen ? 0 : '-100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
       >
         <div className="sidebar-header">
           <div className="sidebar-title">
-            <Icon name="chat" size={20} />
+            <span className="sidebar-title-icon">ॐ</span>
             <span>Conversations</span>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -71,12 +71,13 @@ export default function ChatHistory({ user, conversations = [], isOpen = false, 
               className="icon-button"
               onClick={onNewChat}
               aria-label="New conversation"
+              title="New conversation"
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.92 }}
             >
               <Icon name="plus" size={18} />
             </motion.button>
-            <button className="icon-button mobile-only" onClick={onClose} aria-label="Close menu">
+            <button className="icon-button sidebar-close-btn" onClick={onClose} aria-label="Close menu" title="Close">
               <Icon name="close" size={18} />
             </button>
           </div>

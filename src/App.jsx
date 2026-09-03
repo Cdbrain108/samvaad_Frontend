@@ -219,7 +219,27 @@ export default function App() {
           setUserMemory(memResult.memory);
         }
       } else {
-        setConversations([]);
+        const guestUser = {
+          uid: 'devotee_local',
+          displayName: 'Devotee',
+          email: 'devotee@samvaad.local'
+        };
+        setUser(guestUser);
+        try {
+          const localData = localStorage.getItem('samvad_chats_devotee_local');
+          if (localData) {
+            const parsed = JSON.parse(localData);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setConversations(parsed);
+            } else {
+              setConversations([]);
+            }
+          } else {
+            setConversations([]);
+          }
+        } catch (e) {
+          setConversations([]);
+        }
         setMessages([]);
         setCurrentConversationId(null);
         setUserMemory(null);
@@ -308,6 +328,21 @@ export default function App() {
     }
     setCurrentConversationId(conversation.id);
     setSidebarOpen(false);
+  };
+
+  const deleteConversationHandler = (convId) => {
+    setConversations(prev => {
+      const updated = prev.filter(c => c.id !== convId);
+      const activeUser = user || ensureUser();
+      try {
+        localStorage.setItem(`samvad_chats_${activeUser.uid}`, JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+    if (currentConversationId === convId) {
+      setMessages([]);
+      setCurrentConversationId(null);
+    }
   };
 
   const submitMessage = async (explicitMessage, speakResponse = false) => {
@@ -483,6 +518,7 @@ export default function App() {
         onClose={() => setSidebarOpen(false)}
         onNewChat={startNewChat}
         onSelectConversation={selectConversation}
+        onDeleteConversation={deleteConversationHandler}
       />
 
       <main className="main-panel">
