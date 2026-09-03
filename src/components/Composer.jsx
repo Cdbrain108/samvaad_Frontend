@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { motion } from 'framer-motion'
 import Icon from './Icon'
 
 const quickPrompts = [
@@ -34,9 +35,16 @@ export default function Composer({ value, onChange, onSubmit }) {
     <div className="composer-wrap">
       <div className="composer-toolbar" aria-label="Quick prompt helpers">
         {quickPrompts.map((item) => (
-          <button key={item.label} type="button" onClick={() => addQuickPrompt(item.prompt)}>
+          <motion.button
+            key={item.label}
+            type="button"
+            onClick={() => addQuickPrompt(item.prompt)}
+            whileHover={{ scale: 1.03, y: -1 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+          >
             {item.label}
-          </button>
+          </motion.button>
         ))}
       </div>
       <div className="composer">
@@ -52,15 +60,17 @@ export default function Composer({ value, onChange, onSubmit }) {
           rows="1"
           value={value}
         />
-        <button
+        <motion.button
           className="send-button"
           aria-label="Send message"
           disabled={!value.trim()}
           onClick={onSubmit}
           type="button"
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.92 }}
         >
           <Icon name="send" size={19} />
-        </button>
+        </motion.button>
       </div>
       <p className="composer-note">Educational playground. Verify important guidance with trusted sources and teachers.</p>
     </div>

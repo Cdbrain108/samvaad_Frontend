@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import Icon from './Icon'
 import ScriptureBook from './ScriptureBook'
-import LiveQADemo from './LiveQADemo'
-import heroSunrise from '../assets/hero-sunrise.jpg'
+import ParchmentScroll from './ParchmentScroll'
+import TempleNightCanvas from './TempleNightCanvas'
+import heroSunrise from '../assets/hero-sunrise.png'
 import heroNightTemple from '../assets/hero-night-temple.png'
 import logoWordmark from '../assets/logo-wordmark.webp'
 import brandIcon from '../assets/brand-icon.webp'
@@ -19,8 +20,6 @@ const scriptures = [
   'Yoga Sutras',
 ]
 
-/* Guru Ji's cutout is kept fully intact (asset, CSS, measurements) —
-   flip this flag to true to bring him back into the hero exactly as before. */
 const SHOW_GURU = false
 
 const features = [
@@ -112,16 +111,16 @@ const topics = [
   { emoji: '🌳', label: 'Mind & Peace', prompt: 'How can I quiet a restless mind and find inner peace?' },
 ]
 
-/* ---------- full-screen phases ---------- */
+/* ---------- full-screen 1-component-per-page phases ---------- */
 
 const phases = [
-  { id: 'hero', label: 'Welcome' },
-  { id: 'story', label: 'Data Story' },
+  { id: 'hero', label: 'Home' },
+  { id: 'numbers', label: 'Numbers' },
+  { id: 'pipeline', label: 'Pipeline' },
   { id: 'scriptures', label: 'Scriptures' },
   { id: 'features', label: 'Experience' },
   { id: 'dataset', label: 'Dataset' },
   { id: 'education', label: 'Purpose' },
-  { id: 'contact', label: 'Contact' },
 ]
 
 /* ---------- small interaction helpers ---------- */
@@ -154,38 +153,6 @@ function Reveal({ children, delay = 0, className = '', as: Tag = 'div' }) {
     >
       {children}
     </Tag>
-  )
-}
-
-function CountUp({ end, started, duration = 1600 }) {
-  const [value, setValue] = useState(0)
-
-  useEffect(() => {
-    if (!started) return
-    let frame
-    const startTime = performance.now()
-    const tick = (now) => {
-      const progress = Math.min((now - startTime) / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setValue(Math.round(end * eased))
-      if (progress < 1) frame = requestAnimationFrame(tick)
-    }
-    frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
-  }, [started, end, duration])
-
-  return <>{value.toLocaleString('en-IN')}</>
-}
-
-function StatBlock({ end, suffix = '', label, started, delay = 0 }) {
-  return (
-    <div className="story-stat" style={{ transitionDelay: `${delay}ms` }}>
-      <strong>
-        <CountUp end={end} started={started} />
-        {suffix}
-      </strong>
-      <span>{label}</span>
-    </div>
   )
 }
 
@@ -239,16 +206,14 @@ function FlowPipeline() {
   )
 }
 
-/* ---------- page ---------- */
+/* ---------- main landing page ---------- */
 
 export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme }) {
   const scrollRef = useRef(null)
   const askInputRef = useRef(null)
   const activeRef = useRef(0)
-  const statsRef = useRef(null)
   const [progress, setProgress] = useState(0)
   const [active, setActive] = useState(0)
-  const [statsStarted, setStatsStarted] = useState(false)
   const [question, setQuestion] = useState('')
 
   const goToPhase = (id) => {
@@ -279,8 +244,6 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
     const onScroll = () => {
       const total = root.scrollHeight - root.clientHeight
       setProgress(total > 0 ? Math.min(root.scrollTop / total, 1) : 0)
-      /* active phase = the last one whose top crossed 40% of the screen,
-         so phases taller than the viewport still register correctly */
       const rootTop = root.getBoundingClientRect().top
       const probe = root.clientHeight * 0.4
       let current = 0
@@ -294,7 +257,7 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
     return () => root.removeEventListener('scroll', onScroll)
   }, [])
 
-  /* keyboard: arrow / page keys move one phase at a time */
+  /* keyboard: arrow / page keys move one page section at a time */
   useEffect(() => {
     const onKey = (event) => {
       if (event.target !== document.body && event.target !== scrollRef.current) return
@@ -309,33 +272,47 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
         goToPhase('hero')
       } else if (event.key === 'End') {
         event.preventDefault()
-        goToPhase('contact')
+        goToPhase('education')
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  /* wheel listener: lock scroll to one complete screen per gesture */
   useEffect(() => {
-    const node = statsRef.current
-    if (!node) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setStatsStarted(true)
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.35 }
-    )
-    observer.observe(node)
-    return () => observer.disconnect()
+    const root = scrollRef.current
+    if (!root) return
+    let isWheeling = false
+    let wheelTimer = null
+
+    const onWheel = (event) => {
+      if (Math.abs(event.deltaY) < 24) return
+      if (isWheeling) {
+        event.preventDefault()
+        return
+      }
+      isWheeling = true
+      const dir = event.deltaY > 0 ? 1 : -1
+      stepPhase(dir)
+
+      clearTimeout(wheelTimer)
+      wheelTimer = setTimeout(() => {
+        isWheeling = false
+      }, 700)
+    }
+
+    root.addEventListener('wheel', onWheel, { passive: false })
+    return () => {
+      root.removeEventListener('wheel', onWheel)
+      clearTimeout(wheelTimer)
+    }
   }, [])
 
   const askQuestion = (text) => {
     const value = (text ?? question).trim()
     if (!value) {
-      focusAsk()
+      onEnter?.()
       return
     }
     onAsk?.(value)
@@ -345,7 +322,7 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
     <div className={`spiritual-page landing-scroll ${darkMode ? 'night' : ''}`} ref={scrollRef}>
       <span className="scroll-progress" style={{ transform: `scaleX(${progress})` }} aria-hidden="true" />
 
-      {/* Floating Authentic Marigold (गेंदा) & Lotus Petals */}
+      {/* Floating Authentic Marigold & Lotus Petals */}
       <div className="floating-petals-layer" aria-hidden="true">
         <svg className="petal petal-1" viewBox="0 0 32 32" width="20" height="20">
           <path d="M16 2 C10 8, 4 14, 4 21 A12 12 0 0 0 28 21 C28 14, 22 8, 16 2 Z" fill="url(#marigoldGrad1)" />
@@ -389,20 +366,25 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
 
         <nav className="spiritual-nav" aria-label="Main navigation">
           <a href="#hero" onClick={(event) => { event.preventDefault(); goToPhase('hero') }}><Icon name="home" size={15} />Home</a>
-          <a href="#hero" onClick={(event) => { event.preventDefault(); focusAsk() }}><Icon name="help" size={15} />Ask</a>
+          <a href="#numbers" onClick={(event) => { event.preventDefault(); goToPhase('numbers') }}><Icon name="spark" size={15} />Numbers</a>
+          <a href="#pipeline" onClick={(event) => { event.preventDefault(); goToPhase('pipeline') }}><Icon name="layers" size={15} />Pipeline</a>
           <a href="#scriptures" onClick={(event) => { event.preventDefault(); goToPhase('scriptures') }}><Icon name="book" size={15} />Scriptures</a>
           <a href="#education" onClick={(event) => { event.preventDefault(); goToPhase('education') }}><Icon name="info" size={15} />About</a>
         </nav>
 
         <div className="spiritual-header-actions">
           <button
-            className={`theme-toggle ${darkMode ? 'is-night' : ''}`}
+            className="theme-pill-toggle"
             onClick={onToggleTheme}
-            aria-label={darkMode ? 'Switch to day theme' : 'Switch to night theme'}
+            aria-label={darkMode ? 'Switch to Day theme' : 'Switch to Night theme'}
+            title="Toggle Day / Night theme"
           >
-            <span className="toggle-thumb" aria-hidden="true"><Icon name={darkMode ? 'moon' : 'sun'} size={13} /></span>
-            <Icon name="moon" size={13} />
-            <Icon name="sun" size={13} />
+            <span className={`theme-pill-opt ${!darkMode ? 'is-active' : ''}`}>
+              Day ☀️
+            </span>
+            <span className={`theme-pill-opt ${darkMode ? 'is-active' : ''}`}>
+              Night 🌙
+            </span>
           </button>
           <button className="rust-button cta-button" onClick={onEnter}>
             <span aria-hidden="true">🙏</span> Start Asking
@@ -410,6 +392,7 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
         </div>
       </header>
 
+      {/* Side Dot Navigation */}
       <nav className="phase-nav" aria-label="Page phases">
         {phases.map((phase, index) => (
           <button
@@ -424,28 +407,21 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
       </nav>
 
       <main>
-        {/* ---------- PHASE 1 · HERO ---------- */}
+        {/* ============================================================
+            PAGE 1 · HERO
+            ============================================================ */}
         <section className="spiritual-hero phase phase-hero" id="hero">
-          <div
-                      className="hero-bg"
-                      style={{ backgroundImage: `url(${darkMode ? heroNightTemple : heroSunrise})` }}
-                      aria-hidden="true"
-                    />
-          {darkMode && (
-            <div className="night-sky" aria-hidden="true">
-              <span className="sky-moon" />
-              <i className="sky-star" style={{ top: '16%', right: '30%' }} />
-              <i className="sky-star" style={{ top: '9%', right: '12%', animationDelay: '.9s' }} />
-              <i className="sky-star" style={{ top: '27%', right: '6%', animationDelay: '1.6s' }} />
-              <i className="sky-star" style={{ top: '34%', right: '24%', animationDelay: '2.3s' }} />
-            </div>
+          {darkMode ? (
+            <TempleNightCanvas className="hero-bg hero-bg-canvas" />
+          ) : (
+            <div
+              className="hero-bg hero-bg-sunrise"
+              style={{ backgroundImage: `url(${heroSunrise})` }}
+              aria-hidden="true"
+            />
           )}
+
           <div className="hero-copy-panel">
-            <span className="hero-welcome">
-              <span className="diya-container"><Icon name="diya" size={16} /></span>
-              Welcome to
-              <span className="diya-container"><Icon name="diya" size={16} /></span>
-            </span>
             <h1 className="hero-wordmark">
               <img
                 className="hero-logo"
@@ -455,11 +431,9 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
             </h1>
             <p className="hero-tagline">Fine-Tuned AI embodying the <em>Wisdom of Indian Gurus, Saints & Hindu Scriptures</em></p>
             <p className="hero-desc">
-              Ask your real-life personal, emotional, or devotional problems. Samvaad is an advanced fine-tuned AI model
-              trained on 4,000+ Bhajan Marg discourses, Bhagavad Gita, Ramayana, Upanishads, and Vedas to guide you with
-              the warmth, calm, and grounded wisdom of पूज्य प्रेमानंद जी महाराज and traditional Indian saints.
+              Ask your personal, emotional, or devotional questions. Trained on 4,000+ Bhajan Marg discourses,
+              Bhagavad Gita, Ramayana, Upanishads & Vedas to guide you with calm, grounded wisdom.
             </p>
-            <span className="spiritual-pill">🪷 Fine-Tuned LLM · Indian Gurus & Saints Wisdom · Devotional & Life Solutions</span>
 
             <form
               className="hero-askbox"
@@ -470,16 +444,13 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
                 ref={askInputRef}
                 value={question}
                 onChange={(event) => setQuestion(event.target.value)}
-                placeholder="Ask your question..."
+                placeholder="Ask your spiritual or life question..."
                 aria-label="Ask your question"
               />
               <button className="askbox-send" type="submit" aria-label="Send question">
                 <Icon name="arrow-right" size={18} />
               </button>
             </form>
-            <p className="hero-examples">
-              e.g. “How to find inner peace?”, “What is true love (prem)?”, “Meaning of karma?”
-            </p>
 
             <div className="topic-chips" aria-label="Popular topics">
               {topics.map((topic) => (
@@ -489,36 +460,49 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
                 </button>
               ))}
             </div>
+
+            <div className="hero-inspiration-bar">
+              <span className="inspiration-icon" aria-hidden="true">🙏</span>
+              <p className="inspiration-text">
+                “मन को शांत करने का एक ही उपाय है – नाम जप और प्रेम !” <em>— पूज्य प्रेमानंद जी महाराज</em>
+              </p>
+            </div>
           </div>
 
-          <div className="hero-visual" aria-label="Premanand Ji Maharaj and a teaching quote">
+          <div className="hero-visual" aria-label="Sacred Temple View">
             {SHOW_GURU && (
               <div className="maharaj-frame">
                 <img alt="पूज्य प्रेमानंद जी महाराज in a namaste pose" src={guruCutout} />
               </div>
             )}
-            <div className="hero-quote-card">
-              <p>“मन को शांत करने का एक ही उपाय है – नाम जप और प्रेम !”</p>
-              <span><i aria-hidden="true">🙏</i> — पूज्य प्रेमानंद जी महाराज</span>
-            </div>
           </div>
 
-          <div className="video-marquee" aria-label="Example questions">
-            <div>
-              {[...questionExamples, ...questionExamples].map((item, index) => (
-                <span key={`${item}-${index}`}>{item}</span>
-              ))}
-            </div>
-          </div>
-
-          <button className="scroll-cue" onClick={() => goToPhase('story')} aria-label="Scroll down to the data story">
+          <button className="scroll-cue" onClick={() => goToPhase('numbers')} aria-label="Scroll down to Our Journey in Numbers">
             <span className="scroll-cue-wheel" aria-hidden="true" />
             <small>Scroll</small>
           </button>
         </section>
 
-        {/* ---------- PHASE 2 · DATA STORY / HOW IT WORKS ---------- */}
-        <section className="story-section phase" id="story">
+        {/* ============================================================
+            PAGE 2 · OUR JOURNEY IN NUMBERS (DEDICATED PARCHMENT SCROLL PAGE)
+            ============================================================ */}
+        <section className="numbers-section phase" id="numbers">
+          <Reveal className="spiritual-section-heading">
+            <span>हमारे आंकड़े · The Milestones</span>
+            <h2>Our Journey In Numbers</h2>
+            <p>
+              Years of discourses, millions of tokens, and continuous refinements preserved into a sacred, conversational guide.
+            </p>
+          </Reveal>
+
+          {/* Ancient manuscript unfurling parchment scroll */}
+          <ParchmentScroll />
+        </section>
+
+        {/* ============================================================
+            PAGE 3 · HOW SAMVAAD WORKS (DATA PIPELINE)
+            ============================================================ */}
+        <section className="story-section phase" id="pipeline">
           <Reveal className="spiritual-section-heading">
             <span>The data story · कैसे काम करता है</span>
             <h2>From 4000+ discourses to a thoughtful chat.</h2>
@@ -529,24 +513,12 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
             </p>
           </Reveal>
 
-          <div className="story-stats" ref={statsRef}>
-            <StatBlock end={4000} suffix="+" label="Bhajan Marg videos studied" started={statsStarted} />
-            <StatBlock end={50000} suffix="+" label="Hindi + English Q&A pairs" started={statsStarted} delay={120} />
-            <StatBlock end={5} label="Pipeline stages, fully animated" started={statsStarted} delay={240} />
-          </div>
-
           <FlowPipeline />
-
-          <Reveal delay={160} className="story-demo-wrap">
-            <LiveQADemo />
-            <p className="story-demo-note">
-              The demo above is a recreated illustration of the discourse style, produced for
-              education. It is not a real transcript and is not affiliated with Bhajan Marg.
-            </p>
-          </Reveal>
         </section>
 
-        {/* ---------- PHASE 3 · 3D SCRIPTURES ---------- */}
+        {/* ============================================================
+            PAGE 4 · 3D SCRIPTURES
+            ============================================================ */}
         <section className="scripture-section phase" id="scriptures">
           <Reveal className="spiritual-section-heading light-heading">
             <span>प्राचीन ग्रंथ · Ancient manuscripts</span>
@@ -554,8 +526,7 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
             <p>
               Centuries ago the words of God were preserved in these manuscripts, and in them
               dharma and karma still breathe today. Open the pothi — its cover lifts, the pages
-              turn, and a Sanskrit shloka writes itself slowly, carrying the wisdom that makes
-              our ancient history our richest treasure.
+              turn, and a Sanskrit shloka writes itself slowly.
             </p>
           </Reveal>
 
@@ -564,7 +535,9 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
           </Reveal>
         </section>
 
-        {/* ---------- PHASE 4 · FEATURES ---------- */}
+        {/* ============================================================
+            PAGE 5 · FEATURES
+            ============================================================ */}
         <section className="spiritual-features phase" id="features">
           <Reveal className="spiritual-section-heading">
             <span>Designed for gentle learning</span>
@@ -590,7 +563,9 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
           </div>
         </section>
 
-        {/* ---------- PHASE 5 · DATASET EXAMPLES ---------- */}
+        {/* ============================================================
+            PAGE 6 · DATASET EXAMPLES
+            ============================================================ */}
         <section className="video-examples phase" id="dataset">
           <Reveal className="spiritual-section-heading">
             <span>Video content examples</span>
@@ -626,7 +601,9 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
           </div>
         </section>
 
-        {/* ---------- PHASE 6 · EDUCATION PURPOSE ---------- */}
+        {/* ============================================================
+            PAGE 7 · EDUCATION PURPOSE & QUOTE
+            ============================================================ */}
         <section className="spiritual-quote phase" id="education">
           <Reveal>
             <div className="quote-om">ॐ</div>
@@ -640,22 +617,6 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
             </p>
             <button className="rust-button cta-button" onClick={onEnter}><span aria-hidden="true">🙏</span> Begin your Samvaad</button>
           </Reveal>
-        </section>
-
-        {/* ---------- PHASE 7 · CONTACT / CLOSING ---------- */}
-        <section className="phase phase-final" id="contact">
-          <div className="final-stack">
-            <img className="final-icon" src={brandIcon} alt="Samvaad app icon" />
-            <span className="final-kicker">Personal project · Education only</span>
-            <a className="final-mail" href="mailto:hello@samvaad.ai">hello@samvaad.ai</a>
-            <button className="rust-button cta-button" onClick={onEnter}><span aria-hidden="true">🙏</span> Start Asking</button>
-          </div>
-
-          <div className="final-bar">
-            <span className="final-om" aria-hidden="true">〜 ॐ 〜</span>
-            <span className="final-mantra"><i aria-hidden="true">🪷</i> Serve · Learn · Love <i aria-hidden="true">🪷</i></span>
-            <span className="final-built">Built with <i aria-hidden="true">❤️</i> for Dharma</span>
-          </div>
         </section>
       </main>
     </div>
