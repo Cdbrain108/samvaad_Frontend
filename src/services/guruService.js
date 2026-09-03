@@ -24,15 +24,34 @@ function getNextGroqKey() {
   return k;
 }
 
-const HINGLISH_REGEX = /\b(kya|kaise|kyu|kyun|karein|kare|hai|hain|nahi|nahin|hota|hoti|hote|mera|meri|mere|mujhe|hum|humko|aap|apka|apki|apke|man|mann|naam|jap|bhajan|satsang|prabhu|bhagwan|krishna|radha|maharaj|ji|batao|bataiye|samjhaiye|shlok|gita|kripa|guru|gurudev)\b/i;
-
 export function detectLanguage(text) {
   if (!text) return 'hindi';
   const clean = text.trim();
-  if (/[\u0900-\u097F]/.test(clean) || HINGLISH_REGEX.test(clean)) {
+
+  // 1. Any Devanagari character -> definitively Hindi
+  if (/[\u0900-\u097F]/.test(clean)) {
     return 'hindi';
   }
-  return 'english';
+
+  // 2. English syntax markers (articles, auxiliary verbs, question words, common nouns)
+  const engMarkers = clean.match(/\b(the|is|are|am|was|were|how|what|why|when|where|which|who|can|could|should|would|will|do|does|did|in|to|for|of|and|with|about|my|your|our|their|his|her|its|have|has|had|be|been|being|if|that|this|these|those|from|by|at|on|so|no|not|please|tell|give|life|mind|peace|death|soul|god|lord|devotion|meditation|prayer)\b/gi) || [];
+
+  // 3. Hinglish functional markers (only functional Hindi grammar words, NO ambiguous words like 'man')
+  const hinMarkers = clean.match(/\b(kya|kaise|kyu|kyun|karein|kare|karte|karti|karta|hai|hain|ho|hun|hoon|nahi|nahin|mat|hota|hoti|hote|mera|meri|mere|mujhe|mujhko|hum|humko|hamein|aap|apka|apki|apke|batao|bataiye|samjhaiye|kahiye|chahiye|raha|rahi|rahe|karo|dekho|suno)\b/gi) || [];
+
+  if (engMarkers.length > 0 && engMarkers.length >= hinMarkers.length) {
+    return 'english';
+  }
+
+  if (hinMarkers.length > 0) {
+    return 'hindi';
+  }
+
+  if (/^[a-zA-Z0-9\s.,!?'"()\-—]+$/.test(clean)) {
+    return 'english';
+  }
+
+  return 'hindi';
 }
 
 const GURU_SYSTEM_PROMPT_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
