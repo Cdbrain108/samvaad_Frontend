@@ -3123,3 +3123,32 @@ select:focus-visible,
     display: none !important;
   }
 }
+
+/* ── Engine Badges for Fast LPU vs Oracle Q8_0 ── */
+.message-sender-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+.engine-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  line-height: 1.4;
+  vertical-align: middle;
+}
+.engine-tag.tag-deep {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+.engine-tag.tag-fast {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}

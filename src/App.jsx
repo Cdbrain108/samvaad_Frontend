@@ -334,7 +334,8 @@ export default function App() {
       const assistantMsg = {
         role: 'assistant',
         content: '',
-        timestamp: new Date()
+        timestamp: new Date(),
+        mode: inferenceMode
       };
 
       let receivedAnyChunk = false;
@@ -359,7 +360,7 @@ export default function App() {
       setIsStreaming(false);
 
       const finalCleanContent = fullResponseContent || 'राधे राधे';
-      setMessages([...updatedMessagesWithUser, { role: 'assistant', content: finalCleanContent, timestamp: new Date() }]);
+      setMessages([...updatedMessagesWithUser, { role: 'assistant', content: finalCleanContent, timestamp: new Date(), mode: inferenceMode }]);
 
       if (speakResponse && finalCleanContent) {
         voice.speak(finalCleanContent);
@@ -610,7 +611,14 @@ export default function App() {
                       {message.role === 'user' ? 'You' : 'ॐ'}
                     </span>
                     <div>
-                      <strong>{message.role === 'user' ? 'You' : 'Samvaad'}</strong>
+                      <div className="message-sender-row">
+                        <strong>{message.role === 'user' ? 'You' : 'Samvaad'}</strong>
+                        {message.role === 'assistant' && (
+                          <span className={`engine-tag ${message.mode === 'deep' ? 'tag-deep' : 'tag-fast'}`}>
+                            {message.mode === 'deep' ? '🧘 Oracle Q8_0' : '⚡ Fast LPU'}
+                          </span>
+                        )}
+                      </div>
                       {message.role === 'assistant' ? (
                         <p className="rich-text">
                           <RichText content={message.content} streaming={isLastAssistant && isStreaming} />
