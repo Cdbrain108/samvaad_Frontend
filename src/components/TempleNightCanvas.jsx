@@ -179,7 +179,11 @@ export default function TempleNightCanvas({ className = '' }) {
         dh = ch;
         dw = ch * imgRatio;
         dy = 0;
-        dx = (cw - dw) * 0.5;
+        // On mobile & portrait screens (canvasRatio <= imgRatio), frame the illuminated temple (u ≈ 0.76)
+        // so the full temple towers, golden domes, and ghat steps are fully visible on screen!
+        const targetX = cw * (cw < 600 ? 0.70 : 0.65);
+        const desiredDx = targetX - 0.76 * dw;
+        dx = Math.min(0, Math.max(cw - dw, desiredDx));
       }
 
       const key = cw + 'x' + ch + '@' + Math.round(dx) + ',' + Math.round(dy);

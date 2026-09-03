@@ -314,7 +314,7 @@ export default function App() {
     const activeUser = user || ensureUser();
     if (isResponding) return;
 
-    const message = (explicitMessage ?? draft).trim();
+    const message = (typeof explicitMessage === 'string' ? explicitMessage : draft).trim();
     if (!message) return;
 
     const userMsg = { role: 'user', content: message, timestamp: new Date() };
@@ -399,6 +399,8 @@ export default function App() {
       }
     } catch (err) {
       console.error('Error handling message:', err);
+      const fallbackContent = 'राधे राधे भैया! मन को शांत रखिए और भगवन्नाम (राधा नाम) का आश्रय लीजिए। प्रभु सब मंगल करेंगे।';
+      setMessages([...updatedMessagesWithUser, { role: 'assistant', content: fallbackContent, timestamp: new Date() }]);
     } finally {
       setIsResponding(false);
       setIsStreaming(false);

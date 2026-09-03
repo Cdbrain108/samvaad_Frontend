@@ -18,10 +18,20 @@ export default function Composer({ value, onChange, onSubmit }) {
     textarea.style.height = `${Math.min(textarea.scrollHeight, 144)}px`
   }, [value])
 
+  const handleSend = (e) => {
+    if (e && e.preventDefault) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    if (value && value.trim()) {
+      onSubmit()
+    }
+  }
+
   function handleKeyDown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
-      onSubmit()
+      handleSend(event)
     }
   }
 
@@ -47,7 +57,7 @@ export default function Composer({ value, onChange, onSubmit }) {
           </motion.button>
         ))}
       </div>
-      <div className="composer">
+      <form className="composer" onSubmit={handleSend}>
         <button className="composer-action" aria-label="Attach a file" type="button">
           <Icon name="attach" />
         </button>
@@ -59,19 +69,20 @@ export default function Composer({ value, onChange, onSubmit }) {
           ref={textareaRef}
           rows="1"
           value={value}
+          enterKeyHint="send"
         />
         <motion.button
           className="send-button"
           aria-label="Send message"
           disabled={!value.trim()}
-          onClick={onSubmit}
-          type="button"
+          onClick={handleSend}
+          type="submit"
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.92 }}
         >
           <Icon name="send" size={19} />
         </motion.button>
-      </div>
+      </form>
       <p className="composer-note">Educational playground. Verify important guidance with trusted sources and teachers.</p>
     </div>
   )
