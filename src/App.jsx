@@ -143,7 +143,7 @@ export default function App() {
   const [conversations, setConversations] = useState([]);
   const [draft, setDraft] = useState('');
   const [messages, setMessages] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth >= 900 : false));
   const [darkMode, setDarkMode] = useState(true);
   const [view, setView] = useState('landing');
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -505,7 +505,7 @@ export default function App() {
       {!loading && view === 'chat' && (
         <motion.div
           key="chat"
-          className="app-shell"
+          className={`app-shell ${sidebarOpen ? 'sidebar-open' : ''}`}
           initial={{ opacity: 0, x: 28 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 28 }}
@@ -525,8 +525,8 @@ export default function App() {
         <header className="topbar">
           <button
             className="icon-button menu-button"
-            aria-label="Open navigation"
-            onClick={() => setSidebarOpen(true)}
+            aria-label="Toggle navigation"
+            onClick={() => setSidebarOpen((current) => !current)}
           >
             <Icon name="menu" />
           </button>

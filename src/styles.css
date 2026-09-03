@@ -124,7 +124,7 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 .profile small { color: var(--muted); font-size: 11px; }
 .avatar { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; background: var(--accent-soft); color: var(--accent-dark); font-size: 11px; font-weight: 700; }
 
-.main-panel { display: flex; min-height: 100vh; flex: 1; flex-direction: column; margin-left: 276px; background: radial-gradient(circle at 77% 8%, rgba(231, 99, 54, 0.08), transparent 26%), var(--panel); }
+.main-panel { display: flex; min-height: 100vh; flex: 1; flex-direction: column; margin-left: 0; width: 100%; background: radial-gradient(circle at 77% 8%, rgba(231, 99, 54, 0.08), transparent 26%), var(--panel); }
 .topbar { display: flex; height: 70px; align-items: center; justify-content: space-between; padding: 0 32px; border-bottom: 1px solid var(--line); }
 .topbar-actions { display: flex; gap: 8px; }
 .icon-button, .composer-action {

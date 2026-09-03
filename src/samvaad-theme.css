@@ -3531,6 +3531,280 @@ select:focus-visible,
   .pothi-caption-next { transition: none; }
 }
 
+/* ---------- fullscreen pothi reader ---------- */
+.pothi-fs-enter{
+  position:absolute;
+  top:12px;
+  right:12px;
+  z-index:5;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 12px;
+  border-radius:999px;
+  background:rgba(255,248,225,0.94);
+  border:1px solid rgba(180,120,40,0.22);
+  color:#6B3A15;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:0.04em;
+  cursor:pointer;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  box-shadow:0 8px 22px rgba(120,70,10,0.14);
+  transition:transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+.pothi-fs-enter:hover{ transform:translateY(-1px); box-shadow:0 12px 28px rgba(120,70,10,0.20); background:rgba(255,253,248,0.98); }
+.night .pothi-fs-enter{ background:rgba(16,38,63,0.90); border-color:rgba(254,200,75,0.22); color:#FFE9B8; }
+.pothi-caption-actions{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:12px; }
+.pothi-caption-fs{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.92);
+  border:1px solid rgba(180,120,40,0.18);
+  color:#6B3A15;
+  font-size:11.5px;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(120,70,10,0.10);
+  transition:transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+.pothi-caption-fs:hover{ transform:translateY(-1px); border-color:rgba(230,138,0,0.28); box-shadow:0 10px 24px rgba(120,70,10,0.16); }
+.night .pothi-caption-fs{ background:rgba(16,38,63,0.92); border-color:rgba(254,200,75,0.18); color:#FFE9B8; }
+
+.pothi-fullscreen{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:clamp(12px, 2vw, 24px);
+  animation:pothiFsFade 220ms ease both;
+}
+@keyframes pothiFsFade{ from{ opacity:0 } to{ opacity:1 } }
+.pothi-fs-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(5,15,30,0.84);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.pothi-fs-shell{
+  position:relative;
+  width:min(980px, 96vw);
+  max-height:min(88vh, 860px);
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  z-index:1;
+  animation:pothiFsIn 360ms cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes pothiFsIn{ from{ opacity:0; transform:translateY(14px) scale(0.98) } to{ opacity:1; transform:none } }
+.pothi-fs-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:rgba(255,248,225,0.98);
+  border:1px solid rgba(180,120,40,0.18);
+  box-shadow:0 12px 32px rgba(0,0,0,0.18);
+}
+.night .pothi-fs-topbar{ background:rgba(16,38,63,0.98); border-color:rgba(254,200,75,0.18); }
+.pothi-fs-title{ font-size:11px; font-weight:800; letter-spacing:0.07em; text-transform:uppercase; color:#6B3A15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.night .pothi-fs-title{ color:#FFE9B8; }
+.pothi-fs-count{ flex:none; font-size:11px; font-weight:700; color:#8A6B4D; padding:4px 10px; border-radius:999px; background:rgba(230,138,0,0.12); }
+.night .pothi-fs-count{ color:#FFE9B8; background:rgba(254,200,75,0.14); }
+.pothi-fs-close{
+  flex:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 12px;
+  border-radius:999px;
+  background:rgba(0,0,0,0.06);
+  border:1px solid rgba(0,0,0,0.08);
+  color:#4A2A04;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+  transition:background 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+.pothi-fs-close:hover{ background:rgba(180,40,20,0.08); border-color:rgba(180,40,20,0.18); color:#7A1A08; transform:translateY(-1px); }
+.night .pothi-fs-close{ background:rgba(255,255,255,0.08); border-color:rgba(254,200,75,0.18); color:#FFE9B8; }
+.night .pothi-fs-close:hover{ background:rgba(239,68,68,0.14); border-color:rgba(239,68,68,0.28); color:#FECACA; }
+.pothi-fs-stage{
+  display:grid;
+  grid-template-columns:56px 1fr 56px;
+  align-items:center;
+  gap:12px;
+  flex:1;
+  min-height:0;
+}
+.pothi-fs-leaf{
+  position:relative;
+  min-height:clamp(300px, 44vh, 440px);
+  padding:26px 56px 30px;
+  border-radius:10px;
+  background:
+    repeating-linear-gradient(0deg, rgba(120,70,10,0.035) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, #F4E1B8 0%, #E9C98A 18%, #F0DCB0 50%, #E6C78E 88%, #D9B66A 100%);
+  box-shadow:
+    0 28px 70px rgba(0,0,0,0.48),
+    inset 0 0 0 1px rgba(138,96,17,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.55);
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+}
+.pothi-fs-leaf-inner{
+  position:relative;
+  z-index:1;
+  width:100%;
+  max-width:720px;
+  text-align:center;
+  padding:10px 0;
+}
+.pothi-fs-src{
+  display:block;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:rgba(122,58,12,0.72);
+  margin-bottom:10px;
+}
+.pothi-fs-rule{
+  height:1px;
+  background:rgba(148,32,18,0.42);
+  margin:12px 20px;
+  position:relative;
+}
+.pothi-fs-rule::after{
+  content:'';
+  position:absolute;
+  left:0; right:0; top:5px;
+  height:1px;
+  background:rgba(148,32,18,0.14);
+}
+.pothi-fs-deva{
+  margin:0;
+  font-family:'Noto Sans Devanagari','Nirmala UI',serif;
+  font-size:clamp(22px, 2.6vw, 33px);
+  font-weight:600;
+  line-height:1.75;
+  color:#170E04;
+  text-wrap:balance;
+}
+.pothi-fs-meaning{
+  margin:14px auto 0;
+  max-width:560px;
+  font-size:13px;
+  font-style:italic;
+  line-height:1.65;
+  color:rgba(92,58,14,0.72);
+}
+.pothi-fs-folio{
+  position:absolute;
+  right:18px;
+  bottom:12px;
+  font-size:11px;
+  font-weight:700;
+  color:rgba(122,58,12,0.55);
+  font-family:'Noto Sans Devanagari',serif;
+}
+.pothi-fs-hole{
+  position:absolute;
+  top:50%;
+  width:18px;
+  height:16px;
+  margin-top:-8px;
+  margin-left:-9px;
+  border-radius:50%;
+  background:#1A0A04;
+  border:2px solid #C9A24A;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,0.5), 0 1px 0 rgba(255,220,130,0.22);
+  pointer-events:none;
+}
+.pothi-fs-om{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-44%);
+  font-size:clamp(160px, 18vw, 300px);
+  line-height:1;
+  color:rgba(91,42,4,0.038);
+  pointer-events:none;
+  font-family:'Noto Sans Devanagari',serif;
+  user-select:none;
+}
+.pothi-fs-arrow{
+  width:52px;
+  height:52px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:rgba(255,248,225,0.98);
+  border:1px solid rgba(180,120,40,0.22);
+  color:#6B3A15;
+  cursor:pointer;
+  box-shadow:0 12px 32px rgba(0,0,0,0.18);
+  transition:transform 180ms ease, background 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+.pothi-fs-arrow:hover{ transform:scale(1.06); background:#FFFDF6; box-shadow:0 16px 40px rgba(0,0,0,0.22); border-color:rgba(230,138,0,0.28); }
+.pothi-fs-arrow:active{ transform:scale(0.96); }
+.night .pothi-fs-arrow{ background:rgba(16,38,63,0.98); border-color:rgba(254,200,75,0.18); color:#FFE9B8; }
+.pothi-fs-bottom{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  padding:12px 16px;
+  border-radius:14px;
+  background:rgba(255,248,225,0.98);
+  border:1px solid rgba(180,120,40,0.18);
+  box-shadow:0 12px 32px rgba(0,0,0,0.14);
+}
+.night .pothi-fs-bottom{ background:rgba(16,38,63,0.98); border-color:rgba(254,200,75,0.18); }
+.pothi-fs-dots{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; }
+.pothi-fs-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  border:0;
+  background:rgba(138,107,77,0.32);
+  cursor:pointer;
+  transition:transform 200ms cubic-bezier(0.34,1.56,0.64,1), background 200ms ease, box-shadow 200ms ease;
+}
+.pothi-fs-dot.is-active{ background:#E68A00; box-shadow:0 0 0 4px rgba(230,138,0,0.22); transform:scale(1.18); }
+.night .pothi-fs-dot{ background:rgba(168,182,200,0.32); }
+.night .pothi-fs-dot.is-active{ background:#FEC84B; box-shadow:0 0 0 4px rgba(254,200,75,0.22); }
+.pothi-fs-hint{ font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:#8A6B4D; text-align:center; }
+.night .pothi-fs-hint{ color:#A8B6C8; }
+
+@media (max-width: 760px){
+  .pothi-fs-stage{ grid-template-columns:44px 1fr 44px; gap:8px; }
+  .pothi-fs-leaf{ padding:20px 32px 24px; min-height:300px; }
+  .pothi-fs-deva{ font-size:21px; }
+  .pothi-fs-arrow{ width:44px; height:44px; }
+  .pothi-fs-topbar{ flex-wrap:wrap; gap:8px; }
+}
+@media (max-width: 520px){
+  .pothi-fs-stage{ grid-template-columns:1fr; }
+  .pothi-fs-arrow{ display:none; }
+  .pothi-fs-leaf{ padding:18px 20px 22px; min-height:280px; }
+  .pothi-fullscreen{ padding:10px; }
+  .pothi-fs-shell{ gap:10px; max-height:96vh; }
+  .pothi-fs-title{ font-size:10px; }
+  .pothi-fs-enter span{ display:none; }
+  .pothi-fs-enter{ padding:8px; border-radius:50%; width:36px; height:36px; justify-content:center; }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    OLD CHATS / CONVERSATION DRAWER (Mobile & Desktop Responsive)
 ════════════════════════════════════════════════════════════════════════════ */
@@ -3771,4 +4045,46 @@ select:focus-visible,
 .user-info small {
   font-size: 0.72rem !important;
   color: #22c55e !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DYNAMIC SIDEBAR DOCKING & ELIMINATE EMPTY DEAD SPACE
+════════════════════════════════════════════════════════════════════════════ */
+.menu-button {
+  display: grid !important;
+}
+
+.main-panel {
+  margin-left: 0 !important;
+  width: 100% !important;
+  transition: margin-left 0.28s cubic-bezier(0.16, 1, 0.3, 1), width 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Desktop (>= 900px): When sidebar is open, dock it cleanly in the left 280px */
+@media (min-width: 900px) {
+  .app-shell.sidebar-open .main-panel {
+    margin-left: 280px !important;
+    width: calc(100% - 280px) !important;
+  }
+  .app-shell:not(.sidebar-open) .main-panel {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+  .sidebar {
+    width: 280px !important;
+  }
+  .app-shell.sidebar-open .sidebar-backdrop {
+    display: none !important;
+  }
+}
+
+/* Mobile (< 900px): Full width, overlay drawer with blurred backdrop */
+@media (max-width: 899px) {
+  .main-panel {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+  .sidebar {
+    width: min(300px, 84vw) !important;
+  }
 }
