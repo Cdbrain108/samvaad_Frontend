@@ -2872,6 +2872,9 @@ select:focus-visible,
   }
 
   /* Mobile Temple: Dedicated 9:16 Vertical Artwork */
+  .spiritual-hero::before {
+    display: none !important;
+  }
   .desktop-only-canvas {
     display: none !important;
   }
@@ -2879,8 +2882,10 @@ select:focus-visible,
     display: block !important;
     position: absolute !important;
     inset: 0 !important;
-    background-size: cover !important;
-    background-position: center bottom !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center bottom !important;
     z-index: 0 !important;
     pointer-events: none !important;
   }

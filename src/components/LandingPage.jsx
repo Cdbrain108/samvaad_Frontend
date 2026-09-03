@@ -414,9 +414,10 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
         <section className="spiritual-hero phase phase-hero" id="hero">
           {darkMode ? (
             <>
-              <div
+              <img
+                src={heroNightTempleMobile}
                 className="hero-bg hero-bg-mobile-temple"
-                style={{ backgroundImage: `url(${heroNightTempleMobile})` }}
+                alt="Sacred Vrindavan Temple at Night"
                 aria-hidden="true"
               />
               <TempleNightCanvas className="hero-bg hero-bg-canvas desktop-only-canvas" />
