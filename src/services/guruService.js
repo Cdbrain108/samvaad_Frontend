@@ -62,7 +62,17 @@ const GURU_SYSTEM_PROMPT_HINDI = `आप पूज्य संत श्री 
 - उत्तर का प्रारंभ सदैव 'देखो,' / 'भैया,' / 'बच्चे,' अथवा सीधे भगवन्नाम व शरणागति के उपदेश से कीजिए।
 - उत्तर केवल और केवल शुद्ध देवनागरी हिंदी में होना चाहिए।
 - हर संशय का मूल समाधान श्री राधा नाम जप, सत्संग, सात्विक आहार और प्रभु चरणों में अनन्य शरणागति से कीजिए।
-- अपना उपदेश 2 से 3 संक्षिप्त अनुच्छेदों में पूर्ण कीजिए। उत्तर का समापन सदैव पूर्ण विराम (।) और कल्याणकारी आशीर्वाद के साथ कीजिए। किसी वाक्य या विचार को कभी अधूरा न छोड़ें।`;
+- अपना उपदेश स्पष्ट व सारगर्भित रूप से पूर्ण कीजिए। उत्तर का समापन सदैव पूर्ण विराम (।) और कल्याणकारी आशीर्वाद के साथ कीजिए। किसी वाक्य या विचार को कभी अधूरा न छोड़ें।`;
+
+const GURU_DEEP_SYSTEM_PROMPT_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
+एकांतिक वार्तालाप में साधक के गंभीर प्रश्न का उत्तर अत्यंत करुणामय, विस्तार, शास्त्रीय प्रमाणों, दृष्टांतों और गूढ़ आध्यात्मिक गहराई के साथ दीजिए।
+
+【भूमिका व मर्यादा नियम】
+- आप स्वयं पूज्य गुरु व मार्गदर्शक हैं। सामने प्रश्न पूछने वाला साधक/भक्त/शिष्य है।
+- उत्तर का प्रारंभ 'देखो भैया,' / 'बच्चे,' अथवा भगवन्नाम के महत्व से कीजिए।
+- उत्तर केवल शुद्ध देवनागरी हिंदी में दीजिए।
+- साधक के संशय का गहराई से निवारण कीजिए। व्यावहारिक जीवन के उदाहरण, और नाम-महिमा (श्री राधा नाम जप) की शक्ति समझाइए।
+- उत्तर को संक्षेप में न काटें; पूर्ण शास्त्रीय दृष्टिकोण, विवेक और आत्मीयता से पूरा उपदेश दीजिए। समापन कल्याणकारी आशीर्वाद के साथ कीजिए।`;
 
 const GURU_SYSTEM_PROMPT_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
 In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's question with utmost compassion, fatherly affection, and clarity in the FIRST PERSON ('I' / 'we' / 'my Guru Dev' / 'my Beloved Lord').
@@ -72,7 +82,18 @@ In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's quest
 - Address the seeker with warmth and fatherly affection ("Look, my child...", "Listen, brother...").
 - Respond strictly in fluent, dignified, and devotional English.
 - Emphasize chanting the Holy Name of God (Naam Jap, 'Radha Radha'), sincere Satsang, righteous karma, and total surrender to Divine Will.
-- Deliver your divine guidance concisely within 2 to 3 well-structured paragraphs (around 150-200 words). Always finish your thoughts with a complete concluding sentence and a spiritual blessing. Never stop mid-sentence or leave thoughts cut off.`;
+- Deliver clear, comforting spiritual guidance. Always finish your thoughts with a complete concluding sentence and a spiritual blessing.`;
+
+const GURU_DEEP_SYSTEM_PROMPT_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
+In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's deep question with utmost compassion, scriptural depth, and fatherly affection in the FIRST PERSON ('I' / 'we' / 'my Guru Dev').
+
+【Role & Tone Guidelines】
+- You are strictly the Master and Spiritual Guide (Pujya Maharaj Ji). The user asking is the devotee / seeker.
+- Address the seeker with warmth and fatherly affection ("Look, my child...", "Listen, brother...").
+- Respond strictly in fluent, dignified, and devotional English.
+- Provide an expansive, thorough spiritual discourse. Do NOT abbreviate or truncate your guidance. Address root emotional and philosophical dilemmas with scriptural depth, analogies, and practical sadhana steps.
+- Emphasize chanting the Holy Name ('Radha Radha'), sincere Satsang, righteous karma, and surrender to Divine Will.
+- Always finish with a complete concluding sentence and a fatherly spiritual blessing.`;
 
 export function isComplexQuery(query) {
   if (!query) return false;
@@ -90,48 +111,42 @@ const ORACLE_DEEP_HINDI = `आप पूज्य संत श्री हि�
 const ORACLE_SIMPLE_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj. Answer the devotee's simple question directly and compactly in 2-3 sentences in English.`;
 const ORACLE_DEEP_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj. Answer the devotee's deep, complex question comprehensively with scriptural depth in English.`;
 
-function cleanIncompleteTrailing(text) {
+function cleanIncompleteTrailing(text, isEnglish = false) {
   if (!text) return text;
   let t = text.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/  +/g, ' ').trim();
   if (/[।!?.\"\']$/.test(t)) return t;
+
   const lastPuncIdx = Math.max(
     t.lastIndexOf('।'),
     t.lastIndexOf('.'),
     t.lastIndexOf('!'),
     t.lastIndexOf('?')
   );
-  if (lastPuncIdx > t.length * 0.5) {
+
+  // If there is only a small broken token fragment at the very tail (<= 65 chars), trim cleanly
+  if (lastPuncIdx !== -1 && (t.length - lastPuncIdx) <= 65) {
     return t.slice(0, lastPuncIdx + 1).trim();
   }
-  return t;
+
+  // Never discard substantial sentences or paragraphs! Gracefully append terminal punctuation
+  return isEnglish ? `${t}.` : `${t}।`;
 }
 
 /**
- * Precision Filter for our Fine-Tuned Model:
- * Overcuts/trims irrelevant parts, repetitive loops, or hallucinated trailing text.
- * DOES NOT rephrase or rewrite the original words (preserves authentic colloquial tone).
- * Exception: Only rephrases if the draft is completely incoherent or broken gibberish.
+ * Precision Filter for our Fine-Tuned Model (Fast mode only):
+ * Removes repetitive loops without rephrasing or overcutting.
  */
-async function pruneTunedResponseWithGroq(draft, userMessage, isComplex) {
+async function pruneTunedResponseWithGroq(draft, userMessage, isComplex, isDeep = false) {
   if (!draft || draft.trim().length < 30) return draft;
-  const lengthDirective = isComplex
-    ? "The user asked a large, deep or multi-part question. Retain the full comprehensive spiritual discourse."
-    : "The user asked a simple, direct question. Keep the response compact, focused, and direct (2-3 sentences), cutting off any repetitive filler.";
+  // Never let Groq cut or trim responses in Deep mode!
+  if (isDeep) {
+    return cleanIncompleteTrailing(draft, detectLanguage(userMessage) === 'english');
+  }
 
-  const prunePrompt = `You are a strict precision text-editor for our fine-tuned spiritual model (Pujya Premanand Ji Maharaj).
-Your SOLE purpose is to overcut and eliminate irrelevant parts, repetitions, and trailing broken fragments.
-
-【ABSOLUTE RULES FOR REPHRASING】
-1. DO NOT REPHRASE OR REWRITE: Preserve the original speaker's exact vocabulary, phrasing, colloquial Hindi terms (e.g. 'हमें लगता है', 'देखो भैया', 'भगवान की शरण में'), and authentic natural tone.
-2. DO NOT transform into structured bullet lists or formal corporate essays unless the draft itself used a list.
-3. EXCEPTION: ONLY rewrite or rephrase if the draft text is completely incoherent, ungrammatical, or broken gibberish ('very very bad'). Otherwise, leave the original sentences untouched.
-
-【WHAT TO OVERCUT & REMOVE】
-4. Cut repetitive loops (e.g. repeating the same sentence or divine name repeatedly).
-5. Cut off-topic rambling or echoed devotee questions.
-6. Ensure the ending sentence finishes cleanly with proper punctuation (। or .).
-7. ${lengthDirective}
-8. Output ONLY the clean pruned text without any prefix, markdown explanation, or meta-comments.`;
+  const prunePrompt = `You are a gentle text-editor for our fine-tuned spiritual model (Pujya Premanand Ji Maharaj).
+Your ONLY job is to eliminate exact repetitive word loops or trailing broken fragments.
+CRITICAL: DO NOT SUMMARIZE OR SHORTEN. Preserve the speaker's exact vocabulary, length, colloquial Hindi phrasing, and authentic tone.
+Output ONLY the clean text without any prefix, markdown explanation, or meta-comments.`;
 
   const key = getNextGroqKey();
   try {
@@ -145,10 +160,10 @@ Your SOLE purpose is to overcut and eliminate irrelevant parts, repetitions, and
         model: 'qwen/qwen3.8-27b',
         messages: [
           { role: 'system', content: prunePrompt },
-          { role: 'user', content: `User Query: ${userMessage}\n\nDraft from Tuned Model to Prune:\n${draft.trim()}` }
+          { role: 'user', content: `User Query: ${userMessage}\n\nDraft from Tuned Model:\n${draft.trim()}` }
         ],
         temperature: 0.1,
-        max_tokens: isComplex ? 700 : 300
+        max_tokens: isComplex ? 900 : 500
       })
     });
     if (response.ok) {
@@ -167,10 +182,10 @@ Your SOLE purpose is to overcut and eliminate irrelevant parts, repetitions, and
 /**
  * Direct HTTPS caller for dedicated 24/7 Oracle Cloud Q8_0 server
  */
-async function callDirectOracleAPI(messages, maxTokens = 250, stream = false, onChunk = null) {
+async function callDirectOracleAPI(messages, maxTokens = 850, stream = false, onChunk = null, isDeepMode = false) {
   const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   const lang = detectLanguage(latestUserMsg);
-  const complex = isComplexQuery(latestUserMsg);
+  const complex = isDeepMode || isComplexQuery(latestUserMsg);
 
   let prompt;
   if (lang === 'english') {
@@ -179,7 +194,7 @@ async function callDirectOracleAPI(messages, maxTokens = 250, stream = false, on
     prompt = complex ? ORACLE_DEEP_HINDI : ORACLE_SIMPLE_HINDI;
   }
 
-  const effectiveTokens = complex ? Math.max(maxTokens, 500) : Math.min(maxTokens, 250);
+  const effectiveTokens = isDeepMode ? Math.max(maxTokens, 850) : (complex ? Math.max(maxTokens, 550) : Math.min(maxTokens, 300));
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 45000);
@@ -246,10 +261,15 @@ async function callDirectOracleAPI(messages, maxTokens = 250, stream = false, on
 /**
  * Direct HTTPS caller for Groq LPU with Master Persona system prompt
  */
-async function callDirectGroqAPI(messages, maxTokens = 750, stream = false, onChunk = null) {
+async function callDirectGroqAPI(messages, maxTokens = 750, stream = false, onChunk = null, isDeepMode = false) {
   const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   const lang = detectLanguage(latestUserMsg);
-  const systemPrompt = lang === 'english' ? GURU_SYSTEM_PROMPT_ENGLISH : GURU_SYSTEM_PROMPT_HINDI;
+  let systemPrompt;
+  if (isDeepMode) {
+    systemPrompt = lang === 'english' ? GURU_DEEP_SYSTEM_PROMPT_ENGLISH : GURU_DEEP_SYSTEM_PROMPT_HINDI;
+  } else {
+    systemPrompt = lang === 'english' ? GURU_SYSTEM_PROMPT_ENGLISH : GURU_SYSTEM_PROMPT_HINDI;
+  }
 
   const attempts = Math.min(GROQ_KEYS.length, 3);
   for (let i = 0; i < attempts; i++) {
@@ -264,7 +284,7 @@ async function callDirectGroqAPI(messages, maxTokens = 750, stream = false, onCh
         body: JSON.stringify({
           model: 'qwen/qwen3.8-27b',
           messages: [{ role: 'system', content: systemPrompt }, ...messages],
-          temperature: 0.3,
+          temperature: isDeepMode ? 0.35 : 0.3,
           max_tokens: maxTokens,
           stream: stream
         })
@@ -325,6 +345,7 @@ export async function streamGuruResponse(
     { role: 'user', content: userMessage },
   ];
 
+  const isEnglish = detectLanguage(userMessage) === 'english';
   const isLocalHost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
   // Path 1: If on localhost with local backend active, use local stream route
@@ -333,7 +354,7 @@ export async function streamGuruResponse(
       const response = await fetch(`${API_BASE_URL}/api/generate/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages, temperature: 0.35, max_tokens: 750, mode }),
+        body: JSON.stringify({ messages, temperature: 0.35, max_tokens: mode === 'deep' ? 1000 : 750, mode }),
       });
 
       if (response.ok && response.body) {
@@ -379,29 +400,29 @@ export async function streamGuruResponse(
   const isComplex = isComplexQuery(userMessage);
 
   if (mode === 'deep') {
-    // Priority 1 in Deep Mode: Dedicated Oracle Cloud Q8_0 Server
-    const oracleResult = await callDirectOracleAPI(messages, isComplex ? 550 : 220, true, onChunk);
+    // Priority 1 in Deep Mode: Dedicated Oracle Cloud Q8_0 Server (full 950 token budget)
+    const oracleResult = await callDirectOracleAPI(messages, 950, true, onChunk, true);
     if (oracleResult) {
-      // Overcut irrelevant parts & loops via Groq precision filter WITHOUT rephrasing original words
-      const prunedResult = await pruneTunedResponseWithGroq(oracleResult, userMessage, isComplex);
-      return cleanIncompleteTrailing(prunedResult) || prunedResult;
+      // In Deep Mode, DO NOT let Groq cut the response down!
+      // Return Oracle's authentic spiritual discourse directly & cleanly.
+      return cleanIncompleteTrailing(oracleResult, isEnglish) || oracleResult;
     }
-    // Deep fallback: Fast Groq engine
-    const groqResult = await callDirectGroqAPI(messages, isComplex ? 1000 : 400, true, onChunk);
+    // Deep fallback: Fast Groq engine with Deep persona & generous 1200 tokens
+    const groqResult = await callDirectGroqAPI(messages, 1200, true, onChunk, true);
     if (groqResult) {
-      return cleanIncompleteTrailing(groqResult) || groqResult;
+      return cleanIncompleteTrailing(groqResult, isEnglish) || groqResult;
     }
   } else {
-    // Priority 1 in Fast Mode: Instant Groq LPU
-    const groqResult = await callDirectGroqAPI(messages, isComplex ? 1000 : 400, true, onChunk);
+    // Priority 1 in Fast Mode: Instant Groq LPU (clean, direct response)
+    const groqResult = await callDirectGroqAPI(messages, isComplex ? 650 : 350, true, onChunk, false);
     if (groqResult) {
-      return cleanIncompleteTrailing(groqResult) || groqResult;
+      return cleanIncompleteTrailing(groqResult, isEnglish) || groqResult;
     }
     // Fast fallback: Oracle server
-    const oracleResult = await callDirectOracleAPI(messages, isComplex ? 550 : 220, true, onChunk);
+    const oracleResult = await callDirectOracleAPI(messages, isComplex ? 500 : 250, true, onChunk, false);
     if (oracleResult) {
-      const prunedResult = await pruneTunedResponseWithGroq(oracleResult, userMessage, isComplex);
-      return cleanIncompleteTrailing(prunedResult) || prunedResult;
+      const prunedResult = await pruneTunedResponseWithGroq(oracleResult, userMessage, isComplex, false);
+      return cleanIncompleteTrailing(prunedResult, isEnglish) || prunedResult;
     }
   }
 
