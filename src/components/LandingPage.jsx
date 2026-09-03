@@ -5,6 +5,7 @@ import ParchmentScroll from './ParchmentScroll'
 import TempleNightCanvas from './TempleNightCanvas'
 import heroSunrise from '../assets/hero-sunrise.png'
 import heroNightTemple from '../assets/hero-night-temple.png'
+import heroNightTempleMobile from '../assets/hero-night-temple-mobile.webp'
 import logoWordmark from '../assets/logo-wordmark.webp'
 import brandIcon from '../assets/brand-icon.webp'
 import guruCutout from '../assets/guru-cutout.webp'
@@ -412,7 +413,14 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
             ============================================================ */}
         <section className="spiritual-hero phase phase-hero" id="hero">
           {darkMode ? (
-            <TempleNightCanvas className="hero-bg hero-bg-canvas" />
+            <>
+              <div
+                className="hero-bg hero-bg-mobile-temple"
+                style={{ backgroundImage: `url(${heroNightTempleMobile})` }}
+                aria-hidden="true"
+              />
+              <TempleNightCanvas className="hero-bg hero-bg-canvas desktop-only-canvas" />
+            </>
           ) : (
             <div
               className="hero-bg hero-bg-sunrise"
