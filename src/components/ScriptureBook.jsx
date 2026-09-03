@@ -126,7 +126,7 @@ function drawPalmLeafTexture(verse, folioNum){
   ctx.fillStyle='#170E04'
   ctx.font=`600 56px ${SANS_DEVA}`
   ctx.shadowColor='rgba(0,0,0,0.13)'; ctx.shadowBlur=0.9; ctx.shadowOffsetY=1.1
-  const maxTextW=W*0.38
+  const maxTextW=W*0.48
   const lines=wrapText(ctx, verse.devanagari, maxTextW)
   const lineH=68
   let ty= (H - lines.length*lineH)/2 + 38
@@ -139,24 +139,6 @@ function drawPalmLeafTexture(verse, folioNum){
   }
   ctx.textAlign='right'; ctx.fillStyle='rgba(122,58,12,0.52)'; ctx.font=`600 17px ${SANS_DEVA}`
   ctx.fillText(`॥ ${folioNum} ॥`, W-30, H-16)
-  // string holes — photo-real eyelet with bevel, shadow, crack, gold ring — draw AFTER text so holes stay clear (no text inside)
-  for(const hx of [W*0.30, W*0.70]){
-    const hy=H/2
-    // drop shadow
-    ctx.fillStyle='rgba(0,0,0,0.22)'
-    ctx.beginPath(); ctx.ellipse(hx+2.5, hy+2.5, 18, 15, 0,0,Math.PI*2); ctx.fill()
-    // outer wood bevel (dark)
-    ctx.fillStyle='#2E1608'; ctx.beginPath(); ctx.ellipse(hx,hy,17,14.5,0,0,Math.PI*2); ctx.fill()
-    // gold eyelet ring — thin
-    ctx.strokeStyle='#C9A24A'; ctx.lineWidth=2.2; ctx.beginPath(); ctx.ellipse(hx,hy,13,11,0,0,Math.PI*2); ctx.stroke()
-    ctx.strokeStyle='rgba(255,232,160,0.42)'; ctx.lineWidth=0.9; ctx.beginPath(); ctx.ellipse(hx,hy,13,11, -0.9,0.7, 2.1); ctx.stroke()
-    // inner void
-    ctx.fillStyle='#0F0702'; ctx.beginPath(); ctx.ellipse(hx,hy,9.5,8,0,0,Math.PI*2); ctx.fill()
-    // small radial crack around hole
-    ctx.strokeStyle='rgba(58,30,8,0.18)'; ctx.lineWidth=0.7
-    ctx.beginPath(); ctx.moveTo(hx+13, hy-2); ctx.lineTo(hx+19, hy-5); ctx.stroke()
-    ctx.beginPath(); ctx.moveTo(hx-13, hy+3); ctx.lineTo(hx-18, hy+7); ctx.stroke()
-  }
   // subtle vignette
   const vig=ctx.createRadialGradient(W/2,H/2, H*0.45, W/2,H/2, W*0.78)
   vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(60,30,8,0.18)')
@@ -170,7 +152,6 @@ function drawPlainLeafTexture(){
   ctx.globalAlpha=0.12; ctx.fillStyle='#7A4A14'; for(let y=0;y<H;y+=2.2) ctx.fillRect(0,y+Math.random()*0.5,W,0.55); ctx.globalAlpha=1
   for(let i=0;i<80;i++){ ctx.fillStyle=`rgba(92,62,18,${0.028+Math.random()*0.045})`; ctx.beginPath(); ctx.ellipse(Math.random()*W,Math.random()*H, Math.random()*10+2, Math.random()*6+2,0,0,Math.PI*2); ctx.fill() }
   ctx.strokeStyle='rgba(148,32,18,0.38)'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(48,108); ctx.lineTo(W-48,108); ctx.stroke(); ctx.beginPath(); ctx.moveTo(48,H-112); ctx.lineTo(W-48,H-112); ctx.stroke()
-  for(const hx of [W*0.30, W*0.70]){ ctx.fillStyle='#2E1608'; ctx.beginPath(); ctx.ellipse(hx,H/2,17,14.5,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#0F0702'; ctx.beginPath(); ctx.ellipse(hx,H/2,9.5,8,0,0,Math.PI*2); ctx.fill(); ctx.strokeStyle='#C9A24A'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(hx,H/2,13,11,0,0,Math.PI*2); ctx.stroke() }
   ctx.save(); ctx.globalAlpha=0.055; ctx.fillStyle='#5B2A04'; ctx.font=`500 300px ${SANS_DEVA}`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('ॐ', W/2, H/2+8); ctx.restore()
   ctx.fillStyle='rgba(78,38,8,0.13)'; ctx.fillRect(0,0,14,H); ctx.fillRect(W-14,0,14,H)
   const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8; return t
@@ -299,7 +280,7 @@ function drawPaintedPatta(isTop){
       ctx.strokeStyle='rgba(255,215,110,0.22)'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx, cy - h*0.24, colW*0.145,0,Math.PI*2); ctx.stroke()
     }
     // corner diamonds
-    ctx.fillStyle='#FFD97A';
+    ctx.fillStyle='#FFD97A'
     for(const cx of [20, W-20]) for(const cy of [y0+16, y0+h-16]){
       ctx.save(); ctx.translate(cx,cy); ctx.rotate(Math.PI/4); ctx.fillRect(-7,-7,14,14); ctx.fillStyle='#B71C1C'; ctx.fillRect(-3,-3,6,6); ctx.restore(); ctx.fillStyle='#FFD97A'
     }
@@ -317,16 +298,6 @@ function drawPaintedPatta(isTop){
     ctx.globalAlpha=1
   }
   drawBorder(0,bh); drawBorder(H-bh,bh)
-  // holes with gold eyelet + crack
-  for(const hx of [W*0.30, W*0.70]){
-    const hy=H/2
-    ctx.fillStyle='rgba(0,0,0,0.30)'; ctx.beginPath(); ctx.ellipse(hx+2,hy+2,19,16,0,0,Math.PI*2); ctx.fill()
-    ctx.fillStyle='#1E0F06'; ctx.beginPath(); ctx.ellipse(hx,hy,18,15,0,0,Math.PI*2); ctx.fill()
-    ctx.strokeStyle='#C9A24A'; ctx.lineWidth=2.4; ctx.beginPath(); ctx.ellipse(hx,hy,13.5,11.5,0,0,Math.PI*2); ctx.stroke()
-    ctx.strokeStyle='rgba(255,238,170,0.42)'; ctx.lineWidth=1; ctx.beginPath(); ctx.ellipse(hx,hy,13.5,11.5,-0.8,0.4,1.6); ctx.stroke()
-    ctx.fillStyle='#0B0402'; ctx.beginPath(); ctx.ellipse(hx,hy,9,7.5,0,0,Math.PI*2); ctx.fill()
-    ctx.strokeStyle='rgba(80,30,10,0.18)'; ctx.lineWidth=0.7; ctx.beginPath(); ctx.moveTo(hx+13,hy-3); ctx.lineTo(hx+20,hy-6); ctx.stroke()
-  }
   // overall craquelure — fine cracks across wood
   ctx.strokeStyle='rgba(20,8,2,0.09)'; ctx.lineWidth=0.5
   for(let i=0;i<26;i++){
@@ -356,18 +327,21 @@ function PothiScene({ leafTextures, plainTexture, topCoverMap, bottomCoverMap, a
     groupRef.current.position.x=THREE.MathUtils.damp(groupRef.current.position.x, floatX, 1.2, dt)
     if(floatingLeafRef.current){
       const p=eased
-      const baseY=(STACK_COUNT-1)*STACK_GAP+0.065
-      const liftY=baseY + THREE.MathUtils.lerp(0,0.62,p)+Math.sin(p*Math.PI)*0.10
-      const fwdZ=THREE.MathUtils.lerp(0,0.98,p)+Math.sin(p*Math.PI)*0.10
-      const tx=floatX*(1-p*0.6)
+      const baseY=(STACK_COUNT-1)*STACK_GAP+0.045
+      // Natural manuscript leaf motion: rests peacefully on the stack, lifts gently during turn, then settles back down
+      const turnPulse=Math.sin(p*Math.PI)
+      const liftY=baseY + turnPulse*0.28
+      const fwdZ=0.04 + turnPulse*0.22
+      const tx=floatX*(1-turnPulse*0.4)
       floatingLeafRef.current.position.y=THREE.MathUtils.damp(floatingLeafRef.current.position.y, liftY, 4.4, dt)
       floatingLeafRef.current.position.z=THREE.MathUtils.damp(floatingLeafRef.current.position.z, fwdZ, 4.4, dt)
       floatingLeafRef.current.position.x=THREE.MathUtils.damp(floatingLeafRef.current.position.x, tx, 3.2, dt)
-      const rotX=THREE.MathUtils.lerp(0,-0.88,p)+Math.sin(p*Math.PI)*-0.05
+      // Gentle viewing angle so Sanskrit text is legible without sticking up like a lid
+      const rotX=-0.26 - turnPulse*0.24
       floatingLeafRef.current.rotation.x=THREE.MathUtils.damp(floatingLeafRef.current.rotation.x, rotX, 4.4, dt)
-      floatingLeafRef.current.rotation.y=THREE.MathUtils.damp(floatingLeafRef.current.rotation.y, Math.sin(p*Math.PI)*0.04, 3.2, dt)
-      floatingLeafRef.current.rotation.z=Math.sin(p*Math.PI)*0.025
-      const sc=THREE.MathUtils.lerp(1,1.32,p)
+      floatingLeafRef.current.rotation.y=THREE.MathUtils.damp(floatingLeafRef.current.rotation.y, Math.sin(p*Math.PI)*0.03, 3.2, dt)
+      floatingLeafRef.current.rotation.z=Math.sin(p*Math.PI)*0.015
+      const sc=1 + turnPulse*0.06
       const s=THREE.MathUtils.damp(floatingLeafRef.current.scale.x, sc, 4.0, dt); floatingLeafRef.current.scale.setScalar(s)
     }
   })
@@ -392,7 +366,6 @@ function PothiScene({ leafTextures, plainTexture, topCoverMap, bottomCoverMap, a
           const rx= (Math.sin(i*0.9)*0.010) + (Math.random()-0.5)*0.006
           const rz= Math.sin(i*1.7)*0.007 + (Math.random()-0.5)*0.004
           const shade= 0.88 + Math.sin(i*2.1)*0.06
-          // vary leaf tone slightly
           const tone = `hsl(38, ${42+Math.sin(i*1.3)*6}%, ${72+Math.sin(i*0.7)*4}%)`
           return (
             <group key={i} position={[rx,y,rz]} visible={!hidden}>
@@ -410,31 +383,11 @@ function PothiScene({ leafTextures, plainTexture, topCoverMap, bottomCoverMap, a
                 <planeGeometry args={[LEAF_W*0.98, 0.008]} />
                 <meshBasicMaterial color='#5A2E0A' transparent opacity={0.55*shade} depthWrite={false} />
               </mesh>
-              <mesh position={[LEAF_W*0.20, LEAF_H*0.62, 0]}><cylinderGeometry args={[0.024,0.024,LEAF_H+0.008,14]} /><meshStandardMaterial color='#140700' roughness={1} /></mesh>
-              <mesh position={[LEAF_W*-0.20, LEAF_H*0.62, 0]}><cylinderGeometry args={[0.024,0.024,LEAF_H+0.008,14]} /><meshStandardMaterial color='#140700' roughness={1} /></mesh>
             </group>
           )
         })}
-        {/* top patta */}
-        <mesh position={[0, topY+0.085, 0]}>
-          <boxGeometry args={[LEAF_W+0.26, 0.145, LEAF_D+0.20]} />
-          <meshStandardMaterial map={topCoverMap} roughness={0.60} metalness={0.02} />
-        </mesh>
-        {/* cords */}
-        {[0.91,-0.91].map(xOff=>(
-          <group key={xOff} position={[xOff, topY+0.16, 0]}>
-            <mesh position={[0,0.014,0]}><boxGeometry args={[0.048,0.022,LEAF_D+0.06]} /><meshStandardMaterial color='#F5E6C2' roughness={0.96} /></mesh>
-            <mesh position={[0,0.048,0]}><sphereGeometry args={[0.058,14,12]} /><meshStandardMaterial color='#F5E6C2' roughness={0.90} /></mesh>
-            {/* tassels — 3 threads */}
-            <mesh position={[0,-0.20,LEAF_D*0.52]}><cylinderGeometry args={[0.015,0.015,0.48,8]} /><meshStandardMaterial color='#F5E6C2' roughness={0.96} /></mesh>
-            <mesh position={[0.038,-0.19,LEAF_D*0.52]}><cylinderGeometry args={[0.013,0.013,0.44,8]} /><meshStandardMaterial color='#EAD8B0' roughness={0.96} /></mesh>
-            <mesh position={[-0.028,-0.195,LEAF_D*0.52]}><cylinderGeometry args={[0.012,0.012,0.42,8]} /><meshStandardMaterial color='#E2C9A0' roughness={0.96} /></mesh>
-            <mesh position={[0,-0.44,LEAF_D*0.52]}><sphereGeometry args={[0.030,10,8]} /><meshStandardMaterial color='#8A4E1E' roughness={0.68} /></mesh>
-            <mesh position={[0.018,-0.41,LEAF_D*0.52]}><sphereGeometry args={[0.020,10,8]} /><meshStandardMaterial color='#6B3A14' roughness={0.68} /></mesh>
-          </group>
-        ))}
       </group>
-      {/* floating leaf */}
+      {/* active manuscript leaf resting peacefully on top */}
       <group ref={floatingLeafRef} position={[0, topY, 0]}>
         <mesh rotation={[-Math.PI/2,0,0]} position={[0,-0.96 - eased*0.18, -0.12]}>
           <planeGeometry args={[3.4,1.7]} />
@@ -449,12 +402,6 @@ function PothiScene({ leafTextures, plainTexture, topCoverMap, bottomCoverMap, a
           <meshStandardMaterial attach='material-4' color='#E6C78E' roughness={0.90} />
           <meshStandardMaterial attach='material-5' color='#E6C78E' roughness={0.90} />
         </mesh>
-        {[-0.91,0.91].map(x=>(
-          <mesh key={x} position={[x, LEAF_H*0.82, 0]} rotation={[Math.PI/2,0,0]}>
-            <torusGeometry args={[0.058,0.013,12,20]} />
-            <meshStandardMaterial color='#8A3D12' roughness={0.52} metalness={0.22} />
-          </mesh>
-        ))}
       </group>
     </group>
   )
@@ -469,7 +416,6 @@ function ManuscriptFallback({ verse, onNext }){
           <p className='pothi-fallback-deva'>{verse.devanagari}</p>
           <span className='pothi-fallback-rule' aria-hidden='true' />
           <p className='pothi-fallback-meaning'>{verse.meaning}</p>
-          <i className='pothi-hole' style={{ left:'30%' }} /><i className='pothi-hole' style={{ left:'70%' }} />
         </div>
       </div>
       <button className='pothi-fallback-next' onClick={onNext}>अगला श्लोक · Next →</button>
@@ -654,8 +600,6 @@ export default function ScriptureBook(){
                   <div className='pothi-fs-rule' aria-hidden='true' />
                   <p className='pothi-fs-meaning'>{typedMeaning}{typedDeva.length >= current.devanagari.length && typedMeaning.length < current.meaning.length ? <span className='pothi-type-cursor is-typing' aria-hidden='true'>▌</span> : null}</p>
                   <span className='pothi-fs-folio'>॥ {active+1} ॥</span>
-                  <i className='pothi-fs-hole' style={{ left:'30%' }} aria-hidden='true' />
-                  <i className='pothi-fs-hole' style={{ left:'70%' }} aria-hidden='true' />
                   <span className='pothi-fs-om' aria-hidden='true'>ॐ</span>
                 </div>
               </div>

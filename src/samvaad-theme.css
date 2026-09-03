@@ -3493,68 +3493,326 @@ select:focus-visible,
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   CINEMATIC SCRIPTURE SECTION — fixed 100svh container with stacked layers
-   Layer 1 (bottom): pothi-stage — always occupies the full container
-   Layer 2 (top):   heritage-intro — slides up on dismiss (translateY -100%)
-   Both layers are position:absolute inset:0 inside a position:relative shell.
-   This eliminates any overflow fighting and keeps the snap height correct.
+   CLEAN RESPONSIVE LAYOUT FOR SYSTEMATIC 6-PHASE FLOW
 ════════════════════════════════════════════════════════════════════════════ */
 
-/* 1 — override ALL earlier scripture-section overrides with one authoritative block */
+/* Scripture Section: permanent clean header + 3D pothi */
 .spiritual-page .scripture-section {
   position: relative !important;
-  height: 100svh !important;
   min-height: 100svh !important;
-  max-height: 100svh !important;
-  overflow: hidden !important;      /* layers use absolute, no overflow needed */
-  padding: 0 !important;
-  display: block !important;        /* layers are absolute, not flex */
-  flex-direction: unset !important;
-  gap: 0 !important;
-  justify-content: unset !important;
-  align-items: unset !important;
-}
-
-/* 2 — the generic sb-scene halo is not needed inside pothi */
-.pothi-exhibit .sb-scene::before { display: none !important; }
-
-/* 3 — pothi stage fills the entire section behind the heritage intro */
-.pothi-stage {
-  position: absolute !important;
-  inset: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding: clamp(64px, 8vh, 90px) max(20px, calc((100vw - 1100px) / 2)) clamp(40px, 5vh, 64px) !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: flex-start !important;
-  padding: clamp(72px,9vh,100px) max(16px, calc((100vw - 900px)/2)) clamp(24px,4vh,48px) !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  gap: clamp(10px,1.5vh,18px) !important;
-  z-index: 0;
+  gap: clamp(14px, 2vh, 24px) !important;
 }
 
-/* when heritage intro is showing, dim pothi behind but keep it rendered */
-.scripture-section.is-heritage .pothi-stage {
-  filter: blur(2px);
-  pointer-events: none;
-}
-
-/* heading inside pothi-stage */
-.pothi-stage .spiritual-section-heading {
+.spiritual-page .scripture-section .spiritual-section-heading {
+  max-width: 840px;
   margin-bottom: 0 !important;
-  flex-shrink: 0;
-  width: 100%;
   text-align: center;
 }
 
-/* 4 — header slide-out: when scripture page is active, header fully slides up */
-.spiritual-header.is-hidden {
-  transform: translateY(-120%) !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
+.heritage-lead {
+  margin: 14px auto 6px !important;
+  font-size: clamp(14px, 1.1vw, 16px);
+  line-height: 1.65;
+  color: #FFE9B8;
+  max-width: 780px;
+}
+.heritage-lead em {
+  font-style: italic;
+  color: #FEC84B;
 }
 
-/* 5 — edge-shadow effect: top & bottom of page bleed in from adjacent sections */
+.heritage-sub {
+  margin: 6px auto 0 !important;
+  font-size: clamp(12.5px, 0.95vw, 14px);
+  line-height: 1.6;
+  color: #CBD8E8;
+  max-width: 760px;
+}
+.heritage-sub strong {
+  color: #FFE9B8;
+}
+
+.pothi-exhibit .sb-scene::before { display: none !important; }
+
+/* Combined Pipeline & Numbers Section */
+.pipeline-combined-section {
+  min-height: 100svh;
+  padding: clamp(64px, 8vh, 90px) max(20px, calc((100vw - 1180px) / 2)) clamp(48px, 6vh, 72px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(28px, 4.5vh, 48px);
+  background:
+    radial-gradient(circle at 14% 10%, rgba(255, 179, 0, 0.09), transparent 36%),
+    radial-gradient(circle at 86% 88%, rgba(13, 59, 102, 0.28), transparent 42%),
+    #0B1E33;
+}
+
+/* Chat Project Overview Section */
+.chat-overview-section {
+  min-height: 100svh;
+  padding: clamp(64px, 8vh, 90px) max(20px, calc((100vw - 1060px) / 2)) clamp(48px, 6vh, 72px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 3vh, 32px);
+  background:
+    radial-gradient(circle at 80% 18%, rgba(255, 179, 0, 0.12), transparent 45%),
+    radial-gradient(circle at 18% 82%, rgba(46, 125, 50, 0.14), transparent 42%),
+    linear-gradient(180deg, #071526 0%, #0A1B30 50%, #061120 100%);
+}
+
+.chat-demo-container {
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.chat-demo-window {
+  background: rgba(16, 38, 63, 0.88);
+  border: 1px solid rgba(254, 200, 75, 0.28);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(254, 200, 75, 0.2);
+  overflow: hidden;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-demo-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: rgba(10, 26, 47, 0.92);
+  border-bottom: 1px solid rgba(254, 200, 75, 0.2);
+}
+
+.chat-demo-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E68A00, #B4560A);
+  display: grid;
+  place-items: center;
+  color: #FFF8E1;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 4px 14px rgba(230, 138, 0, 0.35);
+  flex-shrink: 0;
+}
+
+.chat-demo-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.chat-demo-meta strong {
+  font-size: 14.5px;
+  color: #FFE9B8;
+  letter-spacing: 0.02em;
+}
+
+.chat-demo-sub {
+  font-size: 11.5px;
+  color: #A8B6C8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-online-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22C55E;
+  box-shadow: 0 0 8px #22C55E;
+  display: inline-block;
+}
+
+.chat-demo-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(254, 200, 75, 0.12);
+  color: #FEC84B;
+  border: 1px solid rgba(254, 200, 75, 0.25);
+}
+
+.chat-demo-body {
+  padding: 24px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 280px;
+}
+
+.chat-demo-msg {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.chat-demo-msg-user {
+  justify-content: flex-end;
+}
+
+.chat-demo-msg-user .chat-demo-bubble {
+  background: linear-gradient(135deg, rgba(230, 138, 0, 0.22), rgba(180, 86, 10, 0.16));
+  border: 1px solid rgba(254, 200, 75, 0.35);
+  border-radius: 18px 18px 4px 18px;
+  padding: 13px 18px;
+  color: #FFF8E1;
+  font-size: 14.5px;
+  line-height: 1.55;
+  max-width: 82%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.chat-demo-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(254, 200, 75, 0.16);
+  border: 1px solid rgba(254, 200, 75, 0.3);
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.chat-demo-ai-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(230, 138, 0, 0.2);
+  border: 1px solid rgba(254, 200, 75, 0.4);
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.chat-demo-bubble-ai {
+  background: rgba(10, 26, 47, 0.72);
+  border: 1px solid rgba(254, 200, 75, 0.2);
+  border-radius: 4px 18px 18px 18px;
+  padding: 16px 20px;
+  color: #E4EDF7;
+  flex: 1;
+  max-width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.chat-demo-sender {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.chat-demo-sender span {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #FEC84B;
+}
+
+.chat-demo-sender small {
+  font-size: 11px;
+  color: #A8B6C8;
+}
+
+.chat-demo-typed-content {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #CBD8E8;
+}
+
+.chat-demo-typed-content p {
+  margin: 0 0 12px;
+}
+.chat-demo-typed-content p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-demo-controls {
+  padding: 16px 20px 18px;
+  background: rgba(10, 26, 47, 0.95);
+  border-top: 1px solid rgba(254, 200, 75, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-demo-controls-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #A8B6C8;
+}
+
+.chat-demo-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chat-demo-pill {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1px solid rgba(254, 200, 75, 0.25);
+  background: rgba(16, 38, 63, 0.7);
+  color: #CBD8E8;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.chat-demo-pill:hover {
+  border-color: rgba(254, 200, 75, 0.55);
+  color: #FFE9B8;
+  background: rgba(254, 200, 75, 0.12);
+  transform: translateY(-1px);
+}
+
+.chat-demo-pill.is-active {
+  background: linear-gradient(135deg, rgba(230, 138, 0, 0.35), rgba(180, 86, 10, 0.3));
+  border-color: #FEC84B;
+  color: #FFE9B8;
+  box-shadow: 0 0 12px rgba(254, 200, 75, 0.25);
+}
+
+.chat-demo-footer-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+@media (max-width: 700px) {
+  .chat-demo-body { padding: 16px 14px; }
+  .chat-demo-controls { padding: 14px 14px 16px; }
+  .chat-demo-pills { flex-direction: column; }
+  .chat-demo-pill { text-align: left; }
+  .chat-demo-footer-action { justify-content: stretch; }
+  .chat-demo-footer-action button { width: 100%; justify-content: center; }
+}
+
 .spiritual-page .scripture-section::before,
 .spiritual-page .scripture-section::after {
   content: '';
@@ -3562,7 +3820,7 @@ select:focus-visible,
   left: 0; right: 0;
   height: 80px;
   pointer-events: none;
-  z-index: 30;
+  z-index: 2;
 }
 .spiritual-page .scripture-section::before {
   top: 0;

@@ -115,13 +115,14 @@ const topics = [
 
 /* ---------- full-screen 1-component-per-page phases ---------- */
 
+/* ---------- full-screen 6-phase systematic flow ---------- */
+
 const phases = [
   { id: 'hero', label: 'Home' },
-  { id: 'numbers', label: 'Numbers' },
-  { id: 'pipeline', label: 'Pipeline' },
+  { id: 'inspiration', label: 'Inspiration' },
+  { id: 'overview', label: 'About Project' },
+  { id: 'pipeline', label: 'How It Works' },
   { id: 'scriptures', label: 'Scriptures' },
-  { id: 'features', label: 'Experience' },
-  { id: 'dataset', label: 'Dataset' },
   { id: 'education', label: 'Purpose' },
 ]
 
@@ -208,6 +209,148 @@ function FlowPipeline() {
   )
 }
 
+/* ---------- interactive animated chatbot demo overview ---------- */
+
+function ChatProjectOverview({ onEnter }) {
+  const conversations = [
+    {
+      id: 'motivation',
+      label: '🙏 Why Samvaad was created',
+      q: 'What is the Samvaad project really about, and what inspired you to build it?',
+      a: `Pranam 🙏 Samvaad is a heartfelt educational seva born out of deep faith in Sanatan Dharma and immense reverence for Pujya Premanand Ji Maharaj (Bhajan Marg).
+
+As a devotee seeking spiritual strength to quiet a restless mind and lead a righteous life, I realized millions of householders and youth have real, everyday questions about karma, anxiety, bhakti, detachment, and family duties. Maharaj Ji's Ekantik Vartalaap discourses on YouTube address these with boundless compassion and simple clarity.
+
+I created Samvaad to make this wisdom effortlessly accessible through conversational AI — to help myself and fellow seekers clear doubts with humility, warmth, and sacred grounding.`,
+      tag: 'Heart & Inspiration',
+    },
+    {
+      id: 'working',
+      label: '⚙️ How data & AI work',
+      q: 'How does it turn 4,000+ Bhajan Marg discourses into an intelligent guide?',
+      a: `Under the hood, Samvaad works through a dedicated multi-stage pipeline:
+
+1. Transcribe: Audio from 4,000+ public Bhajan Marg discourses is transcribed into Hindi & English with speech AI (Whisper).
+2. Segment & Q&A: Transcripts are curated into 50,000+ clean question-answer pairs capturing Maharaj Ji's gentle, loving voice.
+3. Fine-Tuning: A foundational conversational model is fine-tuned on this dataset to speak with patience and reverence.
+4. Scripture RAG: Crucial verses from Bhagavad Gita, Ramcharitmanas, Upanishads, and Vedas are embedded and retrieved dynamically to support answers with authentic shloka citations.`,
+      tag: 'Architecture & RAG',
+    },
+    {
+      id: 'devotion',
+      label: '🪷 Who is this for & personal reflection',
+      q: 'Can anyone ask personal life doubts? Does it remember my questions?',
+      a: `Yes, completely. Samvaad is open for every seeker — whether you are taking your first steps in japa and nama, or seeking clarity during difficult emotional times.
+
+Key features for seekers:
+• Bilingual: Ask freely in Hindi, English, or mixed Hinglish.
+• Scripture-Grounded: Quotes authentic verses when relevant.
+• Persistent Memory: Remembers your questions across sessions so your reflection grows with you.
+• Educational: An honest learning playground; important guidance should always be verified with living teachers.`,
+      tag: 'Seeker Experience',
+    },
+  ]
+
+  const [activeTab, setActiveTab] = useState(0)
+  const [typedText, setTypedText] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const selected = conversations[activeTab]
+
+  useEffect(() => {
+    let cancelled = false
+    setIsTyping(true)
+    setTypedText('')
+
+    const chars = Array.from(selected.a)
+    let idx = 0
+    const step = () => {
+      if (cancelled) return
+      if (idx < chars.length) {
+        idx += 3
+        setTypedText(chars.slice(0, idx).join(''))
+        setTimeout(step, 16)
+      } else {
+        setIsTyping(false)
+      }
+    }
+    const timer = setTimeout(step, 140)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [activeTab])
+
+  return (
+    <div className="chat-demo-container">
+      <div className="chat-demo-window">
+        {/* Chat Window Top Bar */}
+        <div className="chat-demo-topbar">
+          <div className="chat-demo-avatar">
+            <span>ॐ</span>
+          </div>
+          <div className="chat-demo-meta">
+            <strong>Samvaad AI · संवाद</strong>
+            <span className="chat-demo-sub">
+              <span className="chat-online-pulse" />
+              Grounded in Bhajan Marg &amp; Holy Scriptures
+            </span>
+          </div>
+          <span className="chat-demo-badge">{selected.tag}</span>
+        </div>
+
+        {/* Chat Messages */}
+        <div className="chat-demo-body">
+          {/* User Question */}
+          <div className="chat-demo-msg chat-demo-msg-user">
+            <div className="chat-demo-bubble">
+              <p>{selected.q}</p>
+            </div>
+            <div className="chat-demo-user-avatar" aria-hidden="true">🙏</div>
+          </div>
+
+          {/* AI Answer */}
+          <div className="chat-demo-msg chat-demo-msg-ai">
+            <div className="chat-demo-ai-avatar" aria-hidden="true">🪷</div>
+            <div className="chat-demo-bubble chat-demo-bubble-ai">
+              <div className="chat-demo-sender">
+                <span>Samvaad Assistant</span>
+                <small>Compassionate reflection</small>
+              </div>
+              <div className="chat-demo-typed-content">
+                {typedText.split('\n\n').map((para, i) => (
+                  <p key={i}>{para}</p>
+                ))}
+                {isTyping && <span className="term-cursor" aria-hidden="true">▌</span>}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Question Selector Tabs & CTA */}
+        <div className="chat-demo-controls">
+          <span className="chat-demo-controls-label">Explore aspects of the project:</span>
+          <div className="chat-demo-pills">
+            {conversations.map((item, idx) => (
+              <button
+                key={item.id}
+                className={`chat-demo-pill ${idx === activeTab ? 'is-active' : ''}`}
+                onClick={() => setActiveTab(idx)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          <div className="chat-demo-footer-action">
+            <button className="rust-button cta-button" onClick={onEnter}>
+              <span aria-hidden="true">🙏</span> Start Your Own Live Samvaad <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ---------- main landing page ---------- */
 
 export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme }) {
@@ -217,8 +360,6 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
   const [progress, setProgress] = useState(0)
   const [active, setActive] = useState(0)
   const [question, setQuestion] = useState('')
-  const [hasSeenIntro, setHasSeenIntro] = useState(false)
-  const [showHeritageIntro, setShowHeritageIntro] = useState(false)
 
   const goToPhase = (id) => {
     scrollRef.current
@@ -239,27 +380,6 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
   useEffect(() => {
     activeRef.current = active
   }, [active])
-
-  /* heritage intro — show once when first entering Scriptures, hide header there */
-  useEffect(() => {
-    // scriptures is index 3
-    if (active === 3 && !hasSeenIntro && !showHeritageIntro) {
-      setShowHeritageIntro(true)
-    }
-  }, [active, hasSeenIntro, showHeritageIntro])
-
-  const dismissHeritageIntro = () => {
-    setShowHeritageIntro(false)
-    setHasSeenIntro(true)
-  }
-
-  // cinematic auto-collide after 6.2s if user just watches
-  useEffect(()=>{
-    if(showHeritageIntro){
-      const t=setTimeout(()=> dismissHeritageIntro(), 6200)
-      return()=> clearTimeout(t)
-    }
-  },[showHeritageIntro])
 
   /* progress bar + active phase follow the phase scroller */
   useEffect(() => {
@@ -282,17 +402,15 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
     return () => root.removeEventListener('scroll', onScroll)
   }, [])
 
-  /* keyboard: arrow / page keys move one page section at a time — intro collides first */
+  /* keyboard: arrow / page keys move one page section at a time */
   useEffect(() => {
     const onKey = (event) => {
       if (event.target !== document.body && event.target !== scrollRef.current) return
       if (event.key === 'ArrowDown' || event.key === 'PageDown') {
         event.preventDefault()
-        if (activeRef.current === 3 && showHeritageIntro) { dismissHeritageIntro(); return }
         stepPhase(1)
       } else if (event.key === 'ArrowUp' || event.key === 'PageUp') {
         event.preventDefault()
-        if (activeRef.current === 3 && showHeritageIntro) { dismissHeritageIntro(); return }
         stepPhase(-1)
       } else if (event.key === 'Home') {
         event.preventDefault()
@@ -304,9 +422,9 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [showHeritageIntro])
+  }, [])
 
-  /* wheel listener: lock scroll to one complete screen per gesture — heritage intro collides first */
+  /* wheel listener: lock scroll to one complete screen per gesture */
   useEffect(() => {
     const root = scrollRef.current
     if (!root) return
@@ -318,26 +436,6 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
       if (isWheeling) {
         event.preventDefault()
         return
-      }
-      // if heritage intro is showing and user swipes down, collide to pothi instead of leaving page
-      if (showHeritageIntro && activeRef.current === 3) {
-        if (event.deltaY > 0) {
-          event.preventDefault()
-          isWheeling = true
-          dismissHeritageIntro()
-          clearTimeout(wheelTimer)
-          wheelTimer = setTimeout(() => { isWheeling = false }, 700)
-          return
-        } else {
-          // swipe up from intro goes to previous phase
-          event.preventDefault()
-          isWheeling = true
-          dismissHeritageIntro()
-          setTimeout(()=> stepPhase(-1), 320)
-          clearTimeout(wheelTimer)
-          wheelTimer = setTimeout(() => { isWheeling = false }, 700)
-          return
-        }
       }
       isWheeling = true
       const dir = event.deltaY > 0 ? 1 : -1
@@ -354,23 +452,7 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
       root.removeEventListener('wheel', onWheel)
       clearTimeout(wheelTimer)
     }
-  }, [showHeritageIntro])
-
-  /* touch swipe to collide heritage intro on mobile */
-  useEffect(()=>{
-    const root=scrollRef.current
-    if(!root || !showHeritageIntro || active!==3) return
-    let startY=0
-    const onTouchStart=(e)=>{ startY=e.touches[0].clientY }
-    const onTouchEnd=(e)=>{
-      const dy=e.changedTouches[0].clientY - startY
-      if(Math.abs(dy)<40) return
-      if(dy<0) dismissHeritageIntro()
-    }
-    root.addEventListener('touchstart', onTouchStart, {passive:true})
-    root.addEventListener('touchend', onTouchEnd, {passive:true})
-    return()=>{ root.removeEventListener('touchstart', onTouchStart); root.removeEventListener('touchend', onTouchEnd) }
-  },[showHeritageIntro, active])
+  }, [])
 
   const askQuestion = (text) => {
     const value = (text ?? question).trim()
@@ -418,7 +500,7 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
         </svg>
       </div>
 
-      <header className={`spiritual-header ${active === 3 ? 'is-hidden' : ''}`}>
+      <header className="spiritual-header">
         <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
           <img className="brand-icon" src={brandIcon} alt="" />
           <span className="brand-text">
@@ -429,10 +511,11 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
 
         <nav className="spiritual-nav" aria-label="Main navigation">
           <a href="#hero" onClick={(event) => { event.preventDefault(); goToPhase('hero') }}><Icon name="home" size={15} />Home</a>
-          <a href="#numbers" onClick={(event) => { event.preventDefault(); goToPhase('numbers') }}><Icon name="spark" size={15} />Numbers</a>
-          <a href="#pipeline" onClick={(event) => { event.preventDefault(); goToPhase('pipeline') }}><Icon name="layers" size={15} />Pipeline</a>
+          <a href="#inspiration" onClick={(event) => { event.preventDefault(); goToPhase('inspiration') }}><Icon name="heart" size={15} />Inspiration</a>
+          <a href="#overview" onClick={(event) => { event.preventDefault(); goToPhase('overview') }}><Icon name="message-square" size={15} />About Project</a>
+          <a href="#pipeline" onClick={(event) => { event.preventDefault(); goToPhase('pipeline') }}><Icon name="layers" size={15} />How It Works</a>
           <a href="#scriptures" onClick={(event) => { event.preventDefault(); goToPhase('scriptures') }}><Icon name="book" size={15} />Scriptures</a>
-          <a href="#education" onClick={(event) => { event.preventDefault(); goToPhase('education') }}><Icon name="info" size={15} />About</a>
+          <a href="#education" onClick={(event) => { event.preventDefault(); goToPhase('education') }}><Icon name="info" size={15} />Purpose</a>
         </nav>
 
         <div className="spiritual-header-actions">
@@ -500,10 +583,10 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
                 alt="Samvaad — प्रश्न आपका, कृपा उसकी · Ask, Learn, Reflect, Grow"
               />
             </h1>
-            <p className="hero-tagline">Fine-Tuned AI embodying the <em>Wisdom of Indian Gurus, Saints & Hindu Scriptures</em></p>
+            <p className="hero-tagline">Fine-Tuned AI embodying the <em>Wisdom of Indian Gurus, Saints &amp; Hindu Scriptures</em></p>
             <p className="hero-desc">
               Ask your personal, emotional, or devotional questions. Trained on 4,000+ Bhajan Marg discourses,
-              Bhagavad Gita, Ramayana, Upanishads & Vedas to guide you with calm, grounded wisdom.
+              Bhagavad Gita, Ramayana, Upanishads &amp; Vedas to guide you with calm, grounded wisdom.
             </p>
 
             <form
@@ -548,144 +631,23 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
             )}
           </div>
 
-          <button className="scroll-cue" onClick={() => goToPhase('numbers')} aria-label="Scroll down to Our Journey in Numbers">
+          <button className="scroll-cue" onClick={() => goToPhase('inspiration')} aria-label="Scroll down to Inspiration">
             <span className="scroll-cue-wheel" aria-hidden="true" />
             <small>Scroll</small>
           </button>
         </section>
 
         {/* ============================================================
-            PAGE 2 · OUR JOURNEY IN NUMBERS (DEDICATED PARCHMENT SCROLL PAGE)
+            PAGE 2 · INSPIRATION (MOVED TO PAGE 2 AS REQUESTED)
             ============================================================ */}
-        <section className="numbers-section phase" id="numbers">
+        <section className="video-examples phase inspiration-section" id="inspiration">
           <Reveal className="spiritual-section-heading">
-            <span>हमारे आंकड़े · The Milestones</span>
-            <h2>Our Journey In Numbers</h2>
+            <span>हमारी प्रेरणा · The Living Inspiration</span>
+            <h2>Discourses of Pujya Premanand Ji Maharaj</h2>
             <p>
-              Years of discourses, millions of tokens, and continuous refinements preserved into a sacred, conversational guide.
-            </p>
-          </Reveal>
-
-          {/* Ancient manuscript unfurling parchment scroll */}
-          <ParchmentScroll />
-        </section>
-
-        {/* ============================================================
-            PAGE 3 · HOW SAMVAAD WORKS (DATA PIPELINE)
-            ============================================================ */}
-        <section className="story-section phase" id="pipeline">
-          <Reveal className="spiritual-section-heading">
-            <span>The data story · कैसे काम करता है</span>
-            <h2>From 4000+ discourses to a thoughtful chat.</h2>
-            <p>
-              Watch the learning pipeline come alive: videos are extracted from the Bhajan Marg
-              channel, shaped into Q&amp;A pairs, fine-tuned, grounded with RAG scripture knowledge,
-              and finally answered with relevance and love.
-            </p>
-          </Reveal>
-
-          <FlowPipeline />
-        </section>
-
-
-        {/* ============================================================
-            PAGE 4 · CINEMATIC SCRIPTURES
-            Layer architecture:
-              - pothi-stage   (z:0)  — fills entire 100svh, always rendered behind
-              - heritage-intro (z:18) — full screen, sweeps UP cinematically on dismiss
-            ============================================================ */}
-        <section className={`scripture-section phase ${showHeritageIntro ? 'is-heritage' : 'is-pothi'}`} id="scriptures">
-
-          {/* Layer 1 (back): Pothi — always rendered, visible as heritage sweeps up */}
-          <div className={`pothi-stage ${showHeritageIntro ? 'is-hidden' : 'is-visible'}`}>
-            <div className="spiritual-section-heading light-heading">
-              <span>प्राचीन ग्रंथ · Ancient manuscripts</span>
-              <h2>Where ancient manuscripts still speak.</h2>
-              <p>
-                Centuries ago the words of God were preserved in these manuscripts.
-                Open the pothi — its cover lifts, the pages turn, and a Sanskrit shloka
-                writes itself slowly, word by word.
-              </p>
-            </div>
-            <ScriptureBook />
-          </div>
-
-          {/* Layer 2 (front): Heritage Intro — cinematic, sweeps UP on scroll/tap */}
-          <div
-            className={`heritage-intro ${showHeritageIntro ? 'is-visible' : 'is-collapsed'}`}
-            aria-hidden={!showHeritageIntro ? 'true' : undefined}
-          >
-            <div className="heritage-bg" style={{ backgroundImage: `url(${oldManuscriptBg})` }} aria-hidden="true" />
-            <div className="heritage-bg-overlay" aria-hidden="true" />
-            <div className="heritage-inclined-page" aria-hidden="true">
-              <div className="heritage-page-inner">ॐ · वेदोऽखिलो धर्ममूलम् · धर्मो रक्षति रक्षितः</div>
-            </div>
-            <div className="heritage-content">
-              <span className="heritage-kicker">Our parampara · हमारी परम्परा</span>
-              <h2>Where our history still breathes.</h2>
-              <p className="heritage-lead">
-                Before it was ever a book, <em>knowledge was a leaf</em>. For more than two millennia, rishis and acharyas etched dharma, karma, bhakti and jnana onto palm leaves with an iron <em>शलाका</em> — oiling, smoking, and tying them with cotton threads so wisdom could survive centuries.
-              </p>
-              <p>
-                The <strong>Gita</strong>, <strong>Ramcharitmanas</strong>, <strong>Upanishads</strong> and <strong>Vedas</strong> you encounter here are not museum relics. They are the same pothis that travelled from Kashi to Kanchi, from forest ashrams to your hands — the living memory of a civilization that wrote to remember, and remembered to awaken.
-              </p>
-              <p className="heritage-muted">
-                Samvaad keeps that lineage alive. Each shloka was once a hand-etched line on aged palm leaf; now it writes itself again — word by word, on the same inclined page before you, as if a Guru is writing it for you, today.
-              </p>
-              <div className="heritage-actions">
-                <button className="rust-button cta-button heritage-cta" onClick={dismissHeritageIntro}>
-                  Open the Pothi <span aria-hidden="true">→</span>
-                </button>
-                <span className="heritage-swipe-hint">swipe ↓ or tap to reveal</span>
-              </div>
-            </div>
-            <button className="heritage-scroll-cue" onClick={dismissHeritageIntro} aria-label="Show manuscripts">
-              <span />
-              <small>Explore leaves</small>
-            </button>
-          </div>
-
-        </section>
-
-
-        {/* ============================================================
-            PAGE 5 · FEATURES
-            ============================================================ */}
-        <section className="spiritual-features phase" id="features">
-          <Reveal className="spiritual-section-heading">
-            <span>Designed for gentle learning</span>
-            <h2>A front page that explains the soul of the project.</h2>
-            <p>
-              The interface tells visitors what Samvaad is, what powers it, and why the
-              responses should always be treated as educational guidance.
-            </p>
-          </Reveal>
-
-          <div className="spiritual-feature-grid">
-            {features.map((feature, index) => (
-              <Reveal delay={index * 120} key={feature.title}>
-                <article className="spiritual-feature-card">
-                  <div className="feature-symbol"><Icon name={feature.icon} size={22} /></div>
-                  <span className="feature-label">{feature.label}</span>
-                  <h3>{feature.title}</h3>
-                  <p>{feature.text}</p>
-                  <button onClick={onEnter} aria-label={`Explore ${feature.title}`}>Try it <span aria-hidden="true">→</span></button>
-                </article>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-
-        {/* ============================================================
-            PAGE 6 · DATASET EXAMPLES
-            ============================================================ */}
-        <section className="video-examples phase" id="dataset">
-          <Reveal className="spiritual-section-heading">
-            <span>Video content examples</span>
-            <h2>Real topics from the Bhajan Marg learning corpus.</h2>
-            <p>
-              These sample video cards show the kind of source material the pipeline turns
-              into searchable, conversational learning examples.
+              Before diving into technology, Samvaad is anchored in sincere devotion.
+              The questions and answers here reflect the daily Ekantik Vartalaap in Vrindavan —
+              where householders, seekers, and youth find solace, purpose, and unshakeable love for God.
             </p>
           </Reveal>
 
@@ -707,15 +669,92 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
           </div>
 
           <div className="traditions">
-            <span className="traditions-label">Learning material reflected in the playground</span>
+            <span className="traditions-label">Sacred traditions reflected in the learning corpus</span>
             <div className="scripture-row">
               {scriptures.map((scripture) => <span key={scripture}>{scripture}</span>)}
             </div>
           </div>
+
+          <button className="scroll-cue" onClick={() => goToPhase('overview')} aria-label="Scroll down to About Project">
+            <span className="scroll-cue-wheel" aria-hidden="true" />
+            <small>Overview</small>
+          </button>
         </section>
 
         {/* ============================================================
-            PAGE 7 · EDUCATION PURPOSE & QUOTE
+            PAGE 3 · INTERACTIVE ANIMATED CHAT DEMO OVERVIEW (NEW)
+            ============================================================ */}
+        <section className="chat-overview-section phase" id="overview">
+          <Reveal className="spiritual-section-heading">
+            <span>प्रकल्प परिचय · Project Overview</span>
+            <h2>What is the Samvaad project really about?</h2>
+            <p>
+              Experience an animated dialogue explaining our personal motivation, spiritual foundation,
+              and how modern AI brings 4,000+ Bhajan Marg discourses to life.
+            </p>
+          </Reveal>
+
+          <ChatProjectOverview onEnter={onEnter} />
+
+          <button className="scroll-cue" onClick={() => goToPhase('pipeline')} aria-label="Scroll down to How It Works">
+            <span className="scroll-cue-wheel" aria-hidden="true" />
+            <small>How It Works</small>
+          </button>
+        </section>
+
+        {/* ============================================================
+            PAGE 4 · HOW IT WORKS & NUMBERS (COMBINED PAGES 2 & 3)
+            ============================================================ */}
+        <section className="pipeline-combined-section phase" id="pipeline">
+          <Reveal className="spiritual-section-heading">
+            <span>आंकड़े और वास्तुकला · Milestones &amp; Architecture</span>
+            <h2>From 4,000+ discourses to an enlightened chat.</h2>
+            <p>
+              Explore both the scale of our preserved knowledge and the step-by-step pipeline:
+              extracting speech, crafting 50,000+ Q&amp;A pairs, fine-tuning, grounding with scripture RAG,
+              and answering with empathy and reverence.
+            </p>
+          </Reveal>
+
+          {/* Ancient manuscript unfurling parchment scroll with numbers */}
+          <ParchmentScroll />
+
+          {/* Sequential 5-Stage Interactive Pipeline */}
+          <FlowPipeline />
+
+          <button className="scroll-cue" onClick={() => goToPhase('scriptures')} aria-label="Scroll down to Scriptures">
+            <span className="scroll-cue-wheel" aria-hidden="true" />
+            <small>Scriptures</small>
+          </button>
+        </section>
+
+        {/* ============================================================
+            PAGE 5 · ANCIENT SCRIPTURES & POTHI (PERMANENT HEADER, HOLE-FREE)
+            ============================================================ */}
+        <section className="scripture-section phase" id="scriptures">
+          <div className="spiritual-section-heading light-heading">
+            <span>प्राचीन ग्रंथ · Ancient manuscripts</span>
+            <h2>Where ancient manuscripts still speak.</h2>
+            <p className="heritage-lead">
+              Before it was ever a book, <em>knowledge was a leaf</em>. For more than two millennia,
+              rishis and acharyas etched dharma, karma, bhakti and jnana onto palm leaves with an iron
+              <em>शलाका</em> — oiling, smoking, and preserving them so eternal wisdom could survive centuries.
+            </p>
+            <p className="heritage-sub">
+              The <strong>Gita</strong>, <strong>Ramcharitmanas</strong>, <strong>Upanishads</strong> and <strong>Vedas</strong> you encounter here are the living memory of a civilization that wrote to remember, and remembered to awaken. Tap the leaf to turn, or open fullscreen to read with reverence.
+            </p>
+          </div>
+
+          <ScriptureBook />
+
+          <button className="scroll-cue" onClick={() => goToPhase('education')} aria-label="Scroll down to Purpose">
+            <span className="scroll-cue-wheel" aria-hidden="true" />
+            <small>Purpose</small>
+          </button>
+        </section>
+
+        {/* ============================================================
+            PAGE 6 · EDUCATION PURPOSE & SACRED BENEDICTION
             ============================================================ */}
         <section className="spiritual-quote phase" id="education">
           <Reveal>
@@ -735,3 +774,4 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
     </div>
   )
 }
+
