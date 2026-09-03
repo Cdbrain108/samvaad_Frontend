@@ -43,7 +43,7 @@ const GURU_SYSTEM_PROMPT_HINDI = `आप पूज्य संत श्री 
 - उत्तर का प्रारंभ सदैव 'देखो,' / 'भैया,' / 'बच्चे,' अथवा सीधे भगवन्नाम व शरणागति के उपदेश से कीजिए।
 - उत्तर केवल और केवल शुद्ध देवनागरी हिंदी में होना चाहिए।
 - हर संशय का मूल समाधान श्री राधा नाम जप, सत्संग, सात्विक आहार और प्रभु चरणों में अनन्य शरणागति से कीजिए।
-- शांत, पूर्ण और वात्सल्यमयी वाणी में पूरा उपदेश दीजिए। कभी उत्तर अधूरा या बीच में न छोड़ें।`;
+- अपना उपदेश 2 से 3 संक्षिप्त अनुच्छेदों में पूर्ण कीजिए। उत्तर का समापन सदैव पूर्ण विराम (।) और कल्याणकारी आशीर्वाद के साथ कीजिए। किसी वाक्य या विचार को कभी अधूरा न छोड़ें।`;
 
 const GURU_SYSTEM_PROMPT_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
 In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's question with utmost compassion, fatherly affection, and clarity in the FIRST PERSON ('I' / 'we' / 'my Guru Dev' / 'my Beloved Lord').
@@ -53,10 +53,26 @@ In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's quest
 - Address the seeker with warmth and fatherly affection ("Look, my child...", "Listen, brother...").
 - Respond strictly in fluent, dignified, and devotional English.
 - Emphasize chanting the Holy Name of God (Naam Jap, 'Radha Radha'), sincere Satsang, righteous karma, and total surrender to Divine Will.
-- Give a complete, coherent, and uplifting answer. Never end abruptly or leave thoughts incomplete.`;
+- Deliver your divine guidance concisely within 2 to 3 well-structured paragraphs (around 150-200 words). Always finish your thoughts with a complete concluding sentence and a spiritual blessing. Never stop mid-sentence or leave thoughts cut off.`;
 
-const ORACLE_LEAN_PROMPT_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं। साधक के प्रश्न का उत्तर वात्सल्य, करुणा और श्री राधा नाम की महिमा के साथ 2-3 वाक्यों में दीजिए। सदा पूज्य गुरु भाव में रहिए।`;
-const ORACLE_LEAN_PROMPT_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan). Answer the devotee's spiritual question with utmost warmth, compassion, and the glory of the Holy Name in 2-3 complete sentences in English. Always maintain the sacred Guru persona.`;
+const ORACLE_LEAN_PROMPT_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं। साधक के प्रश्न का उत्तर वात्सल्य, करुणा और श्री राधा नाम की महिमा के साथ 2-3 वाक्यों में पूर्ण विराम सहित दीजिए। सदा पूज्य गुरु भाव में रहिए।`;
+const ORACLE_LEAN_PROMPT_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan). Answer the devotee's spiritual question with utmost warmth, compassion, and the glory of the Holy Name in 2-3 complete sentences in English ending with a full stop. Always maintain the sacred Guru persona.`;
+
+function cleanIncompleteTrailing(text) {
+  if (!text) return text;
+  let t = text.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/  +/g, ' ').trim();
+  if (/[।!?.\"\']$/.test(t)) return t;
+  const lastPuncIdx = Math.max(
+    t.lastIndexOf('।'),
+    t.lastIndexOf('.'),
+    t.lastIndexOf('!'),
+    t.lastIndexOf('?')
+  );
+  if (lastPuncIdx > t.length * 0.5) {
+    return t.slice(0, lastPuncIdx + 1).trim();
+  }
+  return t;
+}
 
 /**
  * Direct HTTPS caller for dedicated 24/7 Oracle Cloud Q8_0 server
@@ -258,25 +274,25 @@ export async function streamGuruResponse(
   // Path 2: Production Hosting / Cloud Fallback (GitHub Pages)
   if (mode === 'deep') {
     // Priority 1 in Deep Mode: Dedicated Oracle Cloud Q8_0 Server
-    const oracleResult = await callDirectOracleAPI(messages, 250, true, onChunk);
+    const oracleResult = await callDirectOracleAPI(messages, 350, true, onChunk);
     if (oracleResult) {
-      return oracleResult.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/  +/g, ' ').trim() || oracleResult;
+      return cleanIncompleteTrailing(oracleResult) || oracleResult;
     }
     // Deep fallback: Fast Groq engine
-    const groqResult = await callDirectGroqAPI(messages, 750, true, onChunk);
+    const groqResult = await callDirectGroqAPI(messages, 1000, true, onChunk);
     if (groqResult) {
-      return groqResult.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/  +/g, ' ').trim() || groqResult;
+      return cleanIncompleteTrailing(groqResult) || groqResult;
     }
   } else {
     // Priority 1 in Fast Mode: Instant Groq LPU
-    const groqResult = await callDirectGroqAPI(messages, 750, true, onChunk);
+    const groqResult = await callDirectGroqAPI(messages, 1000, true, onChunk);
     if (groqResult) {
-      return groqResult.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/  +/g, ' ').trim() || groqResult;
+      return cleanIncompleteTrailing(groqResult) || groqResult;
     }
     // Fast fallback: Oracle server
-    const oracleResult = await callDirectOracleAPI(messages, 250, true, onChunk);
+    const oracleResult = await callDirectOracleAPI(messages, 350, true, onChunk);
     if (oracleResult) {
-      return oracleResult.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/  +/g, ' ').trim() || oracleResult;
+      return cleanIncompleteTrailing(oracleResult) || oracleResult;
     }
   }
 
