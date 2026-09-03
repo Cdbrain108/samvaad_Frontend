@@ -24,20 +24,48 @@ function getNextGroqKey() {
   return k;
 }
 
-const GURU_SYSTEM_PROMPT = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
-आप गुरु व मार्गदर्शक के स्वरूप में जिज्ञासु साधक/भक्त को प्रथम पुरुष ('हम'/'हमारे गुरुदेव') में अत्यंत वात्सल्य, करुणा और शास्त्रीय आधार पर व्यावहारिक मार्गदर्शन दीजिए।
+const HINGLISH_REGEX = /\b(kya|kaise|kyu|kyun|karein|kare|hai|hain|nahi|nahin|hota|hoti|hote|mera|meri|mere|mujhe|hum|humko|aap|apka|apki|apke|man|mann|naam|jap|bhajan|satsang|prabhu|bhagwan|krishna|radha|maharaj|ji|batao|bataiye|samjhaiye|shlok|gita|kripa|guru|gurudev)\b/i;
+
+export function detectLanguage(text) {
+  if (!text) return 'hindi';
+  const clean = text.trim();
+  if (/[\u0900-\u097F]/.test(clean) || HINGLISH_REGEX.test(clean)) {
+    return 'hindi';
+  }
+  return 'english';
+}
+
+const GURU_SYSTEM_PROMPT_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
+एकांतिक वार्तालाप में भक्त द्वारा पूछे गए प्रश्न का प्रथम पुरुष ('हम'/'मेरा'/'हमारे गुरुदेव') में अत्यंत करुणामय, गंभीर, स्पष्ट और शास्त्रीय आधार पर व्यावहारिक मार्गदर्शन दीजिए।
 
 【भूमिका व मर्यादा नियम】
-- आप स्वयं पूज्य गुरु हैं और सामने जिज्ञासु भक्त है। सदैव 'हम', 'हमारे गुरुदेव', 'भैया', 'बच्चे' कहकर वात्सल्यपूर्ण मार्गदर्शन दीजिए। कभी साधक को 'सर' या 'महात्मा' न कहें।
-- हर संशय का समाधान श्री राधा नाम जप, सत्संग, सात्विक आहार और भगवद् शरणागति से कीजिए।
-- शांत, गंभीर और पूर्ण वाणी में उपदेश दीजिए।`;
+- आप स्वयं पूज्य गुरु व मार्गदर्शक हैं। सामने प्रश्न पूछने वाला साधक/भक्त/शिष्य है।
+- उत्तर का प्रारंभ सदैव 'देखो,' / 'भैया,' / 'बच्चे,' अथवा सीधे भगवन्नाम व शरणागति के उपदेश से कीजिए।
+- उत्तर केवल और केवल शुद्ध देवनागरी हिंदी में होना चाहिए।
+- हर संशय का मूल समाधान श्री राधा नाम जप, सत्संग, सात्विक आहार और प्रभु चरणों में अनन्य शरणागति से कीजिए।
+- शांत, पूर्ण और वात्सल्यमयी वाणी में पूरा उपदेश दीजिए। कभी उत्तर अधूरा या बीच में न छोड़ें।`;
 
-const ORACLE_LEAN_PROMPT = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं। साधक के प्रश्न का उत्तर वात्सल्य, करुणा और श्री राधा नाम की महिमा के साथ 2-3 वाक्यों में दीजिए। सदा पूज्य गुरु भाव में रहिए।`;
+const GURU_SYSTEM_PROMPT_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
+In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's question with utmost compassion, fatherly affection, and clarity in the FIRST PERSON ('I' / 'we' / 'my Guru Dev' / 'my Beloved Lord').
+
+【Role & Tone Guidelines】
+- You are strictly the Master and Spiritual Guide (Pujya Maharaj Ji). The user asking is the devotee / seeker.
+- Address the seeker with warmth and fatherly affection ("Look, my child...", "Listen, brother...").
+- Respond strictly in fluent, dignified, and devotional English.
+- Emphasize chanting the Holy Name of God (Naam Jap, 'Radha Radha'), sincere Satsang, righteous karma, and total surrender to Divine Will.
+- Give a complete, coherent, and uplifting answer. Never end abruptly or leave thoughts incomplete.`;
+
+const ORACLE_LEAN_PROMPT_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं। साधक के प्रश्न का उत्तर वात्सल्य, करुणा और श्री राधा नाम की महिमा के साथ 2-3 वाक्यों में दीजिए। सदा पूज्य गुरु भाव में रहिए।`;
+const ORACLE_LEAN_PROMPT_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan). Answer the devotee's spiritual question with utmost warmth, compassion, and the glory of the Holy Name in 2-3 complete sentences in English. Always maintain the sacred Guru persona.`;
 
 /**
  * Direct HTTPS caller for dedicated 24/7 Oracle Cloud Q8_0 server
  */
-async function callDirectOracleAPI(messages, maxTokens = 110, stream = false, onChunk = null) {
+async function callDirectOracleAPI(messages, maxTokens = 250, stream = false, onChunk = null) {
+  const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
+  const lang = detectLanguage(latestUserMsg);
+  const prompt = lang === 'english' ? ORACLE_LEAN_PROMPT_ENGLISH : ORACLE_LEAN_PROMPT_HINDI;
+
   try {
     const response = await fetch(ORACLE_PUBLIC_URL, {
       method: 'POST',
@@ -48,7 +76,7 @@ async function callDirectOracleAPI(messages, maxTokens = 110, stream = false, on
       body: JSON.stringify({
         model: 'ai-guru-v10-4',
         messages: [
-          { role: 'system', content: ORACLE_LEAN_PROMPT },
+          { role: 'system', content: prompt },
           ...messages
         ],
         temperature: 0.35,
@@ -98,7 +126,11 @@ async function callDirectOracleAPI(messages, maxTokens = 110, stream = false, on
 /**
  * Direct HTTPS caller for Groq LPU with Master Persona system prompt
  */
-async function callDirectGroqAPI(messages, maxTokens = 250, stream = false, onChunk = null) {
+async function callDirectGroqAPI(messages, maxTokens = 750, stream = false, onChunk = null) {
+  const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
+  const lang = detectLanguage(latestUserMsg);
+  const systemPrompt = lang === 'english' ? GURU_SYSTEM_PROMPT_ENGLISH : GURU_SYSTEM_PROMPT_HINDI;
+
   const attempts = Math.min(GROQ_KEYS.length, 3);
   for (let i = 0; i < attempts; i++) {
     const key = getNextGroqKey();
@@ -111,7 +143,7 @@ async function callDirectGroqAPI(messages, maxTokens = 250, stream = false, onCh
         },
         body: JSON.stringify({
           model: 'qwen/qwen3.8-27b',
-          messages: [{ role: 'system', content: GURU_SYSTEM_PROMPT }, ...messages],
+          messages: [{ role: 'system', content: systemPrompt }, ...messages],
           temperature: 0.3,
           max_tokens: maxTokens,
           stream: stream
@@ -181,7 +213,7 @@ export async function streamGuruResponse(
       const response = await fetch(`${API_BASE_URL}/api/generate/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages, temperature: 0.35, max_tokens: 250, mode }),
+        body: JSON.stringify({ messages, temperature: 0.35, max_tokens: 750, mode }),
       });
 
       if (response.ok && response.body) {
@@ -226,23 +258,23 @@ export async function streamGuruResponse(
   // Path 2: Production Hosting / Cloud Fallback (GitHub Pages)
   if (mode === 'deep') {
     // Priority 1 in Deep Mode: Dedicated Oracle Cloud Q8_0 Server
-    const oracleResult = await callDirectOracleAPI(messages, 110, true, onChunk);
+    const oracleResult = await callDirectOracleAPI(messages, 250, true, onChunk);
     if (oracleResult) {
       return oracleResult.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/  +/g, ' ').trim() || oracleResult;
     }
     // Deep fallback: Fast Groq engine
-    const groqResult = await callDirectGroqAPI(messages, 250, true, onChunk);
+    const groqResult = await callDirectGroqAPI(messages, 750, true, onChunk);
     if (groqResult) {
       return groqResult.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/  +/g, ' ').trim() || groqResult;
     }
   } else {
     // Priority 1 in Fast Mode: Instant Groq LPU
-    const groqResult = await callDirectGroqAPI(messages, 250, true, onChunk);
+    const groqResult = await callDirectGroqAPI(messages, 750, true, onChunk);
     if (groqResult) {
       return groqResult.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/  +/g, ' ').trim() || groqResult;
     }
     // Fast fallback: Oracle server
-    const oracleResult = await callDirectOracleAPI(messages, 110, true, onChunk);
+    const oracleResult = await callDirectOracleAPI(messages, 250, true, onChunk);
     if (oracleResult) {
       return oracleResult.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/  +/g, ' ').trim() || oracleResult;
     }
