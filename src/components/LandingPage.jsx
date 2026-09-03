@@ -360,6 +360,8 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
   const [progress, setProgress] = useState(0)
   const [active, setActive] = useState(0)
   const [question, setQuestion] = useState('')
+  const [pipelineTab, setPipelineTab] = useState('milestones')
+  const [scriptureStage, setScriptureStage] = useState('story')
 
   const goToPhase = (id) => {
     scrollRef.current
@@ -703,24 +705,76 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
         </section>
 
         {/* ============================================================
-            PAGE 4 · HOW IT WORKS & NUMBERS (COMBINED PAGES 2 & 3)
+            PAGE 4 · HOW IT WORKS & NUMBERS (ENHANCED DUAL-VIEW FIT)
             ============================================================ */}
         <section className="pipeline-combined-section phase" id="pipeline">
           <Reveal className="spiritual-section-heading">
-            <span>आंकड़े और वास्तुकला · Milestones &amp; Architecture</span>
+            <span>आंकड़े और वास्तुकला · How Samvaad Works</span>
             <h2>From 4,000+ discourses to an enlightened chat.</h2>
             <p>
-              Explore both the scale of our preserved knowledge and the step-by-step pipeline:
-              extracting speech, crafting 50,000+ Q&amp;A pairs, fine-tuning, grounding with scripture RAG,
-              and answering with empathy and reverence.
+              Explore the scale of preserved knowledge and the step-by-step AI pipeline.
             </p>
           </Reveal>
 
-          {/* Ancient manuscript unfurling parchment scroll with numbers */}
-          <ParchmentScroll />
+          {/* Interactive Mode Switcher */}
+          <div className="pipeline-switcher-wrap">
+            <div className="pipeline-switcher" role="tablist" aria-label="Pipeline view selection">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={pipelineTab === 'milestones'}
+                className={`pipeline-tab-btn ${pipelineTab === 'milestones' ? 'is-active' : ''}`}
+                onClick={() => setPipelineTab('milestones')}
+              >
+                <span className="pipeline-tab-icon">📜</span>
+                <span>1. Corpus Scale &amp; Numbers</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={pipelineTab === 'architecture'}
+                className={`pipeline-tab-btn ${pipelineTab === 'architecture' ? 'is-active' : ''}`}
+                onClick={() => setPipelineTab('architecture')}
+              >
+                <span className="pipeline-tab-icon">⚙️</span>
+                <span>2. 5-Stage AI Architecture</span>
+              </button>
+            </div>
+          </div>
 
-          {/* Sequential 5-Stage Interactive Pipeline */}
-          <FlowPipeline />
+          {/* Tab 1: Parchment Scroll Milestones */}
+          {pipelineTab === 'milestones' ? (
+            <div className="pipeline-pane-wrap">
+              <ParchmentScroll />
+              <div className="pipeline-pane-nav">
+                <button
+                  type="button"
+                  className="pipeline-action-btn"
+                  onClick={() => setPipelineTab('architecture')}
+                  aria-label="Next: Explore 5-stage architecture"
+                >
+                  <span>Explore 5-Stage AI Architecture Pipeline</span>
+                  <span aria-hidden="true">→</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Tab 2: Sequential 5-Stage Interactive Pipeline */
+            <div className="pipeline-pane-wrap">
+              <FlowPipeline />
+              <div className="pipeline-pane-nav">
+                <button
+                  type="button"
+                  className="pipeline-action-btn pipeline-action-secondary"
+                  onClick={() => setPipelineTab('milestones')}
+                  aria-label="Back to Corpus Scale"
+                >
+                  <span aria-hidden="true">←</span>
+                  <span>View Corpus Scale &amp; Milestones</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           <button className="scroll-cue" onClick={() => goToPhase('scriptures')} aria-label="Scroll down to Scriptures">
             <span className="scroll-cue-wheel" aria-hidden="true" />
@@ -729,23 +783,61 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
         </section>
 
         {/* ============================================================
-            PAGE 5 · ANCIENT SCRIPTURES & POTHI (PERMANENT HEADER, HOLE-FREE)
+            PAGE 5 · ANCIENT SCRIPTURES (ANIMATED STORYTELLING: STORY FIRST, THEN POTHI ONLY)
             ============================================================ */}
         <section className="scripture-section phase" id="scriptures">
-          <div className="spiritual-section-heading light-heading">
-            <span>प्राचीन ग्रंथ · Ancient manuscripts</span>
-            <h2>Where ancient manuscripts still speak.</h2>
-            <p className="heritage-lead">
-              Before it was ever a book, <em>knowledge was a leaf</em>. For more than two millennia,
-              rishis and acharyas etched dharma, karma, bhakti and jnana onto palm leaves with an iron
-              <em>शलाका</em> — oiling, smoking, and preserving them so eternal wisdom could survive centuries.
-            </p>
-            <p className="heritage-sub">
-              The <strong>Gita</strong>, <strong>Ramcharitmanas</strong>, <strong>Upanishads</strong> and <strong>Vedas</strong> you encounter here are the living memory of a civilization that wrote to remember, and remembered to awaken. Tap the leaf to turn, or open fullscreen to read with reverence.
-            </p>
-          </div>
-
-          <ScriptureBook />
+          {scriptureStage === 'story' ? (
+            <div className="scripture-story-stage">
+              <div className="sacred-divider" aria-hidden="true">
+                <span />
+                ॐ
+                <span />
+              </div>
+              <div className="spiritual-section-heading light-heading scripture-story-heading">
+                <span className="scripture-kicker">प्राचीन ग्रंथ · Living Manuscript Heritage</span>
+                <h2>Where Ancient Manuscripts Still Speak</h2>
+                <div className="heritage-parchment-card">
+                  <p className="heritage-lead">
+                    Before it was ever a book, <em>knowledge was a leaf (तालपत्र)</em>. For more than two millennia,
+                    rishis and acharyas etched dharma, karma, bhakti and jnana onto palm leaves with an iron
+                    <em>शलाका</em> — oiling, smoking, and preserving them so eternal wisdom could survive centuries.
+                  </p>
+                  <p className="heritage-sub">
+                    The <strong>Bhagavad Gita</strong>, <strong>Ramcharitmanas</strong>, <strong>Upanishads</strong> and <strong>Vedas</strong> you encounter here are the living memory of a civilization that wrote to remember, and remembered to awaken.
+                  </p>
+                </div>
+                <div className="scripture-story-actions">
+                  <button
+                    type="button"
+                    className="unfurl-pothi-btn"
+                    onClick={() => setScriptureStage('pothi')}
+                    aria-label="Unfurl Sacred Palm-Leaf Pothi"
+                  >
+                    <span className="unfurl-btn-icon">📜</span>
+                    <span>Unfurl the Sacred Palm-Leaf Pothi (तालपत्र पोथी)</span>
+                    <span className="unfurl-btn-arrow">→</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="scripture-pothi-stage">
+              <div className="scripture-pothi-topbar">
+                <button
+                  type="button"
+                  className="pothi-return-story-btn"
+                  onClick={() => setScriptureStage('story')}
+                  aria-label="Return to Heritage Story"
+                  title="Read the Heritage Story"
+                >
+                  <span aria-hidden="true">←</span>
+                  <span>Read Heritage Story</span>
+                </button>
+                <span className="pothi-stage-tag">ॐ तालपत्र पोथी · Palm-Leaf Folios</span>
+              </div>
+              <ScriptureBook />
+            </div>
+          )}
 
           <button className="scroll-cue" onClick={() => goToPhase('education')} aria-label="Scroll down to Purpose">
             <span className="scroll-cue-wheel" aria-hidden="true" />

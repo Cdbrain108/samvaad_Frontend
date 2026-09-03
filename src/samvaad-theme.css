@@ -3496,65 +3496,279 @@ select:focus-visible,
    CLEAN RESPONSIVE LAYOUT FOR SYSTEMATIC 6-PHASE FLOW
 ════════════════════════════════════════════════════════════════════════════ */
 
-/* Scripture Section: permanent clean header + 3D pothi */
-.spiritual-page .scripture-section {
-  position: relative !important;
+/* Combined Pipeline & Numbers Section (Single-Page Fit with Dual-View Switcher) */
+.pipeline-combined-section {
   min-height: 100svh !important;
-  height: auto !important;
-  max-height: none !important;
-  overflow: visible !important;
-  padding: clamp(64px, 8vh, 90px) max(20px, calc((100vw - 1100px) / 2)) clamp(40px, 5vh, 64px) !important;
+  height: 100svh !important;
+  max-height: 100svh !important;
+  overflow: hidden !important;
+  padding: clamp(60px, 7vh, 80px) max(20px, calc((100vw - 1180px) / 2)) clamp(32px, 4vh, 48px) !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  justify-content: flex-start !important;
-  gap: clamp(14px, 2vh, 24px) !important;
+  justify-content: space-between !important;
+  background:
+    radial-gradient(circle at 14% 10%, rgba(255, 179, 0, 0.09), transparent 36%),
+    radial-gradient(circle at 86% 88%, rgba(13, 59, 102, 0.28), transparent 42%),
+    #0B1E33 !important;
 }
 
-.spiritual-page .scripture-section .spiritual-section-heading {
-  max-width: 840px;
+.pipeline-combined-section .spiritual-section-heading {
+  max-width: 820px;
   margin-bottom: 0 !important;
   text-align: center;
 }
 
-.heritage-lead {
-  margin: 14px auto 6px !important;
-  font-size: clamp(14px, 1.1vw, 16px);
-  line-height: 1.65;
-  color: #FFE9B8;
-  max-width: 780px;
+.pipeline-switcher-wrap {
+  margin: 4px 0 8px;
+  z-index: 5;
 }
+
+.pipeline-switcher {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(16, 38, 63, 0.9);
+  border: 1px solid rgba(254, 200, 75, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  gap: 6px;
+}
+
+.pipeline-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 18px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: #A8B6C8;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.pipeline-tab-btn:hover {
+  color: #FFE9B8;
+  background: rgba(254, 200, 75, 0.12);
+}
+
+.pipeline-tab-btn.is-active {
+  background: linear-gradient(135deg, #E68A00, #B4560A);
+  color: #FFF8E1;
+  font-weight: 700;
+  box-shadow: 0 2px 12px rgba(230, 138, 0, 0.4);
+}
+
+.pipeline-pane-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  animation: fadeIn 250ms ease-out;
+}
+
+.pipeline-pane-nav {
+  margin-top: 10px;
+}
+
+.pipeline-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(254, 200, 75, 0.38);
+  background: rgba(16, 38, 63, 0.8);
+  color: #FFE9B8;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.pipeline-action-btn:hover {
+  background: rgba(254, 200, 75, 0.2);
+  border-color: #FEC84B;
+  transform: translateY(-1px);
+}
+
+.pipeline-action-secondary {
+  color: #CBD8E8;
+  border-color: rgba(168, 182, 200, 0.3);
+}
+
+/* Scripture Section: Animated Storytelling (Story First, Then Pothi Only) */
+.spiritual-page .scripture-section {
+  position: relative !important;
+  min-height: 100svh !important;
+  height: 100svh !important;
+  max-height: 100svh !important;
+  overflow: hidden !important;
+  padding: clamp(60px, 7vh, 80px) max(20px, calc((100vw - 1100px) / 2)) clamp(24px, 3vh, 40px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.scripture-story-stage {
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: fadeIn 300ms ease-out;
+}
+
+.scripture-kicker {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #FEC84B;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.heritage-parchment-card {
+  background: rgba(16, 38, 63, 0.78);
+  border: 1px solid rgba(254, 200, 75, 0.3);
+  border-radius: 20px;
+  padding: 24px 30px;
+  margin: 18px 0 24px;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(12px);
+  text-align: center;
+}
+
+.heritage-lead {
+  margin: 0 0 12px !important;
+  font-size: clamp(14.5px, 1.15vw, 17px);
+  line-height: 1.7;
+  color: #FFE9B8;
+}
+
 .heritage-lead em {
   font-style: italic;
   color: #FEC84B;
 }
 
 .heritage-sub {
-  margin: 6px auto 0 !important;
-  font-size: clamp(12.5px, 0.95vw, 14px);
-  line-height: 1.6;
+  margin: 0 !important;
+  font-size: clamp(13px, 0.98vw, 15px);
+  line-height: 1.65;
   color: #CBD8E8;
-  max-width: 760px;
 }
+
 .heritage-sub strong {
   color: #FFE9B8;
 }
 
-.pothi-exhibit .sb-scene::before { display: none !important; }
+.unfurl-pothi-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(254, 200, 75, 0.5);
+  background: linear-gradient(135deg, #E68A00, #B4560A);
+  color: #FFF8E1;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 26px rgba(230, 138, 0, 0.42);
+  transition: all 220ms ease;
+}
 
-/* Combined Pipeline & Numbers Section */
-.pipeline-combined-section {
-  min-height: 100svh;
-  padding: clamp(64px, 8vh, 90px) max(20px, calc((100vw - 1180px) / 2)) clamp(48px, 6vh, 72px);
+.unfurl-pothi-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 34px rgba(230, 138, 0, 0.58);
+  border-color: #FFE9B8;
+}
+
+.unfurl-btn-icon {
+  font-size: 18px;
+}
+
+.unfurl-btn-arrow {
+  font-size: 18px;
+  transition: transform 200ms ease;
+}
+
+.unfurl-pothi-btn:hover .unfurl-btn-arrow {
+  transform: translateX(4px);
+}
+
+/* Dedicated Pothi Only Stage */
+.scripture-pothi-stage {
+  width: 100%;
+  max-width: 980px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(28px, 4.5vh, 48px);
-  background:
-    radial-gradient(circle at 14% 10%, rgba(255, 179, 0, 0.09), transparent 36%),
-    radial-gradient(circle at 86% 88%, rgba(13, 59, 102, 0.28), transparent 42%),
-    #0B1E33;
+  justify-content: center;
+  flex: 1;
+  animation: fadeIn 300ms ease-out;
+  position: relative;
 }
+
+.scripture-pothi-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(720px, 100%);
+  margin-bottom: 6px;
+  z-index: 5;
+}
+
+.pothi-return-story-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(16, 38, 63, 0.8);
+  border: 1px solid rgba(254, 200, 75, 0.3);
+  color: #FEC84B;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.pothi-return-story-btn:hover {
+  background: rgba(254, 200, 75, 0.18);
+  border-color: #FFE9B8;
+  color: #FFF8E1;
+  transform: translateX(-2px);
+}
+
+.pothi-stage-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #A8B6C8;
+  text-transform: uppercase;
+}
+
+.scripture-pothi-stage .pothi-scene-wrap {
+  height: clamp(320px, 44vh, 460px) !important;
+  min-height: 300px !important;
+}
+
+.scripture-pothi-stage .pothi-caption {
+  padding: 12px 18px 14px !important;
+  margin-top: 8px !important;
+}
+
+.pothi-exhibit .sb-scene::before { display: none !important; }
 
 /* Chat Project Overview Section */
 .chat-overview-section {
