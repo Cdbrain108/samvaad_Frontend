@@ -124,7 +124,7 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 .profile small { color: var(--muted); font-size: 11px; }
 .avatar { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; background: var(--accent-soft); color: var(--accent-dark); font-size: 11px; font-weight: 700; }
 
-.main-panel { display: flex; min-height: 100vh; flex: 1; flex-direction: column; margin-left: 0; width: 100%; background: radial-gradient(circle at 77% 8%, rgba(231, 99, 54, 0.08), transparent 26%), var(--panel); }
+.main-panel { display: flex; height: 100vh; flex: 1; flex-direction: column; margin-left: 0; width: 100%; overflow: hidden; background: radial-gradient(circle at 77% 8%, rgba(231, 99, 54, 0.08), transparent 26%), var(--panel); }
 .topbar { display: flex; height: 70px; align-items: center; justify-content: space-between; padding: 0 32px; border-bottom: 1px solid var(--line); }
 .topbar-actions { display: flex; gap: 8px; }
 .icon-button, .composer-action {
@@ -142,7 +142,7 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 .model-badge { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: var(--surface); font-size: 12px; font-weight: 600; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(60, 123, 96, 0.1); }
 
-.content-area { display: flex; width: 100%; max-width: 1080px; flex: 1; align-self: center; align-items: center; justify-content: center; padding: 46px 50px 28px; }
+.content-area { display: flex; width: 100%; max-width: 1080px; flex: 1; align-self: center; align-items: flex-start; justify-content: center; padding: 46px 50px 28px; overflow-y: auto; }
 
 /* Custom scrollbar — Samvaad amber */
 .content-area, .sidebar-list { scrollbar-width: thin; scrollbar-color: rgba(231, 99, 54, 0.28) transparent; }

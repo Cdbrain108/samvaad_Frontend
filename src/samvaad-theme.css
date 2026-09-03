@@ -4885,3 +4885,149 @@ select:focus-visible,
     width: min(300px, 84vw) !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUTO-HIDE NAVBAR: smooth reveal strip + transition improvements
+════════════════════════════════════════════════════════════════════════════ */
+
+/* The header already has transition defined above. Add a subtle hover-strip hint at top */
+.spiritual-page .landing-scroll::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, rgba(230, 138, 0, 0.55), rgba(254, 200, 75, 0.35), rgba(180, 86, 10, 0.55));
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 350ms ease;
+  pointer-events: none;
+}
+
+/* When nav is hidden, show a subtle amber glow hint at top to invite hover */
+.spiritual-page .spiritual-header.is-hidden ~ * .landing-scroll::before,
+.spiritual-page:has(.spiritual-header.is-hidden) .landing-scroll::before {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PHASE-NAV SIDE DOTS: always independently visible, beautiful standalone
+════════════════════════════════════════════════════════════════════════════ */
+
+/* Override the spiritual-page phase-nav to always be visible and clean */
+.spiritual-page .phase-nav {
+  position: fixed !important;
+  top: 50% !important;
+  right: 20px !important;
+  z-index: 120 !important;
+  display: grid !important;
+  gap: 14px !important;
+  transform: translateY(-50%) !important;
+  /* Subtle glass pill container */
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 12px 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+/* Night theme pill */
+.night .phase-nav {
+  background: rgba(10, 26, 47, 0.5);
+  border-color: rgba(254, 200, 75, 0.14);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+/* Dot refinements for standalone elegance */
+.spiritual-page .phase-dot {
+  width: 8px !important;
+  height: 8px !important;
+  background: rgba(200, 190, 170, 0.45) !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18) !important;
+  transition: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1), background 220ms ease, box-shadow 250ms ease !important;
+  margin: 0 auto;
+}
+
+.spiritual-page .phase-dot:hover {
+  transform: scale(1.5) !important;
+  background: rgba(254, 200, 75, 0.7) !important;
+}
+
+.spiritual-page .phase-dot.is-active {
+  background: #E68A00 !important;
+  box-shadow: 0 0 0 3px rgba(230, 138, 0, 0.28) !important;
+  transform: scale(1.35) !important;
+}
+
+.night .phase-dot { background: rgba(168, 182, 200, 0.4) !important; }
+.night .phase-dot.is-active { background: #FEC84B !important; box-shadow: 0 0 0 3px rgba(254, 200, 75, 0.22) !important; }
+
+/* Tooltip label — position adjusted for pill container */
+.spiritual-page .phase-dot-label {
+  right: 28px !important;
+  background: rgba(20, 30, 48, 0.92) !important;
+  color: #FFE9B8 !important;
+  border: 1px solid rgba(254, 200, 75, 0.22) !important;
+  border-radius: 8px !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 4px 10px !important;
+  backdrop-filter: blur(8px) !important;
+  white-space: nowrap !important;
+}
+
+/* Mobile: hide pill on narrow screens */
+@media (max-width: 600px) {
+  .spiritual-page .phase-nav {
+    display: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CHAT BOX: Contained scrolling like ChatGPT — no full-page hijack
+════════════════════════════════════════════════════════════════════════════ */
+
+/* Ensure the app-shell root is fixed height so it can't grow */
+.app-shell {
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+/* main-panel uses flex column: topbar (fixed height) + content-area (flex:1, scrollable) + composer (fixed) */
+.main-panel {
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+/* content-area scrolls on its own — user can always scroll freely */
+.content-area {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  /* Don't use align-items: center when there are messages — use flex-start so it starts at top */
+  align-items: flex-start !important;
+  /* Consistent scroll behavior */
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+
+/* Welcome screen stays centered */
+.content-area:has(.welcome) {
+  align-items: center !important;
+}
+
+/* Messages always fill from top of scrollable area */
+.content-area .messages {
+  align-self: stretch !important;
+  width: 100% !important;
+  max-width: 780px !important;
+  margin: 0 auto !important;
+}
+
+/* Ensure the bottom anchor has enough breathing room */
+.messages-anchor {
+  display: block;
+  height: 8px;
+  flex-shrink: 0;
+}

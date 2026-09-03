@@ -362,6 +362,8 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
   const [question, setQuestion] = useState('')
   const [pipelineTab, setPipelineTab] = useState('milestones')
   const [scriptureStage, setScriptureStage] = useState('story')
+  const [navHidden, setNavHidden] = useState(false)
+  const navHideTimer = useRef(null)
 
   const goToPhase = (id) => {
     scrollRef.current
@@ -456,6 +458,40 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
     }
   }, [])
 
+  /* Auto-hide navbar: hide after 2.5s idle on non-hero pages; show on mouse near top */
+  useEffect(() => {
+    const startHideTimer = () => {
+      clearTimeout(navHideTimer.current)
+      // Only auto-hide if not on the hero page (page 0)
+      if (activeRef.current === 0) {
+        setNavHidden(false)
+        return
+      }
+      navHideTimer.current = setTimeout(() => setNavHidden(true), 2500)
+    }
+
+    const onMouseMove = (event) => {
+      // Show navbar instantly if mouse within top 80px
+      if (event.clientY <= 80) {
+        setNavHidden(false)
+        clearTimeout(navHideTimer.current)
+        // Restart hide timer after a delay
+        navHideTimer.current = setTimeout(() => {
+          if (activeRef.current !== 0) setNavHidden(true)
+        }, 3000)
+      }
+    }
+
+    // Re-evaluate on phase change
+    startHideTimer()
+
+    window.addEventListener('mousemove', onMouseMove, { passive: true })
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      clearTimeout(navHideTimer.current)
+    }
+  }, [active])
+
   const askQuestion = (text) => {
     const value = (text ?? question).trim()
     if (!value) {
@@ -502,7 +538,7 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
         </svg>
       </div>
 
-      <header className="spiritual-header">
+      <header className={`spiritual-header${navHidden ? ' is-hidden' : ''}`}>
         <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
           <img className="brand-icon" src={brandIcon} alt="" />
           <span className="brand-text">

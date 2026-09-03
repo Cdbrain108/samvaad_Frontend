@@ -154,15 +154,23 @@ export default function App() {
   const [inferenceMode, setInferenceMode] = useState('fast');
   const [voiceModeOpen, setVoiceModeOpen] = useState(false);
   const messagesEndRef = useRef(null);
+  const contentAreaRef = useRef(null);
   const voice = useVoiceMode();
 
   useEffect(() => {
     document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
   }, [darkMode]);
 
-  // Keep the conversation pinned to the newest message while it grows
+  // Smoothly pin latest message at the bottom of the chat box (not the full page)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    if (contentAreaRef.current) {
+      const el = contentAreaRef.current;
+      // Only auto-scroll if user is already near the bottom (within 200px)
+      const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 200;
+      if (isNearBottom || isResponding) {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+    }
   }, [messages, isResponding]);
 
   // Listen for auth state changes
@@ -616,7 +624,7 @@ export default function App() {
           </div>
         </header>
 
-        <div className={`content-area ${voiceModeOpen ? 'voice-mode-active' : ''}`}>
+        <div className={`content-area ${voiceModeOpen ? 'voice-mode-active' : ''}`} ref={contentAreaRef}>
           <VoiceMode
             open={voiceModeOpen}
             onClose={() => setVoiceModeOpen(false)}
