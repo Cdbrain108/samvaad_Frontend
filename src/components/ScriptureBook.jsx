@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { ContactShadows } from '@react-three/drei'
+import oldManuscriptBg from '../assets/old-manuscript-page.jpg'
 
 const verses = [
   { source: 'Bhagavad Gita · 2.47', devanagari: 'कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥', meaning: 'Your right is to action alone, never to its fruits — act without attachment, and never rest in inaction.' },
@@ -16,11 +17,11 @@ const verses = [
 
 const PAGE_TIME = 5200
 const TURN_TIME = 1450
-const LEAF_W = 4.55
-const LEAF_D = 1.32
-const LEAF_H = 0.034
-const STACK_GAP = 0.031
-const STACK_COUNT = 28
+const LEAF_W = 4.15
+const LEAF_D = 1.18
+const LEAF_H = 0.032
+const STACK_GAP = 0.029
+const STACK_COUNT = 26
 const REDUCED = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 const SANS_DEVA = '"Noto Sans Devanagari","Nirmala UI","Mangal",serif'
 
@@ -115,7 +116,30 @@ function drawPalmLeafTexture(verse, folioNum){
   wobblyLine(H-112, 0.58, 1.35)
   wobblyLine(114, 0.20, 0.7)
   wobblyLine(H-106, 0.20, 0.7)
-  // string holes — photo-real eyelet with bevel, shadow, crack, gold ring
+  // Om watermark — ultra faint, large, behind text (like photo's bleed) — draw first so text is on top
+  ctx.save(); ctx.globalAlpha=0.032; ctx.fillStyle='#5B2A04'; ctx.font=`500 340px ${SANS_DEVA}`; ctx.textAlign='center'; ctx.textBaseline='middle'
+  ctx.fillText('ॐ', W/2, H/2+10); ctx.restore()
+  // text
+  ctx.textAlign='center'; ctx.textBaseline='alphabetic'
+  ctx.fillStyle='rgba(122,58,12,0.74)'; ctx.font=`700 22px ${SANS_DEVA}`
+  ctx.fillText(verse.source.toUpperCase(), W/2, 84)
+  ctx.fillStyle='#170E04'
+  ctx.font=`600 56px ${SANS_DEVA}`
+  ctx.shadowColor='rgba(0,0,0,0.13)'; ctx.shadowBlur=0.9; ctx.shadowOffsetY=1.1
+  const maxTextW=W*0.38
+  const lines=wrapText(ctx, verse.devanagari, maxTextW)
+  const lineH=68
+  let ty= (H - lines.length*lineH)/2 + 38
+  for(const ln of lines){ ctx.fillText(ln, W/2, ty); ty+=lineH }
+  ctx.shadowBlur=0; ctx.shadowOffsetY=0
+  if(lines.length<=2){
+    ctx.fillStyle='rgba(92,58,14,0.58)'; ctx.font='italic 22px Georgia, serif'
+    const ml=wrapText(ctx, verse.meaning, maxTextW-60)
+    if(ml.length){ const t= ml[0].length>88? ml[0].slice(0,86)+'…': ml[0]; ctx.fillText(t, W/2, H-56) }
+  }
+  ctx.textAlign='right'; ctx.fillStyle='rgba(122,58,12,0.52)'; ctx.font=`600 17px ${SANS_DEVA}`
+  ctx.fillText(`॥ ${folioNum} ॥`, W-30, H-16)
+  // string holes — photo-real eyelet with bevel, shadow, crack, gold ring — draw AFTER text so holes stay clear (no text inside)
   for(const hx of [W*0.30, W*0.70]){
     const hy=H/2
     // drop shadow
@@ -133,29 +157,6 @@ function drawPalmLeafTexture(verse, folioNum){
     ctx.beginPath(); ctx.moveTo(hx+13, hy-2); ctx.lineTo(hx+19, hy-5); ctx.stroke()
     ctx.beginPath(); ctx.moveTo(hx-13, hy+3); ctx.lineTo(hx-18, hy+7); ctx.stroke()
   }
-  // text
-  ctx.textAlign='center'; ctx.textBaseline='alphabetic'
-  ctx.fillStyle='rgba(122,58,12,0.74)'; ctx.font=`700 22px ${SANS_DEVA}`
-  ctx.fillText(verse.source.toUpperCase(), W/2, 84)
-  ctx.fillStyle='#170E04'
-  ctx.font=`600 58px ${SANS_DEVA}`
-  ctx.shadowColor='rgba(0,0,0,0.13)'; ctx.shadowBlur=0.9; ctx.shadowOffsetY=1.1
-  const maxTextW=W-380
-  const lines=wrapText(ctx, verse.devanagari, maxTextW)
-  const lineH=68
-  let ty= (H - lines.length*lineH)/2 + 38
-  for(const ln of lines){ ctx.fillText(ln, W/2, ty); ty+=lineH }
-  ctx.shadowBlur=0; ctx.shadowOffsetY=0
-  if(lines.length<=2){
-    ctx.fillStyle='rgba(92,58,14,0.58)'; ctx.font='italic 22px Georgia, serif'
-    const ml=wrapText(ctx, verse.meaning, maxTextW-60)
-    if(ml.length){ const t= ml[0].length>88? ml[0].slice(0,86)+'…': ml[0]; ctx.fillText(t, W/2, H-56) }
-  }
-  ctx.textAlign='right'; ctx.fillStyle='rgba(122,58,12,0.52)'; ctx.font=`600 17px ${SANS_DEVA}`
-  ctx.fillText(`॥ ${folioNum} ॥`, W-30, H-16)
-  // Om watermark — ultra faint, large, behind text (like photo's bleed)
-  ctx.save(); ctx.globalAlpha=0.032; ctx.fillStyle='#5B2A04'; ctx.font=`500 340px ${SANS_DEVA}`; ctx.textAlign='center'; ctx.textBaseline='middle'
-  ctx.fillText('ॐ', W/2, H/2+10); ctx.restore()
   // subtle vignette
   const vig=ctx.createRadialGradient(W/2,H/2, H*0.45, W/2,H/2, W*0.78)
   vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(60,30,8,0.18)')
@@ -350,29 +351,30 @@ function PothiScene({ leafTextures, plainTexture, topCoverMap, bottomCoverMap, a
   const eased=useMemo(()=> progress<0.5? 4*progress*progress*progress : 1-Math.pow(-2*progress+2,3)/2 ,[progress])
   useFrame((state,dt)=>{
     const t=state.clock.getElapsedTime(); if(!groupRef.current) return
-    const floatY=Math.sin(t*0.55)*0.042, floatX=Math.sin(t*0.32)*0.014
-    if(stackRef.current){ const sf= scrollVisible && progress<0.14 ? floatY*0.30 : 0; stackRef.current.position.y=THREE.MathUtils.damp(stackRef.current.position.y, sf, 2.2, dt); stackRef.current.rotation.y=THREE.MathUtils.damp(stackRef.current.rotation.y, Math.sin(t*0.22)*0.045, 1.0, dt) }
+    const floatY=Math.sin(t*0.55)*0.032, floatX=Math.sin(t*0.32)*0.012
+    if(stackRef.current){ const sf= scrollVisible && progress<0.14 ? floatY*0.24 : 0; stackRef.current.position.y=THREE.MathUtils.damp(stackRef.current.position.y, sf, 2.2, dt); stackRef.current.rotation.y=THREE.MathUtils.damp(stackRef.current.rotation.y, Math.sin(t*0.22)*0.035, 1.0, dt) }
     groupRef.current.position.x=THREE.MathUtils.damp(groupRef.current.position.x, floatX, 1.2, dt)
     if(floatingLeafRef.current){
       const p=eased
-      const liftY=THREE.MathUtils.lerp(0,1.62,p)+Math.sin(p*Math.PI)*0.20
-      const fwdZ=THREE.MathUtils.lerp(0,1.68,p)+Math.sin(p*Math.PI)*0.18
+      const baseY=(STACK_COUNT-1)*STACK_GAP+0.065
+      const liftY=baseY + THREE.MathUtils.lerp(0,0.62,p)+Math.sin(p*Math.PI)*0.10
+      const fwdZ=THREE.MathUtils.lerp(0,0.98,p)+Math.sin(p*Math.PI)*0.10
       const tx=floatX*(1-p*0.6)
       floatingLeafRef.current.position.y=THREE.MathUtils.damp(floatingLeafRef.current.position.y, liftY, 4.4, dt)
       floatingLeafRef.current.position.z=THREE.MathUtils.damp(floatingLeafRef.current.position.z, fwdZ, 4.4, dt)
       floatingLeafRef.current.position.x=THREE.MathUtils.damp(floatingLeafRef.current.position.x, tx, 3.2, dt)
-      const rotX=THREE.MathUtils.lerp(0,-0.90,p)+Math.sin(p*Math.PI)*-0.07
+      const rotX=THREE.MathUtils.lerp(0,-0.88,p)+Math.sin(p*Math.PI)*-0.05
       floatingLeafRef.current.rotation.x=THREE.MathUtils.damp(floatingLeafRef.current.rotation.x, rotX, 4.4, dt)
-      floatingLeafRef.current.rotation.y=THREE.MathUtils.damp(floatingLeafRef.current.rotation.y, Math.sin(p*Math.PI)*0.05, 3.2, dt)
-      floatingLeafRef.current.rotation.z=Math.sin(p*Math.PI)*0.035
-      const sc=THREE.MathUtils.lerp(1,1.48,p)
+      floatingLeafRef.current.rotation.y=THREE.MathUtils.damp(floatingLeafRef.current.rotation.y, Math.sin(p*Math.PI)*0.04, 3.2, dt)
+      floatingLeafRef.current.rotation.z=Math.sin(p*Math.PI)*0.025
+      const sc=THREE.MathUtils.lerp(1,1.32,p)
       const s=THREE.MathUtils.damp(floatingLeafRef.current.scale.x, sc, 4.0, dt); floatingLeafRef.current.scale.setScalar(s)
     }
   })
   const activeTex=leafTextures[activeIndex%leafTextures.length]
   const topY=(STACK_COUNT-1)*STACK_GAP+0.065
   return (
-    <group ref={groupRef} position={[0,-0.16,0]}>
+    <group ref={groupRef} position={[0,-0.06,0]}>
       <group ref={stackRef}>
         {/* bottom patta */}
         <mesh position={[0, -STACK_COUNT*STACK_GAP*0.5+0.02, 0]}>
@@ -497,6 +499,44 @@ export default function ScriptureBook(){
   const [isFullscreen,setIsFullscreen]=useState(false)
   const fsRef=useRef(null)
   const [touchX,setTouchX]=useState(null)
+  const [typedDeva,setTypedDeva]=useState(verses[0].devanagari)
+  const [typedMeaning,setTypedMeaning]=useState(verses[0].meaning)
+  // typewriter — ChatGPT style, word by word over the old manuscript image (inclined)
+  useEffect(()=>{
+    if(!isFullscreen){
+      setTypedDeva(current.devanagari)
+      setTypedMeaning(current.meaning)
+      return
+    }
+    setTypedDeva('')
+    setTypedMeaning('')
+    let cancelled=false
+    const devaChars=Array.from(current.devanagari)
+    const meaningChars=Array.from(current.meaning)
+    let di=0
+    const tick=()=>{
+      if(cancelled) return
+      if(di < devaChars.length){
+        di+=1
+        setTypedDeva(devaChars.slice(0,di).join(''))
+        setTimeout(tick, 42)
+      } else {
+        // then type meaning
+        let mi=0
+        const mTick=()=>{
+          if(cancelled) return
+          if(mi < meaningChars.length){
+            mi+=1
+            setTypedMeaning(meaningChars.slice(0,mi).join(''))
+            setTimeout(mTick, 18)
+          }
+        }
+        setTimeout(mTick, 280)
+      }
+    }
+    const startDelay=setTimeout(tick, 260)
+    return()=>{ cancelled=true; clearTimeout(startDelay) }
+  },[active, isFullscreen, current.devanagari, current.meaning])
   const openFullscreen=useCallback(()=>{
     setIsFullscreen(true)
     startRef.current=performance.now()
@@ -548,7 +588,7 @@ export default function ScriptureBook(){
       <div className='pothi-scene-wrap'>
         {!canRender3D? <ManuscriptFallback verse={current} onNext={nextPage} /> : (
           <>
-            <Canvas dpr={[1,1.7]} frameloop={visible?'always':'never'} camera={{ position:[0,1.68,5.60], fov:33 }} gl={{ antialias:true, alpha:true, powerPreference:'high-performance' }} shadows={false} onCreated={({gl})=>{ gl.setClearColor(0x000000,0); gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=1.08 }} onError={handleCanvasError} className='pothi-canvas' style={{ width:'100%', height:'100%', display:'block' }}>
+            <Canvas dpr={[1,1.7]} frameloop={visible?'always':'never'} camera={{ position:[0,1.28,5.85], fov:36 }} gl={{ antialias:true, alpha:true, powerPreference:'high-performance' }} shadows={false} onCreated={({gl})=>{ gl.setClearColor(0x000000,0); gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=1.08 }} onError={handleCanvasError} className='pothi-canvas' style={{ width:'100%', height:'100%', display:'block' }}>
               <ambientLight intensity={1.08} color='#FFF2DC' />
               <directionalLight position={[4,6,4]} intensity={1.9} color='#FFE9C2' />
               <directionalLight position={[-3.5,3.5,-2]} intensity={0.58} color='#C8A87A' />
@@ -603,17 +643,21 @@ export default function ScriptureBook(){
               <svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M15 18l-6-6 6-6'/></svg>
             </button>
 
-            <div className='pothi-fs-leaf' role='document' aria-label={`${current.source} — ${current.devanagari}`}>
-              <div className='pothi-fs-leaf-inner'>
-                <span className='pothi-fs-src'>{current.source}</span>
-                <div className='pothi-fs-rule' aria-hidden='true' />
-                <p className='pothi-fs-deva'>{current.devanagari}</p>
-                <div className='pothi-fs-rule' aria-hidden='true' />
-                <p className='pothi-fs-meaning'>{current.meaning}</p>
-                <span className='pothi-fs-folio'>॥ {active+1} ॥</span>
-                <i className='pothi-fs-hole' style={{ left:'30%' }} aria-hidden='true' />
-                <i className='pothi-fs-hole' style={{ left:'70%' }} aria-hidden='true' />
-                <span className='pothi-fs-om' aria-hidden='true'>ॐ</span>
+            <div className='pothi-fs-leaf-wrap'>
+              <div className='pothi-fs-leaf-behind' style={{ backgroundImage: `url(${oldManuscriptBg})` }} aria-hidden='true' />
+              <div className='pothi-fs-leaf-shadow' aria-hidden='true' />
+              <div className='pothi-fs-leaf is-inclined' style={{ backgroundImage: `url(${oldManuscriptBg})` }} role='document' aria-label={`${current.source} — ${current.devanagari}`}>
+                <div className='pothi-fs-leaf-inner'>
+                  <span className='pothi-fs-src'>{current.source}</span>
+                  <div className='pothi-fs-rule' aria-hidden='true' />
+                  <p className='pothi-fs-deva'>{typedDeva}<span className={`pothi-type-cursor ${typedDeva.length < current.devanagari.length ? 'is-typing' : 'is-done'}`} aria-hidden='true'>▌</span></p>
+                  <div className='pothi-fs-rule' aria-hidden='true' />
+                  <p className='pothi-fs-meaning'>{typedMeaning}{typedDeva.length >= current.devanagari.length && typedMeaning.length < current.meaning.length ? <span className='pothi-type-cursor is-typing' aria-hidden='true'>▌</span> : null}</p>
+                  <span className='pothi-fs-folio'>॥ {active+1} ॥</span>
+                  <i className='pothi-fs-hole' style={{ left:'30%' }} aria-hidden='true' />
+                  <i className='pothi-fs-hole' style={{ left:'70%' }} aria-hidden='true' />
+                  <span className='pothi-fs-om' aria-hidden='true'>ॐ</span>
+                </div>
               </div>
             </div>
 

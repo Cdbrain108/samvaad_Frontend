@@ -9,6 +9,7 @@ import heroNightTempleMobile from '../assets/hero-night-temple-mobile.webp'
 import logoWordmark from '../assets/logo-wordmark.webp'
 import brandIcon from '../assets/brand-icon.webp'
 import guruCutout from '../assets/guru-cutout.webp'
+import oldManuscriptBg from '../assets/old-manuscript-page.jpg'
 
 const scriptures = [
   'Bhajan Marg Q&A',
@@ -216,6 +217,8 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
   const [progress, setProgress] = useState(0)
   const [active, setActive] = useState(0)
   const [question, setQuestion] = useState('')
+  const [hasSeenIntro, setHasSeenIntro] = useState(false)
+  const [showHeritageIntro, setShowHeritageIntro] = useState(false)
 
   const goToPhase = (id) => {
     scrollRef.current
@@ -236,6 +239,27 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
   useEffect(() => {
     activeRef.current = active
   }, [active])
+
+  /* heritage intro — show once when first entering Scriptures, hide header there */
+  useEffect(() => {
+    // scriptures is index 3
+    if (active === 3 && !hasSeenIntro && !showHeritageIntro) {
+      setShowHeritageIntro(true)
+    }
+  }, [active, hasSeenIntro, showHeritageIntro])
+
+  const dismissHeritageIntro = () => {
+    setShowHeritageIntro(false)
+    setHasSeenIntro(true)
+  }
+
+  // cinematic auto-collide after 6.2s if user just watches
+  useEffect(()=>{
+    if(showHeritageIntro){
+      const t=setTimeout(()=> dismissHeritageIntro(), 6200)
+      return()=> clearTimeout(t)
+    }
+  },[showHeritageIntro])
 
   /* progress bar + active phase follow the phase scroller */
   useEffect(() => {
@@ -258,15 +282,17 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
     return () => root.removeEventListener('scroll', onScroll)
   }, [])
 
-  /* keyboard: arrow / page keys move one page section at a time */
+  /* keyboard: arrow / page keys move one page section at a time — intro collides first */
   useEffect(() => {
     const onKey = (event) => {
       if (event.target !== document.body && event.target !== scrollRef.current) return
       if (event.key === 'ArrowDown' || event.key === 'PageDown') {
         event.preventDefault()
+        if (activeRef.current === 3 && showHeritageIntro) { dismissHeritageIntro(); return }
         stepPhase(1)
       } else if (event.key === 'ArrowUp' || event.key === 'PageUp') {
         event.preventDefault()
+        if (activeRef.current === 3 && showHeritageIntro) { dismissHeritageIntro(); return }
         stepPhase(-1)
       } else if (event.key === 'Home') {
         event.preventDefault()
@@ -278,9 +304,9 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [showHeritageIntro])
 
-  /* wheel listener: lock scroll to one complete screen per gesture */
+  /* wheel listener: lock scroll to one complete screen per gesture — heritage intro collides first */
   useEffect(() => {
     const root = scrollRef.current
     if (!root) return
@@ -292,6 +318,26 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
       if (isWheeling) {
         event.preventDefault()
         return
+      }
+      // if heritage intro is showing and user swipes down, collide to pothi instead of leaving page
+      if (showHeritageIntro && activeRef.current === 3) {
+        if (event.deltaY > 0) {
+          event.preventDefault()
+          isWheeling = true
+          dismissHeritageIntro()
+          clearTimeout(wheelTimer)
+          wheelTimer = setTimeout(() => { isWheeling = false }, 700)
+          return
+        } else {
+          // swipe up from intro goes to previous phase
+          event.preventDefault()
+          isWheeling = true
+          dismissHeritageIntro()
+          setTimeout(()=> stepPhase(-1), 320)
+          clearTimeout(wheelTimer)
+          wheelTimer = setTimeout(() => { isWheeling = false }, 700)
+          return
+        }
       }
       isWheeling = true
       const dir = event.deltaY > 0 ? 1 : -1
@@ -308,7 +354,23 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
       root.removeEventListener('wheel', onWheel)
       clearTimeout(wheelTimer)
     }
-  }, [])
+  }, [showHeritageIntro])
+
+  /* touch swipe to collide heritage intro on mobile */
+  useEffect(()=>{
+    const root=scrollRef.current
+    if(!root || !showHeritageIntro || active!==3) return
+    let startY=0
+    const onTouchStart=(e)=>{ startY=e.touches[0].clientY }
+    const onTouchEnd=(e)=>{
+      const dy=e.changedTouches[0].clientY - startY
+      if(Math.abs(dy)<40) return
+      if(dy<0) dismissHeritageIntro()
+    }
+    root.addEventListener('touchstart', onTouchStart, {passive:true})
+    root.addEventListener('touchend', onTouchEnd, {passive:true})
+    return()=>{ root.removeEventListener('touchstart', onTouchStart); root.removeEventListener('touchend', onTouchEnd) }
+  },[showHeritageIntro, active])
 
   const askQuestion = (text) => {
     const value = (text ?? question).trim()
@@ -356,7 +418,7 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
         </svg>
       </div>
 
-      <header className="spiritual-header">
+      <header className={`spiritual-header ${active === 3 ? 'is-hidden' : ''}`}>
         <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
           <img className="brand-icon" src={brandIcon} alt="" />
           <span className="brand-text">
@@ -517,7 +579,7 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
             <h2>From 4000+ discourses to a thoughtful chat.</h2>
             <p>
               Watch the learning pipeline come alive: videos are extracted from the Bhajan Marg
-              channel, shaped into Q&A pairs, fine-tuned, grounded with RAG scripture knowledge,
+              channel, shaped into Q&amp;A pairs, fine-tuned, grounded with RAG scripture knowledge,
               and finally answered with relevance and love.
             </p>
           </Reveal>
@@ -525,24 +587,66 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
           <FlowPipeline />
         </section>
 
-        {/* ============================================================
-            PAGE 4 · 3D SCRIPTURES
-            ============================================================ */}
-        <section className="scripture-section phase" id="scriptures">
-          <Reveal className="spiritual-section-heading light-heading">
-            <span>प्राचीन ग्रंथ · Ancient manuscripts</span>
-            <h2>Where ancient manuscripts still speak.</h2>
-            <p>
-              Centuries ago the words of God were preserved in these manuscripts, and in them
-              dharma and karma still breathe today. Open the pothi — its cover lifts, the pages
-              turn, and a Sanskrit shloka writes itself slowly.
-            </p>
-          </Reveal>
 
-          <Reveal delay={140}>
+        {/* ============================================================
+            PAGE 4 · CINEMATIC SCRIPTURES
+            Layer architecture:
+              - pothi-stage   (z:0)  — fills entire 100svh, always rendered behind
+              - heritage-intro (z:18) — full screen, sweeps UP cinematically on dismiss
+            ============================================================ */}
+        <section className={`scripture-section phase ${showHeritageIntro ? 'is-heritage' : 'is-pothi'}`} id="scriptures">
+
+          {/* Layer 1 (back): Pothi — always rendered, visible as heritage sweeps up */}
+          <div className={`pothi-stage ${showHeritageIntro ? 'is-hidden' : 'is-visible'}`}>
+            <div className="spiritual-section-heading light-heading">
+              <span>प्राचीन ग्रंथ · Ancient manuscripts</span>
+              <h2>Where ancient manuscripts still speak.</h2>
+              <p>
+                Centuries ago the words of God were preserved in these manuscripts.
+                Open the pothi — its cover lifts, the pages turn, and a Sanskrit shloka
+                writes itself slowly, word by word.
+              </p>
+            </div>
             <ScriptureBook />
-          </Reveal>
+          </div>
+
+          {/* Layer 2 (front): Heritage Intro — cinematic, sweeps UP on scroll/tap */}
+          <div
+            className={`heritage-intro ${showHeritageIntro ? 'is-visible' : 'is-collapsed'}`}
+            aria-hidden={!showHeritageIntro ? 'true' : undefined}
+          >
+            <div className="heritage-bg" style={{ backgroundImage: `url(${oldManuscriptBg})` }} aria-hidden="true" />
+            <div className="heritage-bg-overlay" aria-hidden="true" />
+            <div className="heritage-inclined-page" aria-hidden="true">
+              <div className="heritage-page-inner">ॐ · वेदोऽखिलो धर्ममूलम् · धर्मो रक्षति रक्षितः</div>
+            </div>
+            <div className="heritage-content">
+              <span className="heritage-kicker">Our parampara · हमारी परम्परा</span>
+              <h2>Where our history still breathes.</h2>
+              <p className="heritage-lead">
+                Before it was ever a book, <em>knowledge was a leaf</em>. For more than two millennia, rishis and acharyas etched dharma, karma, bhakti and jnana onto palm leaves with an iron <em>शलाका</em> — oiling, smoking, and tying them with cotton threads so wisdom could survive centuries.
+              </p>
+              <p>
+                The <strong>Gita</strong>, <strong>Ramcharitmanas</strong>, <strong>Upanishads</strong> and <strong>Vedas</strong> you encounter here are not museum relics. They are the same pothis that travelled from Kashi to Kanchi, from forest ashrams to your hands — the living memory of a civilization that wrote to remember, and remembered to awaken.
+              </p>
+              <p className="heritage-muted">
+                Samvaad keeps that lineage alive. Each shloka was once a hand-etched line on aged palm leaf; now it writes itself again — word by word, on the same inclined page before you, as if a Guru is writing it for you, today.
+              </p>
+              <div className="heritage-actions">
+                <button className="rust-button cta-button heritage-cta" onClick={dismissHeritageIntro}>
+                  Open the Pothi <span aria-hidden="true">→</span>
+                </button>
+                <span className="heritage-swipe-hint">swipe ↓ or tap to reveal</span>
+              </div>
+            </div>
+            <button className="heritage-scroll-cue" onClick={dismissHeritageIntro} aria-label="Show manuscripts">
+              <span />
+              <small>Explore leaves</small>
+            </button>
+          </div>
+
         </section>
+
 
         {/* ============================================================
             PAGE 5 · FEATURES
