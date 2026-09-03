@@ -55,8 +55,21 @@ In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's quest
 - Emphasize chanting the Holy Name of God (Naam Jap, 'Radha Radha'), sincere Satsang, righteous karma, and total surrender to Divine Will.
 - Deliver your divine guidance concisely within 2 to 3 well-structured paragraphs (around 150-200 words). Always finish your thoughts with a complete concluding sentence and a spiritual blessing. Never stop mid-sentence or leave thoughts cut off.`;
 
-const ORACLE_LEAN_PROMPT_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं। साधक के प्रश्न का उत्तर वात्सल्य, करुणा और श्री राधा नाम की महिमा के साथ 2-3 वाक्यों में पूर्ण विराम सहित दीजिए। सदा पूज्य गुरु भाव में रहिए।`;
-const ORACLE_LEAN_PROMPT_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan). Answer the devotee's spiritual question with utmost warmth, compassion, and the glory of the Holy Name in 2-3 complete sentences in English ending with a full stop. Always maintain the sacred Guru persona.`;
+export function isComplexQuery(query) {
+  if (!query) return false;
+  const q = query.trim();
+  if (q.length > 120 || (q.match(/\?/g) || []).length >= 2 || (q.match(/।/g) || []).length >= 2) {
+    return true;
+  }
+  const complexTerms = /(प्रारब्ध|मोक्ष|कर्म सिद्धांत|माया|वेदांत|पुनर्जन्म|ब्रह्म|अद्वैत|विस्तार|विस्तारपूर्वक|अंतर|तुलना|अध्याय|श्लोक|explain in detail|difference|multiple|philosophical)/i;
+  return complexTerms.test(q);
+}
+
+const ORACLE_SIMPLE_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज हैं। साधक के सरल प्रश्न का उत्तर 2-3 सीधे, संक्षिप्त व सारगर्भित वाक्यों में दीजिए।`;
+const ORACLE_DEEP_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज हैं। साधक के गंभीर व विस्तृत प्रश्न का उत्तर पूर्ण शास्त्रीय गहराई, दृष्टांतों और विस्तार के साथ दीजिए।`;
+
+const ORACLE_SIMPLE_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj. Answer the devotee's simple question directly and compactly in 2-3 sentences in English.`;
+const ORACLE_DEEP_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj. Answer the devotee's deep, complex question comprehensively with scriptural depth in English.`;
 
 function cleanIncompleteTrailing(text) {
   if (!text) return text;
@@ -75,12 +88,79 @@ function cleanIncompleteTrailing(text) {
 }
 
 /**
+ * Precision Filter for our Fine-Tuned Model:
+ * Overcuts/trims irrelevant parts, repetitive loops, or hallucinated trailing text.
+ * DOES NOT rephrase or rewrite the original words (preserves authentic colloquial tone).
+ * Exception: Only rephrases if the draft is completely incoherent or broken gibberish.
+ */
+async function pruneTunedResponseWithGroq(draft, userMessage, isComplex) {
+  if (!draft || draft.trim().length < 30) return draft;
+  const lengthDirective = isComplex
+    ? "The user asked a large, deep or multi-part question. Retain the full comprehensive spiritual discourse."
+    : "The user asked a simple, direct question. Keep the response compact, focused, and direct (2-3 sentences), cutting off any repetitive filler.";
+
+  const prunePrompt = `You are a strict precision text-editor for our fine-tuned spiritual model (Pujya Premanand Ji Maharaj).
+Your SOLE purpose is to overcut and eliminate irrelevant parts, repetitions, and trailing broken fragments.
+
+【ABSOLUTE RULES FOR REPHRASING】
+1. DO NOT REPHRASE OR REWRITE: Preserve the original speaker's exact vocabulary, phrasing, colloquial Hindi terms (e.g. 'हमें लगता है', 'देखो भैया', 'भगवान की शरण में'), and authentic natural tone.
+2. DO NOT transform into structured bullet lists or formal corporate essays unless the draft itself used a list.
+3. EXCEPTION: ONLY rewrite or rephrase if the draft text is completely incoherent, ungrammatical, or broken gibberish ('very very bad'). Otherwise, leave the original sentences untouched.
+
+【WHAT TO OVERCUT & REMOVE】
+4. Cut repetitive loops (e.g. repeating the same sentence or divine name repeatedly).
+5. Cut off-topic rambling or echoed devotee questions.
+6. Ensure the ending sentence finishes cleanly with proper punctuation (। or .).
+7. ${lengthDirective}
+8. Output ONLY the clean pruned text without any prefix, markdown explanation, or meta-comments.`;
+
+  const key = getNextGroqKey();
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'qwen/qwen3.8-27b',
+        messages: [
+          { role: 'system', content: prunePrompt },
+          { role: 'user', content: `User Query: ${userMessage}\n\nDraft from Tuned Model to Prune:\n${draft.trim()}` }
+        ],
+        temperature: 0.1,
+        max_tokens: isComplex ? 700 : 300
+      })
+    });
+    if (response.ok) {
+      const data = await response.json();
+      const pruned = data.choices?.[0]?.message?.content?.trim();
+      if (pruned && pruned.length > 20) {
+        return pruned;
+      }
+    }
+  } catch (e) {
+    console.warn('Groq pruning fallback to raw draft:', e);
+  }
+  return draft;
+}
+
+/**
  * Direct HTTPS caller for dedicated 24/7 Oracle Cloud Q8_0 server
  */
 async function callDirectOracleAPI(messages, maxTokens = 250, stream = false, onChunk = null) {
   const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   const lang = detectLanguage(latestUserMsg);
-  const prompt = lang === 'english' ? ORACLE_LEAN_PROMPT_ENGLISH : ORACLE_LEAN_PROMPT_HINDI;
+  const complex = isComplexQuery(latestUserMsg);
+
+  let prompt;
+  if (lang === 'english') {
+    prompt = complex ? ORACLE_DEEP_ENGLISH : ORACLE_SIMPLE_ENGLISH;
+  } else {
+    prompt = complex ? ORACLE_DEEP_HINDI : ORACLE_SIMPLE_HINDI;
+  }
+
+  const effectiveTokens = complex ? Math.max(maxTokens, 500) : Math.min(maxTokens, 250);
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 45000);
@@ -101,7 +181,7 @@ async function callDirectOracleAPI(messages, maxTokens = 250, stream = false, on
         ],
         temperature: 0.35,
         repeat_penalty: 1.22,
-        max_tokens: maxTokens,
+        max_tokens: effectiveTokens,
         stream: stream
       })
     });
@@ -277,27 +357,32 @@ export async function streamGuruResponse(
   }
 
   // Path 2: Production Hosting / Cloud Fallback (GitHub Pages)
+  const isComplex = isComplexQuery(userMessage);
+
   if (mode === 'deep') {
     // Priority 1 in Deep Mode: Dedicated Oracle Cloud Q8_0 Server
-    const oracleResult = await callDirectOracleAPI(messages, 350, true, onChunk);
+    const oracleResult = await callDirectOracleAPI(messages, isComplex ? 550 : 220, true, onChunk);
     if (oracleResult) {
-      return cleanIncompleteTrailing(oracleResult) || oracleResult;
+      // Overcut irrelevant parts & loops via Groq precision filter WITHOUT rephrasing original words
+      const prunedResult = await pruneTunedResponseWithGroq(oracleResult, userMessage, isComplex);
+      return cleanIncompleteTrailing(prunedResult) || prunedResult;
     }
     // Deep fallback: Fast Groq engine
-    const groqResult = await callDirectGroqAPI(messages, 1000, true, onChunk);
+    const groqResult = await callDirectGroqAPI(messages, isComplex ? 1000 : 400, true, onChunk);
     if (groqResult) {
       return cleanIncompleteTrailing(groqResult) || groqResult;
     }
   } else {
     // Priority 1 in Fast Mode: Instant Groq LPU
-    const groqResult = await callDirectGroqAPI(messages, 1000, true, onChunk);
+    const groqResult = await callDirectGroqAPI(messages, isComplex ? 1000 : 400, true, onChunk);
     if (groqResult) {
       return cleanIncompleteTrailing(groqResult) || groqResult;
     }
     // Fast fallback: Oracle server
-    const oracleResult = await callDirectOracleAPI(messages, 350, true, onChunk);
+    const oracleResult = await callDirectOracleAPI(messages, isComplex ? 550 : 220, true, onChunk);
     if (oracleResult) {
-      return cleanIncompleteTrailing(oracleResult) || oracleResult;
+      const prunedResult = await pruneTunedResponseWithGroq(oracleResult, userMessage, isComplex);
+      return cleanIncompleteTrailing(prunedResult) || prunedResult;
     }
   }
 
