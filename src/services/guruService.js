@@ -82,6 +82,9 @@ async function callDirectOracleAPI(messages, maxTokens = 250, stream = false, on
   const lang = detectLanguage(latestUserMsg);
   const prompt = lang === 'english' ? ORACLE_LEAN_PROMPT_ENGLISH : ORACLE_LEAN_PROMPT_HINDI;
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 45000);
+
   try {
     const response = await fetch(ORACLE_PUBLIC_URL, {
       method: 'POST',
@@ -89,6 +92,7 @@ async function callDirectOracleAPI(messages, maxTokens = 250, stream = false, on
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${ORACLE_API_KEY}`
       },
+      signal: controller.signal,
       body: JSON.stringify({
         model: 'ai-guru-v10-4',
         messages: [
@@ -101,6 +105,7 @@ async function callDirectOracleAPI(messages, maxTokens = 250, stream = false, on
         stream: stream
       })
     });
+    clearTimeout(timeoutId);
     if (!response.ok) return null;
 
     if (stream && response.body && onChunk) {
