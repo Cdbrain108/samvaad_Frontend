@@ -499,6 +499,8 @@ export default function App() {
                 type="button"
                 className={`mode-pill-btn ${inferenceMode === 'fast' ? 'active' : ''}`}
                 onClick={() => setInferenceMode('fast')}
+                aria-label="Fast Mode: Ultra-fast LPU inference"
+                aria-pressed={inferenceMode === 'fast'}
                 style={{
                   background: inferenceMode === 'fast' ? 'linear-gradient(135deg, #d97706, #b45309)' : 'transparent',
                   color: inferenceMode === 'fast' ? '#ffffff' : 'var(--text-muted, #9ca3af)',
@@ -511,16 +513,19 @@ export default function App() {
                   transition: 'all 0.2s ease',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '4px'
+                  gap: '4px',
+                  whiteSpace: 'nowrap'
                 }}
                 title="Ultra-fast LPU inference (~1s response)"
               >
-                ⚡ Fast Mode
+                ⚡ <span className="mode-pill-btn-label-text">Fast</span>
               </button>
               <button
                 type="button"
                 className={`mode-pill-btn ${inferenceMode === 'deep' ? 'active' : ''}`}
                 onClick={() => setInferenceMode('deep')}
+                aria-label="Deep Mode: Fine-tuned Q8 Oracle model"
+                aria-pressed={inferenceMode === 'deep'}
                 style={{
                   background: inferenceMode === 'deep' ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : 'transparent',
                   color: inferenceMode === 'deep' ? '#ffffff' : 'var(--text-muted, #9ca3af)',
@@ -533,11 +538,12 @@ export default function App() {
                   transition: 'all 0.2s ease',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '4px'
+                  gap: '4px',
+                  whiteSpace: 'nowrap'
                 }}
-                title="Dedicated Oracle Cloud GGUF Server (~12s response)"
+                title="Dedicated Oracle Cloud Q8 GGUF Server (~12s response)"
               >
-                🧘 Deep Mode
+                🧘 <span className="mode-pill-btn-label-text">Deep</span>
               </button>
             </div>
           </div>
@@ -558,10 +564,14 @@ export default function App() {
             >
               <Icon name={darkMode ? 'sun' : 'moon'} />
             </button>
-            <button className="icon-button" onClick={handleLogout} aria-label="Sign out">
-              <Icon name="log-out" size={18} />
-            </button>
-            <div className="user-avatar" onClick={() => setSidebarOpen(true)}>
+            <div
+              className="user-avatar"
+              role="button"
+              tabIndex={0}
+              aria-label="Open navigation"
+              onClick={() => setSidebarOpen(true)}
+              onKeyDown={(e) => e.key === 'Enter' && setSidebarOpen(true)}
+            >
               {user.email?.charAt(0).toUpperCase() || 'U'}
             </div>
           </div>
