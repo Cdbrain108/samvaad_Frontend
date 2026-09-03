@@ -415,7 +415,7 @@
   justify-content: center;
   padding: 24px;
   background: rgba(45, 33, 26, 0.65);
-  backdrop-filter: blur(8px);
+  /* perf: removed */
   animation: reveal 250ms ease-out both;
 }
 
@@ -472,7 +472,7 @@
   position: sticky;
   top: 0;
   z-index: 30;
-  backdrop-filter: blur(18px);
+  /* perf: removed */
   background: rgba(246, 248, 242, 0.76);
   border-bottom: 1px solid rgba(41, 48, 38, 0.08);
 }
@@ -491,8 +491,7 @@
   padding: 96px max(22px, calc((100vw - 1120px)/2)) 62px;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(19, 20, 16, 0.8), rgba(19, 20, 16, 0.55) 48%, rgba(19, 20, 16, 0.22)),
-    url('./assets/hero_bg.png') center / cover no-repeat;
+    linear-gradient(90deg, rgba(19, 20, 16, 0.8), rgba(19, 20, 16, 0.55) 48%, rgba(19, 20, 16, 0.22));
   color: #fffdf8;
   text-align: left;
 }
@@ -529,7 +528,7 @@
   border-color: rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.12);
   color: #fff8ed;
-  backdrop-filter: blur(10px);
+  /* perf: removed */
 }
 
 .spiritual-hero h1 {
@@ -563,7 +562,7 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   background: rgba(13, 16, 13, 0.38);
-  backdrop-filter: blur(14px);
+  /* perf: removed */
 }
 
 .live-board-copy {
@@ -632,7 +631,7 @@
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.12);
   color: #fffdf8;
-  backdrop-filter: blur(10px);
+  /* perf: removed */
 }
 
 .spiritual-features {
@@ -816,7 +815,7 @@
   border-radius: 8px;
   background: #181a15;
   box-shadow: 0 30px 80px rgba(47, 35, 22, 0.24);
-  animation: devotional-float 6s ease-in-out infinite;
+  /* perf: removed */
 }
 
 .maharaj-frame::after {
@@ -850,7 +849,7 @@
   color: #fffdf8;
   font-size: 11px;
   font-weight: 800;
-  backdrop-filter: blur(12px);
+  /* perf: removed */
 }
 
 .video-badge i {
@@ -870,8 +869,8 @@
   border-radius: 8px;
   background: rgba(255, 253, 248, 0.88);
   box-shadow: 0 18px 50px rgba(47, 35, 22, 0.13);
-  backdrop-filter: blur(14px);
-  animation: card-breathe 4.8s ease-in-out infinite;
+  /* perf: removed */
+  /* perf: removed */
 }
 
 .floating-question span {

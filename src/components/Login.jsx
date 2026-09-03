@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { registerUser, loginUser, signInWithGoogle } from '../services/firebase';
 import Icon from './Icon';
 
@@ -12,6 +13,16 @@ function GoogleIcon() {
     </svg>
   );
 }
+
+const featureStagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.55 } },
+};
+
+const featureItem = {
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 220, damping: 22 } },
+};
 
 export default function Login({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -70,27 +81,58 @@ export default function Login({ onLogin }) {
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
+      <motion.div
+        className="auth-card"
+        initial={{ opacity: 0, y: 40, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 22 }}
+      >
         <div className="auth-header">
           <div className="auth-brand">
             <span className="om-seal" aria-hidden="true">ॐ</span>
-            <span className="auth-wordmark">Samvad AI</span>
+            <span className="auth-wordmark">Samvaad AI</span>
           </div>
-          <h1>{isLogin ? 'Welcome back' : 'Create account'}</h1>
-          <p>{isLogin ? 'Sign in to continue your journey' : 'Start your spiritual learning journey'}</p>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={isLogin ? 'login' : 'register'}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <h1>{isLogin ? 'Welcome back' : 'Create account'}</h1>
+              <p>{isLogin ? 'Sign in to continue your journey' : 'Start your spiritual learning journey'}</p>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
-        {error && <div className="auth-error" role="alert">{error}</div>}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              className="auth-error"
+              role="alert"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <button 
-          type="button" 
-          className="google-button" 
+        <motion.button
+          type="button"
+          className="google-button"
           onClick={handleGoogleSignIn}
           disabled={loading}
+          whileHover={{ scale: 1.01, y: -1 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
         >
           <GoogleIcon />
           <span>Continue with Google</span>
-        </button>
+        </motion.button>
 
         <div className="auth-divider">
           <span>or continue with email</span>
@@ -145,21 +187,26 @@ export default function Login({ onLogin }) {
           </p>
         </div>
 
-        <div className="auth-features">
-          <div className="feature-item">
+        <motion.div
+          className="auth-features"
+          variants={featureStagger}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.div className="feature-item" variants={featureItem}>
             <Icon name="book" size={16} />
             <span>Scriptural wisdom</span>
-          </div>
-          <div className="feature-item">
+          </motion.div>
+          <motion.div className="feature-item" variants={featureItem}>
             <Icon name="refresh" size={16} />
             <span>Persistent memory</span>
-          </div>
-          <div className="feature-item">
+          </motion.div>
+          <motion.div className="feature-item" variants={featureItem}>
             <Icon name="shield" size={16} />
             <span>Secure & private</span>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

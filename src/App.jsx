@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { onAuthStateChange, saveConversation, getUserConversations, getConversation, updateConversation, getUserMemory, saveUserMemory, getUserProfileInfo, saveUserProfileInfo } from './services/firebase';
-import { generateGuruResponse, generateChatTitle } from './services/guruService';
+import { generateGuruResponse, streamGuruResponse, generateChatTitle } from './services/guruService';
 import Composer from './components/Composer';
 import Icon from './components/Icon';
 import LandingPage from './components/LandingPage';
@@ -9,6 +10,8 @@ import Login from './components/Login';
 import Welcome from './components/Welcome';
 import OnboardingModal from './components/OnboardingModal';
 import { promptSuggestions } from './data/prompts';
+import VoiceMode from './components/VoiceMode/VoiceMode';
+import useVoiceMode from './hooks/useVoiceMode';
 
 function formatTimestamp(timestamp) {
   if (!timestamp) return '';
@@ -97,23 +100,41 @@ const respondingPhrases = [
   'Composing a calm, pleasant reply',
 ];
 
-function RespondingIndicator() {
+function RespondingIndicator({ isDeep = false }) {
   const [phraseIndex, setPhraseIndex] = useState(0);
+
+  const phrases = isDeep ? [
+    'Deep Mode: Oracle Cloud 24/7 GGUF server reflecting…',
+    'Contemplating Ekantik Vartalap teachings…',
+    'Polishing discourse with Maharaj Ji’s serene grace…',
+  ] : respondingPhrases;
 
   useEffect(() => {
     const cycle = setInterval(() => {
-      setPhraseIndex((current) => (current + 1) % respondingPhrases.length);
+      setPhraseIndex((current) => (current + 1) % phrases.length);
     }, 2100);
     return () => clearInterval(cycle);
-  }, []);
+  }, [phrases.length]);
 
   return (
     <p className="typing-text">
-      <em>{respondingPhrases[phraseIndex]}</em>
+      <AnimatePresence mode="wait">
+        <motion.em
+          key={phraseIndex}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.25 }}
+        >
+          {phrases[phraseIndex]}
+        </motion.em>
+      </AnimatePresence>
       <span className="chat-typing-dots" aria-hidden="true"><i /><i /><i /></span>
     </p>
   );
 }
+
+// QA Landing wrapper removed to allow full live chat interaction
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -123,14 +144,17 @@ export default function App() {
   const [draft, setDraft] = useState('');
   const [messages, setMessages] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const [view, setView] = useState('landing');
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isResponding, setIsResponding] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [userMemory, setUserMemory] = useState(null);
+  const [inferenceMode, setInferenceMode] = useState('fast');
+  const [voiceModeOpen, setVoiceModeOpen] = useState(false);
   const messagesEndRef = useRef(null);
+  const voice = useVoiceMode();
 
   useEffect(() => {
     document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
@@ -218,27 +242,52 @@ export default function App() {
       await saveUserProfileInfo(user.uid, profileData);
     }
   };
+  const ensureUser = () => {
+    if (!user) {
+      const guestUser = {
+        uid: 'devotee_local',
+        displayName: 'Devotee',
+        email: 'devotee@samvaad.local'
+      };
+      setUser(guestUser);
+      return guestUser;
+    }
+    return user;
+  };
 
   const openChat = () => {
+    ensureUser();
     setView('chat');
     window.scrollTo(0, 0);
   };
 
+  /* Landing hero ask-box: jump into chat and immediately send the question */
+  const askFromLanding = (question) => {
+    ensureUser();
+    setView('chat');
+    window.scrollTo(0, 0);
+    if (question && question.trim()) {
+      setTimeout(() => submitMessage(question), 150);
+    }
+  };
+
   // Helper to finalize chat auto-naming when leaving a chat
   const maybeAutoNameChatOnLeave = async () => {
-    if (!user || !currentConversationId || messages.length < 2) return;
+    const activeUser = user || ensureUser();
+    if (!activeUser || !currentConversationId || messages.length < 2) return;
     const currentConv = conversations.find(c => c.id === currentConversationId);
     if (currentConv && (!currentConv.title || currentConv.title.endsWith('...') || currentConv.title === 'New Conversation')) {
       const newTitle = await generateChatTitle(messages);
       if (newTitle && newTitle !== 'New Conversation') {
         const updatedConvData = { ...currentConv, title: newTitle, updatedAt: new Date() };
         setConversations(prev => prev.map(c => c.id === currentConversationId ? updatedConvData : c));
-        await updateConversation(user.uid, currentConversationId, updatedConvData);
+        await updateConversation(activeUser.uid, currentConversationId, updatedConvData);
       }
     }
   };
 
   const startNewChat = async () => {
+    voice.stop();
     await maybeAutoNameChatOnLeave();
     setMessages([]);
     setDraft('');
@@ -247,12 +296,12 @@ export default function App() {
   };
 
   const selectConversation = async (conversation) => {
+    const activeUser = user || ensureUser();
     await maybeAutoNameChatOnLeave();
     if (conversation.messages && conversation.messages.length > 0) {
       setMessages(conversation.messages);
     } else {
-      // Load full conversation if messages not in preview
-      const result = await getConversation(user.uid, conversation.id);
+      const result = await getConversation(activeUser.uid, conversation.id);
       if (!result.error && result.conversation && result.conversation.messages) {
         setMessages(result.conversation.messages);
       }
@@ -261,106 +310,86 @@ export default function App() {
     setSidebarOpen(false);
   };
 
-  const submitMessage = async () => {
-    if (!user || isResponding) return;
+  const submitMessage = async (explicitMessage, speakResponse = false) => {
+    const activeUser = user || ensureUser();
+    if (isResponding) return;
 
-    const message = draft.trim();
+    const message = (explicitMessage ?? draft).trim();
     if (!message) return;
 
     const userMsg = { role: 'user', content: message, timestamp: new Date() };
     const updatedMessagesWithUser = [...messages, userMsg];
+    voice.stop();
     setMessages(updatedMessagesWithUser);
     setDraft('');
     setIsResponding(true);
 
     try {
-      // Build user memory context string
       const memoryContext = userMemory ? [
-        `Summary: ${userMemory.summary || 'New user starting spiritual journey.'}`,
+        `Summary: ${userMemory.summary || 'Devotee seeking spiritual guidance.'}`,
         userMemory.topics_explored?.length ? `Topics Explored: ${userMemory.topics_explored.join(', ')}` : '',
-        userMemory.preferences?.length ? `Preferences: ${userMemory.preferences.join(', ')}` : '',
-        userMemory.key_traits?.length ? `Traits: ${userMemory.key_traits.join(', ')}` : '',
-        userMemory.unresolved_questions?.length ? `Unresolved Questions: ${userMemory.unresolved_questions.join(', ')}` : ''
+        userMemory.preferences?.length ? `Preferences: ${userMemory.preferences.join(', ')}` : ''
       ].filter(Boolean).join('\n') : '';
 
-      // Generate authentic Guru response using Groq & Dharma Sahayak persona + userProfile (name & age)
-      const fullResponseContent = await generateGuruResponse(message, messages, memoryContext, userProfile);
-
-      setIsResponding(false);
-
-      // Add initial empty assistant message bubble for streaming
       const assistantMsg = {
         role: 'assistant',
         content: '',
         timestamp: new Date()
       };
-      setMessages([...updatedMessagesWithUser, assistantMsg]);
 
-      // Stream words progressively word-by-word step-by-step
-      const words = fullResponseContent.split(' ');
-      let accumulatedText = '';
+      let receivedAnyChunk = false;
       setIsStreaming(true);
-      for (let i = 0; i < words.length; i++) {
-        accumulatedText += (i === 0 ? '' : ' ') + words[i];
-        const streamText = accumulatedText;
-        setMessages(prev => {
-          const updated = [...prev];
-          if (updated.length > 0 && updated[updated.length - 1].role === 'assistant') {
-            updated[updated.length - 1] = { ...updated[updated.length - 1], content: streamText };
+
+      const fullResponseContent = await streamGuruResponse(
+        message,
+        messages,
+        memoryContext,
+        userProfile,
+        inferenceMode,
+        (currentText) => {
+          if (!receivedAnyChunk) {
+            receivedAnyChunk = true;
+            setIsResponding(false);
           }
-          return updated;
-        });
-        await new Promise(r => setTimeout(r, 24));
-      }
+          setMessages([...updatedMessagesWithUser, { ...assistantMsg, content: currentText }]);
+        }
+      );
+
+      setIsResponding(false);
       setIsStreaming(false);
 
-      const finalAssistantMsg = {
-        role: 'assistant',
-        content: fullResponseContent,
-        timestamp: new Date()
-      };
-      const finalMessages = [...updatedMessagesWithUser, finalAssistantMsg];
+      const finalCleanContent = fullResponseContent || 'राधे राधे';
+      setMessages([...updatedMessagesWithUser, { role: 'assistant', content: finalCleanContent, timestamp: new Date() }]);
 
-      const newConvId = currentConversationId || ('conv-' + Date.now());
-      if (!currentConversationId) {
-        setCurrentConversationId(newConvId);
+      if (speakResponse && finalCleanContent) {
+        voice.speak(finalCleanContent);
       }
 
-      // Existing conversation object or title
-      const existingConv = conversations.find(c => c.id === newConvId);
-      let convTitle = existingConv?.title || (message.length > 30 ? `${message.slice(0, 30)}...` : message);
-
-      // Auto-naming title generation: Trigger after 2-3 responses (4 to 6 messages) or if untitled
-      if (finalMessages.length >= 4 && (!existingConv || existingConv.title.endsWith('...') || existingConv.title === 'New Conversation')) {
-        convTitle = await generateChatTitle(finalMessages);
-      }
-
-      // Save or update conversation object
       const conversationData = {
-        id: newConvId,
-        title: convTitle,
-        messages: finalMessages,
+        title: messages.length === 0 ? (message.length > 30 ? message.slice(0, 30) + '...' : message) : (conversations.find(c => c.id === currentConversationId)?.title || 'Spiritual Satsang'),
+        messages: [...updatedMessagesWithUser, { role: 'assistant', content: fullResponseContent, timestamp: new Date() }],
         updatedAt: new Date()
       };
 
-      // Update local React state & LocalStorage immediately for instant persistence
       setConversations(prev => {
-        const updated = [
-          conversationData,
-          ...prev.filter(c => c.id !== newConvId)
-        ].slice(0, 50);
+        const existingIndex = prev.findIndex(c => c.id === currentConversationId);
+        let updated;
+        if (existingIndex >= 0) {
+          updated = [...prev];
+          updated[existingIndex] = { ...updated[existingIndex], ...conversationData };
+        } else {
+          updated = [{ id: currentConversationId || `local_${Date.now()}`, ...conversationData }, ...prev];
+        }
         try {
-          localStorage.setItem(`samvad_chats_${user.uid}`, JSON.stringify(updated));
+          localStorage.setItem(`samvad_chats_${activeUser.uid}`, JSON.stringify(updated));
         } catch (e) { }
         return updated;
       });
 
       if (currentConversationId) {
-        // Update existing conversation in Firestore
-        await updateConversation(user.uid, currentConversationId, conversationData);
+        await updateConversation(activeUser.uid, currentConversationId, conversationData);
       } else {
-        // Create new conversation in Firestore
-        const result = await saveConversation(user.uid, {
+        const result = await saveConversation(activeUser.uid, {
           ...conversationData,
           createdAt: new Date()
         });
@@ -377,38 +406,73 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    const { logoutUser } = await import('./services/firebase');
-    await logoutUser();
+    try {
+      const { logoutUser } = await import('./services/firebase');
+      await logoutUser();
+    } catch (e) { }
+    setUser(null);
     setView('landing');
   };
-
-  if (loading) {
-    return (
-      <div className="app-loading">
-        <div className="spinner" />
-        <span>Loading...</span>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Login onLogin={setUser} />
-    );
-  }
-
-  if (view === 'landing') {
-    return (
-      <LandingPage
-        darkMode={darkMode}
-        onEnter={openChat}
-        onToggleTheme={() => setDarkMode((current) => !current)}
-      />
-    );
+  // TEMP QA BYPASS — remove before shipping (headless Chrome has no auth).
+  const qaParams = new URLSearchParams(window.location.search);
+  if (qaParams.get('qa') === 'landing') {
+    return <QALandingWrapper qaParams={qaParams} />;
   }
 
   return (
-    <div className="app-shell">
+    <AnimatePresence mode="wait">
+      {loading && (
+        <motion.div
+          key="loading"
+          className="app-loading"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          transition={{ duration: 0.3 }}
+        >
+          <span className="om-loading-mark" aria-hidden="true">ॐ</span>
+          <p>Preparing your spiritual space…</p>
+        </motion.div>
+      )}
+
+      {!loading && view === 'landing' && (
+        <motion.div
+          key="landing"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <LandingPage
+            darkMode={darkMode}
+            onEnter={openChat}
+            onAsk={askFromLanding}
+            onToggleTheme={() => setDarkMode((current) => !current)}
+          />
+        </motion.div>
+      )}
+
+      {!loading && view === 'login' && (
+        <motion.div
+          key="login"
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -18 }}
+          transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+        >
+          <Login onLogin={(u) => { setUser(u); setView('chat'); }} />
+        </motion.div>
+      )}
+
+      {!loading && view === 'chat' && (
+        <motion.div
+          key="chat"
+          className="app-shell"
+          initial={{ opacity: 0, x: 28 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 28 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+        >
       <ChatHistory
         user={user}
         conversations={conversations}
@@ -430,13 +494,63 @@ export default function App() {
 
           <div className="topbar-center">
             <button className="home-link" onClick={() => setView('landing')}>Back Home</button>
-            <div className="model-badge">
-              <span className="status-dot" />
-              Samvad Learning
+            <div className="mode-toggle-group" style={{ display: 'inline-flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', borderRadius: '24px', padding: '3px 4px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <button
+                type="button"
+                className={`mode-pill-btn ${inferenceMode === 'fast' ? 'active' : ''}`}
+                onClick={() => setInferenceMode('fast')}
+                style={{
+                  background: inferenceMode === 'fast' ? 'linear-gradient(135deg, #d97706, #b45309)' : 'transparent',
+                  color: inferenceMode === 'fast' ? '#ffffff' : 'var(--text-muted, #9ca3af)',
+                  border: 'none',
+                  borderRadius: '18px',
+                  padding: '4px 12px',
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                title="Ultra-fast LPU inference (~1s response)"
+              >
+                ⚡ Fast Mode
+              </button>
+              <button
+                type="button"
+                className={`mode-pill-btn ${inferenceMode === 'deep' ? 'active' : ''}`}
+                onClick={() => setInferenceMode('deep')}
+                style={{
+                  background: inferenceMode === 'deep' ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : 'transparent',
+                  color: inferenceMode === 'deep' ? '#ffffff' : 'var(--text-muted, #9ca3af)',
+                  border: 'none',
+                  borderRadius: '18px',
+                  padding: '4px 12px',
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                title="Dedicated Oracle Cloud GGUF Server (~12s response)"
+              >
+                🧘 Deep Mode
+              </button>
             </div>
           </div>
 
           <div className="topbar-actions">
+            <button
+              className={`icon-button ${voiceModeOpen ? 'voice-toggle-active' : ''}`}
+              aria-label={voiceModeOpen ? 'Close Voice Mode' : 'Open Voice Mode'}
+              aria-pressed={voiceModeOpen}
+              onClick={() => setVoiceModeOpen((current) => !current)}
+            >
+              <Icon name="volume" />
+            </button>
             <button
               className="icon-button"
               aria-label={darkMode ? 'Use light theme' : 'Use dark theme'}
@@ -453,7 +567,16 @@ export default function App() {
           </div>
         </header>
 
-        <div className="content-area">
+        <div className={`content-area ${voiceModeOpen ? 'voice-mode-active' : ''}`}>
+          <VoiceMode
+            open={voiceModeOpen}
+            onClose={() => setVoiceModeOpen(false)}
+            value={draft}
+            onChange={setDraft}
+            onAsk={() => submitMessage(undefined, true)}
+            isResponding={isResponding}
+            voice={voice}
+          />
           {messages.length === 0 ? (
             <Welcome suggestions={promptSuggestions} onSelectPrompt={setDraft} />
           ) : (
@@ -463,12 +586,19 @@ export default function App() {
                   message.role === 'assistant' &&
                   index === messages.length - 1;
                 return (
-                  <article className={`message ${message.role}`} key={`${message.role}-${index}`}>
+                  <motion.article
+                    className={`message ${message.role}`}
+                    key={`${message.role}-${index}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+                    style={{ animation: 'none' }}
+                  >
                     <span className="message-avatar">
                       {message.role === 'user' ? 'You' : 'ॐ'}
                     </span>
                     <div>
-                      <strong>{message.role === 'user' ? 'You' : 'Samvad'}</strong>
+                      <strong>{message.role === 'user' ? 'You' : 'Samvaad'}</strong>
                       {message.role === 'assistant' ? (
                         <p className="rich-text">
                           <RichText content={message.content} streaming={isLastAssistant && isStreaming} />
@@ -483,31 +613,65 @@ export default function App() {
                           </time>
                         )}
                         {message.role === 'assistant' && message.content && !isStreaming && (
-                          <CopyButton text={message.content} />
+                          <>
+                            <CopyButton text={message.content} />
+                            <button className="message-action" onClick={() => voice.speak(message.content)} aria-label="Listen to reply" type="button">
+                              <Icon name="volume" size={14} /> Listen
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
-                  </article>
+                  </motion.article>
                 );
               })}
-              {isResponding && (
-                <article className="message assistant responding">
-                  <span className="message-avatar">ॐ</span>
-                  <div>
-                    <strong>Samvad Guru</strong>
-                    <RespondingIndicator />
-                  </div>
-                </article>
-              )}
+              <AnimatePresence>
+                {isResponding && (
+                  <motion.article
+                    className="message assistant responding"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+                    style={{ animation: 'none' }}
+                  >
+                    <span className="message-avatar">ॐ</span>
+                    <div>
+                      <strong>Samvaad Guru</strong>
+                      <RespondingIndicator isDeep={inferenceMode === 'deep'} />
+                    </div>
+                  </motion.article>
+                )}
+              </AnimatePresence>
               <div ref={messagesEndRef} className="messages-anchor" aria-hidden="true" />
             </section>
           )}
         </div>
 
+        <motion.div
+          className="diya-row"
+          aria-hidden="true"
+          initial="hidden"
+          animate="visible"
+          variants={{ visible: { transition: { staggerChildren: 0.15, delayChildren: 0.4 } } }}
+        >
+          {[0, 1, 2, 3, 4].map((i) => (
+            <motion.span
+              className="diya"
+              key={i}
+              style={{ '--flick': `${(i * 0.37).toFixed(2)}s` }}
+              variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }}
+              transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+            />
+          ))}
+        </motion.div>
+
         <Composer value={draft} onChange={setDraft} onSubmit={submitMessage} />
       </main>
 
       <OnboardingModal isOpen={showOnboarding} onSubmit={handleOnboardingSubmit} />
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

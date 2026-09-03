@@ -9,12 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.8",
+    "@react-three/fiber": "^9.7.0",
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
+    "firebase": "latest",
+    "framer-motion": "^13.1.0",
     "react": "latest",
     "react-dom": "latest",
-    "vite-plugin-singlefile": "latest",
-    "firebase": "latest"
-  },
-  "devDependencies": {}
+    "three": "^0.185.1",
+    "vite": "latest",
+    "vite-plugin-singlefile": "latest"
+  }
 }

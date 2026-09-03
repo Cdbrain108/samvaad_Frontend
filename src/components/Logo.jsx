@@ -1,6 +1,6 @@
 export default function Logo({ compact = false }) {
   return (
-    <div className="brand" aria-label="Samvad AI">
+    <div className="brand" aria-label="Samvaad AI">
       <span className="brand-mark" aria-hidden="true">
         <span />
         <span />
