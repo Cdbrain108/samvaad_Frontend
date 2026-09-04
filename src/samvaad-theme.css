@@ -5031,3 +5031,136 @@ select:focus-visible,
   height: 8px;
   flex-shrink: 0;
 }
+
+@keyframes modeToastFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+/* ==========================================================================
+   MOBILE PERFECTION — iteratively checked at 390×844, 375×667, 360×740
+   Every phase now fits without clipping, overflow or hidden header gaps.
+   ========================================================================== */
+@media (max-width: 768px){
+  /* scroll container — allow natural height */
+  .spiritual-page.landing-scroll{ height:100svh !important; height:100dvh !important; }
+  .spiritual-page .phase{
+    height:auto !important;
+    min-height:100svh !important;
+    max-height:none !important;
+    overflow:visible !important;
+    padding:68px 16px 28px !important;
+    justify-content:flex-start !important;
+    scroll-snap-align:start !important;
+  }
+  .spiritual-page .phase-hero{
+    height:auto !important;
+    min-height:100svh !important;
+    grid-template-columns:1fr !important;
+    padding:72px 16px 28px !important;
+    gap:0 !important;
+  }
+  /* header — compact, no overflow */
+  .spiritual-page .spiritual-header{
+    width:calc(100% - 16px) !important;
+    height:56px !important;
+    margin:6px auto 0 !important;
+    padding:0 10px !important;
+    border-radius:14px !important;
+  }
+  .spiritual-page .spiritual-wordmark{ font-size:17px !important; }
+  .brand-tagline{ display:none !important; }
+  .spiritual-page .spiritual-nav{ display:none !important; }
+  .spiritual-page .spiritual-header-actions{ gap:6px !important; }
+  .theme-pill-toggle{ padding:2px !important; }
+  .theme-pill-opt{ padding:4px 8px !important; font-size:10px !important; }
+  .spiritual-page .cta-button{ padding:0 12px !important; min-height:36px !important; font-size:11px !important; }
+  .spiritual-page .cta-button span[aria-hidden]{ display:none !important; }
+  /* hero */
+  .phase-hero .hero-copy-panel{ max-width:100% !important; width:100% !important; }
+  .phase-hero .hero-logo{ width:min(260px, 68vw) !important; max-height:96px !important; }
+  .phase-hero .hero-tagline{ font-size:14px !important; line-height:1.4 !important; margin-top:8px !important; }
+  .phase-hero .hero-desc{ font-size:13px !important; line-height:1.5 !important; margin-top:8px !important; }
+  .phase-hero .hero-askbox{ max-width:100% !important; margin-top:14px !important; padding:6px 8px 6px 12px !important; border-radius:999px !important; }
+  .phase-hero .hero-askbox input{ font-size:16px !important; } /* no iOS zoom */
+  .phase-hero .askbox-send{ width:36px !important; height:36px !important; }
+  .phase-hero .topic-chips{ gap:6px !important; margin-top:10px !important; }
+  .phase-hero .topic-chips button{ padding:6px 10px !important; font-size:11px !important; }
+  .hero-inspiration-bar{ display:none !important; }
+  .phase-hero .hero-visual{ display:none !important; }
+  .hero-bg-mobile-temple{ display:block !important; }
+  .desktop-only-canvas{ display:none !important; }
+  /* numbers */
+  .numbers-section{ padding:68px 16px 28px !important; }
+  .parchment-scroll-wrapper{ width:100% !important; margin:12px auto 0 !important; }
+  .parchment-unfurl-stage{ min-height:180px !important; }
+  .parchment-sheet{ min-height:170px !important; padding:12px 16px !important; }
+  .parchment-metrics-grid{ grid-template-columns:1fr 1fr !important; gap:10px !important; }
+  .parchment-metric-item:nth-child(5){ grid-column:1 / -1; max-width:50%; margin:0 auto; }
+  .metric-digit{ font-size:24px !important; }
+  .metric-text-label{ font-size:10px !important; }
+  /* pipeline */
+  .story-section{ padding:68px 16px 28px !important; }
+  .flow-pipeline{ grid-template-columns:1fr !important; gap:0 !important; width:100% !important; margin:12px auto 0 !important; }
+  .flow-step{ display:grid !important; grid-template-columns:52px 1fr !important; gap:12px !important; padding:0 0 22px !important; border:0 !important; background:transparent !important; text-align:left !important; }
+  .flow-step.is-active{ transform:none !important; box-shadow:none !important; border-color:transparent !important; }
+  .flow-node{ grid-column:1; grid-row:1 / 4; width:48px !important; height:48px !important; }
+  .flow-chip{ grid-column:2; justify-self:start; }
+  .flow-step h3{ grid-column:2; font-size:15px !important; }
+  .flow-step p{ grid-column:2; font-size:12px !important; }
+  .flow-link{ left:24px !important; top:52px !important; width:2px !important; height:calc(100% - 52px) !important; background:repeating-linear-gradient(180deg, rgba(180,120,40,0.32) 0 5px, transparent 5px 10px) !important; }
+  .flow-link i{ left:-4px !important; width:9px !important; height:9px !important; }
+  /* scriptures — heritage + pothi */
+  .scripture-section{ padding:68px 16px 28px !important; min-height:100svh !important; }
+  .heritage-intro{ padding:16px !important; align-items:flex-start !important; overflow-y:auto !important; -webkit-overflow-scrolling:touch; }
+  .heritage-bg{ background-position:center 28% !important; }
+  .heritage-inclined-page{ display:none !important; }
+  .heritage-content{ max-width:100% !important; padding:18px 16px !important; margin:auto 0 !important; }
+  .heritage-content h2{ font-size:24px !important; line-height:1.15 !important; }
+  .heritage-lead{ font-size:13px !important; }
+  .heritage-content p{ font-size:12.5px !important; }
+  .heritage-muted{ font-size:11px !important; }
+  .heritage-scroll-cue{ bottom:14px !important; }
+  .pothi-scene-wrap{ height:380px !important; min-height:380px !important; padding:8px 0 10px !important; border-radius:14px !important; }
+  .pothi-ui{ left:8px !important; right:8px !important; bottom:8px !important; gap:8px !important; }
+  .pothi-folio{ font-size:10px !important; padding:0 10px !important; min-height:26px !important; }
+  .pothi-dots{ padding:5px 8px !important; gap:6px !important; }
+  .pothi-hint{ bottom:56px !important; font-size:10px !important; padding:5px 10px !important; }
+  .pothi-caption{ width:100% !important; padding:14px 14px 16px !important; border-radius:14px !important; }
+  .pothi-caption-deva{ font-size:17px !important; line-height:1.6 !important; }
+  .pothi-caption-meaning{ font-size:12px !important; }
+  /* features / dataset / quote */
+  .spiritual-features{ padding:68px 16px 28px !important; }
+  .spiritual-feature-grid{ grid-template-columns:1fr !important; gap:12px !important; margin-top:16px !important; }
+  .spiritual-feature-card{ padding:16px !important; border-radius:14px !important; min-height:auto !important; }
+  .spiritual-feature-card h3{ font-size:17px !important; }
+  .video-examples{ padding:68px 16px 28px !important; }
+  .video-example-grid{ grid-template-columns:1fr !important; gap:12px !important; margin-top:16px !important; }
+  .spiritual-quote{ padding:68px 16px 32px !important; }
+  .spiritual-quote blockquote{ font-size:22px !important; line-height:1.2 !important; }
+  /* fullscreen leaf on mobile — already handled but tighten */
+  .pothi-fullscreen{ padding:8px !important; }
+  .pothi-fs-leaf{ padding:16px 18px 18px !important; min-height:300px !important; }
+  .pothi-fs-deva{ font-size:19px !important; }
+  .pothi-fs-meaning{ font-size:12px !important; }
+}
+@media (max-width: 390px){
+  .spiritual-page .phase{ padding:66px 12px 24px !important; }
+  .phase-hero .hero-logo{ width:min(220px, 72vw) !important; }
+  .parchment-metrics-grid{ gap:8px !important; }
+  .pothi-scene-wrap{ height:340px !important; min-height:340px !important; }
+  .heritage-content{ padding:16px 14px !important; }
+  .heritage-content h2{ font-size:22px !important; }
+}
+@media (max-width: 360px){
+  .spiritual-page .spiritual-header{ width:calc(100% - 10px) !important; }
+  .pothi-scene-wrap{ height:320px !important; min-height:320px !important; }
+  .parchment-metric-item{ padding:2px 4px !important; }
+  .metric-icon-circle{ width:36px !important; height:36px !important; }
+}

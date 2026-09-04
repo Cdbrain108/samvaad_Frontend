@@ -24,9 +24,12 @@ export default function useVoiceMode() {
   const [duration, setDuration] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [speechTick, setSpeechTick] = useState(0);
-  const [speechSupported] = useState(() => 'speechSynthesis' in window);
+  const [speechSupported] = useState(() => 'speechSynthesis' in window || 'Audio' in window);
   const [recognitionSupported] = useState(() => Boolean(SpeechRecognition));
+  
   const utteranceRef = useRef(null);
+  const audioRef = useRef(null);
+  const currentProviderRef = useRef('browser-speech');
   const chunksRef = useRef([]);
   const chunkIndexRef = useRef(0);
   const elapsedRef = useRef(0);
@@ -36,12 +39,24 @@ export default function useVoiceMode() {
   const recognitionRef = useRef(null);
 
   const clearTimer = useCallback(() => {
-    window.clearInterval(timerRef.current);
-    timerRef.current = null;
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
   }, []);
 
   const stop = useCallback(() => {
     clearTimer();
+    
+    // Stop HTML Audio element if playing
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current.src = '';
+      audioRef.current = null;
+    }
+
+    // Stop Browser speech
     window.speechSynthesis?.cancel();
     utteranceRef.current = null;
     chunksRef.current = [];
@@ -91,38 +106,93 @@ export default function useVoiceMode() {
   }, [clearTimer, language, muted, speed, startTimer, volume]);
 
   const speak = useCallback(async (answer) => {
-    if (!speechSupported) {
-      setError('Voice playback is not supported in this browser.');
-      setState(VOICE_STATES.ERROR);
-      return;
-    }
     stop();
     setError('');
     setState(VOICE_STATES.PREPARING);
+
     try {
-      const speech = await generateSpeech(answer, { language });
+      const speech = await generateSpeech(answer, { language, speed });
       activeTextRef.current = speech.text;
-      chunksRef.current = splitSpeechText(speech.text);
-      chunkIndexRef.current = 0;
-      elapsedRef.current = 0;
-      setElapsed(0);
-      const estimatedDuration = Math.max(1, Math.ceil((speech.text.trim().split(/\s+/).length / 145) * 60 / speed));
-      durationRef.current = estimatedDuration;
-      setDuration(estimatedDuration);
-      speakChunk(0);
+      currentProviderRef.current = speech.provider;
+
+      if (speech.provider === 'backend-neural' && speech.audioUrl) {
+        // High-Fidelity Guru Neural Speech Path
+        const audio = new Audio(speech.audioUrl);
+        audio.volume = muted ? 0 : volume;
+        audio.playbackRate = 1.0;
+        audioRef.current = audio;
+
+        audio.onloadedmetadata = () => {
+          const dur = Math.ceil(audio.duration) || 5;
+          durationRef.current = dur;
+          setDuration(dur);
+        };
+
+        audio.onplay = () => {
+          setState(VOICE_STATES.SPEAKING);
+          clearTimer();
+          timerRef.current = window.setInterval(() => {
+            if (audioRef.current) {
+              const cur = audioRef.current.currentTime;
+              elapsedRef.current = cur;
+              setElapsed(cur);
+              setSpeechTick((tick) => tick + 1);
+            }
+          }, 200);
+        };
+
+        audio.onended = () => {
+          clearTimer();
+          setElapsed(durationRef.current);
+          setState(VOICE_STATES.FINISHED);
+        };
+
+        audio.onerror = () => {
+          console.warn('Backend audio failed during playback, falling back to browser speech...');
+          chunksRef.current = splitSpeechText(speech.text);
+          chunkIndexRef.current = 0;
+          speakChunk(0);
+        };
+
+        await audio.play();
+      } else {
+        // Browser Speech Fallback Path
+        chunksRef.current = splitSpeechText(speech.text);
+        chunkIndexRef.current = 0;
+        elapsedRef.current = 0;
+        setElapsed(0);
+        const estimatedDuration = Math.max(1, Math.ceil((speech.text.trim().split(/\s+/).length / 145) * 60 / speed));
+        durationRef.current = estimatedDuration;
+        setDuration(estimatedDuration);
+        speakChunk(0);
+      }
     } catch (cause) {
+      console.error('Speech synthesis error:', cause);
       setError('I couldn’t prepare the voice response. Please try again.');
       setState(VOICE_STATES.ERROR);
     }
-  }, [language, speakChunk, speechSupported, speed, stop]);
+  }, [clearTimer, language, muted, speakChunk, speed, stop, volume]);
 
   const togglePause = useCallback(() => {
+    if (currentProviderRef.current === 'backend-neural' && audioRef.current) {
+      if (state === VOICE_STATES.SPEAKING) {
+        audioRef.current.pause();
+        clearTimer();
+        setState(VOICE_STATES.PAUSED);
+      } else if (state === VOICE_STATES.PAUSED) {
+        audioRef.current.play();
+        setState(VOICE_STATES.SPEAKING);
+      }
+      return;
+    }
+
+    // Browser Speech Synthesis pause/resume
     if (state === VOICE_STATES.SPEAKING) {
-      window.speechSynthesis.pause();
+      window.speechSynthesis?.pause();
       clearTimer();
       setState(VOICE_STATES.PAUSED);
     } else if (state === VOICE_STATES.PAUSED) {
-      window.speechSynthesis.resume();
+      window.speechSynthesis?.resume();
       startTimer();
       setState(VOICE_STATES.SPEAKING);
     }
@@ -158,9 +228,35 @@ export default function useVoiceMode() {
 
   useEffect(() => () => {
     clearTimer();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
     window.speechSynthesis?.cancel();
     recognitionRef.current?.stop();
   }, [clearTimer]);
 
-  return { state, error, language, setLanguage, speed, setSpeed, volume, setVolume, muted, setMuted, elapsed, duration, isListening, speechSupported, recognitionSupported, speechTick, speak, stop, togglePause, replay, toggleListening };
+  return {
+    state,
+    error,
+    language,
+    setLanguage,
+    speed,
+    setSpeed,
+    volume,
+    setVolume,
+    muted,
+    setMuted,
+    elapsed,
+    duration,
+    isListening,
+    speechSupported,
+    recognitionSupported,
+    speechTick,
+    speak,
+    stop,
+    togglePause,
+    replay,
+    toggleListening,
+  };
 }

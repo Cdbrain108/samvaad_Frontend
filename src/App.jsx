@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { onAuthStateChange, saveConversation, getUserConversations, getConversation, updateConversation, getUserMemory, saveUserMemory, getUserProfileInfo, saveUserProfileInfo } from './services/firebase';
 import { generateGuruResponse, streamGuruResponse, generateChatTitle } from './services/guruService';
@@ -12,6 +12,7 @@ import OnboardingModal from './components/OnboardingModal';
 import { promptSuggestions } from './data/prompts';
 import VoiceMode from './components/VoiceMode/VoiceMode';
 import useVoiceMode from './hooks/useVoiceMode';
+import ReasoningBlock from './components/ReasoningBlock';
 
 function formatTimestamp(timestamp) {
   if (!timestamp) return '';
@@ -151,27 +152,49 @@ export default function App() {
   const [isResponding, setIsResponding] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [userMemory, setUserMemory] = useState(null);
-  const [inferenceMode, setInferenceMode] = useState('fast');
+  const [inferenceMode, setInferenceMode] = useState('deep');
+  const [modeNotification, setModeNotification] = useState(null);
+  const modeNotificationTimerRef = useRef(null);
   const [voiceModeOpen, setVoiceModeOpen] = useState(false);
   const messagesEndRef = useRef(null);
   const contentAreaRef = useRef(null);
   const voice = useVoiceMode();
 
+  const handleModeChange = useCallback((newMode) => {
+    setInferenceMode(newMode);
+    if (modeNotificationTimerRef.current) {
+      clearTimeout(modeNotificationTimerRef.current);
+    }
+    setModeNotification(newMode);
+    modeNotificationTimerRef.current = setTimeout(() => {
+      setModeNotification(null);
+    }, 2800);
+  }, []);
+
   useEffect(() => {
     document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
   }, [darkMode]);
 
-  // Smoothly pin latest message at the bottom of the chat box (not the full page)
+  const userScrolledUpRef = useRef(false);
+
+  // Track user scroll position so streaming never locks the page or overrides manual scrolling
+  const handleContentScroll = useCallback(() => {
+    if (!contentAreaRef.current) return;
+    const el = contentAreaRef.current;
+    // If distance from bottom exceeds 80px, devotee has deliberately scrolled up to read/interact
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    userScrolledUpRef.current = distanceFromBottom > 80;
+  }, []);
+
+  // Auto-scroll chat to bottom ONLY if devotee hasn't scrolled up to read/inspect past dialogue
   useEffect(() => {
-    if (contentAreaRef.current) {
-      const el = contentAreaRef.current;
-      // Only auto-scroll if user is already near the bottom (within 200px)
-      const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 200;
-      if (isNearBottom || isResponding) {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      }
-    }
-  }, [messages, isResponding]);
+    if (!contentAreaRef.current) return;
+    if (userScrolledUpRef.current) return;
+
+    const el = contentAreaRef.current;
+    // Direct container scroll: never interrupts touch/wheel events, never locks mouse clicks, buttons, or page controls
+    el.scrollTop = el.scrollHeight;
+  }, [messages]);
 
   // Listen for auth state changes
   useEffect(() => {
@@ -360,6 +383,11 @@ export default function App() {
     const message = (typeof explicitMessage === 'string' ? explicitMessage : draft).trim();
     if (!message) return;
 
+    userScrolledUpRef.current = false;
+    if (contentAreaRef.current) {
+      contentAreaRef.current.scrollTop = contentAreaRef.current.scrollHeight;
+    }
+
     const userMsg = { role: 'user', content: message, timestamp: new Date() };
     const updatedMessagesWithUser = [...messages, userMsg];
     voice.stop();
@@ -377,6 +405,11 @@ export default function App() {
       const assistantMsg = {
         role: 'assistant',
         content: '',
+        initialContent: '',
+        subsequentContent: '',
+        thought: '',
+        isThinking: false, // Model starts directly without reasoning window!
+        thinkingDuration: 0,
         timestamp: new Date(),
         mode: inferenceMode
       };
@@ -384,26 +417,52 @@ export default function App() {
       let receivedAnyChunk = false;
       setIsStreaming(true);
 
-      const fullResponseContent = await streamGuruResponse(
+      const streamResult = await streamGuruResponse(
         message,
         messages,
         memoryContext,
         userProfile,
         inferenceMode,
-        (currentText) => {
+        (update) => {
           if (!receivedAnyChunk) {
             receivedAnyChunk = true;
             setIsResponding(false);
           }
-          setMessages([...updatedMessagesWithUser, { ...assistantMsg, content: currentText }]);
+          if (typeof update === 'string') {
+            setMessages([...updatedMessagesWithUser, { ...assistantMsg, content: update, isThinking: false }]);
+          } else {
+            setMessages([...updatedMessagesWithUser, {
+              ...assistantMsg,
+              content: update.content || '',
+              initialContent: update.initialContent || '',
+              subsequentContent: update.subsequentContent || '',
+              thought: update.thought || '',
+              isThinking: Boolean(update.isThinking),
+              thinkingDuration: update.thinkingDuration || 0
+            }]);
+          }
         }
       );
 
       setIsResponding(false);
       setIsStreaming(false);
 
-      const finalCleanContent = fullResponseContent || 'राधे राधे';
-      setMessages([...updatedMessagesWithUser, { role: 'assistant', content: finalCleanContent, timestamp: new Date(), mode: inferenceMode }]);
+      const finalCleanContent = (typeof streamResult === 'string' ? streamResult : streamResult?.content) || 'राधे राधे';
+      const finalThought = typeof streamResult === 'object' ? (streamResult.thought || '') : '';
+      const finalDuration = typeof streamResult === 'object' ? (streamResult.thinkingDuration || 0) : 0;
+
+      const finalizedAssistantMsg = {
+        role: 'assistant',
+        content: finalCleanContent,
+        initialContent: '',
+        subsequentContent: '',
+        thought: finalThought,
+        isThinking: false,
+        thinkingDuration: finalDuration,
+        timestamp: new Date(),
+        mode: inferenceMode
+      };
+      setMessages([...updatedMessagesWithUser, finalizedAssistantMsg]);
 
       if (speakResponse && finalCleanContent) {
         voice.speak(finalCleanContent);
@@ -411,7 +470,7 @@ export default function App() {
 
       const conversationData = {
         title: messages.length === 0 ? (message.length > 30 ? message.slice(0, 30) + '...' : message) : (conversations.find(c => c.id === currentConversationId)?.title || 'Spiritual Satsang'),
-        messages: [...updatedMessagesWithUser, { role: 'assistant', content: fullResponseContent, timestamp: new Date() }],
+        messages: [...updatedMessagesWithUser, finalizedAssistantMsg],
         updatedAt: new Date()
       };
 
@@ -545,7 +604,7 @@ export default function App() {
               <button
                 type="button"
                 className={`mode-pill-btn ${inferenceMode === 'fast' ? 'active' : ''}`}
-                onClick={() => setInferenceMode('fast')}
+                onClick={() => handleModeChange('fast')}
                 aria-label="Fast Mode: Ultra-fast LPU inference"
                 aria-pressed={inferenceMode === 'fast'}
                 style={{
@@ -570,7 +629,7 @@ export default function App() {
               <button
                 type="button"
                 className={`mode-pill-btn ${inferenceMode === 'deep' ? 'active' : ''}`}
-                onClick={() => setInferenceMode('deep')}
+                onClick={() => handleModeChange('deep')}
                 aria-label="Deep Mode: Fine-tuned Q8 Oracle model"
                 aria-pressed={inferenceMode === 'deep'}
                 style={{
@@ -594,6 +653,63 @@ export default function App() {
               </button>
             </div>
           </div>
+
+          {modeNotification && (
+            <div
+              className="mode-switch-toast"
+              role="status"
+              aria-live="polite"
+              style={{
+                position: 'fixed',
+                top: '70px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 9999,
+                maxWidth: '92vw',
+                width: '580px',
+                background: 'rgba(22, 17, 34, 0.96)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: modeNotification === 'deep' ? '1px solid rgba(167, 139, 250, 0.45)' : '1px solid rgba(251, 191, 36, 0.45)',
+                boxShadow: modeNotification === 'deep' ? '0 12px 32px rgba(124, 58, 237, 0.35), 0 0 16px rgba(167, 139, 250, 0.2)' : '0 12px 32px rgba(217, 119, 6, 0.35), 0 0 16px rgba(251, 191, 36, 0.2)',
+                borderRadius: '16px',
+                padding: '12px 18px',
+                color: '#f3f4f6',
+                fontSize: '0.84rem',
+                lineHeight: 1.55,
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '12px',
+                animation: 'modeToastFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                pointerEvents: 'none'
+              }}
+            >
+              <div style={{ fontSize: '1.4rem', flexShrink: 0, marginTop: '1px' }}>
+                {modeNotification === 'deep' ? '🧘' : '⚡'}
+              </div>
+              <div>
+                <div style={{
+                  fontWeight: 700,
+                  fontSize: '0.88rem',
+                  color: modeNotification === 'deep' ? '#c4b5fd' : '#fde68a',
+                  marginBottom: '2px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  {modeNotification === 'deep' ? 'Deep Mode' : 'Fast Mode'}
+                  {modeNotification === 'deep' && (
+                    <span style={{ fontSize: '0.7rem', padding: '1px 6px', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.2)', color: '#ddd6fe' }}>Default</span>
+                  )}
+                </div>
+                <div style={{ color: '#e5e7eb', fontSize: '0.82rem' }}>
+                  {modeNotification === 'deep'
+                    ? "Deep mode: Our fine tunned llm model with Premanand ji's whole youtube;s available teachings, takes some more time but give you authenthic guruji like response with its wording and knowledge and explaination style."
+                    : "Fast mode: Quick response powered by Groq LPU which uses few shots and role bases propmting of guruji's"}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="topbar-actions">
             <button
@@ -624,7 +740,11 @@ export default function App() {
           </div>
         </header>
 
-        <div className={`content-area ${voiceModeOpen ? 'voice-mode-active' : ''}`} ref={contentAreaRef}>
+        <div
+          className={`content-area ${voiceModeOpen ? 'voice-mode-active' : ''}`}
+          ref={contentAreaRef}
+          onScroll={handleContentScroll}
+        >
           <VoiceMode
             open={voiceModeOpen}
             onClose={() => setVoiceModeOpen(false)}
@@ -664,9 +784,23 @@ export default function App() {
                         )}
                       </div>
                       {message.role === 'assistant' ? (
-                        <p className="rich-text">
-                          <RichText content={message.content} streaming={isLastAssistant && isStreaming} />
-                        </p>
+                        <div className="assistant-message-body">
+                          {/* Reasoning Box is ALWAYS positioned at the top of the message */}
+                          {message.mode === 'deep' && (message.thought || message.isThinking) && (
+                            <ReasoningBlock
+                              thought={message.thought}
+                              isThinking={message.isThinking}
+                              duration={message.thinkingDuration}
+                            />
+                          )}
+
+                          {/* The entire response flows together in one unbroken, beautiful stream below the reasoning box */}
+                          {message.content && (
+                            <p className="rich-text">
+                              <RichText content={message.content} streaming={isLastAssistant && isStreaming} />
+                            </p>
+                          )}
+                        </div>
                       ) : (
                         <p>{message.content}</p>
                       )}
