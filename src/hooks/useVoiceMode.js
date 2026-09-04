@@ -24,6 +24,7 @@ export default function useVoiceMode() {
   const [duration, setDuration] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [speechTick, setSpeechTick] = useState(0);
+  const [isCloned, setIsCloned] = useState(false);
   const [speechSupported] = useState(() => 'speechSynthesis' in window || 'Audio' in window);
   const [recognitionSupported] = useState(() => Boolean(SpeechRecognition));
   
@@ -114,6 +115,7 @@ export default function useVoiceMode() {
       const speech = await generateSpeech(answer, { language, speed });
       activeTextRef.current = speech.text;
       currentProviderRef.current = speech.provider;
+      setIsCloned(Boolean(speech.isCloned));
 
       if (speech.provider === 'backend-neural' && speech.audioUrl) {
         // High-Fidelity Guru Neural Speech Path
@@ -253,6 +255,7 @@ export default function useVoiceMode() {
     speechSupported,
     recognitionSupported,
     speechTick,
+    isCloned,
     speak,
     stop,
     togglePause,

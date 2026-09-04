@@ -2,11 +2,43 @@ import { detectSpeechLanguage, prepareTextForSpeech } from '../utils/speechText'
 
 const BACKEND_BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
 
-const getVoiceCloneUrl = () => {
+export const getVoiceCloneUrl = () => {
   if (typeof window !== 'undefined') {
     return (window.VOICE_CLONE_URL || localStorage.getItem('guru_voice_clone_url') || import.meta.env.VITE_VOICE_CLONE_URL || '').replace(/\/$/, '');
   }
   return (import.meta.env.VITE_VOICE_CLONE_URL || '').replace(/\/$/, '');
+};
+
+export const setVoiceCloneUrl = (url) => {
+  const clean = (url || '').trim().replace(/\/$/, '');
+  if (typeof window !== 'undefined') {
+    if (clean) {
+      localStorage.setItem('guru_voice_clone_url', clean);
+      window.VOICE_CLONE_URL = clean;
+    } else {
+      localStorage.removeItem('guru_voice_clone_url');
+      delete window.VOICE_CLONE_URL;
+    }
+  }
+  return clean;
+};
+
+export const testVoiceCloneUrl = async (url) => {
+  const clean = (url || '').trim().replace(/\/$/, '');
+  if (!clean) return { ok: false, error: 'Empty URL' };
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(`${clean}/health`, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (res.ok) {
+      const data = await res.json();
+      return { ok: true, data };
+    }
+    return { ok: false, status: res.status };
+  } catch (e) {
+    return { ok: false, error: e.message || 'Could not connect' };
+  }
 };
 
 /**
@@ -41,6 +73,7 @@ export async function generateSpeech(text, { language = 'auto', speed = 1 } = {}
           audioUrl,
           text: preparedText,
           language: language === 'auto' ? detectSpeechLanguage(preparedText) : language,
+          isCloned: true,
         };
       }
     } catch (e) {
@@ -59,6 +92,7 @@ export async function generateSpeech(text, { language = 'auto', speed = 1 } = {}
       rate: ratePercent,
       pitch: '-2Hz',
       apply_softener: true,
+      clone_url: cloneServer || undefined,
     });
 
     let response = null;
@@ -94,6 +128,7 @@ export async function generateSpeech(text, { language = 'auto', speed = 1 } = {}
         audioUrl,
         text: preparedText,
         language: language === 'auto' ? detectSpeechLanguage(preparedText) : language,
+        isCloned: false,
       };
     } else {
       console.warn('[Neural TTS] Response not OK:', response?.status, await response?.text());
@@ -108,5 +143,6 @@ export async function generateSpeech(text, { language = 'auto', speed = 1 } = {}
     provider: 'browser-speech',
     text: preparedText,
     language: language === 'auto' ? detectSpeechLanguage(preparedText) : language,
+    isCloned: false,
   };
 }

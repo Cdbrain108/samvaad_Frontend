@@ -1,6 +1,9 @@
+import React, { useState } from 'react';
 import Icon from '../Icon';
 import { VOICE_STATES } from '../../hooks/useVoiceMode';
 import SadhuAvatar3D from './SadhuAvatar3D';
+import VoiceCloneModal from './VoiceCloneModal';
+import { getVoiceCloneUrl } from '../../services/ttsService';
 
 const stateCopy = {
   [VOICE_STATES.IDLE]: ['Ready to speak', 'idle'],
@@ -17,11 +20,13 @@ function time(value) {
 }
 
 export default function VoiceMode({ open, onClose, value, onChange, onAsk, isResponding, voice }) {
+  const [showCloneModal, setShowCloneModal] = useState(false);
   if (!open) return null;
   const displayState = isResponding ? VOICE_STATES.PREPARING : voice.state;
   const [label, avatarState] = stateCopy[displayState] || stateCopy.idle;
   const canPause = voice.state === VOICE_STATES.SPEAKING || voice.state === VOICE_STATES.PAUSED;
   const canReplay = voice.state === VOICE_STATES.FINISHED || voice.state === VOICE_STATES.IDLE;
+  const isClonedConnected = Boolean(getVoiceCloneUrl());
 
   return (
     <section className="voice-mode" aria-label="Samvaad Voice Mode">
@@ -30,8 +35,21 @@ export default function VoiceMode({ open, onClose, value, onChange, onAsk, isRes
           <p>Samvaad Voice</p>
           <h2>Listen with presence</h2>
         </div>
-        <button className="voice-close" type="button" onClick={onClose} aria-label="Close Voice Mode"><Icon name="close" size={18} /></button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            type="button"
+            className={`voice-clone-toggle-btn ${isClonedConnected ? 'is-cloned' : 'is-fallback'}`}
+            onClick={() => setShowCloneModal(true)}
+            title={isClonedConnected ? 'Authentic Cloned Voice Active (Chatterbox GPU)' : 'Click to connect authentic Maharaj Ji voice clone'}
+          >
+            <span className="clone-dot" />
+            {isClonedConnected ? 'महाराज जी वाणी (GPU)' : '⚙️ Connect Cloned Voice'}
+          </button>
+          <button className="voice-close" type="button" onClick={onClose} aria-label="Close Voice Mode"><Icon name="close" size={18} /></button>
+        </div>
       </div>
+
+      <VoiceCloneModal isOpen={showCloneModal} onClose={() => setShowCloneModal(false)} />
 
       <div className={`voice-avatar ${avatarState}`} aria-live="polite">
         <span className="voice-halo" aria-hidden="true" />

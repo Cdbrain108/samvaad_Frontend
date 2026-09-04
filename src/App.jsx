@@ -11,8 +11,10 @@ import Welcome from './components/Welcome';
 import OnboardingModal from './components/OnboardingModal';
 import { promptSuggestions } from './data/prompts';
 import VoiceMode from './components/VoiceMode/VoiceMode';
+import VoiceCloneModal from './components/VoiceMode/VoiceCloneModal';
 import useVoiceMode from './hooks/useVoiceMode';
 import ReasoningBlock from './components/ReasoningBlock';
+import { getVoiceCloneUrl } from './services/ttsService';
 
 function formatTimestamp(timestamp) {
   if (!timestamp) return '';
@@ -156,6 +158,7 @@ export default function App() {
   const [modeNotification, setModeNotification] = useState(null);
   const modeNotificationTimerRef = useRef(null);
   const [voiceModeOpen, setVoiceModeOpen] = useState(false);
+  const [voiceCloneModalOpen, setVoiceCloneModalOpen] = useState(false);
   const messagesEndRef = useRef(null);
   const contentAreaRef = useRef(null);
   const voice = useVoiceMode();
@@ -713,6 +716,15 @@ export default function App() {
 
           <div className="topbar-actions">
             <button
+              className={`icon-button ${getVoiceCloneUrl() ? 'voice-clone-active' : ''}`}
+              aria-label="Pujya Maharaj Ji Voice Clone Setup"
+              title={getVoiceCloneUrl() ? '🟢 Maharaj Ji Cloned Voice Active (GPU)' : '⚙️ Connect Maharaj Ji Cloned Voice (GPU Tunnel)'}
+              onClick={() => setVoiceCloneModalOpen(true)}
+              style={getVoiceCloneUrl() ? { color: '#34d399', borderColor: 'rgba(52, 211, 153, 0.4)' } : {}}
+            >
+              <Icon name="settings" />
+            </button>
+            <button
               className={`icon-button ${voiceModeOpen ? 'voice-toggle-active' : ''}`}
               aria-label={voiceModeOpen ? 'Close Voice Mode' : 'Open Voice Mode'}
               aria-pressed={voiceModeOpen}
@@ -868,6 +880,7 @@ export default function App() {
       </main>
 
       <OnboardingModal isOpen={showOnboarding} onSubmit={handleOnboardingSubmit} />
+      <VoiceCloneModal isOpen={voiceCloneModalOpen} onClose={() => setVoiceCloneModalOpen(false)} />
         </motion.div>
       )}
     </AnimatePresence>

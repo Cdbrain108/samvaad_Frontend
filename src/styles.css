@@ -1361,3 +1361,317 @@ html, body { max-width: 100%; overflow-x: hidden; }
   width: 100%;
 }
 
+/* --- Voice Clone Status Pill in Voice Mode & Header --- */
+.voice-clone-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.voice-clone-toggle-btn.is-cloned {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.voice-clone-toggle-btn.is-cloned:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: rgba(16, 185, 129, 0.6);
+}
+
+.voice-clone-toggle-btn.is-fallback {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+}
+
+.voice-clone-toggle-btn.is-fallback:hover {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.55);
+}
+
+.voice-clone-toggle-btn .clone-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.voice-clone-toggle-btn.is-cloned .clone-dot {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+}
+
+.voice-clone-toggle-btn.is-fallback .clone-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.8);
+}
+
+/* --- Voice Clone Setup Modal --- */
+.clone-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: cloneModalFade 0.2s ease-out;
+}
+
+@keyframes cloneModalFade {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.clone-modal-card {
+  background: #151121;
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 620px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(124, 58, 237, 0.15);
+  color: #f3f4f6;
+  overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.clone-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.clone-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clone-om-badge {
+  font-size: 1.4rem;
+  background: linear-gradient(135deg, #d97706, #b45309);
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+}
+
+.clone-modal-title h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #faf5ff;
+}
+
+.clone-modal-title p {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted, #9ca3af);
+}
+
+.clone-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.clone-status-banner {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid;
+}
+
+.clone-status-banner.is-active {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.clone-status-banner.is-warning {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  margin-bottom: 4px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.green {
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.9);
+}
+
+.status-dot.amber {
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.9);
+}
+
+.status-desc {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #d1d5db;
+}
+
+.clone-form-section label {
+  display: block;
+  font-size: 0.82rem;
+  margin-bottom: 8px;
+  color: #e5e7eb;
+}
+
+.clone-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.clone-input-row input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 10px;
+  padding: 8px 12px;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-family: monospace;
+}
+
+.clone-input-row input:focus {
+  outline: none;
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.2);
+}
+
+.clone-status-msg {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.clone-status-msg.success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.clone-status-msg.error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+.clone-status-msg.testing {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.clone-audio-previews h4,
+.clone-guide-box h4 {
+  margin: 0 0 10px;
+  font-size: 0.88rem;
+  color: #f3e8ff;
+  font-weight: 600;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .preview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.preview-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preview-info strong {
+  display: block;
+  font-size: 0.82rem;
+  color: #e5e7eb;
+}
+
+.preview-info small {
+  display: block;
+  font-size: 0.72rem;
+  color: #9ca3af;
+}
+
+.preview-card audio {
+  width: 100%;
+  height: 32px;
+  border-radius: 6px;
+}
+
+.clone-guide-box {
+  background: rgba(124, 58, 237, 0.06);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.clone-guide-box ol {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #d1d5db;
+  line-height: 1.45;
+}
+
+.clone-guide-box a {
+  color: #c4b5fd;
+  text-decoration: underline;
+}
+
+.clone-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
