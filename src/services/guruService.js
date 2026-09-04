@@ -336,30 +336,51 @@ export function segmentAndFormatDiscourseNative(text, isEnglish = false) {
 }
 
 /**
- * Strict Formatter for Deep Mode:
- * 1. PRESERVES 100% OF THE FINE-TUNED MODEL'S AUTHENTIC WORDS & VOCABULARY.
- * 2. NEVER rewrites, summarizes, or generates generic AI preambles (e.g. 'प्रिय साधक', 'मैं संपादक हूँ').
- * 3. Divides the authentic discourse into 2 to 3 clearly separated paragraph segments ('\n\n').
- * 4. Ensures clean terminal punctuation '।'.
+ * Fast Groq Messenger & Contextual Framer for Deep Mode:
+ * Groq acts as the faithful messenger / presenter representing Pujya Shri Premanand Ji Maharaj's teachings:
+ * 1. Performs contextual framing to directly address the seeker's question with spiritual warmth.
+ * 2. Trims cluttered repetitions, infinite loops, and redundant stuttering.
+ * 3. Preserves Maharaj Ji's authentic tone, vocabulary, and fatherly compassion.
+ * 4. Strictly avoids robotic AI editor intros (bans 'मैं संपादक हूँ', 'प्रिय साधक', etc.).
+ * 5. Divides the discourse into 2 to 3 clearly separated paragraph segments ('\n\n') ending cleanly at '।'.
+ * 6. Optimized for fast execution (~1.5s).
  */
 async function formatAndSegmentFineTunedDiscourse(draft, userMessage, isEnglish = false) {
   if (!draft || draft.trim().length < 30) return draft;
 
-  const strictFormatPrompt = isEnglish
-    ? `You are a strict text formatter and punctuator for authentic spiritual speech of Pujya Shri Premanand Ji Maharaj.
-STRICT RULES:
-1. PRESERVE 100% OF THE ORIGINAL WORDS AND PHRASING. NEVER rewrite, paraphrase, summarize, or substitute words.
-2. DO NOT add ANY preamble, introduction, or greetings like "Dear seeker", "I am an editor", etc.
-3. Structure the original text into 2 to 3 distinct paragraphs separated by double newlines ("\\n\\n").
-4. Ensure clean terminal punctuation at '.' with no dangling fragments.
-5. Output ONLY the formatted paragraphs.`
-    : `आप पूज्य श्री प्रेमानंद जी महाराज के प्रामाणिक प्रवचनों के मूल पाठ को केवल सुव्यवस्थित (Format) और विराम-चिह्नित करने वाले सहायक हैं।
-अत्यंत कठोर नियम:
-1. मूल पाठ (Draft) के शत-प्रतिशत शब्दों को ज्यों का त्यों (100% exact words) सुरक्षित रखिए। किसी भी शब्द, वाक्य या भाव को अपनी ओर से न बदलें और न ही नया पाठ लिखें!
-2. कोई भी भूमिका, शीर्षक, अभिवादन या परिचय (जैसे 'प्रिय साधक', 'मैं संपादक हूँ', 'गोविंद शरण जी महाराज') कभी न जोड़ें!
-3. मूल उपदेश को उसके स्वाभाविक विचारों के आधार पर अनिवार्यतः 2 से 3 स्पष्ट अनुच्छेदों (Paragraph Segments) में '\\n\\n' द्वारा विभाजित कीजिए।
-4. वाक्यों के अंत में पूर्ण विराम (।) और अल्पविराम (,) लगाकर भाषा को प्रवाहपूर्ण बनाइए। अंतिम वाक्य '।' पर पूर्ण हो।
-5. केवल और केवल 2-3 अनुच्छेदों में मूल पाठ प्रस्तुत कीजिए।`;
+  const messengerPrompt = isEnglish
+    ? `You are the faithful messenger and presenter of the divine teachings of Pujya Shri Premanand Ji Maharaj (Vrindavan).
+
+In the context of the devotee's query, provide the final contextual framing, trimming of repetitions, and polishing of the discourse draft from our fine-tuned model.
+
+【CRITICAL GUIDELINES】:
+1. PRESERVE MAHARAJ JI'S AUTHENTIC VOICE & SPIRIT:
+   - Speak with fatherly warmth, compassion, and authority ('Look, brother...', 'Listen, my child...', 'Remain carefree...').
+   - NEVER add robotic meta-introductions like 'I am an editor' or 'Dear seeker'. You are directly presenting Maharaj Ji's teachings.
+2. CONTEXTUAL FRAMING & TRIMMING:
+   - Frame the draft contextually to directly answer the devotee's question with spiritual depth.
+   - Trim any repetitive loops or awkward phrasings into a smooth, inspiring stream.
+3. STRUCTURE INTO 2 TO 3 PARAGRAPHS:
+   - Mandatory separation into 2-3 distinct paragraphs using double newlines ('\\n\\n').
+4. COMPLETE TERMINAL PUNCTUATION:
+   - Ensure every sentence is grammatically complete, terminating cleanly with '.' and an auspicious blessing.
+5. Output ONLY the finalized discourse without any titles or extra notes.`
+    : `आप पूज्य श्री प्रेमानंद जी महाराज (वृंदावन) के पावन वचनों व शिक्षाओं के निष्ठावान संवाहक (Messenger / Presenter) हैं।
+
+साधक की जिज्ञासा के संदर्भ में, हमारे फाइन-ट्यून्ड मॉडल द्वारा प्राप्त सत्संग प्रारूप (Draft) का अंतिम संदर्भगत संपादन (Contextual Framing) और परिष्कार (Trimming) कीजिए।
+
+【अत्यंत महत्वपूर्ण निर्देश】:
+1. पूज्य महाराज जी की प्रामाणिक वाणी व भाव सुरक्षित रखें:
+   - पूज्य महाराज जी की स्वाभाविक, आत्मीय व वात्सल्यमयी शैली ('देखो भैया...', 'हम तो आपके सेवक हैं...', 'निश्चिंत रहो...') को बनाए रखें।
+   - कोई बनावटी या रोबोटिक परिचय (जैसे 'मैं संपादक हूँ', 'प्रिय साधक', 'गोविंद शरण') कभी न जोड़ें। आप सीधे महाराज जी की पावन वाणी को प्रस्तुत कर रहे हैं।
+2. संदर्भगत संयोजन (Contextual Framing) व दोहराव की छंटाई (Trimming):
+   - यदि प्रारूप में विचार बिखरे हुए या दोहराए गए हों, तो अनावश्यक दोहराव को काटकर विचारों को सुंदर, सुगठित प्रवाह में संजोएं।
+   - साधक के प्रश्न का सीधा, संतोषजनक और आत्मीय समाधान बने।
+3. सुव्यवस्थित 2 से 3 अनुच्छेद (Paragraph Segments):
+   - उत्तर को अनिवार्यतः 2 या 3 स्पष्ट अनुच्छेदों में '\\n\\n' द्वारा विभाजित कीजिए।
+4. पूर्ण विराम (।) पर निर्दोष समापन:
+   - हर वाक्य व्याकरण की दृष्टि से पूर्ण हो और अंतिम वाक्य पावन कल्याणकारी आशीर्वाद (।) के साथ समाप्त हो।
+5. केवल और केवल अंतिम सुसज्जित उपदेश दीजिए। कोई अतिरिक्त टिप्पणी न दें।`;
 
   for (let attempt = 0; attempt < 2; attempt++) {
     const key = getNextGroqKey();
@@ -373,11 +394,11 @@ STRICT RULES:
         body: JSON.stringify({
           model: 'qwen/qwen3.8-27b',
           messages: [
-            { role: 'system', content: strictFormatPrompt },
-            { role: 'user', content: isEnglish ? `Format and segment this authentic transcript into 2-3 paragraphs without changing any words:\n${draft.trim()}` : `इस मूल प्रवचन के शब्दों को बिना बदले 2 से 3 अनुच्छेदों (\\n\\n) में विभाजित व विराम-चिह्नित कीजिए:\n${draft.trim()}` }
+            { role: 'system', content: messengerPrompt },
+            { role: 'user', content: isEnglish ? `Devotee Query: ${userMessage}\n\nDiscourse Draft from fine-tuned model:\n${draft.trim()}` : `साधक का प्रश्न: ${userMessage}\n\nमॉडल का सत्संग प्रारूप:\n${draft.trim()}` }
           ],
-          temperature: 0.1,
-          max_tokens: 1000
+          temperature: 0.2,
+          max_tokens: 650
         })
       });
       if (response.ok) {
@@ -389,7 +410,7 @@ STRICT RULES:
         }
       }
     } catch (e) {
-      console.warn(`Formatting attempt ${attempt + 1} failed:`, e);
+      console.warn(`Groq contextual framing attempt ${attempt + 1} failed:`, e);
     }
   }
 
