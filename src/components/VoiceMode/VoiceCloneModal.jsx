@@ -153,7 +153,7 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
             <h4>⚡ 1 मिनट में Google Colab पर अपना Voice Server कैसे चलाएं?</h4>
             <ol>
               <li>
-                अपने प्रोजेक्ट फोल्डर में उपलब्ध <strong><code>Guru_Voice_Cloning_Live_Server.ipynb</code></strong> को{' '}
+                अपने Downloads फोल्डर में उपलब्ध <strong><code>guru_voice_cloning_chatterbox_with_samvaad_server.ipynb</code></strong> (या <code>Guru_Voice_Cloning_Live_Server.ipynb</code>) को{' '}
                 <a href="https://colab.research.google.com/" target="_blank" rel="noreferrer">
                   Google Colab (Free T4 GPU)
                 </a>{' '}
@@ -163,11 +163,11 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
                 अपनी <strong><code>guru_voice_profile (1).pt</code></strong> फाइल अपलोड करें।
               </li>
               <li>
-                <strong>Run All</strong> दबाएं। नीचे जनरेट हुआ <strong><code>https://xxxx.trycloudflare.com</code></strong> लिंक कॉपी करके ऊपर पेस्ट करें!
+                <strong>Step 8 (Server Cell)</strong> चलाएं। नीचे जनरेट हुआ <strong><code>https://xxxx.trycloudflare.com</code></strong> लिंक कॉपी करके ऊपर पेस्ट करें!
               </li>
             </ol>
             <p style={{ marginTop: '0.6rem', fontSize: '0.82rem', color: '#94a3b8' }}>
-              💡 <em>Colab Tip:</em> Step 1 स्वचालित रूप से conflicting <code>torchvision</code> को हटाकर compatible dependencies लोड करता है जिससे <code>LlamaModel</code> एकदम सही लोड होता है।
+              💡 <em>Colab Note:</em> यह वही आपका हिंदी मल्टिलिंगुअल Chatterbox V3 मॉडल (Cell 4 + Cell 20) उपयोग करता है, जिसमें Cloudflare टनल जोड़ दिया गया है।
             </p>
           </div>
         </div>
