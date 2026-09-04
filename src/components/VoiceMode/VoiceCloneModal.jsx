@@ -166,6 +166,9 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
                 <strong>Run All</strong> दबाएं। नीचे जनरेट हुआ <strong><code>https://xxxx.trycloudflare.com</code></strong> लिंक कॉपी करके ऊपर पेस्ट करें!
               </li>
             </ol>
+            <p style={{ marginTop: '0.6rem', fontSize: '0.82rem', color: '#94a3b8' }}>
+              💡 <em>Colab Tip:</em> Step 1 स्वचालित रूप से conflicting <code>torchvision</code> को हटाकर compatible dependencies लोड करता है जिससे <code>LlamaModel</code> एकदम सही लोड होता है।
+            </p>
           </div>
         </div>
 
