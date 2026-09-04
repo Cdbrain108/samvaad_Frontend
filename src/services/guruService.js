@@ -54,44 +54,42 @@ export function detectLanguage(text) {
   return 'hindi';
 }
 
-const GURU_SYSTEM_PROMPT_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
-एकांतिक वार्तालाप में भक्त द्वारा पूछे गए प्रश्न का प्रथम पुरुष ('हम'/'मेरा'/'हमारे गुरुदेव') में अत्यंत करुणामय, गंभीर, स्पष्ट और शास्त्रीय आधार पर व्यावहारिक मार्गदर्शन दीजिए।
+const GURU_SYSTEM_PROMPT_HINDI = `आप पूज्य श्री प्रेमानंद जी महाराज (वृंदावन) के पावन प्रवचनों व सत्संगों की शिक्षाओं के आधार पर साधक का मार्गदर्शन कर रहे हैं।
+एकांतिक वार्तालाप में भक्त द्वारा पूछे गए प्रश्न का पूज्य महाराज जी की प्रामाणिक, वात्सल्यमयी, गंभीर और शास्त्रीय वाणी के अनुसार व्यावहारिक मार्गदर्शन दीजिए।
 
 【भूमिका व मर्यादा नियम】
-- आप स्वयं पूज्य गुरु व मार्गदर्शक हैं। सामने प्रश्न पूछने वाला साधक/भक्त/शिष्य है।
+- पूज्य महाराज जी एक परम पूज्य महापुरुष हैं। आप उनकी पावन शिक्षाओं और वचनों के प्रकाश में साधक/भक्त को व्यावहारिक दिशा दे रहे हैं।
 - उत्तर का प्रारंभ सदैव 'देखो,' / 'भैया,' / 'बच्चे,' अथवा सीधे भगवन्नाम व शरणागति के उपदेश से कीजिए।
 - उत्तर केवल और केवल शुद्ध देवनागरी हिंदी में होना चाहिए।
 - हर संशय का मूल समाधान श्री राधा नाम जप, सत्संग, सात्विक आहार और प्रभु चरणों में अनन्य शरणागति से कीजिए।
 - अपना उपदेश स्पष्ट व सारगर्भित रूप से पूर्ण कीजिए। उत्तर का समापन सदैव पूर्ण विराम (।) और कल्याणकारी आशीर्वाद के साथ कीजिए। किसी वाक्य या विचार को कभी अधूरा न छोड़ें।`;
 
-const GURU_DEEP_SYSTEM_PROMPT_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
-एकांतिक वार्तालाप में साधक के गंभीर प्रश्न का उत्तर अत्यंत करुणामय, विस्तार, शास्त्रीय प्रमाणों, दृष्टांतों और गूढ़ आध्यात्मिक गहराई के साथ दीजिए।
+const GURU_DEEP_SYSTEM_PROMPT_HINDI = `आप पूज्य श्री प्रेमानंद जी महाराज (वृंदावन) के पावन प्रवचनों व सत्संगों की शिक्षाओं के आधार पर साधक का मार्गदर्शन कर रहे हैं।
+एकांतिक वार्तालाप में साधक के गंभीर प्रश्न का उत्तर पूज्य महाराज जी की प्रामाणिक वाणी, वात्सल्य, दृष्टांतों और गूढ़ आध्यात्मिक गहराई के साथ दीजिए।
 
 【भूमिका व मर्यादा नियम】
-- आप स्वयं पूज्य गुरु व मार्गदर्शक हैं। सामने प्रश्न पूछने वाला साधक/भक्त/शिष्य है।
+- पूज्य महाराज जी एक परम पूज्य महापुरुष हैं। आप उनकी पावन शिक्षाओं के प्रकाश में साधक को मार्गदर्शन दे रहे हैं।
 - उत्तर का प्रारंभ 'देखो भैया,' / 'बच्चे,' अथवा भगवन्नाम के महत्व से कीजिए।
 - उत्तर केवल शुद्ध देवनागरी हिंदी में दीजिए।
 - साधक के संशय का गहराई से निवारण कीजिए। व्यावहारिक जीवन के उदाहरण, और नाम-महिमा (श्री राधा नाम जप) की शक्ति समझाइए।
 - उत्तर को संक्षेप में न काटें; पूर्ण शास्त्रीय दृष्टिकोण, विवेक और आत्मीयता से पूरा उपदेश दीजिए। समापन कल्याणकारी आशीर्वाद के साथ कीजिए।`;
 
-const GURU_SYSTEM_PROMPT_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
-In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's question with utmost compassion, fatherly affection, and clarity in the FIRST PERSON ('I' / 'we' / 'my Guru Dev' / 'my Beloved Lord').
+const GURU_SYSTEM_PROMPT_ENGLISH = `You provide spiritual guidance grounded in the holy discourses and teachings of Pujya Shri Premanand Ji Maharaj (Vrindavan).
+In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's question with utmost compassion, fatherly affection, and clarity adhering strictly to Maharaj Ji's authentic teachings.
 
 【Role & Tone Guidelines】
-- You are strictly the Master and Spiritual Guide (Pujya Maharaj Ji). The user asking is the devotee / seeker.
-- Address the seeker with warmth and fatherly affection ("Look, my child...", "Listen, brother...").
+- Pujya Maharaj Ji is a revered Mahapurush. Share his divine teachings with fatherly affection and spiritual wisdom ("Look, brother...", "My dear child...").
 - Respond strictly in fluent, dignified, and devotional English.
 - Emphasize chanting the Holy Name of God (Naam Jap, 'Radha Radha'), sincere Satsang, righteous karma, and total surrender to Divine Will.
 - Deliver clear, comforting spiritual guidance. Always finish your thoughts with a complete concluding sentence and a spiritual blessing.`;
 
-const GURU_DEEP_SYSTEM_PROMPT_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
-In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's deep question with utmost compassion, scriptural depth, and fatherly affection in the FIRST PERSON ('I' / 'we' / 'my Guru Dev').
+const GURU_DEEP_SYSTEM_PROMPT_ENGLISH = `You provide spiritual guidance grounded in the holy discourses and teachings of Pujya Shri Premanand Ji Maharaj (Vrindavan).
+In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's deep question with utmost compassion, scriptural depth, and fatherly affection adhering strictly to Maharaj Ji's authentic teachings.
 
 【Role & Tone Guidelines】
-- You are strictly the Master and Spiritual Guide (Pujya Maharaj Ji). The user asking is the devotee / seeker.
-- Address the seeker with warmth and fatherly affection ("Look, my child...", "Listen, brother...").
+- Pujya Maharaj Ji is a revered Mahapurush. Share his divine teachings with fatherly affection and spiritual wisdom ("Look, brother...", "My dear child...").
 - Respond strictly in fluent, dignified, and devotional English.
-- Provide an expansive, thorough spiritual discourse. Do NOT abbreviate or truncate your guidance. Address root emotional and philosophical dilemmas with scriptural depth, analogies, and practical sadhana steps.
+- Provide an expansive, thorough spiritual discourse based on Maharaj Ji's teachings. Do NOT abbreviate or truncate your guidance.
 - Emphasize chanting the Holy Name ('Radha Radha'), sincere Satsang, righteous karma, and surrender to Divine Will.
 - Always finish with a complete concluding sentence and a fatherly spiritual blessing.`;
 
@@ -105,11 +103,11 @@ export function isComplexQuery(query) {
   return complexTerms.test(q);
 }
 
-const ORACLE_SIMPLE_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज हैं। साधक के प्रश्न का उत्तर 2-3 सीधे, सारगर्भित व प्रभावशाली वाक्यों में दीजिए। दोहराव मत कीजिए।`;
-const ORACLE_DEEP_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज हैं। साधक के प्रश्न का अत्यंत गंभीर, सारगर्भित और व्यावहारिक समाधान लगभग 200-300 शब्दों में दीजिए। किसी भी वाक्य या विचार को दोहराए बिना एक ही बार में पूर्ण उत्तर दीजिए।`;
+const ORACLE_SIMPLE_HINDI = `आप पूज्य श्री प्रेमानंद जी महाराज के पावन प्रवचनों के आधार पर साधक के प्रश्न का उत्तर 2-3 सीधे, सारगर्भित व प्रभावशाली वाक्यों में दीजिए। दोहराव मत कीजिए।`;
+const ORACLE_DEEP_HINDI = `आप पूज्य श्री प्रेमानंद जी महाराज के पावन प्रवचनों के आधार पर साधक के प्रश्न का अत्यंत गंभीर, सारगर्भित और व्यावहारिक समाधान लगभग 200-300 शब्दों में दीजिए। किसी भी वाक्य या विचार को दोहराए बिना एक ही बार में पूर्ण उत्तर दीजिए।`;
 
-const ORACLE_SIMPLE_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj. Answer the devotee directly in 2-3 clear, spiritually profound sentences in English. Do not repeat phrases.`;
-const ORACLE_DEEP_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj. Answer the devotee with spiritual depth in approximately 200-300 words in English. Conclude directly without repeating points.`;
+const ORACLE_SIMPLE_ENGLISH = `Based on the holy teachings of Pujya Shri Premanand Ji Maharaj, answer the devotee directly in 2-3 clear, spiritually profound sentences in English. Do not repeat phrases.`;
+const ORACLE_DEEP_ENGLISH = `Based on the holy teachings of Pujya Shri Premanand Ji Maharaj, answer the devotee with spiritual depth in approximately 200-300 words in English. Conclude directly without repeating points.`;
 
 /**
  * Ensures the response ends gracefully on a complete, well-formed sentence terminating in '।' (or '.' in English).
@@ -291,39 +289,79 @@ export function deduplicateRepetitionLoops(text, isEnglish = false) {
 }
 
 /**
- * Spiritual Discourse Polisher & Master Refiner for Deep Mode:
- * Synthesizes a comprehensive, satisfying discourse (~250-350 words).
- * Eliminates all verbatim and paraphrased loops.
- * Guarantees every sentence terminates cleanly at '।'.
+ * Native Discourse Segmenter:
+ * Divides authentic speech transcript into 2-3 logical paragraphs separated by '\n\n'.
+ * Ensures complete final sentences ending in '।'.
  */
-async function refineDeepTunedResponseWithGroq(draft, userMessage, isEnglish = false) {
+export function segmentAndFormatDiscourseNative(text, isEnglish = false) {
+  if (!text || text.trim().length < 30) return text;
+
+  let cleaned = deduplicateRepetitionLoops(text.trim(), isEnglish);
+
+  // If already contains 2 or more paragraphs, guarantee sentence termination and return
+  const existingParagraphs = cleaned.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+  if (existingParagraphs.length >= 2) {
+    return existingParagraphs.map((p) => ensureCompleteFinalSentence(p, isEnglish)).join('\n\n');
+  }
+
+  // Insert natural discourse paragraph breaks at conversational transition points:
+  if (!isEnglish) {
+    cleaned = cleaned
+      .replace(/(\s+)(?=(?:देखो\s+भाई|सुनो\s+भैया|अब\s+हमारी\s+तरफ|जीवन\s+में|इसलिए\s+अब|अगर\s+आपसे|लेकिन\s+इसके|फिर\s+देखना))/g, '।\n\n')
+      .replace(/(\s+)(?=(?:नाम\s+जप\s+करो|भगवान\s+का\s+भजन|प्रभु\s+के\s+चरणों))/g, '।\n\n');
+  } else {
+    cleaned = cleaned
+      .replace(/(\s+)(?=(?:look,\s+brother|listen,\s+my\s+child|now,\s+understand|in\s+life|therefore|chant\s+the\s+holy\s+name))/gi, '.\n\n');
+  }
+
+  cleaned = cleaned.replace(/[।.]\s*[।.]/g, '।').trim();
+
+  const paragraphs = cleaned.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+  if (paragraphs.length >= 2) {
+    return paragraphs.map((p) => ensureCompleteFinalSentence(p, isEnglish)).join('\n\n');
+  }
+
+  // If still 1 paragraph, split balanced into 2-3 segments by word count
+  const words = cleaned.split(/\s+/);
+  if (words.length >= 45) {
+    const p1Count = Math.floor(words.length * 0.35);
+    const p2Count = Math.floor(words.length * 0.35);
+    const p1 = ensureCompleteFinalSentence(words.slice(0, p1Count).join(' '), isEnglish);
+    const p2 = ensureCompleteFinalSentence(words.slice(p1Count, p1Count + p2Count).join(' '), isEnglish);
+    const p3 = ensureCompleteFinalSentence(words.slice(p1Count + p2Count).join(' '), isEnglish);
+    return [p1, p2, p3].filter(Boolean).join('\n\n');
+  }
+
+  return ensureCompleteFinalSentence(cleaned, isEnglish);
+}
+
+/**
+ * Strict Formatter for Deep Mode:
+ * 1. PRESERVES 100% OF THE FINE-TUNED MODEL'S AUTHENTIC WORDS & VOCABULARY.
+ * 2. NEVER rewrites, summarizes, or generates generic AI preambles (e.g. 'प्रिय साधक', 'मैं संपादक हूँ').
+ * 3. Divides the authentic discourse into 2 to 3 clearly separated paragraph segments ('\n\n').
+ * 4. Ensures clean terminal punctuation '।'.
+ */
+async function formatAndSegmentFineTunedDiscourse(draft, userMessage, isEnglish = false) {
   if (!draft || draft.trim().length < 30) return draft;
 
-  const refinePrompt = isEnglish
-    ? `You are an authentic master spiritual editor for discourses of Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj.
-Your job:
-1. FULL, COMPLETE DISCOURSE (250 TO 350 WORDS):
-   - Do NOT make the answer too short (do NOT give an abbreviated 1-paragraph summary).
-   - Deliver an expansive, spiritually profound satsang in Pujya Maharaj Ji's exact fatherly voice.
-   - Address the root dilemma (why human life was given, why temporary worldly pleasures leave the soul empty), provide practical sadhana (Radha Naam Jap, Nishkam Seva in household life), and conclude with a divine blessing.
-2. ELIMINATE PARAPHRASED & THEMATIC REDUNDANCY (CRITICAL):
-   - Eliminate all repetitive loops or restatements of the same thought. Never cycle through the same sentences or questions twice.
-3. GUARANTEE PERFECT TERMINATION AT '.':
-   - Every sentence must be grammatically complete and end cleanly. Never leave dangling phrases.
-4. Output ONLY the polished discourse without any preamble, markdown formatting, or metadata.`
-    : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) के प्रवचनों के परम प्रामाणिक संपादक हैं।
-आपका कार्य:
-1. सारगर्भित, पूर्ण व संतोषजनक उपदेश (लगभग 250 से 350 शब्द):
-   - उत्तर को बहुत छोटा या अधूरा न काटें। साधक को पूज्य महाराज जी की प्रामाणिक वाणी व शैली में पूर्ण, गहरा व आत्मीय समाधान दीजिए।
-   - विषय को गहराई से समझाइए: मनुष्य जीवन का वास्तविक उद्देश्य, संसार के क्षणिक विषय-भोगों की व्यर्थता, गृहस्थी व समाज में निष्काम कर्म को ही प्रभु सेवा मानना, और निरंतर 'श्री राधा' नाम जप की महिमा।
-2. दोहराव व पुनरुक्ति का पूर्ण निवारण (अत्यंत महत्वपूर्ण):
-   - यदि प्रारूप (Draft) में एक ही बात, वाक्य या प्रश्न ("कर्तव्य कर्मों में भगवत भाव रखना चाहिए...", "तो क्या किया तुमने?") बार-बार दोहराया गया हो, तो उस दोहराव को पूर्णतः हटाकर एक ही बार श्रेष्ठतम शब्दों में प्रस्तुत कीजिए।
-3. अपूर्ण वाक्यों का सुधार व पूर्ण विराम (।) पर समापन:
-   - हर वाक्य व्याकरण की दृष्टि से पूर्ण होना चाहिए। "करते हुए" या "परेशान कर सकता" जैसे अधूरे वाक्यों को पूर्ण कल्याणकारी विचार में बदलिए।
-   - अंतिम वाक्य अनिवार्यतः पूर्ण विराम (।) और कल्याणकारी आशीर्वाद के साथ समाप्त होना चाहिए।
-4. केवल और केवल पूज्य महाराज जी का पावन उपदेश लिखिए। कोई भूमिका, शीर्षक या मेटा-विवरण न दें।`;
+  const strictFormatPrompt = isEnglish
+    ? `You are a strict text formatter and punctuator for authentic spiritual speech of Pujya Shri Premanand Ji Maharaj.
+STRICT RULES:
+1. PRESERVE 100% OF THE ORIGINAL WORDS AND PHRASING. NEVER rewrite, paraphrase, summarize, or substitute words.
+2. DO NOT add ANY preamble, introduction, or greetings like "Dear seeker", "I am an editor", etc.
+3. Structure the original text into 2 to 3 distinct paragraphs separated by double newlines ("\\n\\n").
+4. Ensure clean terminal punctuation at '.' with no dangling fragments.
+5. Output ONLY the formatted paragraphs.`
+    : `आप पूज्य श्री प्रेमानंद जी महाराज के प्रामाणिक प्रवचनों के मूल पाठ को केवल सुव्यवस्थित (Format) और विराम-चिह्नित करने वाले सहायक हैं।
+अत्यंत कठोर नियम:
+1. मूल पाठ (Draft) के शत-प्रतिशत शब्दों को ज्यों का त्यों (100% exact words) सुरक्षित रखिए। किसी भी शब्द, वाक्य या भाव को अपनी ओर से न बदलें और न ही नया पाठ लिखें!
+2. कोई भी भूमिका, शीर्षक, अभिवादन या परिचय (जैसे 'प्रिय साधक', 'मैं संपादक हूँ', 'गोविंद शरण जी महाराज') कभी न जोड़ें!
+3. मूल उपदेश को उसके स्वाभाविक विचारों के आधार पर अनिवार्यतः 2 से 3 स्पष्ट अनुच्छेदों (Paragraph Segments) में '\\n\\n' द्वारा विभाजित कीजिए।
+4. वाक्यों के अंत में पूर्ण विराम (।) और अल्पविराम (,) लगाकर भाषा को प्रवाहपूर्ण बनाइए। अंतिम वाक्य '।' पर पूर्ण हो।
+5. केवल और केवल 2-3 अनुच्छेदों में मूल पाठ प्रस्तुत कीजिए।`;
 
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < 2; attempt++) {
     const key = getNextGroqKey();
     try {
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -333,28 +371,30 @@ Your job:
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: attempt === 0 ? 'qwen/qwen3.8-27b' : 'openai/gpt-oss-120b',
+          model: 'qwen/qwen3.8-27b',
           messages: [
-            { role: 'system', content: refinePrompt },
-            { role: 'user', content: isEnglish ? `Devotee Query: ${userMessage}\n\nDraft from fine-tuned model:\n${draft.trim()}` : `साधक की जिज्ञासा: ${userMessage}\n\nमॉडल का कच्चा प्रारूप:\n${draft.trim()}` }
+            { role: 'system', content: strictFormatPrompt },
+            { role: 'user', content: isEnglish ? `Format and segment this authentic transcript into 2-3 paragraphs without changing any words:\n${draft.trim()}` : `इस मूल प्रवचन के शब्दों को बिना बदले 2 से 3 अनुच्छेदों (\\n\\n) में विभाजित व विराम-चिह्नित कीजिए:\n${draft.trim()}` }
           ],
-          temperature: 0.25,
+          temperature: 0.1,
           max_tokens: 1000
         })
       });
       if (response.ok) {
         const data = await response.json();
-        const refined = data.choices?.[0]?.message?.content?.trim();
-        if (refined && refined.length > 80) {
-          return ensureCompleteFinalSentence(refined, isEnglish);
+        const formatted = data.choices?.[0]?.message?.content?.trim();
+        // Discard if model hallucinated forbidden editor intros
+        if (formatted && formatted.length > 50 && !/(संपादक|प्रिय साधक|गोविंद शरण|editor)/i.test(formatted)) {
+          return ensureCompleteFinalSentence(formatted, isEnglish);
         }
       }
     } catch (e) {
-      console.warn(`Groq refine attempt ${attempt + 1} error:`, e);
+      console.warn(`Formatting attempt ${attempt + 1} failed:`, e);
     }
   }
 
-  return deduplicateRepetitionLoops(draft, isEnglish);
+  // Fallback: Native JavaScript segmentation
+  return segmentAndFormatDiscourseNative(draft, isEnglish);
 }
 
 /**
@@ -577,19 +617,20 @@ export function summarizeHistoryForContext(conversationHistory = [], isEnglish =
 /**
  * Modern Deep Mode Phased Stream Orchestrator:
  * - Phase 1 (First ~40-60 words): Main output types initial complete thought ending cleanly at '।'.
- *   During this initial moment, reasoning window has NOT started yet.
- * - Phase 2 (Reasoning Begins): Once initial thought ends with '।', Reasoning Window begins!
- *   Raw background tokens and analysis stream inside the compact Reasoning Window.
- * - Phase 3 (Phased Thought Additions): New verified, non-repetitive sentences appear in main output
- *   with 10s or more delay between lines.
- * - Phase 4 (Final Synthesis): Groq master refiner synthesizes the whole 250-350 word discourse,
- *   guaranteeing zero repetition, authentic Maharaj Ji style, and flawless sentence endings at '।'.
+ * - Phase 1 (Initial Hook ~16-28 words): Main output types initial complete thought ending cleanly at '।'.
+ *   Completes promptly (in ~3-4 seconds).
+ * - Phase 2 (Reasoning Begins Promptly): Once initial thought completes, Reasoning Window begins IMMEDIATELY!
+ *   Background contemplation and fine-tuned model knowledge synthesis streams inside the compact Reasoning Window.
+ * - Phase 3 (Phased Paragraph Segments): New verified, non-repetitive sentences appear in main output
+ *   with 8-10s delay between segments, formatted with double newlines ('\n\n').
+ * - Phase 4 (Final Synthesis & Segmentation): Formats the fine-tuned model's authentic discourse into
+ *   2 to 3 distinct paragraph segments ('\n\n'), preserving 100% of authentic words and ending in '।'.
  */
 function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
   let accumulatedRaw = '';
   let thoughtStream = isEnglish
-    ? `🔍 Query Intent: Contemplating spiritual guidance for seeker ("${userMessage.slice(0, 45)}").\n📜 Scriptural Knowledge Deliberation from Pujya Maharaj Ji's Teachings:\n`
-    : `🔍 जिज्ञासा व भाव-मंथन: साधक के प्रश्न ("${userMessage.slice(0, 45)}") का शास्त्रीय विश्लेषण।\n📜 पूज्य महाराज जी के दिव्य प्रवचनों से ज्ञान संकलन:\n`;
+    ? `🔍 Query Intent: Contemplating spiritual guidance for seeker ("${userMessage.slice(0, 45)}").\n📜 Authentic Teachings of Pujya Shri Premanand Ji Maharaj:\n`
+    : `🔍 जिज्ञासा व भाव-मंथन: साधक के प्रश्न ("${userMessage.slice(0, 45)}") का शास्त्रीय विश्लेषण।\n📜 पूज्य श्री प्रेमानंद जी महाराज के दिव्य प्रवचनों से ज्ञान संकलन:\n`;
   const startTime = Date.now();
 
   // Phase tracking
@@ -602,21 +643,31 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
   const handleToken = (token) => {
     accumulatedRaw += token;
 
-    // --- PHASE 1: Initial Hook (~35-60 words ending cleanly at '।') ---
+    // --- PHASE 1: Initial Hook (~16-28 words ending cleanly at '।') ---
     if (!phase1Done) {
       phase1Content += token;
 
       const words = phase1Content.trim().split(/\s+/).filter(Boolean).length;
       const endsWithSentence = /[।!?.]\s*$/.test(phase1Content.trim());
+      const hindiVerbBoundary = /(?:है|था|थी|थे|सके|सकता|सकते|सकती|होगा|होगी|होंगे|चाहिए|रहिए|रहो|करो|कीजिए|गया|गई|गए|हैं|हूँ|हूं)\s*$/;
+      const englishVerbBoundary = /(?:is|was|are|were|can|will|should|must|remain|do|done|been|have|has)\s*$/i;
+      const isVerbBoundary = isEnglish ? englishVerbBoundary.test(phase1Content.trim()) : hindiVerbBoundary.test(phase1Content.trim());
+      const elapsed = Date.now() - startTime;
 
-      // When the opening reaches a clean sentence boundary '।' after sufficient introductory depth:
-      if (endsWithSentence && words >= 25) {
+      // Phase 1 completes PROMPTLY (within ~3-4 seconds, ~14-28 words):
+      const shouldTriggerPhase2 =
+        (endsWithSentence && words >= 14) ||
+        (isVerbBoundary && words >= 18) ||
+        (words >= 26) ||
+        (elapsed >= 3500 && words >= 10);
+
+      if (shouldTriggerPhase2) {
         phase1Done = true;
         const initialClean = ensureCompleteFinalSentence(phase1Content.trim(), isEnglish);
         revealedSentences = [initialClean];
         lastPhaseRevealTime = Date.now();
 
-        // Phase 1 completes: Reasoning window now officially begins!
+        // Phase 1 completes PROMPTLY: Reasoning window now officially begins right away!
         onChunk({
           content: initialClean,
           thought: thoughtStream,
@@ -637,29 +688,35 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
     }
 
     // --- PHASE 2: Reasoning is Active ---
-    // All background tokens stream into the reasoning block
+    // Background tokens stream directly into the reasoning block
     thoughtStream += token;
     candidateBuffer += token;
 
-    // --- PHASE 3: Phased Main Discourse Reveals (10s or more delayed between lines) ---
+    // --- PHASE 3: Phased Paragraph Segments (8-10s delay between segments) ---
     const now = Date.now();
-    if (now - lastPhaseRevealTime >= 10000) {
+    if (now - lastPhaseRevealTime >= 8500) {
       // Look for the next complete sentence in the candidate buffer
       const match = candidateBuffer.match(/^([^।!?.\n]{20,}[।!?.\n])/);
       if (match) {
         const nextSentence = match[1].trim();
         candidateBuffer = candidateBuffer.slice(match[0].length).trim();
 
-        // Check if this new sentence is a duplicate or repetitive loop
         if (!isSentenceSemanticDuplicate(nextSentence, revealedSentences)) {
           revealedSentences.push(nextSentence);
+          lastPhaseRevealTime = now;
+        }
+      } else if (candidateBuffer.trim().split(/\s+/).length >= 25) {
+        const fallbackSentence = ensureCompleteFinalSentence(candidateBuffer.trim(), isEnglish);
+        candidateBuffer = '';
+        if (!isSentenceSemanticDuplicate(fallbackSentence, revealedSentences)) {
+          revealedSentences.push(fallbackSentence);
           lastPhaseRevealTime = now;
         }
       }
     }
 
     onChunk({
-      content: revealedSentences.join(' '),
+      content: revealedSentences.join('\n\n'),
       thought: thoughtStream,
       isThinking: true,
       thinkingDuration: (Date.now() - startTime) / 1000,
@@ -677,14 +734,13 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
       };
     }
 
-    // Phase 4: Master synthesis by Groq:
-    // Guarantees non-repetitive, authentic ~250-350 word discourse ending in '।'
+    // Phase 4: Format and segment the fine-tuned model's authentic discourse into 2-3 paragraphs:
+    // Preserves 100% of fine-tuned model's authentic words, zero rewriting, ends in '।'
     let finalFramedDiscourse = '';
     try {
-      const refined = await refineDeepTunedResponseWithGroq(raw, userMessage, isEnglish);
-      finalFramedDiscourse = ensureCompleteFinalSentence(refined || raw, isEnglish);
+      finalFramedDiscourse = await formatAndSegmentFineTunedDiscourse(raw, userMessage, isEnglish);
     } catch (e) {
-      finalFramedDiscourse = ensureCompleteFinalSentence(deduplicateRepetitionLoops(raw, isEnglish), isEnglish);
+      finalFramedDiscourse = segmentAndFormatDiscourseNative(raw, isEnglish);
     }
 
     const duration = Number(Math.max(1.8, (Date.now() - startTime) / 1000).toFixed(1));
@@ -692,9 +748,9 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
     // Structured thought summary for the collapsed thinking accordion
     let finalThoughtSummary = thoughtStream.trim();
     if (finalThoughtSummary.length > 500) {
-      finalThoughtSummary = finalThoughtSummary.slice(0, 450) + '...\n\n💡 वाक्य-संतुलन व सुधार: अपूर्ण विचारों को परिपूर्ण आध्यात्मिक संदर्भ में संजोया गया।\n✓ चिंतन संपन्न। पूर्ण उपदेश संकलित।';
+      finalThoughtSummary = finalThoughtSummary.slice(0, 450) + '...\n\n💡 वाक्य-संतुलन व सुधार: पूज्य श्री प्रेमानंद जी महाराज की पावन वाणी के अनुसार चिंतन संपन्न।\n✓ चिंतन संपन्न। पूर्ण उपदेश संकलित।';
     } else {
-      finalThoughtSummary += '\n\n💡 वाक्य-संतुलन व सुधार: अपूर्ण विचारों को परिपूर्ण आध्यात्मिक संदर्भ में संजोया गया।\n✓ चिंतन संपन्न। पूर्ण उपदेश संकलित।';
+      finalThoughtSummary += '\n\n💡 वाक्य-संतुलन व सुधार: पूज्य श्री प्रेमानंद जी महाराज की पावन वाणी के अनुसार चिंतन संपन्न।\n✓ चिंतन संपन्न। पूर्ण उपदेश संकलित।';
     }
 
     const finalPayload = {

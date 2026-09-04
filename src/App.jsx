@@ -49,7 +49,7 @@ function RichText({ content, streaming = false }) {
         const cursor = streaming && isLast ? <span className="stream-cursor chat-cursor" aria-hidden="true" /> : null;
 
         if (!trimmed) {
-          return <br key={`br-${index}`} />;
+          return <span className="rich-paragraph-spacer" key={`br-${index}`} aria-hidden="true" />;
         }
         if (/^[-•*]\s+/.test(trimmed)) {
           return (
@@ -796,9 +796,9 @@ export default function App() {
 
                           {/* The entire response flows together in one unbroken, beautiful stream below the reasoning box */}
                           {message.content && (
-                            <p className="rich-text">
+                            <div className="rich-text">
                               <RichText content={message.content} streaming={isLastAssistant && isStreaming} />
-                            </p>
+                            </div>
                           )}
                         </div>
                       ) : (

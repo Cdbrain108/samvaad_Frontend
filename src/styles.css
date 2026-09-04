@@ -969,7 +969,12 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 
 /* Rich message text, actions and live streaming polish */
 .rich-text { display: block; }
-.rich-line { display: block; margin: 0 0 8px; }
+.rich-paragraph-spacer {
+  display: block;
+  height: 14px;
+  width: 100%;
+}
+.rich-line { display: block; margin: 0 0 8px; line-height: 1.72; }
 .rich-line:last-child { margin-bottom: 0; }
 .rich-bullet { display: flex; gap: 9px; align-items: flex-start; margin: 0 0 6px; }
 .rich-bullet i {
