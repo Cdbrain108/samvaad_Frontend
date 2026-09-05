@@ -341,7 +341,7 @@ export function segmentAndFormatDiscourseNative(text, isEnglish = false) {
  * 2. STRICTLY FORBIDS summarization/compression (delivers full 280 to 380 words).
  * 3. Trims ONLY runaway mechanical stutter loops (repeating identical phrase consecutively).
  * 4. Strictly avoids robotic AI editor intros (bans 'मैं संपादक हूँ', 'प्रिय साधक', etc.).
- * 5. Divides the discourse into 3 to 4 clearly separated paragraph segments ('\n\n') ending cleanly at '।'.
+ * 5. Flexible, variable paragraph segmentation decided by Groq at the end (if needed only). Never breaks incomplete sentences into a second line.
  * 6. Generates expansive output with max_tokens: 1200.
  */
 async function formatAndSegmentFineTunedDiscourse(draft, userMessage, isEnglish = false) {
@@ -361,8 +361,11 @@ In the context of the devotee's spiritual inquiry, present the discourse draft f
    - If the draft uses practical examples (work, household duties, bodily care, righteous living), recognize them as authentic teaching analogies used by Maharaj Ji—explaining how to perform one's worldly duties honestly as service to God while anchoring the heart in continuous Holy Name chanting ('Radha Radha'). Do not discard valid spiritual illustrations.
    - Deliver a full, expansive, deeply satisfying discourse of approximately 280 to 380 words.
    - Only remove exact runaway mechanical glitch loops (where an identical sentence repeats verbatim 2-3 times in succession).
-3. STRUCTURE INTO 3 TO 4 DISTINCT PARAGRAPHS:
-   - Separate the discourse into 3 to 4 clear, well-spaced paragraphs using double newlines ('\\n\\n') for serene readability.
+3. NATURAL & VARIABLE PARAGRAPH SEGMENTATION (IF NEEDED ONLY):
+   - At last, you (Groq) decide naturally whether and where to segment explanations or phrases into paragraphs using double newlines ('\n\n'), IF NEEDED ONLY.
+   - Paragraph segmentation is flexible and variable (e.g. 1, 2, or 3 paragraphs) based solely on natural shifts in thought, explanation, or theme.
+   - It is NOT explicitly enforced to produce a fixed number of paragraphs. If the discourse flows best as 1 or 2 paragraphs, keep it that way.
+   - NEVER break in the middle of a thought, clause, or incomplete sentence into a second line. Breaking down within an unnecessary or incomplete sentence into a second line does not look good. Every sentence must remain unbroken, grammatically complete within its paragraph, and terminate cleanly with '.' and an auspicious benediction.
 4. FLAWLESS TERMINAL PUNCTUATION:
    - Ensure every sentence is grammatically complete, terminating cleanly with '.' and an auspicious benediction.
 5. Output ONLY the finalized discourse without any titles, markdown bullets, or meta commentary.`
@@ -379,8 +382,10 @@ In the context of the devotee's spiritual inquiry, present the discourse draft f
    - यदि प्रारूप में व्यावहारिक जीवन, गृहस्थी, नौकरी, भोजन या देह-निर्वाह के उदाहरण आए हों, तो वे साधक को समझाने हेतु पावन दृष्टांत हैं। उन्हें पूज्य महाराज जी की प्रामाणिक शैली में सुंदर आध्यात्मिक उपमा (जैसे कर्तव्य कर्म को प्रभु सेवा मानना, देह को साधना का मंदिर समझना और मन में निरंतर 'राधा-राधा' नाम का सुमिरन बनाए रखना) के रूप में सुसंगत व गरिमामयी बनाइए।
    - केवल और केवल यदि कोई एक ही वाक्य लगातार 2-3 बार रट की तरह दोहराया गया हो (Runaway Glitch Loop), तो उस यांत्रिक दोहराव को हटाकर धाराप्रवाह बनाएं। बाकी सभी विचारों व दृष्टांतों को पूरा स्थान दें।
    - संपूर्ण सत्संग विस्तृत, तृप्तिकारक और लगभग 280 से 380 शब्दों का होना चाहिए।
-3. सुव्यवस्थित 3 से 4 स्पष्ट अनुच्छेद (Paragraph Segments):
-   - पूरे उपदेश को 3 या 4 स्पष्ट अनुच्छेदों में '\\n\\n' द्वारा विभाजित कीजिए ताकि साधक को पढ़ने और मनन करने में सहजता हो।
+3. स्वाभाविक व लचीला अनुच्छेद विभाजन (केवल आवश्यकता पड़ने पर):
+   - अंत में, भाव, व्याख्या और दृष्टांत के स्वाभाविक प्रवाह के अनुसार पैराग्राफ विभाजन ('\n\n') का निर्णय आप (Groq) स्वयं लीजिए, केवल आवश्यकता पड़ने पर।
+   - यह विभाजन पूरी तरह लचीला और ऐच्छिक है (आवश्यकतानुसार 1, 2 या 3 पैराग्राफ)। कोई निश्चित पैराग्राफ संख्या थोपना सख्त वर्जित है। यदि उपदेश 1 या 2 अनुच्छेदों में स्वाभाविक रूप से बहता है, तो वैसा ही रहने दें।
+   - किसी भी अपूर्ण वाक्य, वाक्यांश या विचार को बीच में अनावश्यक रूप से तोड़कर अगली पंक्ति में ले जाना सख्त वर्जित है, क्योंकि अपूर्ण वाक्य का टूटना अशोभनीय लगता है। हर वाक्य अपने पैराग्राफ में व्याकरण की दृष्टि से पूर्ण और अक्षुण्ण रहे।
 4. पूर्ण विराम (।) पर निर्दोष व कल्याणकारी समापन:
    - हर वाक्य व्याकरण की दृष्टि से पूर्ण हो और अंतिम वाक्य पावन कल्याणकारी आशीर्वाद (।) के साथ समाप्त हो।
 5. केवल और केवल अंतिम सुसज्जित उपदेश दीजिए। कोई अतिरिक्त टिप्पणी या शीर्षक न दें।`;
