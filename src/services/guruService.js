@@ -13,7 +13,8 @@ const KEY_SUFFIXES = [
   'uFh6w6lMLqrqcOSFCY63WGdyb3FYwzaFXUH9aQpUdOUMIyYIrpHq',
   '7G1aGGymxAo3TPyxmrTHWGdyb3FYhwz47JMh6DacysIthw57G0Rx',
   'OKZBwCIaqdq830WO8Q9pWGdyb3FYPQ6rFCPwBAej8mZTAYBMzqfC',
-  's5kh2jnTzIOCSk7THDxjWGdyb3FYjjbmrek3aRVUBHMdXqJjhjJq'
+  's5kh2jnTzIOCSk7THDxjWGdyb3FYjjbmrek3aRVUBHMdXqJjhjJq',
+  'd7LQL8u4mrbKmMEnYbLgWGdyb3FYYkEaVrqxptiCTLoOVkdZl0pD'
 ];
 const GROQ_KEYS = KEY_SUFFIXES.map((s) => KEY_PREFIX + s);
 let currentKeyIdx = 0;
