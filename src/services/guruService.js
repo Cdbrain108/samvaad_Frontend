@@ -64,15 +64,15 @@ const GURU_SYSTEM_PROMPT_HINDI = `आप पूज्य श्री प्र�
 - हर संशय का मूल समाधान श्री राधा नाम जप, सत्संग, सात्विक आहार और प्रभु चरणों में अनन्य शरणागति से कीजिए।
 - अपना उपदेश स्पष्ट व सारगर्भित रूप से पूर्ण कीजिए। उत्तर का समापन सदैव पूर्ण विराम (।) और कल्याणकारी आशीर्वाद के साथ कीजिए। किसी वाक्य या विचार को कभी अधूरा न छोड़ें।`;
 
-const GURU_DEEP_SYSTEM_PROMPT_HINDI = `आप पूज्य श्री प्रेमानंद जी महाराज (वृंदावन) के पावन प्रवचनों व सत्संगों की शिक्षाओं के आधार पर साधक का मार्गदर्शन कर रहे हैं।
+const GURU_DEEP_SYSTEM_PROMPT_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
 एकांतिक वार्तालाप में साधक के गंभीर प्रश्न का उत्तर पूज्य महाराज जी की प्रामाणिक वाणी, वात्सल्य, दृष्टांतों और गूढ़ आध्यात्मिक गहराई के साथ दीजिए।
 
 【भूमिका व मर्यादा नियम】
-- पूज्य महाराज जी एक परम पूज्य महापुरुष हैं। आप उनकी पावन शिक्षाओं के प्रकाश में साधक को मार्गदर्शन दे रहे हैं।
-- उत्तर का प्रारंभ 'देखो भैया,' / 'बच्चे,' अथवा भगवन्नाम के महत्व से कीजिए।
+- साधक को सदैव 'भैया' या 'बच्चे' कहकर वात्सल्यपूर्वक संबोधित करें।
 - उत्तर केवल शुद्ध देवनागरी हिंदी में दीजिए।
+- प्रश्न के मुख्य विषय (जैसे नाम जप, भक्ति, शरणागति) पर ही पूरी तरह केंद्रित रहें; विषय से भटकना या सांसारिक कार्यों (जैसे नौकरी, घर-गृहस्थी, भोजन बनाना) की व्यर्थ बातें करना सख्त वर्जित है।
 - साधक के संशय का गहराई से निवारण कीजिए। व्यावहारिक जीवन के उदाहरण, और नाम-महिमा (श्री राधा नाम जप) की शक्ति समझाइए।
-- उत्तर को संक्षेप में न काटें; पूर्ण शास्त्रीय दृष्टिकोण, विवेक और आत्मीयता से पूरा उपदेश दीजिए। समापन कल्याणकारी आशीर्वाद के साथ कीजिए।`;
+- उत्तर पूर्ण शास्त्रीय दृष्टिकोण, विवेक और आत्मीयता से पूरा उपदेश दीजिए। हर वाक्य '।' पर समाप्त हो और समापन कल्याणकारी आशीर्वाद के साथ कीजिए।`;
 
 const GURU_SYSTEM_PROMPT_ENGLISH = `You provide spiritual guidance grounded in the holy discourses and teachings of Pujya Shri Premanand Ji Maharaj (Vrindavan).
 In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's question with utmost compassion, fatherly affection, and clarity adhering strictly to Maharaj Ji's authentic teachings.
@@ -104,10 +104,10 @@ export function isComplexQuery(query) {
 }
 
 const ORACLE_SIMPLE_HINDI = `आप पूज्य श्री प्रेमानंद जी महाराज के पावन प्रवचनों के आधार पर साधक के प्रश्न का उत्तर 2-3 सीधे, सारगर्भित व प्रभावशाली वाक्यों में दीजिए। दोहराव मत कीजिए।`;
-const ORACLE_DEEP_HINDI = `आप पूज्य श्री प्रेमानंद जी महाराज के पावन प्रवचनों के आधार पर साधक के प्रश्न का अत्यंत गंभीर, सारगर्भित और व्यावहारिक समाधान लगभग 280-380 शब्दों में दीजिए। नए-नए शास्त्रीय दृष्टिकोण, लीला-माधुर्य और व्यावहारिक साधन जोड़ते हुए धाराप्रवाह उपदेश दीजिए। किसी भी वाक्य या विचार को यांत्रिक रूप से मत दोहराइए।`;
+const ORACLE_DEEP_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं। साधक के प्रश्न का सीधा, अत्यंत गंभीर, प्रेममय और शास्त्रसम्मत उत्तर लगभग 280-360 शब्दों में दीजिए। साधक को 'भैया' या 'बच्चे' कहकर संबोधित करें। प्रश्न के मुख्य विषय (जैसे नाम जप, भक्ति, शरणागति, साधना) पर ही पूरी तरह एकाग्र व केंद्रित रहें। विषय से भटकना या सांसारिक कार्यों (जैसे नौकरी, घर-गृहस्थी, भोजन बनाना) की व्यर्थ बातें करना सख्त वर्जित है। पूज्य महाराज जी की प्रामाणिक सत्संग शैली में पूर्ण वाक्यों में उपदेश दीजिए। हर वाक्य '।' पर समाप्त हो।`;
 
 const ORACLE_SIMPLE_ENGLISH = `Based on the holy teachings of Pujya Shri Premanand Ji Maharaj, answer the devotee directly in 2-3 clear, spiritually profound sentences in English. Do not repeat phrases.`;
-const ORACLE_DEEP_ENGLISH = `Based on the holy teachings of Pujya Shri Premanand Ji Maharaj, answer the devotee with rich spiritual depth in approximately 280-380 words in English. Conclude directly without repeating points.`;
+const ORACLE_DEEP_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan). Provide spiritually profound, compassionate, and scripturally grounded guidance to the seeker in approximately 280-360 words in English. Address the seeker affectionately ("Look, brother...", "My dear child..."). Remain strictly focused on the seeker's query (e.g. Holy Name chanting, devotion, surrender). Do not drift off-topic into worldly chores unless asked. Deliver complete thoughts where every sentence ends cleanly.`;
 
 /**
  * Ensures the response ends gracefully on a complete, well-formed sentence terminating in '।' (or '.' in English).
@@ -456,10 +456,10 @@ async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, o
           { role: 'system', content: prompt },
           ...messages
         ],
-        temperature: 0.42,
-        repeat_penalty: 1.28,
-        frequency_penalty: 0.55,
-        presence_penalty: 0.4,
+        temperature: 0.32,
+        repeat_penalty: 1.15,
+        frequency_penalty: 0.0,
+        presence_penalty: 0.0,
         max_tokens: effectiveTokens,
         stop: ["<|im_end|>", "</s>", "\n\nUser:", "\n\nQuestion:", "\nUser:", "User:"],
         stream: stream
@@ -507,7 +507,7 @@ async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, o
                   }
                 }
 
-                onChunk(accumulated);
+                onChunk(token, accumulated);
               }
             } catch (e) {}
           }
@@ -518,7 +518,7 @@ async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, o
       const cleanResult = deduplicateRepetitionLoops(accumulated.trim(), lang === 'english');
       const finalized = ensureCompleteFinalSentence(cleanResult || accumulated.trim(), lang === 'english');
       if (onChunk && finalized !== accumulated.trim()) {
-        onChunk(finalized);
+        onChunk('', finalized);
       }
       return finalized || null;
     } else {
@@ -585,7 +585,7 @@ async function callDirectGroqAPI(messages, maxTokens = 750, stream = false, onCh
                 const token = parsed.choices?.[0]?.delta?.content;
                 if (token) {
                   accumulated += token;
-                  onChunk(accumulated);
+                  onChunk(token, accumulated);
                 }
               } catch (e) {}
             }
@@ -642,67 +642,99 @@ export function summarizeHistoryForContext(conversationHistory = [], isEnglish =
  * - Phase 1 (First ~40-60 words): Main output types initial complete thought ending cleanly at '।'.
  * - Phase 1 (Initial Hook ~16-28 words): Main output types initial complete thought ending cleanly at '।'.
  *   Completes promptly (in ~3-4 seconds).
- * - Phase 2 (Reasoning Begins Promptly): Once initial thought completes, Reasoning Window begins IMMEDIATELY!
- *   Background contemplation and fine-tuned model knowledge synthesis streams inside the compact Reasoning Window.
- * - Phase 3 (Phased Paragraph Segments): New verified, non-repetitive sentences appear in main output
- *   with 8-10s delay between segments, formatted with double newlines ('\n\n').
- * - Phase 4 (Final Synthesis & Segmentation): Formats the fine-tuned model's authentic discourse into
- *   2 to 3 distinct paragraph segments ('\n\n'), preserving 100% of authentic words and ending in '।'.
+/**
+ * Generates authentic, progressive Spiritual Deliberation text for the Reasoning window.
+ * Focuses purely on spiritual inquiry, scriptures, and holy teachings of Pujya Shri Premanand Ji Maharaj.
+ */
+function getSpiritualDeliberationText(userMessage, isEnglish = false, elapsedMs = 15000) {
+  const queryPreview = (userMessage || '').trim().replace(/[\r\n]+/g, ' ').slice(0, 50);
+  if (isEnglish) {
+    let text = `🔍 Query Intent: Contemplating spiritual guidance for seeker regarding ("${queryPreview}...").\n` +
+      `📜 Holy Satsang Wisdom: Reviewing teachings of Pujya Shri Premanand Ji Maharaj and sacred scriptures (Shrimad Bhagavatam, Bhagavad Gita).\n`;
+    if (elapsedMs >= 18000) {
+      text += `📿 Holy Name & Surrender: Reflecting on the purifying power of continuous Naam Jap ('Radha Radha') and single-minded refuge.\n`;
+    }
+    if (elapsedMs >= 22000) {
+      text += `💡 Compassionate Synthesis: Formulating fatherly, resolute spiritual guidance to eradicate doubt and inspire devotion.`;
+    }
+    return text;
+  } else {
+    let text = `🔍 जिज्ञासा व भाव-मंथन: साधक के प्रश्न ("${queryPreview}...") का शास्त्रीय व आध्यात्मिक विश्लेषण।\n` +
+      `📜 सत्संग व संत-वाणी चिंतन: पूज्य श्री प्रेमानंद जी महाराज के पावन उपदेशों व शास्त्रों (श्रीमद्भागवत, श्री राधा सुधा निधि) के आलोक में सिद्धांत विचार।\n`;
+    if (elapsedMs >= 18000) {
+      text += `📿 नाम-महिमा व चित्त-शुद्धि: कलियुग में भगवन्नाम (श्री राधा-राधा) के अखंड जप से अंतःकरण की शुद्धि और अनन्य शरणागति का स्वरूप।\n`;
+    }
+    if (elapsedMs >= 22000) {
+      text += `💡 व्यावहारिक उपदेश समन्वय: साधक के अंतर्मन को दृढ़ करने हेतु वात्सल्यमयी, प्रेरणादायी व स्पष्ट मार्गदर्शन।`;
+    }
+    return text;
+  }
+}
+
+/**
+ * Phased Real-Time Stream Orchestrator for Deep Mode:
+ * Exact Sequence Required:
+ * 1. Initial 5s contemplative wait (T = 0s to 5s): Generation waiting state, no text streamed yet.
+ * 2. 10-second initial discourse run (T = 5s to 15s): Generation starts with a 5s delay and runs for 10s directly in the main message area (isThinking: false, thought: '').
+ * 3. Thinking starts at T >= 15s: Reasoning block opens (isThinking: true), displaying authentic Spiritual Deliberation, while subsequent discourse continues streaming below.
+ * 4. Finalize: Collapses thinking window to its header badge ('✓ चिंतन संपन्न (Thought) XXs ▼') and formats full discourse into 2-3 clean paragraphs ending in '।'.
  */
 function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
   let accumulatedRaw = '';
-  let thoughtStream = isEnglish
-    ? `🔍 Query Intent: Contemplating spiritual guidance for seeker ("${userMessage.slice(0, 45)}").\n📜 Authentic Teachings of Pujya Shri Premanand Ji Maharaj:\n`
-    : `🔍 जिज्ञासा व भाव-मंथन: साधक के प्रश्न ("${userMessage.slice(0, 45)}") का शास्त्रीय विश्लेषण।\n📜 पूज्य श्री प्रेमानंद जी महाराज के दिव्य प्रवचनों से ज्ञान संकलन:\n`;
   const startTime = Date.now();
+  const START_DELAY_MS = 5000;     // 5s wait before generation starts
+  const THINKING_START_MS = 15000; // 15s elapsed (5s delay + 10s run) -> thinking starts
 
-  // Phase tracking
-  let phase1Done = false;
-  let phase1Content = '';
-  let revealedSentences = [];
-  let lastPhaseRevealTime = 0;
-  let candidateBuffer = '';
+  // Timers to guarantee exact millisecond-accurate UI state transitions even during network pauses
+  const timer1 = setTimeout(() => {
+    if (accumulatedRaw.trim()) {
+      onChunk({
+        content: accumulatedRaw.trim(),
+        thought: '',
+        isThinking: false,
+        thinkingDuration: 0,
+      });
+    }
+  }, START_DELAY_MS);
 
-  const handleToken = (token) => {
+  const timer2 = setTimeout(() => {
+    if (accumulatedRaw.trim()) {
+      const thoughtText = getSpiritualDeliberationText(userMessage, isEnglish, THINKING_START_MS);
+      onChunk({
+        content: accumulatedRaw.trim(),
+        thought: thoughtText,
+        isThinking: true,
+        thinkingDuration: 0.1,
+      });
+    }
+  }, THINKING_START_MS);
+
+  const handleToken = (tokenOrDelta, maybeAccumulated) => {
+    // Bulletproof extraction: handles (deltaToken), (deltaToken, accumulated), or (accumulated)
+    let token = '';
+    if (typeof maybeAccumulated === 'string') {
+      token = tokenOrDelta || '';
+    } else if (typeof tokenOrDelta === 'string') {
+      if (tokenOrDelta.length > accumulatedRaw.length && tokenOrDelta.startsWith(accumulatedRaw)) {
+        token = tokenOrDelta.slice(accumulatedRaw.length);
+      } else {
+        token = tokenOrDelta;
+      }
+    }
+    if (!token) return;
     accumulatedRaw += token;
 
-    // --- PHASE 1: Initial Hook (~16-28 words ending cleanly at '।') ---
-    if (!phase1Done) {
-      phase1Content += token;
+    const elapsed = Date.now() - startTime;
 
-      const words = phase1Content.trim().split(/\s+/).filter(Boolean).length;
-      const endsWithSentence = /[।!?.]\s*$/.test(phase1Content.trim());
-      const hindiVerbBoundary = /(?:है|था|थी|थे|सके|सकता|सकते|सकती|होगा|होगी|होंगे|चाहिए|रहिए|रहो|करो|कीजिए|गया|गई|गए|हैं|हूँ|हूं)\s*$/;
-      const englishVerbBoundary = /(?:is|was|are|were|can|will|should|must|remain|do|done|been|have|has)\s*$/i;
-      const isVerbBoundary = isEnglish ? englishVerbBoundary.test(phase1Content.trim()) : hindiVerbBoundary.test(phase1Content.trim());
-      const elapsed = Date.now() - startTime;
+    // --- PHASE 1: Wait for 5 more seconds before generation starts (T = 0s to 5s) ---
+    if (elapsed < START_DELAY_MS) {
+      return;
+    }
 
-      // Phase 1 completes PROMPTLY (within ~3-4 seconds, ~14-28 words):
-      const shouldTriggerPhase2 =
-        (endsWithSentence && words >= 14) ||
-        (isVerbBoundary && words >= 18) ||
-        (words >= 26) ||
-        (elapsed >= 3500 && words >= 10);
-
-      if (shouldTriggerPhase2) {
-        phase1Done = true;
-        const initialClean = ensureCompleteFinalSentence(phase1Content.trim(), isEnglish);
-        revealedSentences = [initialClean];
-        lastPhaseRevealTime = Date.now();
-
-        // Phase 1 completes PROMPTLY: Reasoning window now officially begins right away!
-        onChunk({
-          content: initialClean,
-          thought: thoughtStream,
-          isThinking: true, // Reasoning starts now!
-          thinkingDuration: (Date.now() - startTime) / 1000,
-        });
-        return;
-      }
-
-      // During Phase 1 typing, Reasoning window is NOT displayed yet
+    // --- PHASE 2: Generation runs for 10 seconds (T = 5s to 15s) with NO thinking window yet ---
+    if (elapsed < THINKING_START_MS) {
       onChunk({
-        content: phase1Content,
+        content: accumulatedRaw.trim(),
         thought: '',
         isThinking: false,
         thinkingDuration: 0,
@@ -710,43 +742,22 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
       return;
     }
 
-    // --- PHASE 2: Reasoning is Active ---
-    // Background tokens stream directly into the reasoning block
-    thoughtStream += token;
-    candidateBuffer += token;
-
-    // --- PHASE 3: Phased Paragraph Segments (8-10s delay between segments) ---
-    const now = Date.now();
-    if (now - lastPhaseRevealTime >= 8500) {
-      // Look for the next complete sentence in the candidate buffer
-      const match = candidateBuffer.match(/^([^।!?.\n]{20,}[।!?.\n])/);
-      if (match) {
-        const nextSentence = match[1].trim();
-        candidateBuffer = candidateBuffer.slice(match[0].length).trim();
-
-        if (!isSentenceSemanticDuplicate(nextSentence, revealedSentences)) {
-          revealedSentences.push(nextSentence);
-          lastPhaseRevealTime = now;
-        }
-      } else if (candidateBuffer.trim().split(/\s+/).length >= 25) {
-        const fallbackSentence = ensureCompleteFinalSentence(candidateBuffer.trim(), isEnglish);
-        candidateBuffer = '';
-        if (!isSentenceSemanticDuplicate(fallbackSentence, revealedSentences)) {
-          revealedSentences.push(fallbackSentence);
-          lastPhaseRevealTime = now;
-        }
-      }
-    }
+    // --- PHASE 3: Thinking starts at T >= 15s (after 10s of generation running) ---
+    const thinkingDuration = (elapsed - THINKING_START_MS) / 1000;
+    const thoughtText = getSpiritualDeliberationText(userMessage, isEnglish, elapsed);
 
     onChunk({
-      content: revealedSentences.join('\n\n'),
-      thought: thoughtStream,
+      content: accumulatedRaw.trim(),
+      thought: thoughtText,
       isThinking: true,
-      thinkingDuration: (Date.now() - startTime) / 1000,
+      thinkingDuration: Math.max(0.1, thinkingDuration),
     });
   };
 
   const finalize = async (finalRaw) => {
+    clearTimeout(timer1);
+    clearTimeout(timer2);
+
     const raw = (finalRaw || accumulatedRaw).trim();
     if (!raw) {
       return {
@@ -757,8 +768,7 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
       };
     }
 
-    // Phase 4: Format and segment the fine-tuned model's authentic discourse into 2-3 paragraphs:
-    // Preserves 100% of fine-tuned model's authentic words, zero rewriting, ends in '।'
+    // Format and segment discourse into 2-3 structured paragraphs ending in '।':
     let finalFramedDiscourse = '';
     try {
       finalFramedDiscourse = await formatAndSegmentFineTunedDiscourse(raw, userMessage, isEnglish);
@@ -766,21 +776,19 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
       finalFramedDiscourse = segmentAndFormatDiscourseNative(raw, isEnglish);
     }
 
-    const duration = Number(Math.max(1.8, (Date.now() - startTime) / 1000).toFixed(1));
+    const totalElapsed = (Date.now() - startTime) / 1000;
+    const thinkingTime = Math.max(1.5, totalElapsed - (THINKING_START_MS / 1000));
 
-    // Structured thought summary for the collapsed thinking accordion
-    let finalThoughtSummary = thoughtStream.trim();
-    if (finalThoughtSummary.length > 500) {
-      finalThoughtSummary = finalThoughtSummary.slice(0, 450) + '...\n\n💡 वाक्य-संतुलन व सुधार: पूज्य श्री प्रेमानंद जी महाराज की पावन वाणी के अनुसार चिंतन संपन्न।\n✓ चिंतन संपन्न। पूर्ण उपदेश संकलित।';
-    } else {
-      finalThoughtSummary += '\n\n💡 वाक्य-संतुलन व सुधार: पूज्य श्री प्रेमानंद जी महाराज की पावन वाणी के अनुसार चिंतन संपन्न।\n✓ चिंतन संपन्न। पूर्ण उपदेश संकलित।';
-    }
+    let finalThoughtSummary = getSpiritualDeliberationText(userMessage, isEnglish, Date.now() - startTime);
+    finalThoughtSummary += isEnglish
+      ? '\n\n✓ Spiritual deliberation concluded. Complete authentic discourse formulated.'
+      : '\n\n✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।';
 
     const finalPayload = {
       content: finalFramedDiscourse,
       thought: finalThoughtSummary,
       isThinking: false,
-      thinkingDuration: duration,
+      thinkingDuration: Number(thinkingTime.toFixed(1)),
     };
 
     onChunk(finalPayload);
@@ -911,12 +919,12 @@ export async function streamGuruResponse(
     }
   } else {
     // Priority 1 in Fast Mode: Instant Groq LPU (clean, direct response)
-    const groqResult = await callDirectGroqAPI(messages, isComplex ? 500 : 350, true, onChunk, false);
+    const groqResult = await callDirectGroqAPI(messages, isComplex ? 500 : 350, true, (tok, acc) => onChunk(acc || tok), false);
     if (groqResult) {
       return ensureCompleteFinalSentence(groqResult, isEnglish);
     }
     // Fast fallback: Oracle server
-    const oracleResult = await callDirectOracleAPI(messages, isComplex ? 400 : 280, true, onChunk, false);
+    const oracleResult = await callDirectOracleAPI(messages, isComplex ? 400 : 280, true, (tok, acc) => onChunk(acc || tok), false);
     if (oracleResult) {
       const refined = await refineDeepTunedResponseWithGroq(oracleResult, userMessage, isEnglish);
       return ensureCompleteFinalSentence(refined || oracleResult, isEnglish);
