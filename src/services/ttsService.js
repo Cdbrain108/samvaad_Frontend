@@ -2,12 +2,22 @@ import { detectSpeechLanguage, prepareTextForSpeech } from '../utils/speechText'
 
 const BACKEND_BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
 
+const LIVE_ORACLE_VOICE_URL = 'https://female-richmond-myself-idle.trycloudflare.com';
+
 export const getVoiceCloneUrl = () => {
   if (typeof window !== 'undefined') {
-    return (window.VOICE_CLONE_URL || localStorage.getItem('guru_voice_clone_url') || import.meta.env.VITE_VOICE_CLONE_URL || '').replace(/\/$/, '');
+    const custom = (localStorage.getItem('guru_voice_clone_url') || '').trim();
+    if (custom) return custom.replace(/\/$/, '');
+    const winUrl = (window.VOICE_CLONE_URL || '').trim();
+    if (winUrl) return winUrl.replace(/\/$/, '');
+    const envUrl = (import.meta.env.VITE_VOICE_CLONE_URL || '').trim();
+    if (envUrl) return envUrl.replace(/\/$/, '');
+    return LIVE_ORACLE_VOICE_URL;
   }
-  return (import.meta.env.VITE_VOICE_CLONE_URL || '').replace(/\/$/, '');
+  return (import.meta.env.VITE_VOICE_CLONE_URL || LIVE_ORACLE_VOICE_URL).replace(/\/$/, '');
 };
+
+
 
 export const setVoiceCloneUrl = (url) => {
   const clean = (url || '').trim().replace(/\/$/, '');
@@ -51,40 +61,49 @@ export async function generateSpeech(text, { language = 'auto', speed = 1 } = {}
   const preparedText = prepareTextForSpeech(text);
   if (!preparedText) throw new Error('No speech text available');
 
-  // Priority 1: Custom Chatterbox Voice Cloning Server (Google Colab / GPU Tunnel with guru_voice_profile.pt)
+  // Priority 1: Custom Chatterbox Voice Cloning Server (Oracle Cloud with guru_voice_profile.pt)
   const cloneServer = getVoiceCloneUrl();
   if (cloneServer) {
     try {
+      // For authentic neural voice cloning on CPU, focus on first 2 core sentences (~200 chars) to finish in ~25-30s without timing out
+      const cloneText = preparedText.length > 220
+        ? (preparedText.split(/(?<=[।!?.\n])\s+/).slice(0, 2).join(' ').trim() || preparedText.slice(0, 200))
+        : preparedText;
+
       const cloneController = new AbortController();
-      const cloneTimeout = setTimeout(() => cloneController.abort(), 25000);
+      const cloneTimeout = setTimeout(() => cloneController.abort(), 18000);
       const cloneRes = await fetch(`${cloneServer}/synthesize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: preparedText }),
+        body: JSON.stringify({
+          text: cloneText,
+          speed: speed || 1.0,
+          full_vocal: true,
+        }),
         signal: cloneController.signal,
       });
       clearTimeout(cloneTimeout);
       if (cloneRes.ok) {
         const blob = await cloneRes.blob();
         const audioUrl = URL.createObjectURL(blob);
-        console.log('[Voice Clone TTS] Successfully fetched Chatterbox cloned audio blob from GPU!');
+        console.log('[Voice Clone TTS] Successfully fetched Chatterbox cloned audio blob from Oracle GPU/CPU!');
         return {
           provider: 'backend-neural',
           audioUrl,
-          text: preparedText,
-          language: language === 'auto' ? detectSpeechLanguage(preparedText) : language,
+          text: cloneText,
+          language: language === 'auto' ? detectSpeechLanguage(cloneText) : language,
           isCloned: true,
         };
       }
     } catch (e) {
-      console.warn('[Voice Clone TTS] Custom GPU clone endpoint unreachable, using neural engine:', e);
+      console.warn('[Voice Clone TTS] Oracle clone endpoint timed out or failed, using neural engine:', e);
     }
   }
 
-  // Priority 2: Backend Neural TTS with acoustic softening
+  // Priority 2: Backend Neural Indian Male TTS with acoustic softening (instant ~1.4s response)
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 35000);
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     const ratePercent = speed !== 1 ? `${Math.round((speed - 1) * 100 - 13)}%` : '-13%';
     const payload = JSON.stringify({
@@ -92,7 +111,6 @@ export async function generateSpeech(text, { language = 'auto', speed = 1 } = {}
       rate: ratePercent,
       pitch: '-2Hz',
       apply_softener: true,
-      clone_url: cloneServer || undefined,
     });
 
     let response = null;

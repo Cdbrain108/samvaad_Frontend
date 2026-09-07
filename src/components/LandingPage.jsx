@@ -7,6 +7,7 @@ import heroSunrise from '../assets/hero-sunrise.png'
 import heroNightTemple from '../assets/hero-night-temple.png'
 import heroNightTempleMobile from '../assets/hero-night-temple-mobile.webp'
 import logoWordmark from '../assets/logo-wordmark.webp'
+
 import brandIcon from '../assets/brand-icon.webp'
 import guruCutout from '../assets/guru-cutout.webp'
 import oldManuscriptBg from '../assets/old-manuscript-page.jpg'
@@ -255,8 +256,38 @@ Key features for seekers:
   const [typedText, setTypedText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const selected = conversations[activeTab]
+  const containerRef = useRef(null)
+  const [isVisible, setIsVisible] = useState(false)
+  const timeoutRef = useRef(null)
+
+  // Replay typing every time the chat enters the viewport (ChatGPT-style)
+  useEffect(() => {
+    const node = containerRef.current
+    if (!node) return
+    const scrollRoot = node.closest('.landing-scroll')
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting)
+      },
+      { root: scrollRoot || null, threshold: 0.32 }
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
+    // When not visible, reset and cancel any pending typing so the next
+    // entry always starts from an empty bubble with a fresh typewriter run
+    if (!isVisible) {
+      setIsTyping(false)
+      setTypedText('')
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+      return
+    }
+
     let cancelled = false
     setIsTyping(true)
     setTypedText('')
@@ -268,20 +299,25 @@ Key features for seekers:
       if (idx < chars.length) {
         idx += 3
         setTypedText(chars.slice(0, idx).join(''))
-        setTimeout(step, 16)
+        timeoutRef.current = setTimeout(step, 16)
       } else {
         setIsTyping(false)
+        timeoutRef.current = null
       }
     }
-    const timer = setTimeout(step, 140)
+    // small entrance delay so the scroll-snap settle is perceived before typing
+    timeoutRef.current = setTimeout(step, 220)
     return () => {
       cancelled = true
-      clearTimeout(timer)
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
     }
-  }, [activeTab])
+  }, [activeTab, isVisible, selected.a])
 
   return (
-    <div className="chat-demo-container">
+    <div ref={containerRef} className="chat-demo-container">
       <div className="chat-demo-window">
         {/* Chat Window Top Bar */}
         <div className="chat-demo-topbar">
@@ -357,7 +393,7 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
   const scrollRef = useRef(null)
   const askInputRef = useRef(null)
   const activeRef = useRef(0)
-  const [progress, setProgress] = useState(0)
+  const progressRef = useRef(null)
   const [active, setActive] = useState(0)
   const [question, setQuestion] = useState('')
   const [pipelineTab, setPipelineTab] = useState('milestones')
@@ -366,9 +402,12 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
   const navHideTimer = useRef(null)
 
   const goToPhase = (id) => {
-    scrollRef.current
-      ?.querySelector(`#${id}`)
-      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const root = scrollRef.current
+    const el = root?.querySelector(`#${id}`)
+    if (!root || !el) return
+    // scrollTo with offsetTop plays nice with proximity snap;
+    // scrollIntoView(smooth) fights the snap animation and overshoots.
+    root.scrollTo({ top: el.offsetTop, behavior: 'smooth' })
   }
 
   const focusAsk = () => {
@@ -385,30 +424,52 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
     activeRef.current = active
   }, [active])
 
-  /* progress bar + active phase follow the phase scroller */
+  /* progress bar + active phase follow the phase scroller.
+     rAF-throttled + progress painted via ref (no re-render per pixel),
+     so scrolling stays smooth and never triggers a double-page jump. */
   useEffect(() => {
     const root = scrollRef.current
     if (!root) return
     const elements = phases.map((phase) => root.querySelector(`#${phase.id}`))
-    const onScroll = () => {
+    let ticking = false
+
+    const update = () => {
+      ticking = false
       const total = root.scrollHeight - root.clientHeight
-      setProgress(total > 0 ? Math.min(root.scrollTop / total, 1) : 0)
+      const p = total > 0 ? Math.min(root.scrollTop / total, 1) : 0
+      if (progressRef.current) {
+        progressRef.current.style.transform = `scaleX(${p})`
+      }
       const rootTop = root.getBoundingClientRect().top
       const probe = root.clientHeight * 0.4
       let current = 0
       elements.forEach((el, index) => {
         if (el && el.getBoundingClientRect().top - rootTop <= probe) current = index
       })
-      setActive(current)
+      if (current !== activeRef.current) {
+        activeRef.current = current
+        setActive(current)
+      }
     }
-    onScroll()
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true
+        requestAnimationFrame(update)
+      }
+    }
+    update()
     root.addEventListener('scroll', onScroll, { passive: true })
     return () => root.removeEventListener('scroll', onScroll)
   }, [])
 
-  /* keyboard: arrow / page keys move one page section at a time */
+  /* keyboard: arrow / page keys move one page section at a time.
+     Native wheel/touch scrolling is intentionally left alone — the
+     previous wheel-hijack (stepPhase + 700ms block) fought CSS snap
+     and turned one flick into a 2-page jump. */
   useEffect(() => {
     const onKey = (event) => {
+      if (event.repeat) return
       if (event.target !== document.body && event.target !== scrollRef.current) return
       if (event.key === 'ArrowDown' || event.key === 'PageDown') {
         event.preventDefault()
@@ -428,69 +489,85 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  /* wheel listener: lock scroll to one complete screen per gesture */
+  /* Auto-hide taskbar logic:
+     - Automatically hides when swiping up/down or scrolling into page content so the view of the site is completely clear.
+     - Day/Night toggle & Chat action remain visible, floating shifted slightly to the right side.
+     - Shows full taskbar on mouse up, mouse moving towards top, or when scrolling between pages.
+     - Neatly refits Day/Night and Chat into the taskbar when visible.
+  */
   useEffect(() => {
-    const root = scrollRef.current
-    if (!root) return
-    let isWheeling = false
-    let wheelTimer = null
-
-    const onWheel = (event) => {
-      if (Math.abs(event.deltaY) < 24) return
-      if (isWheeling) {
-        event.preventDefault()
-        return
-      }
-      isWheeling = true
-      const dir = event.deltaY > 0 ? 1 : -1
-      stepPhase(dir)
-
-      clearTimeout(wheelTimer)
-      wheelTimer = setTimeout(() => {
-        isWheeling = false
-      }, 700)
-    }
-
-    root.addEventListener('wheel', onWheel, { passive: false })
-    return () => {
-      root.removeEventListener('wheel', onWheel)
-      clearTimeout(wheelTimer)
-    }
-  }, [])
-
-  /* Auto-hide navbar: hide after 2.5s idle on non-hero pages; show on mouse near top */
-  useEffect(() => {
-    const startHideTimer = () => {
+    const showNavTemporarily = (duration = 2600) => {
+      setNavHidden(false)
       clearTimeout(navHideTimer.current)
-      // Only auto-hide if not on the hero page (page 0)
-      if (activeRef.current === 0) {
-        setNavHidden(false)
-        return
-      }
-      navHideTimer.current = setTimeout(() => setNavHidden(true), 2500)
+      navHideTimer.current = setTimeout(() => {
+        setNavHidden(true)
+      }, duration)
     }
 
+    // 1. Mouse movement: moving UP or near top reveals full taskbar; moving down into page hides it
     const onMouseMove = (event) => {
-      // Show navbar instantly if mouse within top 80px
-      if (event.clientY <= 80) {
-        setNavHidden(false)
+      if (event.clientY <= 95 || event.movementY < -3) {
+        showNavTemporarily(3200)
+      } else if (event.movementY > 6 && event.clientY > 110) {
         clearTimeout(navHideTimer.current)
-        // Restart hide timer after a delay
-        navHideTimer.current = setTimeout(() => {
-          if (activeRef.current !== 0) setNavHidden(true)
-        }, 3000)
+        setNavHidden(true)
       }
     }
 
-    // Re-evaluate on phase change
-    startHideTimer()
+    // 2. Mouse Up: "when user make mouse up then we can see that bar"
+    const onMouseUp = () => {
+      showNavTemporarily(2800)
+    }
+
+    // 3. Wheel gesture: show taskbar briefly on page transition, then auto-hide for clear view
+    const onWheelNav = (event) => {
+      if (Math.abs(event.deltaY) > 20) {
+        showNavTemporarily(2400)
+      }
+    }
+
+    // 4. Touch swipe events (mobile & tablet)
+    let touchStartY = 0
+    const onTouchStart = (event) => {
+      touchStartY = event.touches[0].clientY
+    }
+    const onTouchMove = (event) => {
+      const currentY = event.touches[0].clientY
+      const deltaY = currentY - touchStartY
+      if (deltaY > 18) {
+        // Swiping downwards (revealing top): show taskbar
+        showNavTemporarily(2800)
+      } else if (deltaY < -18) {
+        // Swiping upwards (scrolling down into content): hide taskbar for clear view
+        clearTimeout(navHideTimer.current)
+        setNavHidden(true)
+      }
+    }
+    const onTouchEnd = () => {
+      showNavTemporarily(2500)
+    }
+
+    // When scrolling or changing pages: show taskbar, then auto-hide after 2.8s
+    showNavTemporarily(2800)
 
     window.addEventListener('mousemove', onMouseMove, { passive: true })
+    window.addEventListener('mouseup', onMouseUp, { passive: true })
+    window.addEventListener('wheel', onWheelNav, { passive: true })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    window.addEventListener('touchend', onTouchEnd, { passive: true })
+
     return () => {
       window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+      window.removeEventListener('wheel', onWheelNav)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('touchend', onTouchEnd)
       clearTimeout(navHideTimer.current)
     }
   }, [active])
+
 
   const askQuestion = (text) => {
     const value = (text ?? question).trim()
@@ -503,7 +580,7 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
 
   return (
     <div className={`spiritual-page landing-scroll ${darkMode ? 'night' : ''}`} ref={scrollRef}>
-      <span className="scroll-progress" style={{ transform: `scaleX(${progress})` }} aria-hidden="true" />
+      <span className="scroll-progress" ref={progressRef} aria-hidden="true" />
 
       {/* Floating Authentic Marigold & Lotus Petals */}
       <div className="floating-petals-layer" aria-hidden="true">
@@ -538,7 +615,18 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
         </svg>
       </div>
 
-      <header className={`spiritual-header${navHidden ? ' is-hidden' : ''}`}>
+      <header
+        className={`spiritual-header${navHidden ? ' is-hidden' : ''}`}
+        onMouseEnter={() => {
+          clearTimeout(navHideTimer.current)
+          setNavHidden(false)
+        }}
+        onMouseLeave={() => {
+          clearTimeout(navHideTimer.current)
+          navHideTimer.current = setTimeout(() => setNavHidden(true), 2400)
+        }}
+      >
+
         <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
           <img className="brand-icon" src={brandIcon} alt="" />
           <span className="brand-text">
@@ -615,6 +703,7 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
 
           <div className="hero-copy-panel">
             <h1 className="hero-wordmark">
+              <span className="logo-moon" aria-hidden="true" />
               <img
                 className="hero-logo"
                 src={logoWordmark}

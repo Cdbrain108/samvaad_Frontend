@@ -68,8 +68,15 @@ function RichText({ content, streaming = false }) {
             </span>
           );
         }
+        const isShlok = (trimmed.includes('«') && trimmed.includes('»')) || (trimmed.includes('॥') && (trimmed.startsWith('**') || trimmed.endsWith('**')));
+        const isArthat = /^(?:\*\*|\*|\b)?अर्थात्/i.test(trimmed) || trimmed.startsWith('**अर्थात्') || trimmed.startsWith('अर्थात्');
+
+        const lineClasses = ['rich-line'];
+        if (isShlok) lineClasses.push('rich-shlok-line');
+        if (isArthat) lineClasses.push('rich-arthat-line');
+
         return (
-          <span className="rich-line" key={`p-${index}`}>
+          <span className={lineClasses.join(' ')} key={`p-${index}`}>
             {renderInline(trimmed, `p${index}`)}{cursor}
           </span>
         );
@@ -154,17 +161,47 @@ export default function App() {
   const [isResponding, setIsResponding] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [userMemory, setUserMemory] = useState(null);
-  const [inferenceMode, setInferenceMode] = useState('deep');
+  const [inferenceMode, setInferenceMode] = useState(() => {
+    try {
+      return localStorage.getItem('samvaad_inference_mode') || 'deep';
+    } catch {
+      return 'deep';
+    }
+  });
   const [modeNotification, setModeNotification] = useState(null);
   const modeNotificationTimerRef = useRef(null);
   const [voiceModeOpen, setVoiceModeOpen] = useState(false);
   const [voiceCloneModalOpen, setVoiceCloneModalOpen] = useState(false);
+  const [autoSpeak, setAutoSpeak] = useState(() => {
+    try {
+      return localStorage.getItem('samvaad_auto_speak') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleAutoSpeak = useCallback(() => {
+    setAutoSpeak((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('samvaad_auto_speak', String(next));
+      } catch {}
+      return next;
+    });
+  }, []);
+
   const messagesEndRef = useRef(null);
   const contentAreaRef = useRef(null);
   const voice = useVoiceMode();
 
+
   const handleModeChange = useCallback((newMode) => {
     setInferenceMode(newMode);
+    try {
+      localStorage.setItem('samvaad_inference_mode', newMode);
+    } catch {
+      /* ignore storage errors */
+    }
     if (modeNotificationTimerRef.current) {
       clearTimeout(modeNotificationTimerRef.current);
     }
@@ -398,6 +435,13 @@ export default function App() {
     setDraft('');
     setIsResponding(true);
 
+    // Automatically play default opening audio blessing ("राधे राधे बच्चा...") when operation starts generation
+    try {
+      voice.playDefaultGreeting();
+    } catch (e) {
+      console.warn('[Audio] Failed to trigger opening blessing:', e);
+    }
+
     try {
       const memoryContext = userMemory ? [
         `Summary: ${userMemory.summary || 'Devotee seeking spiritual guidance.'}`,
@@ -427,7 +471,11 @@ export default function App() {
         userProfile,
         inferenceMode,
         (update) => {
-          if (!receivedAnyChunk) {
+          const hasVisiblePayload = typeof update === 'string'
+            ? Boolean(update.trim())
+            : Boolean(update?.content?.trim() || update?.thought?.trim() || update?.isThinking);
+
+          if (hasVisiblePayload && !receivedAnyChunk) {
             receivedAnyChunk = true;
             setIsResponding(false);
           }
@@ -467,9 +515,10 @@ export default function App() {
       };
       setMessages([...updatedMessagesWithUser, finalizedAssistantMsg]);
 
-      if (speakResponse && finalCleanContent) {
+      if ((speakResponse || autoSpeak) && finalCleanContent) {
         voice.speak(finalCleanContent);
       }
+
 
       const conversationData = {
         title: messages.length === 0 ? (message.length > 30 ? message.slice(0, 30) + '...' : message) : (conversations.find(c => c.id === currentConversationId)?.title || 'Spiritual Satsang'),
@@ -505,7 +554,7 @@ export default function App() {
       }
     } catch (err) {
       console.error('Error handling message:', err);
-      const fallbackContent = 'राधे राधे भैया! मन को शांत रखिए और भगवन्नाम (राधा नाम) का आश्रय लीजिए। प्रभु सब मंगल करेंगे।';
+      const fallbackContent = 'राधे राधे बच्चा! मन को शांत रखिए और भगवन्नाम (राधा नाम) का आश्रय लीजिए। प्रभु सब मंगल करेंगे।';
       setMessages([...updatedMessagesWithUser, { role: 'assistant', content: fallbackContent, timestamp: new Date() }]);
     } finally {
       setIsResponding(false);
@@ -606,31 +655,6 @@ export default function App() {
             <div className="mode-toggle-group" style={{ display: 'inline-flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', borderRadius: '24px', padding: '3px 4px', border: '1px solid rgba(255,255,255,0.1)' }}>
               <button
                 type="button"
-                className={`mode-pill-btn ${inferenceMode === 'fast' ? 'active' : ''}`}
-                onClick={() => handleModeChange('fast')}
-                aria-label="Fast Mode: Ultra-fast LPU inference"
-                aria-pressed={inferenceMode === 'fast'}
-                style={{
-                  background: inferenceMode === 'fast' ? 'linear-gradient(135deg, #d97706, #b45309)' : 'transparent',
-                  color: inferenceMode === 'fast' ? '#ffffff' : 'var(--text-muted, #9ca3af)',
-                  border: 'none',
-                  borderRadius: '18px',
-                  padding: '4px 12px',
-                  fontSize: '0.78rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  whiteSpace: 'nowrap'
-                }}
-                title="Ultra-fast LPU inference (~1s response)"
-              >
-                ⚡ <span className="mode-pill-btn-label-text">Fast</span>
-              </button>
-              <button
-                type="button"
                 className={`mode-pill-btn ${inferenceMode === 'deep' ? 'active' : ''}`}
                 onClick={() => handleModeChange('deep')}
                 aria-label="Deep Mode: Fine-tuned Q8 Oracle model"
@@ -653,6 +677,31 @@ export default function App() {
                 title="Dedicated Oracle Cloud Q8 GGUF Server (~12s response)"
               >
                 🧘 <span className="mode-pill-btn-label-text">Deep</span>
+              </button>
+              <button
+                type="button"
+                className={`mode-pill-btn ${inferenceMode === 'fast' ? 'active' : ''}`}
+                onClick={() => handleModeChange('fast')}
+                aria-label="Fast Mode: Ultra-fast LPU inference"
+                aria-pressed={inferenceMode === 'fast'}
+                style={{
+                  background: inferenceMode === 'fast' ? 'linear-gradient(135deg, #d97706, #b45309)' : 'transparent',
+                  color: inferenceMode === 'fast' ? '#ffffff' : 'var(--text-muted, #9ca3af)',
+                  border: 'none',
+                  borderRadius: '18px',
+                  padding: '4px 12px',
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  whiteSpace: 'nowrap'
+                }}
+                title="Ultra-fast LPU inference (~1s response)"
+              >
+                ⚡ <span className="mode-pill-btn-label-text">Fast</span>
               </button>
             </div>
           </div>
@@ -716,9 +765,18 @@ export default function App() {
 
           <div className="topbar-actions">
             <button
+              className={`icon-button ${autoSpeak ? 'auto-speak-active' : ''}`}
+              aria-label={autoSpeak ? 'Auto-Voice Enabled: Maharaj Ji speaks replies automatically' : 'Auto-Voice Disabled'}
+              title={autoSpeak ? '🔊 Auto-Voice ON: Maharaj Ji speaks every answer automatically' : '🔇 Auto-Voice OFF: Click to hear Maharaj Ji speak every answer automatically'}
+              onClick={toggleAutoSpeak}
+              style={autoSpeak ? { color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.6)', background: 'rgba(245, 158, 11, 0.15)' } : {}}
+            >
+              <Icon name={autoSpeak ? 'volume' : 'volume-x'} />
+            </button>
+            <button
               className={`icon-button ${getVoiceCloneUrl() ? 'voice-clone-active' : ''}`}
               aria-label="Pujya Maharaj Ji Voice Clone Setup"
-              title={getVoiceCloneUrl() ? '🟢 Maharaj Ji Cloned Voice Active (GPU)' : '⚙️ Connect Maharaj Ji Cloned Voice (GPU Tunnel)'}
+              title={getVoiceCloneUrl() ? '🟢 Maharaj Ji Cloned Voice Active (Oracle 24/7)' : '⚙️ Connect Maharaj Ji Cloned Voice (Oracle Server)'}
               onClick={() => setVoiceCloneModalOpen(true)}
               style={getVoiceCloneUrl() ? { color: '#34d399', borderColor: 'rgba(52, 211, 153, 0.4)' } : {}}
             >
@@ -730,8 +788,9 @@ export default function App() {
               aria-pressed={voiceModeOpen}
               onClick={() => setVoiceModeOpen((current) => !current)}
             >
-              <Icon name="volume" />
+              <Icon name="mic" />
             </button>
+
             <button
               className="icon-button"
               aria-label={darkMode ? 'Use light theme' : 'Use dark theme'}
@@ -822,14 +881,38 @@ export default function App() {
                             {formatTimestamp(message.timestamp)}
                           </time>
                         )}
-                        {message.role === 'assistant' && message.content && !isStreaming && (
-                          <>
-                            <CopyButton text={message.content} />
-                            <button className="message-action" onClick={() => voice.speak(message.content)} aria-label="Listen to reply" type="button">
-                              <Icon name="volume" size={14} /> Listen
-                            </button>
-                          </>
-                        )}
+                        {message.role === 'assistant' && message.content && !isStreaming && (() => {
+                          const isThisActive = voice.activeSpeech === message.content;
+                          const isPreparing = isThisActive && voice.state === 'preparing';
+                          const isSpeaking = isThisActive && voice.state === 'speaking';
+                          const isPaused = isThisActive && voice.state === 'paused';
+
+                          return (
+                            <>
+                              <CopyButton text={message.content} />
+                              <button
+                                className={`message-action ${isThisActive ? 'is-speaking-action' : ''}`}
+                                onClick={() => {
+                                  if (isSpeaking || isPaused) {
+                                    voice.togglePause();
+                                  } else if (isPreparing) {
+                                    voice.stop();
+                                  } else {
+                                    voice.speak(message.content);
+                                  }
+                                }}
+                                aria-label="Listen to Maharaj Ji Vani"
+                                type="button"
+                                title="पूज्य महाराज जी की प्रामाणिक आवाज़ (24/7 Cloned Voice)"
+                                style={isThisActive ? { color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.4)' } : {}}
+                              >
+                                <Icon name={isSpeaking ? 'pause' : 'volume'} size={14} />
+                                {isPreparing ? '⏳ वाणी तैयार हो रही है...' : isSpeaking ? '⏸️ वाणी रोकें' : isPaused ? '▶️ वाणी सुनें' : '🌸 महाराज जी वाणी'}
+                              </button>
+                            </>
+                          );
+                        })()}
+
                       </div>
                     </div>
                   </motion.article>

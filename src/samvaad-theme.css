@@ -36,16 +36,20 @@
 /* ---------- floating cream header ---------- */
 
 .spiritual-page .spiritual-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
   top: 10px;
-  width: min(1240px, calc(100% - 28px));
-  height: 62px;
+  width: min(1380px, calc(100% - 40px));
+  height: 64px;
   margin: 10px auto 0;
-  padding-inline: 18px;
+  padding-inline: 26px;
   border: 1px solid rgba(230, 138, 0, 0.28);
-  border-radius: 18px;
+  border-radius: 20px;
   background: rgba(255, 248, 225, 0.88);
   box-shadow: 0 12px 32px rgba(120, 70, 10, 0.1);
   backdrop-filter: blur(16px);
+  gap: 24px;
 }
 
 .spiritual-page .spiritual-brand-button {
@@ -53,6 +57,7 @@
   align-items: center;
   gap: 10px;
   justify-self: start;
+  flex-shrink: 0;
 }
 
 .spiritual-page .brand-mark { filter: drop-shadow(0 4px 10px rgba(230, 138, 0, 0.25)); }
@@ -69,7 +74,14 @@
 
 .brand-tagline { color: #B4560A; font-size: 10px; letter-spacing: 0.06em; }
 
-.spiritual-page .spiritual-nav { gap: 26px; }
+.spiritual-page .spiritual-nav {
+  display: flex !important;
+  align-items: center !important;
+  gap: 22px !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  padding-inline: 0 !important;
+}
 
 .spiritual-page .spiritual-nav a {
   display: inline-flex;
@@ -78,10 +90,47 @@
   color: var(--sv-deep);
   font-size: 13px;
   font-weight: 600;
-  transition: color 160ms ease;
+  transition: color 160ms ease, transform 160ms ease;
+  white-space: nowrap;
 }
 
 .spiritual-page .spiritual-nav a:hover { color: #E68A00; }
+
+.spiritual-page .spiritual-header-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  margin-left: 36px !important;
+  flex-shrink: 0 !important;
+}
+
+@media (max-width: 1280px) {
+  .spiritual-page .spiritual-nav {
+    gap: 16px !important;
+  }
+  .spiritual-page .spiritual-nav a {
+    font-size: 12.5px;
+    gap: 5px;
+  }
+  .spiritual-page .spiritual-header-actions {
+    margin-left: 24px !important;
+    gap: 12px !important;
+  }
+}
+
+@media (max-width: 1080px) {
+  .spiritual-page .spiritual-nav {
+    gap: 12px !important;
+  }
+  .spiritual-page .spiritual-nav a {
+    font-size: 11.5px;
+    gap: 4px;
+  }
+  .spiritual-page .spiritual-header-actions {
+    margin-left: 16px !important;
+    gap: 10px !important;
+  }
+}
 
 /* day / night toggle */
 
@@ -4341,9 +4390,83 @@ select:focus-visible,
   .pothi-fs-enter{ padding:8px; border-radius:50%; width:36px; height:36px; justify-content:center; }
 }
 
-/* header disappears on Scriptures page */
-.spiritual-header{ transition: transform 420ms cubic-bezier(0.16,1,0.3,1), opacity 300ms ease, border-color 300ms ease, background 300ms ease; }
-.spiritual-header.is-hidden{ transform: translateY(-110%); opacity:0; pointer-events:none; }
+/* ═══════════════════════════════════════════════════════════════════════════
+   SMART AUTO-HIDE TASKBAR: CLEAR VIEW WITH FLOATING RIGHT-SIDE CONTROLS
+   ═══════════════════════════════════════════════════════════════════════════ */
+.spiritual-header {
+  transition: background 380ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1),
+              backdrop-filter 380ms ease,
+              -webkit-backdrop-filter 380ms ease;
+}
+
+/* Brand logo and navigation links smoothly fade and slide up when taskbar hides */
+.spiritual-header .spiritual-brand-button,
+.spiritual-header .spiritual-nav {
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* When hidden for clear view of site: taskbar frame vanishes */
+.spiritual-header.is-hidden {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  pointer-events: none;
+}
+
+.spiritual-header.is-hidden::before {
+  opacity: 0 !important;
+  transition: opacity 300ms ease;
+}
+
+.spiritual-header.is-hidden .spiritual-brand-button,
+.spiritual-header.is-hidden .spiritual-nav {
+  opacity: 0 !important;
+  transform: translateY(-24px) scale(0.96) !important;
+  pointer-events: none !important;
+}
+
+/* Day/Night and Chat option: remain visible and shift slightly to right with floating glass pill styling */
+.spiritual-header .spiritual-header-actions {
+  transition: transform 380ms cubic-bezier(0.16, 1, 0.3, 1),
+              background 320ms ease,
+              border-color 320ms ease,
+              box-shadow 320ms ease,
+              padding 320ms ease;
+  pointer-events: auto !important;
+}
+
+.spiritual-header.is-hidden .spiritual-header-actions {
+  pointer-events: auto !important;
+  transform: translateX(24px); /* Shifted slightly to the right side */
+  background: rgba(255, 248, 225, 0.92);
+  border: 1px solid rgba(230, 138, 0, 0.32);
+  border-radius: 999px;
+  padding: 5px 8px;
+  box-shadow: 0 10px 30px rgba(120, 70, 10, 0.22), 0 2px 8px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.night .spiritual-header.is-hidden .spiritual-header-actions,
+.spiritual-page.night .spiritual-header.is-hidden .spiritual-header-actions {
+  background: rgba(10, 26, 47, 0.92);
+  border-color: rgba(254, 200, 75, 0.35);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55), 0 0 14px rgba(254, 200, 75, 0.12);
+}
+
+@media (max-width: 768px) {
+  .spiritual-header.is-hidden .spiritual-header-actions {
+    transform: translateX(10px);
+    padding: 4px 6px;
+    gap: 8px;
+  }
+}
+
 
 /* heritage intro — cinematic full-screen overlay that sweeps UP on dismiss */
 .heritage-intro{
@@ -5163,4 +5286,116 @@ select:focus-visible,
   .pothi-scene-wrap{ height:320px !important; min-height:320px !important; }
   .parchment-metric-item{ padding:2px 4px !important; }
   .metric-icon-circle{ width:36px !important; height:36px !important; }
+}
+
+/* ============================================================
+   SCROLL FIX — one gesture = one page, no double-jump, no lag
+   Overrides the earlier `mandatory + always` snap which fought
+   trackpad momentum + the smooth scrollIntoView animation and made
+   a single flick skip 2 pages (notably around pages 2-3).
+   - proximity snap: assists without forcing a jump
+   - tall phases grow naturally (no clipped content forcing a skip)
+   - hero stays exactly one viewport
+   ============================================================ */
+.spiritual-page.landing-scroll{
+  scroll-snap-type: y proximity !important;
+  overscroll-behavior-y: auto !important;
+}
+.spiritual-page .phase{
+  height: auto !important;
+  max-height: none !important;
+  min-height: 100svh !important;
+  scroll-snap-stop: normal !important;
+  overflow: clip !important;
+  justify-content: center !important;
+}
+.spiritual-page .phase-hero{
+  height: 100svh !important;
+  max-height: 100svh !important;
+  min-height: 100svh !important;
+  overflow: hidden !important;
+}
+@media (prefers-reduced-motion: reduce){
+  .spiritual-page.landing-scroll{ scroll-behavior: auto !important; }
+}
+
+/* Logo moon (night only): small dim orb centred behind the ORIGINAL
+   wordmark. Letters are opaque dark pixels so the moon can only appear
+   through transparent gaps — it cannot wash over or whiten the logo. */
+.hero-wordmark{ position: relative; }
+.hero-wordmark .hero-logo{ position: relative; z-index: 1; }
+.logo-moon{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(88px, 10vw, 116px);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  transform: translate(-50%, -52%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  background:
+    radial-gradient(circle at 63% 60%, rgba(150, 144, 112, 0.5) 0 6%, transparent 7%),
+    radial-gradient(circle at 40% 66%, rgba(150, 144, 112, 0.42) 0 4.5%, transparent 5.5%),
+    radial-gradient(circle at 33% 34%, #FFFDF2 0%, #F4EAD0 45%, #DCD0A6 72%, #BFB389 100%);
+  box-shadow:
+    0 0 14px 4px rgba(255, 246, 214, 0.35),
+    0 0 36px 12px rgba(255, 214, 130, 0.12);
+}
+.night .logo-moon{ opacity: 0.6; }
+@media (max-width: 700px){
+  .logo-moon{ width: clamp(72px, 20vw, 96px); }
+}
+
+/* Logo aligned left with the content below — rest of hero untouched. */
+.phase-hero .hero-wordmark{ align-self: flex-start; }
+/* Hanging left offset for the WHOLE hero block — logo, tagline, text,
+   askbox, chips (both themes): scales with viewport so it never clips. */
+@media (min-width: 901px){
+  .phase-hero .hero-copy-panel{ margin-left: clamp(-56px, calc((1240px - 100vw) * 0.25), -10px); }
+}
+
+/* Bigger, more beautiful moon — still strictly behind the opaque
+   logo, so letters stay untouched while the halo fills the sky. */
+.logo-moon{
+  width: clamp(140px, 16vw, 190px);
+  background:
+    radial-gradient(circle at 63% 60%, rgba(150, 144, 112, 0.5) 0 6%, transparent 7%),
+    radial-gradient(circle at 40% 66%, rgba(150, 144, 112, 0.42) 0 4.5%, transparent 5.5%),
+    radial-gradient(circle at 55% 38%, rgba(150, 144, 112, 0.35) 0 3.5%, transparent 4.5%),
+    radial-gradient(circle at 34% 32%, #FFFDF4 0%, #F6ECD0 42%, #E0D2A4 70%, #B7A87E 100%);
+  box-shadow:
+    0 0 22px 8px rgba(255, 246, 214, 0.55),
+    0 0 80px 30px rgba(255, 214, 130, 0.25),
+    0 0 160px 70px rgba(255, 200, 110, 0.12);
+  animation: logo-moon-breathe 7s ease-in-out infinite;
+}
+.night .logo-moon{ opacity: 0.88; }
+.logo-moon::after{
+  content: '';
+  position: absolute;
+  inset: -16px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 240, 200, 0.22);
+}
+@keyframes logo-moon-breathe{
+  0%, 100%{
+    box-shadow:
+      0 0 22px 8px rgba(255, 246, 214, 0.55),
+      0 0 80px 30px rgba(255, 214, 130, 0.25),
+      0 0 160px 70px rgba(255, 200, 110, 0.12);
+  }
+  50%{
+    box-shadow:
+      0 0 30px 12px rgba(255, 246, 214, 0.68),
+      0 0 105px 42px rgba(255, 214, 130, 0.32),
+      0 0 190px 90px rgba(255, 200, 110, 0.16);
+  }
+}
+@media (max-width: 700px){
+  .logo-moon{ width: clamp(100px, 30vw, 140px); }
+}
+@media (prefers-reduced-motion: reduce){
+  .logo-moon{ animation: none; }
 }

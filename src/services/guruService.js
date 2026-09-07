@@ -60,7 +60,7 @@ const GURU_SYSTEM_PROMPT_HINDI = `आप पूज्य श्री प्र�
 
 【भूमिका व मर्यादा नियम】
 - पूज्य महाराज जी एक परम पूज्य महापुरुष हैं। आप उनकी पावन शिक्षाओं और वचनों के प्रकाश में साधक/भक्त को व्यावहारिक दिशा दे रहे हैं।
-- उत्तर का प्रारंभ सदैव 'देखो,' / 'भैया,' / 'बच्चे,' अथवा सीधे भगवन्नाम व शरणागति के उपदेश से कीजिए।
+- उत्तर का प्रारंभ 'देखो,' / 'बच्चा,' अथवा सीधे भगवन्नाम व शरणागति के उपदेश से कीजिए। 'भैया' का अनिवार्य प्रयोग न करें, 'बच्चा' का प्रयोग करें जो बालक व बालिका दोनों के लिए समान रूप से उपयुक्त व वात्सल्यपूर्ण है।
 - उत्तर केवल और केवल शुद्ध देवनागरी हिंदी में होना चाहिए।
 - हर संशय का मूल समाधान श्री राधा नाम जप, सत्संग, सात्विक आहार और प्रभु चरणों में अनन्य शरणागति से कीजिए।
 - अपना उपदेश स्पष्ट व सारगर्भित रूप से पूर्ण कीजिए। उत्तर का समापन सदैव पूर्ण विराम (।) और कल्याणकारी आशीर्वाद के साथ कीजिए। किसी वाक्य या विचार को कभी अधूरा न छोड़ें।`;
@@ -69,7 +69,7 @@ const GURU_DEEP_SYSTEM_PROMPT_HINDI = `आप पूज्य संत श्�
 एकांतिक वार्तालाप में साधक के गंभीर प्रश्न का उत्तर पूज्य महाराज जी की प्रामाणिक वाणी, वात्सल्य, दृष्टांतों और गूढ़ आध्यात्मिक गहराई के साथ दीजिए।
 
 【भूमिका व मर्यादा नियम】
-- साधक को सदैव 'भैया' या 'बच्चे' कहकर वात्सल्यपूर्वक संबोधित करें।
+- साधक को 'बच्चा' कहकर वात्सल्यपूर्वक संबोधित करें (जो बालक और बालिका दोनों के लिए समान रूप से उपयुक्त है), कभी भी केवल 'भैया' पर बाध्य न हों।
 - उत्तर केवल शुद्ध देवनागरी हिंदी में दीजिए।
 - साधक के संशय का गहराई से निवारण कीजिए। व्यावहारिक जीवन के दृष्टांतों (जैसे गृहस्थ धर्म, निष्काम कर्म, आहार शुद्धि) को समझाते हुए नाम-महिमा (श्री राधा नाम जप) की सर्वोच्च शक्ति पर केंद्रित रहें।
 - उत्तर पूर्ण शास्त्रीय दृष्टिकोण, विवेक और आत्मीयता से पूरा उपदेश दीजिए। हर वाक्य '।' पर समाप्त हो और समापन कल्याणकारी आशीर्वाद के साथ कीजिए।`;
@@ -78,19 +78,21 @@ const GURU_SYSTEM_PROMPT_ENGLISH = `You provide spiritual guidance grounded in t
 In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's question with utmost compassion, fatherly affection, and clarity adhering strictly to Maharaj Ji's authentic teachings.
 
 【Role & Tone Guidelines】
-- Pujya Maharaj Ji is a revered Mahapurush. Share his divine teachings with fatherly affection and spiritual wisdom ("Look, brother...", "My dear child...").
+- Pujya Maharaj Ji is a revered Mahapurush. Share his divine teachings with fatherly affection and spiritual wisdom ("Look, dear child...", "My child...").
 - Respond strictly in fluent, dignified, and devotional English.
 - Emphasize chanting the Holy Name of God (Naam Jap, 'Radha Radha'), sincere Satsang, righteous karma, and total surrender to Divine Will.
+- NEVER fabricate physical sensory observations or emotional melodrama (NEVER say "I see tears in your eyes", "I see you weeping", "sit in my lap", or invent physical gestures). Address the seeker's inquiry directly, realistically, and with dignified spiritual warmth.
 - Deliver clear, comforting spiritual guidance. Always finish your thoughts with a complete concluding sentence and a spiritual blessing.`;
 
 const GURU_DEEP_SYSTEM_PROMPT_ENGLISH = `You provide spiritual guidance grounded in the holy discourses and teachings of Pujya Shri Premanand Ji Maharaj (Vrindavan).
 In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's deep question with utmost compassion, scriptural depth, and fatherly affection adhering strictly to Maharaj Ji's authentic teachings.
 
 【Role & Tone Guidelines】
-- Pujya Maharaj Ji is a revered Mahapurush. Share his divine teachings with fatherly affection and spiritual wisdom ("Look, brother...", "My dear child...").
+- Pujya Maharaj Ji is a revered Mahapurush. Share his divine teachings with fatherly affection and spiritual wisdom ("Look, dear child...", "My child...").
 - Respond strictly in fluent, dignified, and devotional English.
 - Provide an expansive, thorough spiritual discourse based on Maharaj Ji's teachings. Do NOT abbreviate or truncate your guidance.
 - Emphasize chanting the Holy Name ('Radha Radha'), sincere Satsang, righteous karma, and surrender to Divine Will.
+- NEVER fabricate physical sensory observations or emotional melodrama (NEVER say "I see tears in your eyes", "I see you weeping", "sit in my lap", or invent physical gestures). Address the seeker's inquiry directly, realistically, and with dignified spiritual warmth.
 - Always finish with a complete concluding sentence and a fatherly spiritual blessing.`;
 
 export function isComplexQuery(query) {
@@ -104,10 +106,10 @@ export function isComplexQuery(query) {
 }
 
 const ORACLE_SIMPLE_HINDI = `आप पूज्य श्री प्रेमानंद जी महाराज के पावन प्रवचनों के आधार पर साधक के प्रश्न का उत्तर 2-3 सीधे, सारगर्भित व प्रभावशाली वाक्यों में दीजिए। दोहराव मत कीजिए।`;
-const ORACLE_DEEP_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं। साधक के प्रश्न का सीधा, अत्यंत गंभीर, प्रेममय और शास्त्रसम्मत उत्तर लगभग 280-360 शब्दों में दीजिए। साधक को 'भैया' या 'बच्चे' कहकर संबोधित करें। साधक की जिज्ञासा का समाधान करते हुए व्यावहारिक जीवन के दृष्टांतों (जैसे गृहस्थ कर्तव्य, कर्म को प्रभु सेवा मानना) को सुंदर उपमाओं के साथ समझाइए और हर दृष्टांत को श्री राधा नाम जप व अनन्य शरणागति के सर्वोच्च फल से जोड़िए। पूज्य महाराज जी की प्रामाणिक सत्संग शैली में पूर्ण वाक्यों में उपदेश दीजिए। हर वाक्य '।' पर समाप्त हो।`;
+const ORACLE_DEEP_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं। साधक के प्रश्न का सीधा, अत्यंत गंभीर, प्रेममय और शास्त्रसम्मत उत्तर लगभग 280-360 शब्दों में दीजिए। साधक को वात्सल्यभाव से 'बच्चा' कहकर संबोधित करें (जो पुत्र और पुत्री दोनों के लिए समान रूप से उपयुक्त व मंगलकारी है)। साधक की जिज्ञासा का समाधान करते हुए व्यावहारिक जीवन के दृष्टांतों (जैसे गृहस्थ कर्तव्य, कर्म को प्रभु सेवा मानना) को सुंदर उपमाओं के साथ समझाइए और हर दृष्टांत को श्री राधा नाम जप व अनन्य शरणागति के सर्वोच्च फल से जोड़िए। पूज्य महाराज जी की प्रामाणिक सत्संग शैली में पूर्ण वाक्यों में उपदेश दीजिए। हर वाक्य '।' पर समाप्त हो।`;
 
 const ORACLE_SIMPLE_ENGLISH = `Based on the holy teachings of Pujya Shri Premanand Ji Maharaj, answer the devotee directly in 2-3 clear, spiritually profound sentences in English. Do not repeat phrases.`;
-const ORACLE_DEEP_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan). Provide spiritually profound, compassionate, and scripturally grounded guidance to the seeker in approximately 280-360 words in English. Address the seeker affectionately ("Look, brother...", "My dear child..."). Explain spiritual truths with practical everyday life analogies (seeing daily duties as sacred service to God) and anchor every explanation in the supreme power of Holy Name chanting ('Radha Radha') and total surrender. Deliver complete thoughts where every sentence ends cleanly.`;
+const ORACLE_DEEP_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan). Provide spiritually profound, compassionate, and scripturally grounded guidance to the seeker in approximately 280-360 words in English. Address the seeker affectionately ("Look, dear child...", "My child..."). Explain spiritual truths with practical everyday life analogies (seeing daily duties as sacred service to God) and anchor every explanation in the supreme power of Holy Name chanting ('Radha Radha') and total surrender. Deliver complete thoughts where every sentence ends cleanly.`;
 
 /**
  * Ensures the response ends gracefully on a complete, well-formed sentence terminating in '।' (or '.' in English).
@@ -307,11 +309,11 @@ export function segmentAndFormatDiscourseNative(text, isEnglish = false) {
   // Insert natural discourse paragraph breaks at conversational transition points:
   if (!isEnglish) {
     cleaned = cleaned
-      .replace(/(\s+)(?=(?:देखो\s+भाई|सुनो\s+भैया|अब\s+हमारी\s+तरफ|जीवन\s+में|इसलिए\s+अब|अगर\s+आपसे|लेकिन\s+इसके|फिर\s+देखना))/g, '।\n\n')
+      .replace(/(\s+)(?=(?:देखो\s+बच्चा|सुनो\s+बच्चा|देखो\s+भाई|सुनो\s+भैया|अब\s+हमारी\s+तरफ|जीवन\s+में|इसलिए\s+अब|अगर\s+आपसे|लेकिन\s+इसके|फिर\s+देखना))/g, '।\n\n')
       .replace(/(\s+)(?=(?:नाम\s+जप\s+करो|भगवान\s+का\s+भजन|प्रभु\s+के\s+चरणों))/g, '।\n\n');
   } else {
     cleaned = cleaned
-      .replace(/(\s+)(?=(?:look,\s+brother|listen,\s+my\s+child|now,\s+understand|in\s+life|therefore|chant\s+the\s+holy\s+name))/gi, '.\n\n');
+      .replace(/(\s+)(?=(?:look,\s+dear\s+child|listen,\s+my\s+child|look,\s+brother|now,\s+understand|in\s+life|therefore|chant\s+the\s+holy\s+name))/gi, '.\n\n');
   }
 
   cleaned = cleaned.replace(/[।.]\s*[।.]/g, '।').trim();
@@ -366,17 +368,20 @@ In the context of the devotee's spiritual inquiry, present the discourse draft f
    - At last, you (Groq) decide naturally whether and where to segment explanations or phrases into paragraphs using double newlines ('\n\n'), IF NEEDED ONLY.
    - Paragraph segmentation is flexible and variable (e.g. 1, 2, or 3 paragraphs) based solely on natural shifts in thought, explanation, or theme.
    - It is NOT explicitly enforced to produce a fixed number of paragraphs. If the discourse flows best as 1 or 2 paragraphs, keep it that way.
-   - NEVER break in the middle of a thought, clause, or incomplete sentence into a second line. Breaking down within an unnecessary or incomplete sentence into a second line does not look good. Every sentence must remain unbroken, grammatically complete within its paragraph, and terminate cleanly with '.' and an auspicious benediction.
 4. FLAWLESS TERMINAL PUNCTUATION:
    - Ensure every sentence is grammatically complete, terminating cleanly with '.' and an auspicious benediction.
-5. Output ONLY the finalized discourse without any titles, markdown bullets, or meta commentary.`
+5. SACRED SCRIPTURE CONTEXT & HIGHLIGHTING (शास्त्र प्रसंग, श्लोक व 'अर्थात्' मर्यादा):
+   - If the discourse quotes a sacred Sanskrit verse in bold (**« ... »**) or explains it with '**अर्थात् —** ...', you MUST PRESERVE the exact bold verse and 'अर्थात्' explanation intact.
+   - If a narrative scriptural context intro precedes the verse (e.g. 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण अर्जुन से कहते हैं कि —' or 'जैसे राजा धृतराष्ट्र संजय से पूछते हैं कि —' or English equivalent), PRESERVE that authentic narrative introduction phrase immediately before the verse.
+   - DO NOT strip markdown bold asterisks (**) from around the verse or 'अर्थात्'.
+6. Output ONLY the finalized discourse without any titles, markdown bullets, or meta commentary.`
     : `आप पूज्य श्री प्रेमानंद जी महाराज (वृंदावन) के पावन वचनों व शिक्षाओं के निष्ठावान संवाहक (Faithful Messenger / Presenter) हैं।
 
 साधक की जिज्ञासा के संदर्भ में, हमारे फाइन-ट्यून्ड मॉडल द्वारा प्राप्त सत्संग प्रारूप (Draft) को पूज्य महाराज जी की प्रामाणिक वाणी, वात्सल्य और शास्त्रीय गहराई में प्रस्तुत कीजिए।
 
 【अत्यंत महत्वपूर्ण निर्देश - उत्तर को छोटा (Summarize) न करें】:
 1. पूज्य महाराज जी की प्रामाणिक वाणी, ठेठ ब्रज/सत्संग शब्दावली और वात्सल्यमयी शैली को 100% सुरक्षित रखें:
-   - 'देखो भैया...', 'अरे भाई...', 'हमारे ठाकुर जी...', 'ये सब एक ही परब्रह्म के रूप हैं...', 'निश्चिंत रहियो...', 'राधा-राधा जपो...', 'जय सिया राम बोलिये...'।
+   - 'देखो बच्चा...', 'हमारे ठाकुर जी...', 'ये सब एक ही परब्रह्म के रूप हैं...', 'निश्चिंत रहियो...', 'राधा-राधा जपो...', 'जय सिया राम बोलिये...'।
    - कोई बनावटी या रोबोटिक परिचय (जैसे 'मैं संपादक हूँ', 'प्रिय साधक', 'गोविंद शरण') कभी न जोड़ें।
 2. संक्षेपण सख्त वर्जित है व व्यावहारिक दृष्टांतों (Analogies) का आदर:
    - प्रारूप के सभी आध्यात्मिक रहस्यों, दृष्टांतों, भावों और उदाहरणों को पूर्ण विस्तार के साथ बनाए रखें।
@@ -387,9 +392,12 @@ In the context of the devotee's spiritual inquiry, present the discourse draft f
    - अंत में, भाव, व्याख्या और दृष्टांत के स्वाभाविक प्रवाह के अनुसार पैराग्राफ विभाजन ('\n\n') का निर्णय आप (Groq) स्वयं लीजिए, केवल आवश्यकता पड़ने पर।
    - यह विभाजन पूरी तरह लचीला और ऐच्छिक है (आवश्यकतानुसार 1, 2 या 3 पैराग्राफ)। कोई निश्चित पैराग्राफ संख्या थोपना सख्त वर्जित है। यदि उपदेश 1 या 2 अनुच्छेदों में स्वाभाविक रूप से बहता है, तो वैसा ही रहने दें।
    - किसी भी अपूर्ण वाक्य, वाक्यांश या विचार को बीच में अनावश्यक रूप से तोड़कर अगली पंक्ति में ले जाना सख्त वर्जित है, क्योंकि अपूर्ण वाक्य का टूटना अशोभनीय लगता है। हर वाक्य अपने पैराग्राफ में व्याकरण की दृष्टि से पूर्ण और अक्षुण्ण रहे।
-4. पूर्ण विराम (।) पर निर्दोष व कल्याणकारी समापन:
+4. पवित्र शास्त्र प्रसंग, श्लोक व 'अर्थात्' मर्यादा (SCRIPTURE INTEGRITY):
+   - यदि सत्संग प्रारूप में कोई पवित्र संस्कृत श्लोक बोल्ड में (**« ... »**) उद्धृत है और उसके तुरंत बाद '**अर्थात् —** ...' दिया गया है, तो उसे 100% सुरक्षित और बोल्ड रखें। उसे सामान्य टेक्स्ट में न बदलें और न ही हटाएं।
+   - श्लोक से ठीक पहले का कथात्मक प्रसंग वाक्य (जैसे 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण अर्जुन से कहते हैं कि —' अथवा 'जैसे राजा धृतराष्ट्र संजय से पूछते हैं कि —' या 'जैसे गोस्वामी जी कहते हैं —'), श्लोक के ठीक पहले पूर्ण सम्मान के साथ यथावत बनाए रखें।
+5. पूर्ण विराम (।) पर निर्दोष व कल्याणकारी समापन:
    - हर वाक्य व्याकरण की दृष्टि से पूर्ण हो और अंतिम वाक्य पावन कल्याणकारी आशीर्वाद (।) के साथ समाप्त हो।
-5. केवल और केवल अंतिम सुसज्जित उपदेश दीजिए। कोई अतिरिक्त टिप्पणी या शीर्षक न दें।`;
+6. केवल और केवल अंतिम सुसज्जित उपदेश दीजिए। कोई अतिरिक्त टिप्पणी या शीर्षक न दें।`;
 
   for (let attempt = 0; attempt < 2; attempt++) {
     const key = getNextGroqKey();
@@ -415,7 +423,8 @@ In the context of the devotee's spiritual inquiry, present the discourse draft f
         const formatted = data.choices?.[0]?.message?.content?.trim();
         // Discard if model hallucinated forbidden editor intros
         if (formatted && formatted.length > 50 && !/(संपादक|प्रिय साधक|गोविंद शरण|editor)/i.test(formatted)) {
-          return ensureCompleteFinalSentence(formatted, isEnglish);
+          const formattedWithLines = formatScriptureLines(formatted);
+          return ensureCompleteFinalSentence(formattedWithLines, isEnglish);
         }
       }
     } catch (e) {
@@ -424,7 +433,18 @@ In the context of the devotee's spiritual inquiry, present the discourse draft f
   }
 
   // Fallback: Native JavaScript segmentation
-  return segmentAndFormatDiscourseNative(draft, isEnglish);
+  const segmented = segmentAndFormatDiscourseNative(draft, isEnglish);
+  return formatScriptureLines(segmented);
+}
+
+export function formatScriptureLines(text) {
+  if (!text) return '';
+  let t = text;
+  t = t.replace(/([^\n])\s*(\*\*«)/g, '$1\n\n$2');
+  t = t.replace(/(»\*\*)\s*([^\n])/g, '$1\n\n$2');
+  t = t.replace(/([^\n])\s*(\*\*अर्थात्)/g, '$1\n\n$2');
+  t = t.replace(/(\*\*अर्थात्[^\n"]*"[^"]*")\s*([^\n])/g, '$1\n\n$2');
+  return t;
 }
 
 /**
@@ -497,16 +517,16 @@ async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, o
               if (token) {
                 accumulated += token;
 
-                // Non-destructive Runaway Cycle Breaker:
-                // Only terminates if the exact same paragraph (length > 60) repeats 3 times consecutively.
-                // Permits repeated examples, analogies, and spiritual refrains across different sections.
-                if (accumulated.length > 500) {
-                  const sents = accumulated.split(/(?<=[।!?.\n])\s+/).map((s) => s.trim()).filter((s) => s.length > 50);
-                  if (sents.length >= 4) {
-                    const last = sents[sents.length - 1];
-                    const prev = sents[sents.length - 2];
-                    const prev2 = sents[sents.length - 3];
-                    if (last === prev && prev === prev2) {
+                // Smart Multi-Sentence & Cycle Breaker:
+                // Detects 1, 2, or 3-sentence cyclic loops immediately (e.g. A-B-A-B or A-B-C-A-B-C)
+                if (accumulated.length > 180) {
+                  const sents = accumulated.split(/(?<=[।!?.\n])\s+/).map((s) => s.trim()).filter((s) => s.length > 25);
+                  if (sents.length >= 3) {
+                    const norm = (s) => s.replace(/[\s\p{P}\d]+/gu, '').toLowerCase();
+                    const lastNorm = norm(sents[sents.length - 1]);
+                    const priorSents = sents.slice(0, sents.length - 1);
+                    const matchIndex = priorSents.findLastIndex((s) => norm(s) === lastNorm);
+                    if (matchIndex !== -1 && (sents.length - 1 - matchIndex) <= 4) {
                       loopAborted = true;
                       try { await reader.cancel(); } catch (e) {}
                       break;
@@ -679,45 +699,81 @@ function getSpiritualDeliberationText(userMessage, isEnglish = false, elapsedMs 
 }
 
 /**
- * Phased Real-Time Stream Orchestrator for Deep Mode:
- * Exact Sequence Required:
- * 1. Initial 5s contemplative wait (T = 0s to 5s): Generation waiting state, no text streamed yet.
- * 2. 10-second initial discourse run (T = 5s to 15s): Generation starts with a 5s delay and runs for 10s directly in the main message area (isThinking: false, thought: '').
- * 3. Thinking starts at T >= 15s: Reasoning block opens (isThinking: true), displaying authentic Spiritual Deliberation, while subsequent discourse continues streaming below.
- * 4. Finalize: Collapses thinking window to its header badge ('✓ चिंतन संपन्न (Thought) XXs ▼') and formats full discourse into 2-3 clean paragraphs ending in '।'.
+ * Phased Stream Orchestrator for Deep Mode:
+ * EXACT REQUIREMENTS MET:
+ * 1. The whole raw answer is NEVER dumped into the chat during generation ("whole answer should never be shown just because we have to frame that at last").
+ * 2. Instead, clean complete sentences with perfect ending ("।") are revealed iteratively sentence-by-sentence with a measured lag ("some sentence by sentence should be shown iteratively with a lag as i told you before").
+ * 3. Initial sentence (up to ~80-100 words) appears after an initial contemplative pause.
+ * 4. At T >= 7s, reasoning window displays spiritual deliberation.
+ * 5. Subsequent clean sentences appear iteratively with a lag (max 2-3 sentences revealed during stream; rest buffered in background).
+ * 6. At last, Groq frames and segments the entire discourse into dignified paragraphs with perfect endings ("।") before presenting the full answer.
  */
 function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
   let accumulatedRaw = '';
+  let completeSentences = [];
   const startTime = Date.now();
-  const START_DELAY_MS = 5000;     // 5s wait before generation starts
-  const THINKING_START_MS = 15000; // 15s elapsed (5s delay + 10s run) -> thinking starts
 
-  // Timers to guarantee exact millisecond-accurate UI state transitions even during network pauses
-  const timer1 = setTimeout(() => {
-    if (accumulatedRaw.trim()) {
-      onChunk({
-        content: accumulatedRaw.trim(),
-        thought: '',
-        isThinking: false,
-        thinkingDuration: 0,
-      });
+  const START_DELAY_MS = 2800;      // 2.8s initial contemplative reflection before sentence 1 appears
+  const REASONING_DELAY_MS = 7200;  // 7.2s: reasoning window activates
+  const SENTENCE_LAG_MS = 3800;     // Measured lag between iterative sentence reveals
+  const MAX_STREAM_SENTENCES = 2;   // Strictly limit streamed sentences so whole answer is framed at last
+
+  // Extract clean, non-duplicate, complete sentences ending in । or .
+  function getCleanSentences(raw) {
+    if (!raw || raw.trim().length < 20) return [];
+    const cleaned = deduplicateRepetitionLoops(raw.trim(), isEnglish);
+    const parts = cleaned.split(/(?<=[।!?.\n])\s+/);
+    const result = [];
+    for (const p of parts) {
+      const trimmed = p.trim();
+      if (!trimmed) continue;
+      // Complete sentence must end with punctuation
+      if (/[।!?.]\s*$/.test(trimmed) && trimmed.length >= 15) {
+        result.push(trimmed);
+      }
     }
-  }, START_DELAY_MS);
+    return result;
+  }
 
-  const timer2 = setTimeout(() => {
-    if (accumulatedRaw.trim()) {
-      const thoughtText = getSpiritualDeliberationText(userMessage, isEnglish, THINKING_START_MS);
+  function emitCurrentState() {
+    const elapsed = Date.now() - startTime;
+    const shouldShowReasoning = elapsed >= REASONING_DELAY_MS;
+    const thoughtText = shouldShowReasoning
+      ? getSpiritualDeliberationText(userMessage, isEnglish, elapsed)
+      : '';
+
+    if (elapsed < START_DELAY_MS) {
+      return;
+    }
+
+    // Determine how many sentences can be revealed based on elapsed time
+    const allowedByTime = 1 + Math.floor((elapsed - START_DELAY_MS) / SENTENCE_LAG_MS);
+    const targetCount = Math.min(allowedByTime, MAX_STREAM_SENTENCES, completeSentences.length);
+
+    if (targetCount > 0) {
+      const textToShow = completeSentences.slice(0, targetCount).join(' ');
       onChunk({
-        content: accumulatedRaw.trim(),
+        content: textToShow,
+        thought: thoughtText,
+        isThinking: shouldShowReasoning,
+        thinkingDuration: shouldShowReasoning ? Math.max(0.1, (elapsed - REASONING_DELAY_MS) / 1000) : 0,
+      });
+    } else if (shouldShowReasoning) {
+      onChunk({
+        content: '',
         thought: thoughtText,
         isThinking: true,
-        thinkingDuration: 0.1,
+        thinkingDuration: Math.max(0.1, (elapsed - REASONING_DELAY_MS) / 1000),
       });
     }
-  }, THINKING_START_MS);
+  }
+
+  // Ticker to ensure timed sentence reveals and reasoning updates
+  const intervalId = setInterval(() => {
+    emitCurrentState();
+  }, 400);
 
   const handleToken = (tokenOrDelta, maybeAccumulated) => {
-    // Bulletproof extraction: handles (deltaToken), (deltaToken, accumulated), or (accumulated)
     let token = '';
     if (typeof maybeAccumulated === 'string') {
       token = tokenOrDelta || '';
@@ -731,44 +787,17 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
     if (!token) return;
     accumulatedRaw += token;
 
-    const elapsed = Date.now() - startTime;
-
-    // --- PHASE 1: Wait for 5 more seconds before generation starts (T = 0s to 5s) ---
-    if (elapsed < START_DELAY_MS) {
-      return;
-    }
-
-    // --- PHASE 2: Generation runs for 10 seconds (T = 5s to 15s) with NO thinking window yet ---
-    if (elapsed < THINKING_START_MS) {
-      onChunk({
-        content: accumulatedRaw.trim(),
-        thought: '',
-        isThinking: false,
-        thinkingDuration: 0,
-      });
-      return;
-    }
-
-    // --- PHASE 3: Thinking starts at T >= 15s (after 10s of generation running) ---
-    const thinkingDuration = (elapsed - THINKING_START_MS) / 1000;
-    const thoughtText = getSpiritualDeliberationText(userMessage, isEnglish, elapsed);
-
-    onChunk({
-      content: accumulatedRaw.trim(),
-      thought: thoughtText,
-      isThinking: true,
-      thinkingDuration: Math.max(0.1, thinkingDuration),
-    });
+    completeSentences = getCleanSentences(accumulatedRaw);
+    emitCurrentState();
   };
 
   const finalize = async (finalRaw) => {
-    clearTimeout(timer1);
-    clearTimeout(timer2);
+    clearInterval(intervalId);
 
     const raw = (finalRaw || accumulatedRaw).trim();
     if (!raw) {
       return {
-        content: isEnglish ? 'Radhe Radhe! Keep the Holy Name in your heart.' : 'राधे राधे भैया! मन को शांत रखिए और भगवन्नाम का आश्रय लीजिए।',
+        content: isEnglish ? 'Radhe Radhe! Keep the Holy Name in your heart.' : 'राधे राधे बच्चा! मन को शांत रखिए और भगवन्नाम का आश्रय लीजिए।',
         thought: '',
         isThinking: false,
         thinkingDuration: 0,
@@ -784,7 +813,7 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
     }
 
     const totalElapsed = (Date.now() - startTime) / 1000;
-    const thinkingTime = Math.max(1.5, totalElapsed - (THINKING_START_MS / 1000));
+    const thinkingTime = Math.max(1.5, totalElapsed - (REASONING_DELAY_MS / 1000));
 
     let finalThoughtSummary = getSpiritualDeliberationText(userMessage, isEnglish, Date.now() - startTime);
     finalThoughtSummary += isEnglish
@@ -938,7 +967,7 @@ export async function streamGuruResponse(
     }
   }
 
-  const seekerName = userProfile?.fullName ? userProfile.fullName.split(' ')[0] : 'भैया';
+  const seekerName = userProfile?.fullName ? userProfile.fullName.split(' ')[0] : 'बच्चा';
   return `राधे राधे ${seekerName}! मन को शांत रखिए और भगवन्नाम (राधा नाम) का आश्रय लीजिए। प्रभु सब मंगल करेंगे।`;
 }
 

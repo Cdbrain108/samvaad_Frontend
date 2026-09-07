@@ -25,8 +25,10 @@ export default function useVoiceMode() {
   const [isListening, setIsListening] = useState(false);
   const [speechTick, setSpeechTick] = useState(0);
   const [isCloned, setIsCloned] = useState(false);
+  const [activeSpeech, setActiveSpeech] = useState('');
   const [speechSupported] = useState(() => 'speechSynthesis' in window || 'Audio' in window);
   const [recognitionSupported] = useState(() => Boolean(SpeechRecognition));
+
   
   const utteranceRef = useRef(null);
   const audioRef = useRef(null);
@@ -51,6 +53,9 @@ export default function useVoiceMode() {
     
     // Stop HTML Audio element if playing
     if (audioRef.current) {
+      audioRef.current.onplay = null;
+      audioRef.current.onended = null;
+      audioRef.current.onerror = null;
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       audioRef.current.src = '';
@@ -62,9 +67,11 @@ export default function useVoiceMode() {
     utteranceRef.current = null;
     chunksRef.current = [];
     chunkIndexRef.current = 0;
+    setActiveSpeech('');
     setState(VOICE_STATES.IDLE);
     setElapsed(0);
   }, [clearTimer]);
+
 
   const startTimer = useCallback(() => {
     clearTimer();
@@ -86,8 +93,19 @@ export default function useVoiceMode() {
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = language === 'auto' ? (/[^\u0000-\u007f]/.test(activeTextRef.current) ? 'hi-IN' : 'en-IN') : language;
-    utterance.rate = speed;
+    utterance.rate = speed * 0.90;
+    utterance.pitch = 0.72; // Deep, reverent masculine pitch — never high-pitched woman
     utterance.volume = muted ? 0 : volume;
+
+    try {
+      const allVoices = window.speechSynthesis?.getVoices?.() || [];
+      const maleVoice = allVoices.find(v => (v.lang.includes('hi') || v.lang.includes('IN')) && /(madhur|hemant|ravi|male|man)/i.test(v.name))
+                     || allVoices.find(v => /(madhur|hemant|male|david|mark)/i.test(v.name))
+                     || allVoices.find(v => (v.lang.includes('hi') || v.lang.includes('IN')) && !/(swara|kalpana|zira|female|woman)/i.test(v.name));
+      if (maleVoice) {
+        utterance.voice = maleVoice;
+      }
+    } catch (e) {}
     utterance.onstart = () => {
       setState(VOICE_STATES.SPEAKING);
       startTimer();
@@ -109,7 +127,9 @@ export default function useVoiceMode() {
   const speak = useCallback(async (answer) => {
     stop();
     setError('');
+    setActiveSpeech(answer);
     setState(VOICE_STATES.PREPARING);
+
 
     try {
       const speech = await generateSpeech(answer, { language, speed });
@@ -146,8 +166,10 @@ export default function useVoiceMode() {
         audio.onended = () => {
           clearTimer();
           setElapsed(durationRef.current);
+          setActiveSpeech('');
           setState(VOICE_STATES.FINISHED);
         };
+
 
         audio.onerror = () => {
           console.warn('Backend audio failed during playback, falling back to browser speech...');
@@ -228,6 +250,62 @@ export default function useVoiceMode() {
     recognition.start();
   }, [isListening, language]);
 
+  const playDefaultGreeting = useCallback(() => {
+    stop();
+    try {
+      const audio = new Audio('/audio/radhe_radhe_baccha.mp3');
+      audio.volume = muted ? 0 : volume;
+      audio.playbackRate = 1.0;
+      audioRef.current = audio;
+      currentProviderRef.current = 'backend-neural';
+      setIsCloned(true);
+      setActiveSpeech('राधे राधे बच्चा...');
+      setState(VOICE_STATES.SPEAKING);
+
+      audio.onloadedmetadata = () => {
+        const dur = Math.ceil(audio.duration) || 2;
+        durationRef.current = dur;
+        setDuration(dur);
+      };
+
+      audio.onplay = () => {
+        console.log('[Audio] Opening blessing playback started: राधे राधे बच्चा...');
+        setState(VOICE_STATES.SPEAKING);
+        clearTimer();
+        timerRef.current = window.setInterval(() => {
+          if (audioRef.current) {
+            const cur = audioRef.current.currentTime;
+            elapsedRef.current = cur;
+            setElapsed(cur);
+            setSpeechTick((tick) => tick + 1);
+          }
+        }, 200);
+      };
+
+      audio.onended = () => {
+        clearTimer();
+        setElapsed(durationRef.current);
+        setActiveSpeech('');
+        setState(VOICE_STATES.IDLE);
+      };
+
+      audio.onerror = (e) => {
+        if (audio.error && audio.error.code !== 20) {
+          console.warn('[Audio] Opening blessing playback notice:', audio.error?.message || e);
+        }
+        setState(VOICE_STATES.IDLE);
+      };
+
+      audio.play().catch((err) => {
+        console.warn('[Audio] Opening blessing autoplay prevented by browser policy:', err);
+        setState(VOICE_STATES.IDLE);
+      });
+    } catch (e) {
+      console.warn('[Audio] Failed to initialize opening blessing:', e);
+      setState(VOICE_STATES.IDLE);
+    }
+  }, [clearTimer, muted, stop, volume]);
+
   useEffect(() => () => {
     clearTimer();
     if (audioRef.current) {
@@ -256,8 +334,10 @@ export default function useVoiceMode() {
     recognitionSupported,
     speechTick,
     isCloned,
+    activeSpeech,
     speak,
     stop,
+    playDefaultGreeting,
     togglePause,
     replay,
     toggleListening,
