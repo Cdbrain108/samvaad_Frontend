@@ -5398,4 +5398,329 @@ select:focus-visible,
 }
 @media (prefers-reduced-motion: reduce){
   .logo-moon{ animation: none; }
-}
+}
+
+/* ============================================================
+   COMPREHENSIVE MOBILE LAYOUT FIXES  (≤ 640px phones)
+   Applied after all other rules for maximum specificity.
+   ============================================================ */
+
+/* ── 1. LANDING PAGE: Header nav hides correctly, no text collision ── */
+@media (max-width: 640px) {
+  .spiritual-page .spiritual-nav { display: none !important; }
+  .spiritual-page .spiritual-header {
+    height: 60px !important;
+    padding-inline: 14px !important;
+    top: 6px !important;
+    width: calc(100% - 16px) !important;
+    border-radius: 14px !important;
+    gap: 10px !important;
+  }
+  .spiritual-page .spiritual-header-actions { gap: 8px !important; margin-left: auto !important; }
+  .spiritual-page .spiritual-wordmark { font-size: 17px !important; }
+  .theme-toggle { width: 52px !important; height: 28px !important; padding: 0 6px !important; }
+  .theme-toggle .toggle-thumb { width: 21px !important; height: 21px !important; }
+  .theme-toggle.is-night .toggle-thumb { transform: translateX(22px) !important; }
+  .spiritual-page .cta-button {
+    padding: 9px 13px !important;
+    font-size: 12px !important;
+    white-space: nowrap;
+  }
+}
+
+/* ── 2. LANDING HERO: Moon disc shrinks + moves so it doesn't block text ── */
+@media (max-width: 640px) {
+  /* The large decorative moon/disc behind the hero — scale it down and push to bg */
+  .logo-moon {
+    width: clamp(80px, 22vw, 110px) !important;
+    opacity: 0.55 !important;
+    top: 10% !important;
+    right: 5% !important;
+    left: auto !important;
+  }
+
+  /* Hero section spacing */
+  .spiritual-page .spiritual-hero {
+    padding-top: 78px !important;
+    padding-inline: 16px !important;
+    padding-bottom: 48px !important;
+  }
+
+  /* Hero heading — prevent font from being too large */
+  .spiritual-page .hero-heading {
+    font-size: clamp(28px, 8vw, 40px) !important;
+    line-height: 1.12 !important;
+    letter-spacing: -0.02em !important;
+  }
+  .spiritual-page .hero-sub {
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+    margin-top: 10px !important;
+  }
+
+  /* Topic pill chips — wrap into rows cleanly, no orphan on own line */
+  .topic-chips, .hero-topic-chips {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    justify-content: flex-start !important;
+  }
+  .topic-chip {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+    border-radius: 999px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Ask box (search input) */
+  .hero-askbox {
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* ── 3. CHAT VIEW: Welcome screen not clipped under topbar ── */
+@media (max-width: 640px) {
+  /* Main chat content area — ensure it starts below the 60px sticky topbar */
+  .content-area {
+    padding-top: 20px !important;
+    padding-bottom: max(120px, env(safe-area-inset-bottom, 0px) + 120px) !important;
+  }
+
+  /* Welcome screen heading */
+  .welcome h1 {
+    font-size: clamp(26px, 7vw, 36px) !important;
+    line-height: 1.15 !important;
+  }
+  .welcome-copy p { font-size: 13px !important; line-height: 1.6 !important; }
+  .suggestion-grid { margin-top: 20px !important; gap: 10px !important; }
+  .suggestion-card { min-height: 80px !important; padding: 14px !important; border-radius: 14px !important; }
+  .suggestion-icon { width: 40px !important; height: 40px !important; border-radius: 11px !important; }
+}
+
+/* ── 4. CHAT VIEW: Diya row — smaller, doesn't cover suggestion cards ── */
+@media (max-width: 640px) {
+  .diya-row {
+    /* Reduce diya size + use less vertical space */
+    gap: 8px !important;
+    padding: 4px 16px 6px !important;
+    justify-content: center !important;
+  }
+  .diya {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 20px !important;
+  }
+}
+
+/* ── 5. CHAT MESSAGES: Fix user bubble layout on narrow screens ── */
+@media (max-width: 640px) {
+  /* Both user & assistant messages use single column, avatar left */
+  .message,
+  .message.user {
+    grid-template-columns: 30px 1fr !important;
+    gap: 8px !important;
+    align-items: flex-start !important;
+  }
+
+  /* User avatar — restore to column 1 for clean left-to-right reading */
+  .message.user .message-avatar {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  /* User message bubble — right of the avatar, full available width */
+  .message.user > div {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    justify-self: stretch !important;
+    max-width: 100% !important;
+    text-align: left !important;
+  }
+
+  /* User bubble pill corners */
+  .message.user p {
+    border-radius: 6px 18px 18px 6px !important;
+  }
+
+  /* Avatars */
+  .message-avatar {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 11px !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Assistant message card padding */
+  .message.assistant > div {
+    padding: 14px 16px !important;
+    border-radius: 6px 16px 16px 16px !important;
+  }
+
+  /* Message text */
+  .message p, .rich-line {
+    font-size: 14.5px !important;
+    line-height: 1.65 !important;
+  }
+}
+
+/* ── 6. COMPOSER: Fix overlap + safe-area on iOS ── */
+@media (max-width: 640px) {
+  .composer-wrap {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 8 !important;
+    width: calc(100% - 16px) !important;
+    padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+    background: linear-gradient(180deg, transparent, var(--panel, #1a1b2e) 24%) !important;
+  }
+
+  .composer {
+    border-radius: 16px !important;
+    padding: 8px 8px 8px 14px !important;
+    gap: 8px !important;
+  }
+
+  .composer textarea {
+    font-size: 15px !important;
+    min-height: 36px !important;
+    padding: 6px 0 !important;
+  }
+
+  .send-button {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 10px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .composer-note {
+    font-size: 10px !important;
+    padding-bottom: 2px !important;
+  }
+
+  /* Quick prompt toolbar — horizontal scroll, no wrap */
+  .composer-toolbar {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    margin-bottom: 8px !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .composer-toolbar::-webkit-scrollbar { display: none !important; }
+  .composer-toolbar button {
+    min-width: max-content !important;
+    white-space: nowrap !important;
+    padding: 0 11px !important;
+    min-height: 32px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* ── 7. TOPBAR: Better mobile topbar layout ── */
+@media (max-width: 640px) {
+  .topbar {
+    height: 58px !important;
+    padding-inline: 12px !important;
+    gap: 8px !important;
+    overflow: visible !important; /* allow mode toast to show */
+  }
+
+  /* Topbar center — shrink mode toggle label text on narrow */
+  .topbar-center { gap: 8px !important; }
+
+  .mode-pill-btn-label-text {
+    display: none !important; /* emoji only — save horizontal space */
+  }
+  .mode-pill-btn {
+    padding: 5px 7px !important;
+    font-size: 0.85rem !important; /* bigger emoji */
+    gap: 0 !important;
+  }
+
+  /* Mode toggle group tighter */
+  .mode-toggle-group {
+    padding: 2px !important;
+    border-radius: 20px !important;
+  }
+
+  /* Topbar actions — tighter on mobile */
+  .topbar-actions { gap: 5px !important; }
+  .topbar-actions .icon-button {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 9px !important;
+  }
+  .user-avatar {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* ── 8. SIDEBAR: Better touch targets on mobile ── */
+@media (max-width: 640px) {
+  .sidebar { width: min(300px, 86vw) !important; }
+  .sidebar-header { padding-bottom: 16px !important; }
+  .sidebar-title { font-size: 12px !important; }
+
+  .conversation-item {
+    padding: 12px 10px !important;
+    border-radius: 11px !important;
+  }
+  .conversation-title { font-size: 13px !important; }
+  .conversation-time { font-size: 10.5px !important; }
+
+  /* Delete button — always visible on mobile (touch device) */
+  .conversation-delete { opacity: 0.7 !important; }
+
+  .logout-button {
+    padding: 11px 14px !important;
+    font-size: 13px !important;
+  }
+
+  .user-profile { padding: 10px !important; }
+  .user-info strong { font-size: 12px !important; }
+  .avatar { width: 32px !important; height: 32px !important; font-size: 12px !important; border-radius: 8px !important; }
+}
+
+/* ── 9. LANDING PAGE SECTION CARDS: Proper padding on mobile ── */
+@media (max-width: 640px) {
+  /* Video example cards */
+  .video-example-card, .scripture-book-card {
+    border-radius: 12px !important;
+  }
+
+  /* Feature/capability cards */
+  .capability-card {
+    min-height: auto !important;
+    padding: 20px 18px !important;
+  }
+  .capability-card h3 { font-size: 22px !important; margin-top: 40px !important; }
+  .capability-card p { font-size: 13px !important; }
+
+  /* Section headings */
+  .section-heading h2, .closing-section h2 {
+    font-size: clamp(36px, 10vw, 52px) !important;
+  }
+
+  /* Possibilities section padding */
+  .possibilities { padding: 60px 16px 80px !important; }
+
+  /* Closing CTA section */
+  .closing-section { padding: 70px 20px !important; min-height: auto !important; }
+}
+
+/* ── 10. REASONING BOX: Compact on mobile ── */
+@media (max-width: 640px) {
+  .reasoning-container { border-radius: 10px !important; }
+  .reasoning-header-btn { padding: 7px 10px !important; font-size: 0.76rem !important; }
+  .reasoning-text-stream { font-size: 0.78rem !important; }
+  .reasoning-text-stream.stream-expanded { max-height: 220px !important; }
+}
+

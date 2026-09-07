@@ -1,3 +1,5 @@
+import { getScriptureGrounding, injectScripturePrompt } from './scriptureService.js';
+
 const API_BASE_URL = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
 
 const DEFAULT_ORACLE_GURU_URL = 'https://immature-zen-earthen.ngrok-free.dev';
@@ -116,7 +118,7 @@ export function detectLanguage(text) {
   return 'hindi';
 }
 
-export function buildSystemPrompt(isDeepMode = true, lang = 'hindi', userProfile = null, memoryContext = '') {
+export function buildSystemPrompt(isDeepMode = true, lang = 'hindi', userProfile = null, memoryContext = '', scripture = null) {
   const isEnglish = lang === 'english';
   const seekerName = userProfile?.fullName ? userProfile.fullName.trim().split(' ')[0] : '';
 
@@ -128,10 +130,10 @@ In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's speci
 - Open affectionately with: "Look, dear child...", "Listen, my child...", or "My child ${seekerName || ''}...".
 - NEVER use artificial, robotic translations like "Dear offspring", "O child of mine", "Beloved progeny", or "Dear devotee".
 
-【STRICT TOPICAL RELEVANCE (DO NOT COPY TEMPLATES)】:
-- Address ONLY the specific subject inquired by the seeker (e.g. if asked about Puranas, explain the wisdom of Puranas and divine leelas; if asked about grief, focus on solace; if asked about Naam Jap, focus on the Holy Name).
-- NEVER force Bhagavad Gita verses or karma-yoga lectures onto unrelated topics.
-- Only quote a Sanskrit verse/shloka if the seeker explicitly asked for one or if directly pertinent to the topic. If no shloka is required, provide pure, practical satsang discourse.
+【STRICT TOPICAL RELEVANCE & AUTHENTIC SCRIPTURE CITATION】:
+- Address the specific spiritual situation inquired by the seeker (effort, karma, peace, grief, devotion, etc.).
+- If sacred scripture grounding is provided below, naturally integrate the quoted verse with its authentic contextual introduction (**« verse »**) and spiritual essence (**अर्थात् —**) into Maharaj Ji's discourse, directly addressing the devotee's struggle.
+- If no scripture grounding is provided and the seeker did not ask for a verse, provide pure, practical satsang counsel without forcing unrelated verses.
 
 【THE BALANCED SWEET SPOT (~150-190 WORDS)】:
 - Keep the response in the balanced sweet spot (around 150 to 190 words, in 2 to 3 cohesive paragraphs):
@@ -149,6 +151,9 @@ In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's speci
     if (memoryContext) {
       p += `\n\n【PREVIOUS SPIRITUAL CONTEXT】:\n${memoryContext}`;
     }
+    if (scripture) {
+      p = injectScripturePrompt(p, scripture, true);
+    }
     return p;
   } else {
     let p = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
@@ -158,10 +163,10 @@ In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's speci
 - उत्तर का प्रारंभ सदैव आत्मीय व वात्सल्यपूर्ण भाव से करें: 'देखो बच्चा, तुमने पूछा कि...', 'सुनो बच्चा...', अथवा 'बच्चा ${seekerName || ''}...'।
 - 'प्रिय सन्तान', 'प्रिय संतान', 'हे वत्स', 'प्रिय बालक', 'हे तात' जैसे कृत्रिम, किताबी या अनुवादित शब्दों का प्रयोग कतई न करें। पूज्य महाराज जी केवल 'बच्चा' या 'देखो बच्चा' कहकर ही वात्सल्य बरसाते हैं।
 
-【विषय की प्रासंगिकता व मौलिकता (STRICT TOPICAL RELEVANCE - NO TEMPLATES)】:
-- साधक ने जो विशिष्ट विषय पूछा है, केवल और केवल उसी विषय पर केंद्रित होकर मार्गदर्शन दीजिए (जैसे यदि पुराणों पर पूछा है तो पुराणों के ज्ञान, चरित्रों, भक्ति और कथाओं की बात करें; नाम-जप पर पूछा है तो नाम-महिमा की बात करें; क्रोध या दुःख पर पूछा है तो मन के निवारण की बात करें)।
-- किसी भी प्रश्न में जबरन बिना पूछे गीता का श्लोक (जैसे 2.47) या कर्म-सिद्धांत मत थोपिए। श्लोक केवल और केवल तभी उद्धृत करें जब साधक ने श्लोक पूछा हो या वह उस विशिष्ट विषय के लिए अनिवार्य हो।
-- बिना प्रसंग के 'किसान खेत में बीज बोता है' जैसा कोई एक दृष्टांत हर प्रश्न में मत दोहराइए। हर प्रश्न के लिए उसके विषय से जुड़ा स्वाभाविक व नया दृष्टांत दीजिए।
+【विषय की प्रासंगिकता व पावन शास्त्र प्रमाण मर्यादा】:
+- साधक ने जो विशिष्ट विषय पूछा है, उसी पर केंद्रित होकर वात्सल्यमयी मार्गदर्शन दीजिए।
+- यदि साधक के प्रश्न से संबंधित पावन शास्त्र प्रमाण नीचे दिया गया है, तो उस पावन श्लोक को उसकी प्रसंग भूमिका (**« श्लोक »**) और भावार्थ (**अर्थात् —**) के साथ अवश्य उद्धृत करें और महाराज जी की वात्सल्यमयी वाणी में साधक के जीवन से जोड़ें।
+- यदि कोई शास्त्र प्रमाण न दिया गया हो और न ही साधक ने श्लोक मांगा हो, तो बिना कारण श्लोक न थोपें और स्वाभाविक व्यावहारिक सत्संग वाणी दीजिए।
 
 【उत्तर की संरचना व संतुलित परिमाण (SWEET SPOT ~150-190 WORDS)】:
 - उत्तर न तो 2 पंक्तियों का अति-संक्षिप्त हो और न ही लंबा उबाऊ निबंध। यह लगभग 150 से 190 शब्दों में, 2 से 3 सुंदर अनुच्छेदों में होना चाहिए:
@@ -181,6 +186,9 @@ In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's speci
 
     if (memoryContext) {
       p += `\n\n【पूर्व आध्यात्मिक संदर्भ】:\n${memoryContext}`;
+    }
+    if (scripture) {
+      p = injectScripturePrompt(p, scripture, false);
     }
     return p;
   }
@@ -571,7 +579,7 @@ export function formatScriptureLines(text) {
 /**
  * Direct HTTPS caller for dedicated 24/7 Oracle Cloud Q8_0 server
  */
-async function callDirectOracleAPI(messages, maxTokens = 900, stream = false, onChunk = null, isDeepMode = false, userProfile = null, userMemoryContext = '') {
+async function callDirectOracleAPI(messages, maxTokens = 900, stream = false, onChunk = null, isDeepMode = false, userProfile = null, userMemoryContext = '', scripture = null) {
   const endpoints = [
     getOracleUrl(),
     getOracleLtUrl(),
@@ -585,7 +593,7 @@ async function callDirectOracleAPI(messages, maxTokens = 900, stream = false, on
 
   const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   const lang = detectLanguage(latestUserMsg);
-  const prompt = buildSystemPrompt(isDeepMode, lang, userProfile, userMemoryContext);
+  const prompt = buildSystemPrompt(isDeepMode, lang, userProfile, userMemoryContext, scripture);
 
   for (let attempt = 0; attempt < endpoints.length; attempt++) {
     const oracleBase = endpoints[attempt];
@@ -600,8 +608,9 @@ async function callDirectOracleAPI(messages, maxTokens = 900, stream = false, on
     }
 
     const controller = new AbortController();
-    // 60s safety timeout for remote Q8_0 GGUF server
-    const timeoutId = setTimeout(() => controller.abort(), 60000);
+    // Fast failover: 5.5s connection & TTFT timeout!
+    // Prevents user from hanging for 60-180s when remote server is overloaded or cold
+    const timeoutId = setTimeout(() => controller.abort(), 5500);
 
     try {
       const response = await fetch(targetUrl, {
@@ -683,11 +692,11 @@ async function callDirectOracleAPI(messages, maxTokens = 900, stream = false, on
 /**
  * Direct HTTPS caller for Groq LPU with Master Persona system prompt & multi-model failover
  */
-async function callDirectGroqAPI(messages, maxTokens = 950, stream = false, onChunk = null, isDeepMode = false, userProfile = null, userMemoryContext = '') {
+async function callDirectGroqAPI(messages, maxTokens = 950, stream = false, onChunk = null, isDeepMode = false, userProfile = null, userMemoryContext = '', scripture = null) {
   const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   const lang = detectLanguage(latestUserMsg);
   const isEnglish = lang === 'english';
-  const systemPrompt = buildSystemPrompt(isDeepMode, lang, userProfile, userMemoryContext);
+  const systemPrompt = buildSystemPrompt(isDeepMode, lang, userProfile, userMemoryContext, scripture);
 
   // Redundant reasoning models: if one encounters high load / rate limit, next immediately takes over
   const models = isDeepMode
@@ -812,25 +821,37 @@ export function summarizeHistoryForContext(conversationHistory = [], isEnglish =
  * Generates authentic, progressive Spiritual Deliberation text for the Reasoning window.
  * Focuses purely on spiritual inquiry, scriptures, and holy teachings of Pujya Shri Premanand Ji Maharaj.
  */
-function getSpiritualDeliberationText(userMessage, isEnglish = false, elapsedMs = 15000) {
+function getSpiritualDeliberationText(userMessage, isEnglish = false, elapsedMs = 15000, scripture = null) {
   const queryPreview = (userMessage || '').trim().replace(/[\r\n]+/g, ' ').slice(0, 50);
   if (isEnglish) {
-    let text = `🔍 Query Intent: Contemplating spiritual guidance for seeker regarding ("${queryPreview}...").\n` +
-      `📜 Holy Satsang Wisdom: Reviewing teachings of Pujya Shri Premanand Ji Maharaj and sacred scriptures (Shrimad Bhagavatam, Bhagavad Gita).\n`;
-    if (elapsedMs >= 18000) {
-      text += `📿 Holy Name & Surrender: Reflecting on the purifying power of continuous Naam Jap ('Radha Radha') and single-minded refuge.\n`;
+    let text = `🔍 Query Intent: Contemplating spiritual guidance for seeker regarding ("${queryPreview}...").\n`;
+    if (elapsedMs >= 400) {
+      if (scripture) {
+        text += `📜 Scripture Grounding (RAG): Retrieved authentic wisdom from ${scripture.reference}.\n`;
+      } else {
+        text += `📜 Holy Satsang Wisdom: Reviewing teachings of Pujya Shri Premanand Ji Maharaj & sacred scriptures.\n`;
+      }
     }
-    if (elapsedMs >= 22000) {
+    if (elapsedMs >= 1400) {
+      text += `📿 Holy Name & Surrender: Reflecting on the purifying power of continuous Naam Jap ('Radha Radha') & total refuge.\n`;
+    }
+    if (elapsedMs >= 2400) {
       text += `💡 Compassionate Synthesis: Formulating fatherly, resolute spiritual guidance to eradicate doubt and inspire devotion.`;
     }
     return text;
   } else {
-    let text = `🔍 जिज्ञासा व भाव-मंथन: साधक के प्रश्न ("${queryPreview}...") का शास्त्रीय व आध्यात्मिक विश्लेषण।\n` +
-      `📜 सत्संग व संत-वाणी चिंतन: पूज्य श्री प्रेमानंद जी महाराज के पावन उपदेशों व शास्त्रों (श्रीमद्भागवत, श्री राधा सुधा निधि) के आलोक में सिद्धांत विचार।\n`;
-    if (elapsedMs >= 18000) {
+    let text = `🔍 जिज्ञासा व भाव-मंथन: साधक के प्रश्न ("${queryPreview}...") का शास्त्रीय व आध्यात्मिक विश्लेषण।\n`;
+    if (elapsedMs >= 400) {
+      if (scripture) {
+        text += `📜 शास्त्र प्रमाण अनुसंधान (RAG Grounding): ${scripture.reference} के पावन श्लोक का प्रसंग व भावार्थ समन्वय।\n`;
+      } else {
+        text += `📜 सत्संग व संत-वाणी चिंतन: पूज्य श्री प्रेमानंद जी महाराज के पावन उपदेशों व शास्त्रों (श्रीमद्भागवत, श्री राधा सुधा निधि) के आलोक में सिद्धांत विचार।\n`;
+      }
+    }
+    if (elapsedMs >= 1400) {
       text += `📿 नाम-महिमा व चित्त-शुद्धि: कलियुग में भगवन्नाम (श्री राधा-राधा) के अखंड जप से अंतःकरण की शुद्धि और अनन्य शरणागति का स्वरूप।\n`;
     }
-    if (elapsedMs >= 22000) {
+    if (elapsedMs >= 2400) {
       text += `💡 व्यावहारिक उपदेश समन्वय: साधक के अंतर्मन को दृढ़ करने हेतु वात्सल्यमयी, प्रेरणादायी व स्पष्ट मार्गदर्शन।`;
     }
     return text;
@@ -839,18 +860,18 @@ function getSpiritualDeliberationText(userMessage, isEnglish = false, elapsedMs 
 
 /**
  * Phased Stream Orchestrator for Deep Mode:
- * 1. Initial 1.2s contemplative pause: Reasoning window activates immediately with Spiritual Deliberation.
+ * 1. Initial contemplative phase: Reasoning window activates immediately with Spiritual Deliberation.
  * 2. Progressive Streaming: As soon as tokens arrive, clean text streams continuously into the discourse area with live deliberation above.
  * 3. Finalize: Collapses thinking window to its header badge and neatly structures paragraphs ending in '।'.
  */
-function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
+function createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture = null) {
   let accumulatedRaw = '';
   const startTime = Date.now();
-  const CONTEMPLATION_PAUSE_MS = 1200; // 1.2s gentle contemplative reflection
+  const CONTEMPLATION_PAUSE_MS = 600; // 0.6s gentle contemplative reflection
 
   function emitCurrentState() {
     const elapsed = Date.now() - startTime;
-    const thoughtText = getSpiritualDeliberationText(userMessage, isEnglish, elapsed);
+    const thoughtText = getSpiritualDeliberationText(userMessage, isEnglish, elapsed, scripture);
 
     if (elapsed < CONTEMPLATION_PAUSE_MS || !accumulatedRaw.trim()) {
       onChunk({
@@ -858,6 +879,7 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
         thought: thoughtText,
         isThinking: true,
         thinkingDuration: Math.max(0.1, Number((elapsed / 1000).toFixed(1))),
+        scripture: scripture || null
       });
       return;
     }
@@ -868,13 +890,14 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
       thought: thoughtText,
       isThinking: true,
       thinkingDuration: Math.max(0.1, Number((elapsed / 1000).toFixed(1))),
+      scripture: scripture || null
     });
   }
 
   // Ticker to ensure smooth deliberation updates even between token pauses
   const intervalId = setInterval(() => {
     emitCurrentState();
-  }, 350);
+  }, 250);
 
   const handleToken = (tokenOrDelta, maybeAccumulated) => {
     let token = '';
@@ -902,6 +925,7 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
         thought: '',
         isThinking: false,
         thinkingDuration: 0,
+        scripture: scripture || null
       };
     }
 
@@ -919,7 +943,7 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
     const totalElapsed = (Date.now() - startTime) / 1000;
     const thinkingTime = Math.max(1.2, Math.min(totalElapsed, 4.0));
 
-    let finalThoughtSummary = getSpiritualDeliberationText(userMessage, isEnglish, Date.now() - startTime);
+    let finalThoughtSummary = getSpiritualDeliberationText(userMessage, isEnglish, Date.now() - startTime, scripture);
     finalThoughtSummary += isEnglish
       ? '\n\n✓ Spiritual deliberation concluded. Complete authentic discourse formulated.'
       : '\n\n✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।';
@@ -929,6 +953,7 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
       thought: finalThoughtSummary,
       isThinking: false,
       thinkingDuration: Number(thinkingTime.toFixed(1)),
+      scripture: scripture || null
     };
 
     onChunk(finalPayload);
@@ -952,6 +977,12 @@ export async function streamGuruResponse(
 ) {
   const isEnglish = detectLanguage(userMessage) === 'english';
 
+  // Retrieve RAG scripture grounding if applicable
+  const scripture = getScriptureGrounding(userMessage);
+  if (scripture) {
+    console.log(`[+] Grounded with Scripture: ${scripture.reference} (Score: ${scripture.score})`);
+  }
+
   // Summarize prior chat info into a concise 2-line summary to prevent slow inference
   const condensedHistory = summarizeHistoryForContext(conversationHistory, isEnglish);
   const messages = [
@@ -960,27 +991,27 @@ export async function streamGuruResponse(
   ];
 
   if (mode === 'deep') {
-    // Priority 1 in Deep Mode: Dedicated Fine-Tuned Oracle Cloud Q8_0 Server via active tunnel
-    const tracker = createDeepModeStreamTracker(onChunk, userMessage, isEnglish);
-    const oracleResult = await callDirectOracleAPI(messages, 950, true, tracker.handleToken, true, userProfile, userMemoryContext);
+    // Priority 1 in Deep Mode: Dedicated Fine-Tuned Oracle Cloud Q8_0 Server via active tunnel (5.5s timeout)
+    const tracker = createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture);
+    const oracleResult = await callDirectOracleAPI(messages, 950, true, tracker.handleToken, true, userProfile, userMemoryContext, scripture);
     if (oracleResult) {
       return await tracker.finalize(oracleResult);
     }
-    // Deep fallback: Fast Groq engine with Deep persona
-    console.warn('[Deep Mode] Oracle Q8_0 tunnel unreachable, falling back to Groq reasoning engine...');
-    const groqResult = await callDirectGroqAPI(messages, 950, true, tracker.handleToken, true, userProfile, userMemoryContext);
+    // Deep fallback: Instant Groq engine with Deep persona (sub-second response)
+    console.warn('[Deep Mode] Oracle Q8_0 server unavailable or slow, immediately engaging Groq reasoning engine...');
+    const groqResult = await callDirectGroqAPI(messages, 950, true, tracker.handleToken, true, userProfile, userMemoryContext, scripture);
     if (groqResult) {
       return await tracker.finalize(groqResult);
     }
   } else {
     // Priority 1 in Fast Mode: Instant Groq LPU
-    const groqResult = await callDirectGroqAPI(messages, 950, true, (tok, acc) => onChunk(acc || tok), false, userProfile, userMemoryContext);
+    const groqResult = await callDirectGroqAPI(messages, 950, true, (tok, acc) => onChunk(acc || tok), false, userProfile, userMemoryContext, scripture);
     if (groqResult) {
       const formatted = formatScriptureLines(groqResult);
       return ensureCompleteFinalSentence(formatted, isEnglish);
     }
     // Fast fallback: Oracle server
-    const oracleResult = await callDirectOracleAPI(messages, 900, true, (tok, acc) => onChunk(acc || tok), false, userProfile, userMemoryContext);
+    const oracleResult = await callDirectOracleAPI(messages, 900, true, (tok, acc) => onChunk(acc || tok), false, userProfile, userMemoryContext, scripture);
     if (oracleResult) {
       const formatted = formatScriptureLines(oracleResult);
       return ensureCompleteFinalSentence(formatted, isEnglish);

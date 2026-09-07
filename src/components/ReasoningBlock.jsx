@@ -19,6 +19,8 @@ export default function ReasoningBlock({
   const [elapsed, setElapsed] = useState(0);
   const streamRef = useRef(null);
 
+  const [displayedThought, setDisplayedThought] = useState(thought || '');
+
   useEffect(() => {
     let interval = null;
     if (isThinking) {
@@ -39,12 +41,42 @@ export default function ReasoningBlock({
     };
   }, [isThinking, duration]);
 
+  // Progressive typewriter effect during active thinking
+  useEffect(() => {
+    if (!isThinking) {
+      setDisplayedThought(thought || '');
+      return;
+    }
+
+    if (!thought) {
+      setDisplayedThought('');
+      return;
+    }
+
+    if (displayedThought === thought) return;
+
+    const diff = thought.length - displayedThought.length;
+    if (diff < 0) {
+      setDisplayedThought(thought);
+      return;
+    }
+
+    const step = diff > 40 ? 4 : diff > 15 ? 2 : 1;
+    const speed = diff > 40 ? 10 : 18;
+
+    const timer = setTimeout(() => {
+      setDisplayedThought(thought.slice(0, displayedThought.length + step));
+    }, speed);
+
+    return () => clearTimeout(timer);
+  }, [thought, displayedThought, isThinking]);
+
   // Auto-scroll stream to bottom as thoughts are typed (when in compact mode)
   useEffect(() => {
     if (streamRef.current && isThinking && !isExpanded) {
       streamRef.current.scrollTop = streamRef.current.scrollHeight;
     }
-  }, [thought, isThinking, isExpanded]);
+  }, [displayedThought, isThinking, isExpanded]);
 
   const displayTime = duration > 0 ? duration.toFixed(1) : elapsed.toFixed(1);
 
@@ -98,7 +130,7 @@ export default function ReasoningBlock({
                 className={`reasoning-text-stream ${isExpanded ? 'stream-expanded' : 'stream-compact'}`}
                 ref={streamRef}
               >
-                {thought}
+                {displayedThought}
                 {isThinking && <span className="reasoning-blinking-cursor" aria-hidden="true" />}
               </div>
 
