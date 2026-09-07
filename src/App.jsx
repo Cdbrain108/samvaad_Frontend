@@ -500,7 +500,8 @@ export default function App() {
               subsequentContent: update.subsequentContent || '',
               thought: update.thought || '',
               isThinking: Boolean(update.isThinking),
-              thinkingDuration: update.thinkingDuration || 0
+              thinkingDuration: update.thinkingDuration || 0,
+              scripture: update.scripture || null
             }]);
           }
         }
@@ -512,6 +513,7 @@ export default function App() {
       const finalCleanContent = (typeof streamResult === 'string' ? streamResult : streamResult?.content) || 'राधे राधे';
       const finalThought = typeof streamResult === 'object' ? (streamResult.thought || '') : '';
       const finalDuration = typeof streamResult === 'object' ? (streamResult.thinkingDuration || 0) : 0;
+      const finalScripture = typeof streamResult === 'object' ? (streamResult.scripture || null) : null;
 
       const finalizedAssistantMsg = {
         role: 'assistant',
@@ -521,6 +523,7 @@ export default function App() {
         thought: finalThought,
         isThinking: false,
         thinkingDuration: finalDuration,
+        scripture: finalScripture,
         timestamp: new Date(),
         mode: inferenceMode
       };
@@ -870,9 +873,16 @@ export default function App() {
                       <div className="message-sender-row">
                         <strong>{message.role === 'user' ? 'You' : 'Samvaad'}</strong>
                         {message.role === 'assistant' && (
-                          <span className={`engine-tag ${message.mode === 'deep' ? 'tag-deep' : 'tag-fast'}`}>
-                            {message.mode === 'deep' ? '🧘 Oracle Q8_0' : '⚡ Fast LPU'}
-                          </span>
+                          <div className="engine-tags-wrapper">
+                            <span className={`engine-tag ${message.mode === 'deep' ? 'tag-deep' : 'tag-fast'}`}>
+                              {message.mode === 'deep' ? '🧘 Oracle Q8_0' : '⚡ Fast LPU'}
+                            </span>
+                            {message.scripture && (
+                              <span className="rag-verified-badge" title={`Scripture Grounded: ${message.scripture.reference || ''}`}>
+                                📜 RAG Grounded
+                              </span>
+                            )}
+                          </div>
                         )}
                       </div>
                       {message.role === 'assistant' ? (
@@ -883,7 +893,31 @@ export default function App() {
                               thought={message.thought}
                               isThinking={message.isThinking}
                               duration={message.thinkingDuration}
+                              scripture={message.scripture}
                             />
+                          )}
+
+                          {/* Sacred Scripture Grounding Card (Showcases authentic RAG retrieval) */}
+                          {message.scripture && (
+                            <div className="scripture-grounding-card">
+                              <div className="scripture-card-header">
+                                <div className="scripture-card-header-left">
+                                  <span className="scripture-card-icon">📜</span>
+                                  <span className="scripture-card-title">शास्त्र प्रमाण (Sacred Scripture RAG)</span>
+                                </div>
+                                <span className="scripture-card-ref">{message.scripture.reference}</span>
+                              </div>
+                              {message.scripture.original_text && (
+                                <div className="scripture-card-verse">
+                                  « {message.scripture.original_text} »
+                                </div>
+                              )}
+                              {(message.scripture.hindi_meaning || message.scripture.english_translation) && (
+                                <div className="scripture-card-meaning">
+                                  <span className="scripture-meaning-label">अर्थ:</span> {message.scripture.hindi_meaning || message.scripture.english_translation}
+                                </div>
+                              )}
+                            </div>
                           )}
 
                           {/* The entire response flows together in one unbroken, beautiful stream below the reasoning box */}

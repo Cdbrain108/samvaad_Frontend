@@ -884,9 +884,9 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture 
       return;
     }
 
-    const cleanResult = deduplicateRepetitionLoops(accumulatedRaw.trim(), isEnglish);
+    // Live tokens stream directly for smooth, continuous character-by-character typing animation
     onChunk({
-      content: cleanResult || accumulatedRaw.trim(),
+      content: accumulatedRaw.trim(),
       thought: thoughtText,
       isThinking: true,
       thinkingDuration: Math.max(0.1, Number((elapsed / 1000).toFixed(1))),
@@ -915,6 +915,10 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture 
     emitCurrentState();
   };
 
+  const resetAccumulated = () => {
+    accumulatedRaw = '';
+  };
+
   const finalize = async (finalRaw) => {
     clearInterval(intervalId);
 
@@ -929,16 +933,8 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture 
       };
     }
 
-    // Format and segment discourse into 2-3 structured paragraphs ending in '।' with a 3.5s timeout guarantee
-    let finalFramedDiscourse = '';
-    try {
-      finalFramedDiscourse = await Promise.race([
-        formatAndSegmentFineTunedDiscourse(raw, userMessage, isEnglish),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Format timeout')), 3500))
-      ]);
-    } catch {
-      finalFramedDiscourse = segmentAndFormatDiscourseNative(raw, isEnglish);
-    }
+    // Instant, native segmentation - zero delay, no 3.5s blocking freeze, preserves real-time stream
+    const finalFramedDiscourse = segmentAndFormatDiscourseNative(raw, isEnglish);
 
     const totalElapsed = (Date.now() - startTime) / 1000;
     const thinkingTime = Math.max(1.2, Math.min(totalElapsed, 4.0));
@@ -960,7 +956,7 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture 
     return finalPayload;
   };
 
-  return { handleToken, finalize };
+  return { handleToken, finalize, resetAccumulated };
 }
 
 /**
@@ -993,33 +989,61 @@ export async function streamGuruResponse(
   if (mode === 'deep') {
     // Priority 1 in Deep Mode: Dedicated Fine-Tuned Oracle Cloud Q8_0 Server via active tunnel (5.5s timeout)
     const tracker = createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture);
-    const oracleResult = await callDirectOracleAPI(messages, 950, true, tracker.handleToken, true, userProfile, userMemoryContext, scripture);
+    const oracleResult = await callDirectOracleAPI(messages, 380, true, tracker.handleToken, true, userProfile, userMemoryContext, scripture);
     if (oracleResult) {
       return await tracker.finalize(oracleResult);
     }
     // Deep fallback: Instant Groq engine with Deep persona (sub-second response)
     console.warn('[Deep Mode] Oracle Q8_0 server unavailable or slow, immediately engaging Groq reasoning engine...');
-    const groqResult = await callDirectGroqAPI(messages, 950, true, tracker.handleToken, true, userProfile, userMemoryContext, scripture);
+    tracker.resetAccumulated();
+    const groqResult = await callDirectGroqAPI(messages, 450, true, tracker.handleToken, true, userProfile, userMemoryContext, scripture);
     if (groqResult) {
       return await tracker.finalize(groqResult);
     }
   } else {
     // Priority 1 in Fast Mode: Instant Groq LPU
-    const groqResult = await callDirectGroqAPI(messages, 950, true, (tok, acc) => onChunk(acc || tok), false, userProfile, userMemoryContext, scripture);
+    const groqResult = await callDirectGroqAPI(
+      messages,
+      450,
+      true,
+      (tok, acc) => onChunk({ content: acc || tok, scripture: scripture || null }),
+      false,
+      userProfile,
+      userMemoryContext,
+      scripture
+    );
     if (groqResult) {
       const formatted = formatScriptureLines(groqResult);
-      return ensureCompleteFinalSentence(formatted, isEnglish);
+      return {
+        content: ensureCompleteFinalSentence(formatted, isEnglish),
+        scripture: scripture || null
+      };
     }
     // Fast fallback: Oracle server
-    const oracleResult = await callDirectOracleAPI(messages, 900, true, (tok, acc) => onChunk(acc || tok), false, userProfile, userMemoryContext, scripture);
+    const oracleResult = await callDirectOracleAPI(
+      messages,
+      380,
+      true,
+      (tok, acc) => onChunk({ content: acc || tok, scripture: scripture || null }),
+      false,
+      userProfile,
+      userMemoryContext,
+      scripture
+    );
     if (oracleResult) {
       const formatted = formatScriptureLines(oracleResult);
-      return ensureCompleteFinalSentence(formatted, isEnglish);
+      return {
+        content: ensureCompleteFinalSentence(formatted, isEnglish),
+        scripture: scripture || null
+      };
     }
   }
 
   const seekerName = userProfile?.fullName ? userProfile.fullName.split(' ')[0] : 'बच्चा';
-  return `राधे राधे ${seekerName}! मन को शांत रखिए और भगवन्नाम (राधा नाम) का आश्रय लीजिए। प्रभु सब मंगल करेंगे।`;
+  return {
+    content: `राधे राधे ${seekerName}! मन को शांत रखिए और भगवन्नाम (राधा नाम) का आश्रय लीजिए। प्रभु सब मंगल करेंगे।`,
+    scripture: scripture || null
+  };
 }
 
 /**

@@ -1525,6 +1525,136 @@ html, body { max-width: 100%; overflow-x: hidden; }
   width: 100%;
 }
 
+/* --- Engine & RAG Grounded Badges in Header --- */
+.engine-tags-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.rag-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.38);
+  color: #fbbf24;
+  letter-spacing: 0.01em;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.12);
+  transition: all 0.2s ease;
+}
+
+.rag-verified-badge:hover {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: rgba(245, 158, 11, 0.6);
+  color: #fef08a;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+}
+
+.reasoning-rag-pill {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+}
+
+/* --- Sacred Scripture Grounding Showcase Card --- */
+.scripture-grounding-card {
+  margin: 4px 0 10px 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(26, 18, 42, 0.85) 0%, rgba(18, 12, 30, 0.92) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.32);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), inset 0 0 16px rgba(245, 158, 11, 0.05);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.scripture-grounding-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, #f59e0b, #fbbf24, #d97706);
+  border-radius: 4px 0 0 4px;
+}
+
+.scripture-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.scripture-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scripture-card-icon {
+  font-size: 0.95rem;
+}
+
+.scripture-card-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fbbf24;
+  text-transform: uppercase;
+}
+
+.scripture-card-ref {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  color: #fde68a;
+  font-family: inherit;
+}
+
+.scripture-card-verse {
+  font-family: 'Rozha One', 'Martel', 'Georgia', serif;
+  font-size: 0.96rem;
+  line-height: 1.6;
+  color: #fef3c7;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.2);
+  margin: 6px 0 8px 0;
+  padding: 4px 0;
+  letter-spacing: 0.01em;
+}
+
+.scripture-card-meaning {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+  border-top: 1px dashed rgba(245, 158, 11, 0.2);
+  padding-top: 8px;
+}
+
+.scripture-meaning-label {
+  color: #f59e0b;
+  font-weight: 700;
+  margin-right: 4px;
+}
+
 /* --- Voice Clone Status Pill in Voice Mode & Header --- */
 .voice-clone-toggle-btn {
   display: inline-flex;

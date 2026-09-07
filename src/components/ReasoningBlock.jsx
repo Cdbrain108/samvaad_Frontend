@@ -13,6 +13,7 @@ export default function ReasoningBlock({
   thought = '',
   isThinking = false,
   duration = 0,
+  scripture = null,
 }) {
   const [isOpen, setIsOpen] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -32,8 +33,6 @@ export default function ReasoningBlock({
     } else {
       if (duration > 0) {
         setElapsed(duration);
-        // Auto-collapse completed thinking so devotee reads the pristine discourse undisturbed
-        setIsOpen(false);
       }
     }
     return () => {
@@ -41,13 +40,8 @@ export default function ReasoningBlock({
     };
   }, [isThinking, duration]);
 
-  // Progressive typewriter effect during active thinking
+  // Smooth, continuous progressive typewriter effect for thought stream
   useEffect(() => {
-    if (!isThinking) {
-      setDisplayedThought(thought || '');
-      return;
-    }
-
     if (!thought) {
       setDisplayedThought('');
       return;
@@ -61,15 +55,16 @@ export default function ReasoningBlock({
       return;
     }
 
-    const step = diff > 40 ? 4 : diff > 15 ? 2 : 1;
-    const speed = diff > 40 ? 10 : 18;
+    // Steady, readable typing pace so the deliberation visibly animates
+    const step = diff > 80 ? 3 : diff > 25 ? 2 : 1;
+    const speed = diff > 80 ? 18 : diff > 25 ? 26 : 34;
 
     const timer = setTimeout(() => {
       setDisplayedThought(thought.slice(0, displayedThought.length + step));
     }, speed);
 
     return () => clearTimeout(timer);
-  }, [thought, displayedThought, isThinking]);
+  }, [thought, displayedThought]);
 
   // Auto-scroll stream to bottom as thoughts are typed (when in compact mode)
   useEffect(() => {
@@ -104,6 +99,11 @@ export default function ReasoningBlock({
           <span className="reasoning-title-text">
             {isThinking ? 'चिंतन प्रक्रिया (Spiritual Deliberation)' : 'चिंतन संपन्न (Thought)'}
           </span>
+          {scripture && (
+            <span className="reasoning-rag-pill" title={`RAG Grounding: ${scripture.reference}`}>
+              📜 RAG Grounded
+            </span>
+          )}
           <span className="reasoning-timer-badge">
             {isThinking ? `${displayTime}s...` : `${displayTime}s`}
           </span>
@@ -131,7 +131,9 @@ export default function ReasoningBlock({
                 ref={streamRef}
               >
                 {displayedThought}
-                {isThinking && <span className="reasoning-blinking-cursor" aria-hidden="true" />}
+                {(isThinking || displayedThought.length < (thought || '').length) && (
+                  <span className="reasoning-blinking-cursor" aria-hidden="true" />
+                )}
               </div>
 
               {/* Continuation toggle: visible for 3-4 lines only unless devotee expands */}
