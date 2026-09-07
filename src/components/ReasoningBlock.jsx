@@ -55,9 +55,9 @@ export default function ReasoningBlock({
       return;
     }
 
-    // Steady, readable typing pace so the deliberation visibly animates
-    const step = diff > 80 ? 3 : diff > 25 ? 2 : 1;
-    const speed = diff > 80 ? 18 : diff > 25 ? 26 : 34;
+    // Steady, readable typing pace so the deliberation visibly animates character-by-character
+    const step = diff > 70 ? 2 : 1;
+    const speed = diff > 70 ? 16 : diff > 25 ? 22 : 28;
 
     const timer = setTimeout(() => {
       setDisplayedThought(thought.slice(0, displayedThought.length + step));
@@ -97,7 +97,7 @@ export default function ReasoningBlock({
             )}
           </span>
           <span className="reasoning-title-text">
-            {isThinking ? 'चिंतन प्रक्रिया (Spiritual Deliberation)' : 'चिंतन संपन्न (Thought)'}
+            {isThinking ? 'चिंतन प्रक्रिया (Spiritual Deliberation) · विचार-मंथन जारी...' : 'चिंतन संपन्न (Thought)'}
           </span>
           {scripture && (
             <span className="reasoning-rag-pill" title={`RAG Grounding: ${scripture.reference}`}>

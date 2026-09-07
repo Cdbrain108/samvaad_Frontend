@@ -819,40 +819,67 @@ export function summarizeHistoryForContext(conversationHistory = [], isEnglish =
  *   Completes promptly (in ~3-4 seconds).
 /**
  * Generates authentic, progressive Spiritual Deliberation text for the Reasoning window.
- * Focuses purely on spiritual inquiry, scriptures, and holy teachings of Pujya Shri Premanand Ji Maharaj.
+ * Continuously unfolds multi-phase spiritual contemplation throughout the entire inference duration.
  */
 function getSpiritualDeliberationText(userMessage, isEnglish = false, elapsedMs = 15000, scripture = null) {
   const queryPreview = (userMessage || '').trim().replace(/[\r\n]+/g, ' ').slice(0, 50);
+
   if (isEnglish) {
     let text = `🔍 Query Intent: Contemplating spiritual guidance for seeker regarding ("${queryPreview}...").\n`;
-    if (elapsedMs >= 400) {
+
+    if (elapsedMs >= 1500) {
       if (scripture) {
         text += `📜 Scripture Grounding (RAG): Retrieved authentic wisdom from ${scripture.reference}.\n`;
       } else {
         text += `📜 Holy Satsang Wisdom: Reviewing teachings of Pujya Shri Premanand Ji Maharaj & sacred scriptures.\n`;
       }
     }
-    if (elapsedMs >= 1400) {
-      text += `📿 Holy Name & Surrender: Reflecting on the purifying power of continuous Naam Jap ('Radha Radha') & total refuge.\n`;
+    if (elapsedMs >= 3800) {
+      text += `📿 Internal Dynamics: Analyzing root cause in accordance with modes of nature (gunas), mind, and past impressions.\n`;
     }
-    if (elapsedMs >= 2400) {
-      text += `💡 Compassionate Synthesis: Formulating fatherly, resolute spiritual guidance to eradicate doubt and inspire devotion.`;
+    if (elapsedMs >= 7000) {
+      text += `💡 Practical Regimen: Formulating daily discipline (Brahma Muhurta, mindfulness, and virtuous conduct).\n`;
+    }
+    if (elapsedMs >= 12000) {
+      text += `🌸 Compassionate Synthesis: Imbuing discourse with Maharaj Ji's fatherly warmth and profound spiritual assurance.\n`;
+    }
+    if (elapsedMs >= 18000) {
+      text += `🪔 Holy Name & Surrender: Centering guidance on constant remembrance ('Radha Radha') & total refuge in the Divine.\n`;
+    }
+    if (elapsedMs >= 25000) {
+      text += `🕊️ Spiritual Solace: Refining final expressions to instill lasting peace, steadfast patience, and loving devotion.\n`;
+    }
+    if (elapsedMs >= 32000) {
+      text += `✍️ Discourse Synthesis: Finalizing authentic satsang counsel with auspicious divine blessings.`;
     }
     return text;
   } else {
-    let text = `🔍 जिज्ञासा व भाव-मंथन: साधक के प्रश्न ("${queryPreview}...") का शास्त्रीय व आध्यात्मिक विश्लेषण।\n`;
-    if (elapsedMs >= 400) {
+    let text = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${queryPreview}...") का शास्त्रीय व आध्यात्मिक विश्लेषण।\n`;
+
+    if (elapsedMs >= 1500) {
       if (scripture) {
         text += `📜 शास्त्र प्रमाण अनुसंधान (RAG Grounding): ${scripture.reference} के पावन श्लोक का प्रसंग व भावार्थ समन्वय।\n`;
       } else {
         text += `📜 सत्संग व संत-वाणी चिंतन: पूज्य श्री प्रेमानंद जी महाराज के पावन उपदेशों व शास्त्रों (श्रीमद्भागवत, श्री राधा सुधा निधि) के आलोक में सिद्धांत विचार।\n`;
       }
     }
-    if (elapsedMs >= 1400) {
-      text += `📿 नाम-महिमा व चित्त-शुद्धि: कलियुग में भगवन्नाम (श्री राधा-राधा) के अखंड जप से अंतःकरण की शुद्धि और अनन्य शरणागति का स्वरूप।\n`;
+    if (elapsedMs >= 3800) {
+      text += `📿 आंतरिक स्थिति का विश्लेषण: त्रिगुण (सत्त्व-रज-तम), मन के पूर्व संस्कार और प्रारब्ध के प्रभाव का शास्त्रीय मंथन।\n`;
     }
-    if (elapsedMs >= 2400) {
-      text += `💡 व्यावहारिक उपदेश समन्वय: साधक के अंतर्मन को दृढ़ करने हेतु वात्सल्यमयी, प्रेरणादायी व स्पष्ट मार्गदर्शन।`;
+    if (elapsedMs >= 7000) {
+      text += `💡 व्यावहारिक दिनचर्या समन्वय: साधक के जीवन में ब्रह्ममुहूर्त, नियम, आचरण शुद्धि और सत्संग के व्यावहारिक उपायों का निर्धारण।\n`;
+    }
+    if (elapsedMs >= 12000) {
+      text += `🌸 वात्सल्यमयी मार्गदर्शन: पूज्य महाराज जी की एकांतिक वार्तालाप शैली में पिता-तुल्य स्नेह और संशय-निवारक वचनों की रचना।\n`;
+    }
+    if (elapsedMs >= 18000) {
+      text += `🪔 नाम-महिमा व शरणागति: कलियुग में अखंड भगवन्नाम (श्री राधा-राधा) के आश्रय से अंतःकरण की परम शुद्धि का भाव-संकलन।\n`;
+    }
+    if (elapsedMs >= 25000) {
+      text += `🕊️ चित्त-प्रसादन व समाधान: साधक के अंतर्मन में शांति, धैर्य और भक्ति-भाव को सुदृढ़ करने हेतु अमृतोपदेश संकलन।\n`;
+    }
+    if (elapsedMs >= 32000) {
+      text += `✍️ वाणी संकलन: पूज्य महाराज जी की प्रामाणिक शैली में मंगलकारी आशीर्वाद व पूर्ण उपदेश का संयोजन।`;
     }
     return text;
   }
