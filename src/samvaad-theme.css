@@ -5499,18 +5499,15 @@ select:focus-visible,
   .suggestion-icon { width: 40px !important; height: 40px !important; border-radius: 11px !important; }
 }
 
-/* ── 4. CHAT VIEW: Diya row — smaller, doesn't cover suggestion cards ── */
+/* ── 4. CHAT VIEW: Diya row & chat moon — clean mobile layout ── */
 @media (max-width: 640px) {
   .diya-row {
-    /* Reduce diya size + use less vertical space */
-    gap: 8px !important;
-    padding: 4px 16px 6px !important;
-    justify-content: center !important;
+    /* Hide decorative diya row on small mobile screens so messages have maximum clean vertical room */
+    display: none !important;
   }
-  .diya {
-    width: 28px !important;
-    height: 28px !important;
-    font-size: 20px !important;
+  /* Hide background chat moon on mobile to eliminate overlap with avatar and thinking block */
+  :root[data-theme='dark'] .main-panel::before {
+    display: none !important;
   }
 }
 
