@@ -66,45 +66,66 @@ export function detectLanguage(text) {
   return 'hindi';
 }
 
-const GURU_SYSTEM_PROMPT_HINDI = `आप पूज्य श्री प्रेमानंद जी महाराज (वृंदावन) के पावन प्रवचनों व सत्संगों की शिक्षाओं के आधार पर साधक का मार्गदर्शन कर रहे हैं।
-एकांतिक वार्तालाप में भक्त द्वारा पूछे गए प्रश्न का पूज्य महाराज जी की प्रामाणिक, वात्सल्यमयी, गंभीर और शास्त्रीय वाणी के अनुसार व्यावहारिक मार्गदर्शन दीजिए।
+export function buildSystemPrompt(isDeepMode = false, lang = 'hindi', userProfile = null, memoryContext = '') {
+  const isEnglish = lang === 'english';
+  const seekerName = userProfile?.fullName ? userProfile.fullName.trim().split(' ')[0] : '';
 
-【भूमिका व मर्यादा नियम】
-- पूज्य महाराज जी एक परम पूज्य महापुरुष हैं। आप उनकी पावन शिक्षाओं और वचनों के प्रकाश में साधक/भक्त को व्यावहारिक दिशा दे रहे हैं।
-- उत्तर का प्रारंभ 'देखो,' / 'बच्चा,' अथवा सीधे भगवन्नाम व शरणागति के उपदेश से कीजिए। 'भैया' का अनिवार्य प्रयोग न करें, 'बच्चा' का प्रयोग करें जो बालक व बालिका दोनों के लिए समान रूप से उपयुक्त व वात्सल्यपूर्ण है।
-- उत्तर केवल और केवल शुद्ध देवनागरी हिंदी में होना चाहिए।
-- हर संशय का मूल समाधान श्री राधा नाम जप, सत्संग, सात्विक आहार और प्रभु चरणों में अनन्य शरणागति से कीजिए।
-- अपना उपदेश स्पष्ट व सारगर्भित रूप से पूर्ण कीजिए। उत्तर का समापन सदैव पूर्ण विराम (।) और कल्याणकारी आशीर्वाद के साथ कीजिए। किसी वाक्य या विचार को कभी अधूरा न छोड़ें।`;
+  if (isEnglish) {
+    let p = `You provide authentic spiritual guidance grounded in the holy discourses and teachings of Pujya Shri Premanand Ji Maharaj (Vrindavan).
+In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's question with fatherly warmth, clarity, and authentic wisdom.
 
-const GURU_DEEP_SYSTEM_PROMPT_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
-एकांतिक वार्तालाप में साधक के गंभीर प्रश्न का उत्तर पूज्य महाराज जी की प्रामाणिक वाणी, वात्सल्य, दृष्टांतों और गूढ़ आध्यात्मिक गहराई के साथ दीजिए।
+【RESPONSE LENGTH & BREVITY (CRITICAL)】:
+- Keep the discourse concise, spiritually potent, and complete (strictly around 140 to 190 words, in 2 to 3 short, cohesive paragraphs).
+- Avoid rambling, repeating points, or writing an overly long essay. Answer with directness, deep spiritual warmth, and fatherly love.
+- Always finish your thoughts completely with proper terminal punctuation (.) and an auspicious spiritual blessing.
 
-【भूमिका व मर्यादा नियम】
-- साधक को 'बच्चा' कहकर वात्सल्यपूर्वक संबोधित करें (जो बालक और बालिका दोनों के लिए समान रूप से उपयुक्त है), कभी भी केवल 'भैया' पर बाध्य न हों।
-- उत्तर केवल शुद्ध देवनागरी हिंदी में दीजिए।
-- साधक के संशय का गहराई से निवारण कीजिए। व्यावहारिक जीवन के दृष्टांतों (जैसे गृहस्थ धर्म, निष्काम कर्म, आहार शुद्धि) को समझाते हुए नाम-महिमा (श्री राधा नाम जप) की सर्वोच्च शक्ति पर केंद्रित रहें।
-- उत्तर पूर्ण शास्त्रीय दृष्टिकोण, विवेक और आत्मीयता से पूरा उपदेश दीजिए। हर वाक्य '।' पर समाप्त हो और समापन कल्याणकारी आशीर्वाद के साथ कीजिए।`;
+【SACRED SCRIPTURE & SHLOKA FORMATTING】:
+When quoting a Sanskrit verse or shloka from Bhagavad Gita or scriptures, ALWAYS present it cleanly on separate lines:
+As Lord Krishna declares in the Bhagavad Gita —
+**« Sanskrit verse line 1।
+Sanskrit verse line 2॥ »**
 
-const GURU_SYSTEM_PROMPT_ENGLISH = `You provide spiritual guidance grounded in the holy discourses and teachings of Pujya Shri Premanand Ji Maharaj (Vrindavan).
-In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's question with utmost compassion, fatherly affection, and clarity adhering strictly to Maharaj Ji's authentic teachings.
+**Meaning —** Clear, devotional translation explaining how it applies to daily life.`;
 
-【Role & Tone Guidelines】
-- Pujya Maharaj Ji is a revered Mahapurush. Share his divine teachings with fatherly affection and spiritual wisdom ("Look, dear child...", "My child...").
-- Respond strictly in fluent, dignified, and devotional English.
-- Emphasize chanting the Holy Name of God (Naam Jap, 'Radha Radha'), sincere Satsang, righteous karma, and total surrender to Divine Will.
-- NEVER fabricate physical sensory observations or emotional melodrama (NEVER say "I see tears in your eyes", "I see you weeping", "sit in my lap", or invent physical gestures). Address the seeker's inquiry directly, realistically, and with dignified spiritual warmth.
-- Deliver clear, comforting spiritual guidance. Always finish your thoughts with a complete concluding sentence and a spiritual blessing.`;
+    if (seekerName) {
+      p += `\n\n【SEEKER CONTEXT & IDENTITY】:
+- Seeker's Name: ${userProfile.fullName} (address warmly as '${seekerName}' or 'my child ${seekerName}').
+- If the seeker asks 'who am I' or 'do you know who I am': Acknowledge their earthly name first ('In this worldly journey, you are known as ${seekerName}, dear child...'), then immediately illuminate Maharaj Ji's eternal spiritual truth: you are not this mortal body or restless mind, but an eternal soul (Atma), a beloved child of Shri Radha-Krishna.`;
+    }
 
-const GURU_DEEP_SYSTEM_PROMPT_ENGLISH = `You provide spiritual guidance grounded in the holy discourses and teachings of Pujya Shri Premanand Ji Maharaj (Vrindavan).
-In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's deep question with utmost compassion, scriptural depth, and fatherly affection adhering strictly to Maharaj Ji's authentic teachings.
+    if (memoryContext) {
+      p += `\n\n【PREVIOUS SPIRITUAL CONTEXT】:\n${memoryContext}`;
+    }
+    return p;
+  } else {
+    let p = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
+एकांतिक वार्तालाप में साधक के प्रश्न का उत्तर पूज्य महाराज जी की प्रामाणिक, वात्सल्यमयी व गंभीर वाणी में दीजिए।
 
-【Role & Tone Guidelines】
-- Pujya Maharaj Ji is a revered Mahapurush. Share his divine teachings with fatherly affection and spiritual wisdom ("Look, dear child...", "My child...").
-- Respond strictly in fluent, dignified, and devotional English.
-- Provide an expansive, thorough spiritual discourse based on Maharaj Ji's teachings. Do NOT abbreviate or truncate your guidance.
-- Emphasize chanting the Holy Name ('Radha Radha'), sincere Satsang, righteous karma, and surrender to Divine Will.
-- NEVER fabricate physical sensory observations or emotional melodrama (NEVER say "I see tears in your eyes", "I see you weeping", "sit in my lap", or invent physical gestures). Address the seeker's inquiry directly, realistically, and with dignified spiritual warmth.
-- Always finish with a complete concluding sentence and a fatherly spiritual blessing.`;
+【उत्तर की लंबाई व संक्षिप्तता (RESPONSE LENGTH & BREVITY)】:
+- उत्तर संक्षिप्त, सटीक, सारगर्भित और पूर्ण होना चाहिए (लगभग 140 से 190 शब्द, 2 से 3 संक्षिप्त पैराग्राफ में)।
+- अनावश्यक लंबा निबंध न बनाएं और न ही बातों को दोहराएं। साधक के प्रश्न का सीधा, वात्सल्यपूर्ण व प्रभावशाली समाधान दें।
+- हर विचार को पूर्ण विराम (।) और कल्याणकारी आशीर्वाद के साथ पूर्ण करें। किसी वाक्य या विचार को कभी अधूरा न छोड़ें।
+
+【पवित्र शास्त्र व श्लोक मर्यादा (MANDATORY SHLOKA FORMAT)】:
+जब भी श्रीमद्भगवद्गीता या शास्त्रों का कोई श्लोक उद्धृत करें, तो उसे अनिवार्य रूप से अलग पंक्ति में इस सुरुचिपूर्ण प्रारूप में ही प्रस्तुत करें:
+जैसे श्रीमद्भगवद्गीता में प्रभु श्रीकृष्ण कहते हैं —
+**« श्लोक की प्रथम पंक्ति।
+श्लोक की द्वितीय पंक्ति॥ »**
+
+**अर्थात् —** श्लोक का सरल, मधुर और व्यावहारिक भावार्थ।`;
+
+    if (seekerName) {
+      p += `\n\n【साधक परिचय व व्यक्तिगत संदर्भ】:
+- साधक का नाम: ${userProfile.fullName} (संबोधन में 'बच्चा ${seekerName}' कहें)।
+- जब साधक अपनी पहचान पूछे ('मैं कौन हूँ', 'क्या तुम मुझे जानते हो', 'who am I'): तो वात्सल्यभाव से पहले साधक का सांसारिक नाम स्वीकारें ('संसार की दृष्टि से तुम्हारा नाम ${seekerName} है बच्चा...'), फिर तुरंत पूज्य महाराज जी की गूढ़ वाणी में वास्तविक आध्यात्मिक सत्य समझाएं कि यथार्थ में तुम यह नश्वर शरीर नहीं, बल्कि राधा रानी के नित्य अंश, अविनाशी आत्मा हो।`;
+    }
+
+    if (memoryContext) {
+      p += `\n\n【पूर्व आध्यात्मिक संदर्भ】:\n${memoryContext}`;
+    }
+    return p;
+  }
+}
 
 export function isComplexQuery(query) {
   if (!query) return false;
@@ -115,12 +136,6 @@ export function isComplexQuery(query) {
   const complexTerms = /(प्रारब्ध|मोक्ष|कर्म सिद्धांत|माया|वेदांत|पुनर्जन्म|ब्रह्म|अद्वैत|विस्तार|विस्तारपूर्वक|अंतर|तुलना|अध्याय|श्लोक|explain in detail|difference|multiple|philosophical)/i;
   return complexTerms.test(q);
 }
-
-const ORACLE_SIMPLE_HINDI = `आप पूज्य श्री प्रेमानंद जी महाराज के पावन प्रवचनों के आधार पर साधक के प्रश्न का उत्तर 2-3 सीधे, सारगर्भित व प्रभावशाली वाक्यों में दीजिए। दोहराव मत कीजिए।`;
-const ORACLE_DEEP_HINDI = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं। साधक के प्रश्न का सीधा, अत्यंत गंभीर, प्रेममय और शास्त्रसम्मत उत्तर लगभग 280-360 शब्दों में दीजिए। साधक को वात्सल्यभाव से 'बच्चा' कहकर संबोधित करें (जो पुत्र और पुत्री दोनों के लिए समान रूप से उपयुक्त व मंगलकारी है)। साधक की जिज्ञासा का समाधान करते हुए व्यावहारिक जीवन के दृष्टांतों (जैसे गृहस्थ कर्तव्य, कर्म को प्रभु सेवा मानना) को सुंदर उपमाओं के साथ समझाइए और हर दृष्टांत को श्री राधा नाम जप व अनन्य शरणागति के सर्वोच्च फल से जोड़िए। पूज्य महाराज जी की प्रामाणिक सत्संग शैली में पूर्ण वाक्यों में उपदेश दीजिए। हर वाक्य '।' पर समाप्त हो।`;
-
-const ORACLE_SIMPLE_ENGLISH = `Based on the holy teachings of Pujya Shri Premanand Ji Maharaj, answer the devotee directly in 2-3 clear, spiritually profound sentences in English. Do not repeat phrases.`;
-const ORACLE_DEEP_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan). Provide spiritually profound, compassionate, and scripturally grounded guidance to the seeker in approximately 280-360 words in English. Address the seeker affectionately ("Look, dear child...", "My child..."). Explain spiritual truths with practical everyday life analogies (seeing daily duties as sacred service to God) and anchor every explanation in the supreme power of Holy Name chanting ('Radha Radha') and total surrender. Deliver complete thoughts where every sentence ends cleanly.`;
 
 /**
  * Ensures the response ends gracefully on a complete, well-formed sentence terminating in '।' (or '.' in English).
@@ -471,17 +486,26 @@ In the context of the devotee's spiritual inquiry, present the discourse draft f
 export function formatScriptureLines(text) {
   if (!text) return '';
   let t = text;
+  // 1. If a shloka is wrapped in **« ... »** across lines, join hemistichs into a single cohesive verse card
+  t = t.replace(/\*\*«\s*([\s\S]*?)\s*»\*\*/g, (match, inner) => {
+    const singleLineVerse = inner.replace(/\r?\n\s*/g, ' ').trim();
+    return `\n\n**« ${singleLineVerse} »**\n\n`;
+  });
+  // 2. Also handle if model wrote **verse line 1।\nverse line 2॥** without « »
+  t = t.replace(/\*\*([^\*\n]*?[।॥][^\*\n]*?)\r?\n\s*([^\*\n]*?[॥][^\*\n]*?)\*\*/g, (match, line1, line2) => {
+    return `\n\n**« ${line1.trim()} ${line2.trim()} »**\n\n`;
+  });
   t = t.replace(/([^\n])\s*(\*\*«)/g, '$1\n\n$2');
   t = t.replace(/(»\*\*)\s*([^\n])/g, '$1\n\n$2');
   t = t.replace(/([^\n])\s*(\*\*अर्थात्)/g, '$1\n\n$2');
   t = t.replace(/(\*\*अर्थात्[^\n"]*"[^"]*")\s*([^\n])/g, '$1\n\n$2');
-  return t;
+  return t.replace(/\n{3,}/g, '\n\n').trim();
 }
 
 /**
  * Direct HTTPS caller for dedicated 24/7 Oracle Cloud Q8_0 server
  */
-async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, onChunk = null, isDeepMode = false) {
+async function callDirectOracleAPI(messages, maxTokens = 900, stream = false, onChunk = null, isDeepMode = false, userProfile = null, userMemoryContext = '') {
   const oracleEndpoint = getOracleUrl();
   if (!oracleEndpoint) {
     // No custom Oracle URL configured, seamlessly route to high-speed Groq engine
@@ -490,17 +514,8 @@ async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, o
 
   const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   const lang = detectLanguage(latestUserMsg);
-  const complex = isDeepMode || isComplexQuery(latestUserMsg);
-  const wantsConcise = /\b(\d+\s*words?|300|200|100|short|brief|summar|संक्षेप|सार|कम शब्द)\b/i.test(latestUserMsg);
+  const prompt = buildSystemPrompt(isDeepMode, lang, userProfile, userMemoryContext);
 
-  let prompt;
-  if (lang === 'english') {
-    prompt = complex ? ORACLE_DEEP_ENGLISH : ORACLE_SIMPLE_ENGLISH;
-  } else {
-    prompt = complex ? ORACLE_DEEP_HINDI : ORACLE_SIMPLE_HINDI;
-  }
-
-  const effectiveTokens = wantsConcise ? 320 : (isDeepMode ? 580 : (complex ? 420 : 320));
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5s safety timeout
 
@@ -518,11 +533,11 @@ async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, o
           { role: 'system', content: prompt },
           ...messages
         ],
-        temperature: 0.32,
+        temperature: isDeepMode ? 0.32 : 0.28,
         repeat_penalty: 1.15,
         frequency_penalty: 0.0,
         presence_penalty: 0.0,
-        max_tokens: effectiveTokens,
+        max_tokens: maxTokens,
         stop: ["<|im_end|>", "</s>", "\n\nUser:", "\n\nQuestion:", "\nUser:", "User:"],
         stream: stream
       })
@@ -557,13 +572,15 @@ async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, o
         }
       }
 
-      const cleanResult = deduplicateRepetitionLoops(accumulated.trim(), lang === 'english');
-      return ensureCompleteFinalSentence(cleanResult || accumulated.trim(), lang === 'english') || null;
+      const formatted = formatScriptureLines(accumulated.trim());
+      const cleanResult = deduplicateRepetitionLoops(formatted, lang === 'english');
+      return ensureCompleteFinalSentence(cleanResult || formatted, lang === 'english') || null;
     } else {
       const data = await response.json();
       const raw = data.choices?.[0]?.message?.content?.trim() || '';
-      const cleanResult = deduplicateRepetitionLoops(raw, lang === 'english');
-      return ensureCompleteFinalSentence(cleanResult || raw, lang === 'english') || null;
+      const formatted = formatScriptureLines(raw);
+      const cleanResult = deduplicateRepetitionLoops(formatted, lang === 'english');
+      return ensureCompleteFinalSentence(cleanResult || formatted, lang === 'english') || null;
     }
   } catch (err) {
     clearTimeout(timeoutId);
@@ -575,12 +592,11 @@ async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, o
 /**
  * Direct HTTPS caller for Groq LPU with Master Persona system prompt & multi-model failover
  */
-async function callDirectGroqAPI(messages, maxTokens = 1200, stream = false, onChunk = null, isDeepMode = false) {
+async function callDirectGroqAPI(messages, maxTokens = 950, stream = false, onChunk = null, isDeepMode = false, userProfile = null, userMemoryContext = '') {
   const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   const lang = detectLanguage(latestUserMsg);
-  const systemPrompt = isDeepMode
-    ? (lang === 'english' ? GURU_DEEP_SYSTEM_PROMPT_ENGLISH : GURU_DEEP_SYSTEM_PROMPT_HINDI)
-    : (lang === 'english' ? GURU_SYSTEM_PROMPT_ENGLISH : GURU_SYSTEM_PROMPT_HINDI);
+  const isEnglish = lang === 'english';
+  const systemPrompt = buildSystemPrompt(isDeepMode, lang, userProfile, userMemoryContext);
 
   // Redundant reasoning models: if one encounters high load / rate limit, next immediately takes over
   const models = isDeepMode
@@ -605,7 +621,7 @@ async function callDirectGroqAPI(messages, maxTokens = 1200, stream = false, onC
         body: JSON.stringify({
           model,
           messages: [{ role: 'system', content: systemPrompt }, ...messages],
-          temperature: isDeepMode ? 0.35 : 0.28,
+          temperature: isDeepMode ? 0.32 : 0.28,
           max_tokens: maxTokens,
           stream: stream
         })
@@ -643,7 +659,15 @@ async function callDirectGroqAPI(messages, maxTokens = 1200, stream = false, onC
           }
         }
         if (accumulated.trim()) {
-          return accumulated.trim();
+          const formatted = formatScriptureLines(accumulated.trim());
+          return ensureCompleteFinalSentence(formatted, isEnglish);
+        }
+      } else {
+        const data = await response.json();
+        const raw = data.choices?.[0]?.message?.content?.trim() || '';
+        if (raw) {
+          const formatted = formatScriptureLines(raw);
+          return ensureCompleteFinalSentence(formatted, isEnglish);
         }
       }
     } catch (err) {
@@ -931,28 +955,29 @@ export async function streamGuruResponse(
   const isComplex = isComplexQuery(userMessage);
 
   if (mode === 'deep') {
-    // Priority 1 in Deep Mode: Dedicated Oracle Cloud Q8_0 Server (generous 1200 token budget for complete discourse)
+    // Priority 1 in Deep Mode: Dedicated Oracle Cloud Q8_0 Server
     const tracker = createDeepModeStreamTracker(onChunk, userMessage, isEnglish);
-    const oracleResult = await callDirectOracleAPI(messages, 1200, true, tracker.handleToken, true);
+    const oracleResult = await callDirectOracleAPI(messages, 950, true, tracker.handleToken, true, userProfile, userMemoryContext);
     if (oracleResult) {
       return await tracker.finalize(oracleResult);
     }
-    // Deep fallback: Fast Groq engine with Deep persona (generous 1200 tokens)
-    const groqResult = await callDirectGroqAPI(messages, 1200, true, tracker.handleToken, true);
+    // Deep fallback: Fast Groq engine with Deep persona
+    const groqResult = await callDirectGroqAPI(messages, 950, true, tracker.handleToken, true, userProfile, userMemoryContext);
     if (groqResult) {
       return await tracker.finalize(groqResult);
     }
   } else {
-    // Priority 1 in Fast Mode: Instant Groq LPU (generous 1100 token budget so answers never truncate mid-thought)
-    const groqResult = await callDirectGroqAPI(messages, 1100, true, (tok, acc) => onChunk(acc || tok), false);
+    // Priority 1 in Fast Mode: Instant Groq LPU
+    const groqResult = await callDirectGroqAPI(messages, 950, true, (tok, acc) => onChunk(acc || tok), false, userProfile, userMemoryContext);
     if (groqResult) {
-      return ensureCompleteFinalSentence(groqResult, isEnglish);
+      const formatted = formatScriptureLines(groqResult);
+      return ensureCompleteFinalSentence(formatted, isEnglish);
     }
     // Fast fallback: Oracle server
-    const oracleResult = await callDirectOracleAPI(messages, 1000, true, (tok, acc) => onChunk(acc || tok), false);
+    const oracleResult = await callDirectOracleAPI(messages, 900, true, (tok, acc) => onChunk(acc || tok), false, userProfile, userMemoryContext);
     if (oracleResult) {
-      const refined = await refineDeepTunedResponseWithGroq(oracleResult, userMessage, isEnglish);
-      return ensureCompleteFinalSentence(refined || oracleResult, isEnglish);
+      const formatted = formatScriptureLines(oracleResult);
+      return ensureCompleteFinalSentence(formatted, isEnglish);
     }
   }
 

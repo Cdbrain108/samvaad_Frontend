@@ -68,8 +68,12 @@ function RichText({ content, streaming = false }) {
             </span>
           );
         }
-        const isShlok = (trimmed.includes('«') && trimmed.includes('»')) || (trimmed.includes('॥') && (trimmed.startsWith('**') || trimmed.endsWith('**')));
-        const isArthat = /^(?:\*\*|\*|\b)?अर्थात्/i.test(trimmed) || trimmed.startsWith('**अर्थात्') || trimmed.startsWith('अर्थात्');
+        const isArthat = /^(?:\*\*|\*|\b)?(?:अर्थात्|भावार्थ|अर्थ\s*[:—\-]|meaning\s*[:—\-])/i.test(trimmed);
+        const isShlok = !isArthat && (
+          (trimmed.includes('«') && trimmed.includes('»')) ||
+          (trimmed.includes('॥') && (trimmed.startsWith('**') || trimmed.endsWith('**') || trimmed.startsWith('«'))) ||
+          (/^[«\*]+[\u0900-\u097F\s,।'॥\-]+[»\*]+$/.test(trimmed) && trimmed.length > 20)
+        );
 
         const lineClasses = ['rich-line'];
         if (isShlok) lineClasses.push('rich-shlok-line');
