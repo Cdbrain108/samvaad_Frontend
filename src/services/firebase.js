@@ -12,18 +12,35 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// Validate config
-const missingKeys = Object.entries(firebaseConfig).filter(([, value]) => !value || value.includes('your_'));
-if (missingKeys.length > 0) {
-  console.warn('Firebase config incomplete. Please set environment variables in .env file.');
-  console.warn('Missing:', missingKeys.map(([key]) => key).join(', '));
-}
+// Check if valid Firebase configuration is provided
+export const isFirebaseConfigured = Boolean(
+  firebaseConfig.apiKey &&
+  typeof firebaseConfig.apiKey === 'string' &&
+  !firebaseConfig.apiKey.includes('your_') &&
+  firebaseConfig.projectId &&
+  !firebaseConfig.projectId.includes('your_')
+);
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider();
+let app = null;
+let auth = null;
+let db = null;
+let googleProvider = null;
+
+if (isFirebaseConfigured) {
+  try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+    googleProvider = new GoogleAuthProvider();
+  } catch (err) {
+    console.warn('Firebase initialization failed, running in guest/offline mode:', err);
+    auth = null;
+    db = null;
+    googleProvider = null;
+  }
+} else {
+  console.info('Firebase not configured. Running in local guest/standalone mode.');
+}
 
 // Helper for friendly error messages
 const getFriendlyErrorMessage = (error) => {
@@ -55,6 +72,9 @@ const getFriendlyErrorMessage = (error) => {
 
 // Authentication functions
 export const registerUser = async (email, password) => {
+  if (!auth) {
+    return { user: null, error: 'Firebase authentication is not configured in this deployment.' };
+  }
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     return { user: userCredential.user, error: null };
@@ -64,6 +84,9 @@ export const registerUser = async (email, password) => {
 };
 
 export const loginUser = async (email, password) => {
+  if (!auth) {
+    return { user: null, error: 'Firebase authentication is not configured in this deployment.' };
+  }
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return { user: userCredential.user, error: null };
@@ -73,6 +96,9 @@ export const loginUser = async (email, password) => {
 };
 
 export const signInWithGoogle = async () => {
+  if (!auth || !googleProvider) {
+    return { user: null, error: 'Google sign-in is not configured in this deployment.' };
+  }
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return { user: result.user, error: null };
@@ -82,6 +108,9 @@ export const signInWithGoogle = async () => {
 };
 
 export const logoutUser = async () => {
+  if (!auth) {
+    return { error: null };
+  }
   try {
     await signOut(auth);
     return { error: null };
@@ -91,11 +120,20 @@ export const logoutUser = async () => {
 };
 
 export const onAuthStateChange = (callback) => {
+  if (!auth) {
+    // Gracefully inform listener that no remote user is logged in
+    setTimeout(() => callback(null), 0);
+    return () => {};
+  }
   return onAuthStateChanged(auth, callback);
 };
 
 // Chat history functions
 export const saveConversation = async (userId, conversation) => {
+  if (!db) {
+    // Local fallback for guest session
+    return { id: `local_${Date.now()}`, error: null };
+  }
   try {
     const conversationsRef = collection(db, 'users', userId, 'conversations');
     const docRef = await addDoc(conversationsRef, {
@@ -110,6 +148,9 @@ export const saveConversation = async (userId, conversation) => {
 };
 
 export const getUserConversations = async (userId, limitCount = 20) => {
+  if (!db) {
+    return { conversations: [], error: null };
+  }
   try {
     const conversationsRef = collection(db, 'users', userId, 'conversations');
     const q = query(conversationsRef, orderBy('updatedAt', 'desc'), limit(limitCount));
@@ -136,6 +177,9 @@ export const getUserConversations = async (userId, limitCount = 20) => {
 };
 
 export const getConversation = async (userId, conversationId) => {
+  if (!db) {
+    return { conversation: null, error: 'Conversation not found' };
+  }
   try {
     const conversationRef = doc(db, 'users', userId, 'conversations', conversationId);
     const docSnap = await getDoc(conversationRef);
@@ -150,6 +194,9 @@ export const getConversation = async (userId, conversationId) => {
 };
 
 export const updateConversation = async (userId, conversationId, updates) => {
+  if (!db) {
+    return { error: null };
+  }
   try {
     const conversationRef = doc(db, 'users', userId, 'conversations', conversationId);
     await setDoc(conversationRef, {
@@ -163,6 +210,9 @@ export const updateConversation = async (userId, conversationId, updates) => {
 };
 
 export const deleteConversation = async (userId, conversationId) => {
+  if (!db) {
+    return { error: null };
+  }
   try {
     const conversationRef = doc(db, 'users', userId, 'conversations', conversationId);
     await deleteDoc(conversationRef);
@@ -174,20 +224,30 @@ export const deleteConversation = async (userId, conversationId) => {
 
 // Long-term User Memory in Firestore
 export const getUserMemory = async (userId) => {
+  const defaultMemory = {
+    updatedAt: new Date(),
+    topics_explored: [],
+    preferences: [],
+    key_traits: [],
+    unresolved_questions: [],
+    summary: 'New user starting their spiritual and learning journey.'
+  };
+
+  if (!db) {
+    try {
+      const stored = localStorage.getItem(`samvaad_mem_${userId}`);
+      return { memory: stored ? JSON.parse(stored) : defaultMemory, error: null };
+    } catch {
+      return { memory: defaultMemory, error: null };
+    }
+  }
+
   try {
     const memoryRef = doc(db, 'users', userId, 'profile', 'memory');
     const docSnap = await getDoc(memoryRef);
     if (docSnap.exists()) {
       return { memory: docSnap.data(), error: null };
     } else {
-      const defaultMemory = {
-        updatedAt: new Date(),
-        topics_explored: [],
-        preferences: [],
-        key_traits: [],
-        unresolved_questions: [],
-        summary: 'New user starting their spiritual and learning journey.'
-      };
       await setDoc(memoryRef, defaultMemory);
       return { memory: defaultMemory, error: null };
     }
@@ -197,6 +257,12 @@ export const getUserMemory = async (userId) => {
 };
 
 export const saveUserMemory = async (userId, memoryData) => {
+  if (!db) {
+    try {
+      localStorage.setItem(`samvaad_mem_${userId}`, JSON.stringify(memoryData));
+    } catch {}
+    return { error: null };
+  }
   try {
     const memoryRef = doc(db, 'users', userId, 'profile', 'memory');
     await setDoc(memoryRef, {
@@ -211,6 +277,14 @@ export const saveUserMemory = async (userId, memoryData) => {
 
 // User Profile Info (Full Name & Age)
 export const getUserProfileInfo = async (userId) => {
+  if (!db) {
+    try {
+      const stored = localStorage.getItem(`samvaad_prof_${userId}`);
+      return { profile: stored ? JSON.parse(stored) : null, error: null };
+    } catch {
+      return { profile: null, error: null };
+    }
+  }
   try {
     const profileRef = doc(db, 'users', userId, 'profile', 'info');
     const docSnap = await getDoc(profileRef);
@@ -224,6 +298,12 @@ export const getUserProfileInfo = async (userId) => {
 };
 
 export const saveUserProfileInfo = async (userId, profileData) => {
+  if (!db) {
+    try {
+      localStorage.setItem(`samvaad_prof_${userId}`, JSON.stringify(profileData));
+    } catch {}
+    return { error: null };
+  }
   try {
     const profileRef = doc(db, 'users', userId, 'profile', 'info');
     await setDoc(profileRef, {
