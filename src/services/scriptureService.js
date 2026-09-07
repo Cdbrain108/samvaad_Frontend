@@ -91,9 +91,9 @@ export const SCRIPTURE_DATABASE = [
     context_intro_en: 'Just as Bhagavan Shri Krishna reveals the immortality of the soul in the Bhagavad Gita —',
     keywords: [
       'मृत्यु का भय', 'मौत से डर', 'मृत्यु के बाद क्या', 'अविनाशी आत्मा', 'मौत', 'मरण', 'मृत्यु क्या है', 'अमर आत्मा',
-      'fear of death', 'death', 'mortality', 'what happens after death', 'afraid of dying', 'immortal soul',
+      'fear of death', 'death', 'mortality', 'what happens after death', 'afraid of dying', 'immortal soul', 'overcome fear of death',
       'మరణం భయం', 'చనిపోవడం', 'ఆత్మ',
-      'mrityu ka dar', 'maut se dar', 'atma amar hai'
+      'mrityu ka dar', 'mrityu ka bhay', 'maut se dar', 'mrityu', 'bhay', 'atma amar hai'
     ]
   },
 
@@ -143,10 +143,10 @@ export const SCRIPTURE_DATABASE = [
     context_intro_hi: 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण मन की शक्ति व आत्मोद्धार पर कहते हैं कि —',
     context_intro_en: 'Just as Bhagavan Shri Krishna guides on conquering despair through the mind in the Bhagavad Gita —',
     keywords: [
-      'अवसाद', 'निराशा', 'डिप्रेशन', 'मन टूट गया', 'उदास', 'हताश', 'आत्मविश्वास टूट गया', 'हौसला टूटना', 'जीने की इच्छा नहीं',
+      'अवसाद', 'निराशा', 'निराश', 'जीवन से निराश', 'डिप्रेशन', 'मन टूट गया', 'उदास', 'हताश', 'हताशा', 'आत्मविश्वास टूट गया', 'हौसला टूटना', 'जीने की इच्छा नहीं',
       'depression', 'depressed', 'overcoming sadness', 'hopeless', 'despair', 'feeling low', 'self doubt', 'lost hope',
       'డిప్రెషన్', 'నిరాశ',
-      'nirasha', 'depression ho raha hai', 'udas hu'
+      'nirasha', 'nirash', 'depression ho raha hai', 'udas hu'
     ]
   },
 
@@ -161,10 +161,10 @@ export const SCRIPTURE_DATABASE = [
     context_intro_hi: 'जैसे श्रीमद्भगवद्गीता के चरम श्लोक में भगवान श्रीकृष्ण अनन्य शरणागति का अभयदान देते हुए कहते हैं कि —',
     context_intro_en: 'Just as Bhagavan Shri Krishna grants the supreme promise of total refuge in the Bhagavad Gita —',
     keywords: [
-      'शरणागति', 'शरण', 'प्रभु की शरण', 'सब छोड़ दिया', 'अकेला असहाय', 'पाप से मुक्ति', 'मुझे बचा लो', 'ईश्वर पर भरोसा',
+      'शरणागति', 'शरण', 'प्रभु की शरण', 'सब छोड़ दिया', 'अकेला असहाय', 'पाप से मुक्ति', 'मुझे बचा लो', 'ईश्वर पर भरोसा', 'समर्पण', 'समर्पित', 'भगवान को समर्पित', 'सब कुछ भगवान को',
       'surrender', 'total refuge', 'surrendering to God', 'helpless', 'forgiveness of sins', 'sharanagati', 'take my shelter',
       'శరణాగతి', 'శరణు',
-      'sharanagati', 'sharan me kaise jaye', 'prabhu ki sharan'
+      'sharanagati', 'sharan me kaise jaye', 'prabhu ki sharan', 'samarpan', 'samarpit'
     ]
   },
 
@@ -508,16 +508,23 @@ function normalizeQuery(text) {
  */
 function isCasualConversational(query) {
   if (!query) return true;
-  const clean = query.trim().toLowerCase();
-  if (clean.length < 4) return true;
+  let clean = query.trim().toLowerCase();
+  if (clean.length < 3) return true;
+
+  // Remove trailing/leading honorifics for greeting check
+  const stripped = clean
+    .replace(/(?:महाराज\s*जी|महाराज|गुरु\s*जी|गुरुजी|गुरुदेव|बाबा\s*जी|प्रभु\s*जी|ji|guruji|maharaj\s*ji|baba\s*ji)/gi, '')
+    .replace(/[^\w\s\u0900-\u0D7F]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 
   // Pure greetings
-  const pureGreetings = /^(?:राधे\s*राधे|जय\s*श्री\s*(?:कृष्णा|राम|राधे)|प्रणाम|चरण\s*स्पर्श|नमस्ते|नमस्कार|hello|hi|hey|good\s*(?:morning|evening)|hare\s*krishna)$/i;
-  if (pureGreetings.test(clean)) return true;
+  const pureGreetings = /^(?:राधे\s*राधे|जय\s*श्री\s*(?:कृष्णा?|राम|राधे)|प्रणाम|चरण\s*स्पर्श|नमस्ते|नमस्कार|हेलो|हाय|hello|hi|hey|good\s*(?:morning|evening|afternoon)|hare\s*krishna)$/i;
+  if (!stripped || pureGreetings.test(stripped) || pureGreetings.test(clean)) return true;
 
   // Simple routine queries like 'how are you'
-  const casualQuestions = /^(?:आप\s*कैसे\s*हैं|कैसे\s*हो|सब\s*ठीक\s*है|how\s*are\s*you|who\s*are\s*you)$/i;
-  if (casualQuestions.test(clean)) return true;
+  const casualQuestions = /^(?:आप\s*कैसे\s*हैं|कैसे\s*हो|सब\s*ठीक\s*है|हाल\s*चाल|how\s*are\s*you|who\s*are\s*you|how\s*r\s*u)$/i;
+  if (casualQuestions.test(stripped) || casualQuestions.test(clean)) return true;
 
   return false;
 }
@@ -539,6 +546,8 @@ export function getScriptureGrounding(query) {
   let bestMatch = null;
   let highestScore = 0;
 
+  const queryTokens = cleanQ.split(' ').filter(t => t.length >= 3);
+
   for (const item of SCRIPTURE_DATABASE) {
     let score = 0;
     for (const keyword of item.keywords) {
@@ -557,6 +566,18 @@ export function getScriptureGrounding(query) {
           score += 5.5;
         } else {
           score += kw.length >= 6 ? 3.5 : 2.5;
+        }
+      } else {
+        // Token stem match (e.g. "निराश" vs "निराशा", "समर्पित" vs "समर्पण")
+        const kwTokens = kw.split(' ').filter(t => t.length >= 3);
+        for (const kt of kwTokens) {
+          for (const qt of queryTokens) {
+            if (qt === kt) {
+              score += 2.5;
+            } else if (qt.length >= 4 && kt.length >= 4 && (qt.startsWith(kt.slice(0, -1)) || kt.startsWith(qt.slice(0, -1)))) {
+              score += 2.0;
+            }
+          }
         }
       }
     }
