@@ -2,7 +2,7 @@ import { detectSpeechLanguage, prepareTextForSpeech } from '../utils/speechText'
 
 const BACKEND_BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
 
-const LIVE_ORACLE_VOICE_URL = 'https://female-richmond-myself-idle.trycloudflare.com';
+const LIVE_ORACLE_VOICE_URL = (typeof import.meta !== 'undefined' && import.meta.env.VITE_VOICE_CLONE_URL) || 'https://voice-ai-guru.example.com';
 
 export const getVoiceCloneUrl = () => {
   if (typeof window !== 'undefined') {

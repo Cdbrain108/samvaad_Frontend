@@ -1,17 +1,49 @@
 const API_BASE_URL = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
 
+const DEFAULT_ORACLE_GURU_URL = 'https://immature-zen-earthen.ngrok-free.dev';
+
 // Dynamic Oracle / GPU Endpoint for custom remote server
 export function getOracleUrl() {
   try {
-    return localStorage.getItem('samvaad_oracle_url') || '';
-  } catch {
-    return '';
-  }
+    const saved = localStorage.getItem('samvaad_oracle_url');
+    if (saved && saved.trim()) return saved.trim();
+  } catch {}
+  return (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ORACLE_GURU_URL) || DEFAULT_ORACLE_GURU_URL;
 }
+
 export function setOracleUrl(url) {
   try {
     localStorage.setItem('samvaad_oracle_url', (url || '').trim());
   } catch {}
+}
+
+export async function testOracleModelUrl(url) {
+  try {
+    let clean = (url || '').trim().replace(/\/+$/, '');
+    if (!clean) return { ok: false, error: 'URL cannot be empty' };
+    let testUrl = clean;
+    if (testUrl.endsWith('/chat/completions')) {
+      testUrl = testUrl.replace(/\/chat\/completions$/, '/models');
+    } else if (!testUrl.endsWith('/v1/models') && !testUrl.endsWith('/models')) {
+      testUrl = testUrl.endsWith('/v1') ? `${testUrl}/models` : `${testUrl}/v1/models`;
+    }
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(testUrl, {
+      headers: {
+        'ngrok-skip-browser-warning': 'true',
+        'Authorization': `Bearer ${ORACLE_API_KEY}`
+      },
+      signal: controller.signal
+    });
+    clearTimeout(id);
+    if (!res.ok) return { ok: false, status: res.status, error: `HTTP ${res.status}` };
+    const data = await res.json();
+    const modelName = data?.data?.[0]?.id || data?.models?.[0]?.name || 'Oracle Q8_0 Model';
+    return { ok: true, model: modelName };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 const ORACLE_API_KEY = 'guru_secret_108';
 
@@ -522,10 +554,20 @@ export function formatScriptureLines(text) {
  * Direct HTTPS caller for dedicated 24/7 Oracle Cloud Q8_0 server
  */
 async function callDirectOracleAPI(messages, maxTokens = 900, stream = false, onChunk = null, isDeepMode = false, userProfile = null, userMemoryContext = '') {
-  const oracleEndpoint = getOracleUrl();
-  if (!oracleEndpoint) {
+  const oracleBase = getOracleUrl();
+  if (!oracleBase) {
     // No custom Oracle URL configured, seamlessly route to high-speed Groq engine
     return null;
+  }
+
+  // Normalize endpoint URL: ensure it points to /v1/chat/completions
+  let targetUrl = oracleBase.replace(/\/+$/, '');
+  if (!targetUrl.endsWith('/chat/completions')) {
+    if (targetUrl.endsWith('/v1')) {
+      targetUrl = `${targetUrl}/chat/completions`;
+    } else {
+      targetUrl = `${targetUrl}/v1/chat/completions`;
+    }
   }
 
   const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
@@ -533,18 +575,20 @@ async function callDirectOracleAPI(messages, maxTokens = 900, stream = false, on
   const prompt = buildSystemPrompt(isDeepMode, lang, userProfile, userMemoryContext);
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5s safety timeout
+  // Realistic 60s safety timeout for remote Q8_0 GGUF server
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
 
   try {
-    const response = await fetch(oracleEndpoint, {
+    const response = await fetch(targetUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${ORACLE_API_KEY}`
+        'Authorization': `Bearer ${ORACLE_API_KEY}`,
+        'ngrok-skip-browser-warning': 'true'
       },
       signal: controller.signal,
       body: JSON.stringify({
-        model: 'ai-guru-v10-4',
+        model: '/home/ubuntu/models/ai-guru-v10-4-Q8_0.gguf',
         messages: [
           { role: 'system', content: prompt },
           ...messages
@@ -559,7 +603,10 @@ async function callDirectOracleAPI(messages, maxTokens = 900, stream = false, on
       })
     });
     clearTimeout(timeoutId);
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.warn(`Oracle API returned HTTP ${response.status} from ${targetUrl}`);
+      return null;
+    }
 
     if (stream && response.body && onChunk) {
       const reader = response.body.getReader();
@@ -884,100 +931,15 @@ export async function streamGuruResponse(
     { role: 'user', content: userMessage },
   ];
 
-  // Path 1: Local Backend with High-Speed Streaming Router
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 65000);
-      const res = await fetch(`${API_BASE_URL}/api/generate/stream`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages, temperature: 0.35, max_tokens: mode === 'deep' ? 580 : 450, mode }),
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-
-      if (res.ok && res.body) {
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-        let accumulated = '';
-        let buffer = '';
-
-        if (mode === 'deep') {
-          const tracker = createDeepModeStreamTracker(onChunk, userMessage, isEnglish);
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const parts = buffer.split('\n\n');
-            buffer = parts.pop() || '';
-
-            for (const part of parts) {
-              const trimmed = part.trim();
-              if (trimmed.startsWith('data: ')) {
-                const dataStr = trimmed.slice(6).trim();
-                if (dataStr === '[DONE]') continue;
-                try {
-                  const parsed = JSON.parse(dataStr);
-                  if (parsed.token) {
-                    accumulated += parsed.token;
-                    tracker.handleToken(parsed.token);
-                  }
-                } catch (e) { }
-              }
-            }
-          }
-          if (accumulated.trim()) {
-            return await tracker.finalize(accumulated);
-          }
-        } else {
-          // Fast mode standard streaming
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const parts = buffer.split('\n\n');
-            buffer = parts.pop() || '';
-
-            for (const part of parts) {
-              const trimmed = part.trim();
-              if (trimmed.startsWith('data: ')) {
-                const dataStr = trimmed.slice(6).trim();
-                if (dataStr === '[DONE]') continue;
-                try {
-                  const parsed = JSON.parse(dataStr);
-                  if (parsed.token) {
-                    accumulated += parsed.token;
-                    onChunk(accumulated);
-                  }
-                } catch (e) { }
-              }
-            }
-          }
-          if (accumulated.trim()) {
-            const cleaned = accumulated.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/  +/g, ' ').trim() || accumulated;
-            return ensureCompleteFinalSentence(cleaned, isEnglish);
-          }
-        }
-      }
-    } catch (e) {
-      console.warn('Local streaming backend unavailable, switching to public cloud endpoints...');
-    }
-  }
-
-  // Path 2: Production Hosting / Cloud Fallback (GitHub Pages)
-  const isComplex = isComplexQuery(userMessage);
-
   if (mode === 'deep') {
-    // Priority 1 in Deep Mode: Dedicated Oracle Cloud Q8_0 Server
+    // Priority 1 in Deep Mode: Dedicated Fine-Tuned Oracle Cloud Q8_0 Server via active tunnel
     const tracker = createDeepModeStreamTracker(onChunk, userMessage, isEnglish);
     const oracleResult = await callDirectOracleAPI(messages, 950, true, tracker.handleToken, true, userProfile, userMemoryContext);
     if (oracleResult) {
       return await tracker.finalize(oracleResult);
     }
     // Deep fallback: Fast Groq engine with Deep persona
+    console.warn('[Deep Mode] Oracle Q8_0 tunnel unreachable, falling back to Groq reasoning engine...');
     const groqResult = await callDirectGroqAPI(messages, 950, true, tracker.handleToken, true, userProfile, userMemoryContext);
     if (groqResult) {
       return await tracker.finalize(groqResult);

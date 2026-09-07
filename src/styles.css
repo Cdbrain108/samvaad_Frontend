@@ -36,7 +36,16 @@
   --shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
 }
 
-* { box-sizing: border-box; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease; }
+/* Removed blanket * transition — it caused heavy repaints on every streaming text update.
+   Transitions are now applied only to targeted interactive elements. */
+button, a, input, textarea, select,
+.icon-button, .composer-action, .send-button, .conversation-item, .suggestion-card,
+.new-chat-button, .rust-button, .auth-button, .capability-card, .message.assistant > div {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.16s ease, opacity 0.16s ease;
+}
+
+/* Fast tap response on mobile — removes 300ms delay */
+button, a, [role="button"] { touch-action: manipulation; }
 
 html, body, #root { min-height: 100%; }
 
@@ -53,16 +62,18 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 
 .app-shell { display: flex; min-height: 100vh; background: var(--bg); }
 
+/* Sidebar z-index set high enough to cover content + diya row */
 .sidebar {
   position: fixed;
   inset: 0 auto 0 0;
-  z-index: 20;
+  z-index: 30;
   display: flex;
   width: 276px;
   flex-direction: column;
   padding: 26px 18px 20px;
   background: var(--sidebar);
   border-right: 1px solid var(--line);
+  overflow-y: auto;
 }
 
 .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 0 7px 24px; }
@@ -207,7 +218,7 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 .send-button:disabled { cursor: default; opacity: 0.35; }
 .composer-note { margin: 8px 0 0; color: var(--muted); font-size: 10px; text-align: center; }
 .sidebar-backdrop { display: none; }
-.home-link { justify-self: start; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 600; }
+.home-link { justify-self: start; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 600; transition: color 0.15s ease; }
 .home-link:hover { color: var(--accent-dark); }
 
 /* Landing page */
@@ -298,11 +309,11 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 @keyframes reveal { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 850px) {
-  .sidebar { width: 280px; transform: translateX(-100%); transition: transform 220ms ease; }
+  .sidebar { width: 280px; transform: translateX(-100%); transition: transform 220ms ease, box-shadow 220ms ease; }
   .sidebar.is-open { transform: translateX(0); box-shadow: 18px 0 60px rgba(0, 0, 0, 0.18); }
   .main-panel { margin-left: 0; }
   .menu-button, .mobile-only { display: grid; }
-  .sidebar-backdrop { position: fixed; inset: 0; z-index: 19; display: block; border: 0; background: rgba(20, 20, 17, 0.35); opacity: 0; pointer-events: none; transition: opacity 220ms ease; }
+  .sidebar-backdrop { position: fixed; inset: 0; z-index: 29; display: block; border: 0; background: rgba(20, 20, 17, 0.45); opacity: 0; pointer-events: none; transition: opacity 220ms ease; }
   .sidebar-backdrop.is-visible { opacity: 1; pointer-events: auto; }
   .content-area { padding-inline: 30px; }
   .landing-header { grid-template-columns: 1fr auto; }
@@ -318,18 +329,31 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 }
 
 @media (max-width: 600px) {
-  .topbar { height: 62px; padding: 0 17px; }
-  .content-area { align-items: flex-start; padding: 40px 18px 22px; }
+  .topbar {
+    height: 60px;
+    padding: 0 14px;
+    /* Topbar stays in a single row — center shrinks, actions stay */
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .topbar-center { gap: 8px; }
+  .topbar-actions { gap: 6px; flex-shrink: 0; }
+  /* Hide home-link on small screens — use menu burger instead */
+  .home-link { display: none; }
+  .content-area { align-items: flex-start; padding: 32px 16px 18px; }
   .welcome h1 { font-size: 45px; }
   .welcome-copy p { font-size: 14px; }
   .suggestion-grid { grid-template-columns: 1fr; margin-top: 32px; }
   .suggestion-card { min-height: 88px; }
-  .composer-wrap { width: calc(100% - 24px); padding-bottom: 10px; }
+  .composer-wrap {
+    width: calc(100% - 20px);
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
   .composer { border-radius: 17px; }
   .model-badge { display: none; }
-  .mode-toggle-group { padding: 2px; }
-  .mode-pill-btn { padding: 3px 7px !important; font-size: 0.72rem !important; }
-  .home-link { margin-left: auto; }
+  /* Mode toggle: compact emoji-only on very small screens */
+  .mode-toggle-group { padding: 2px !important; }
+  .mode-pill-btn { padding: 4px 8px !important; font-size: 0.73rem !important; }
   .landing-header { height: 72px; padding-inline: 19px; }
   .landing-header .brand-name { font-size: 22px; }
   .landing-theme { display: none; }
@@ -685,14 +709,63 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
   color: var(--muted);
 }
 
+/* Sidebar footer layout — stacks user-info above logout button */
+.sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  margin-top: auto;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid rgba(220, 53, 69, 0.22);
+  border-radius: 11px;
+  background: rgba(220, 53, 69, 0.06);
+  color: #b85c5c;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.logout-button:hover {
+  background: rgba(220, 53, 69, 0.14);
+  border-color: rgba(220, 53, 69, 0.4);
+  color: #dc3545;
+}
+
+:root[data-theme='dark'] .logout-button {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.07);
+  border-color: rgba(248, 113, 113, 0.2);
+}
+
+:root[data-theme='dark'] .logout-button:hover {
+  background: rgba(248, 113, 113, 0.15);
+  border-color: rgba(248, 113, 113, 0.38);
+}
+
 .conversation-delete {
   opacity: 0;
-  transition: opacity 160ms ease;
+  transition: opacity 160ms ease, color 160ms ease, background 160ms ease;
   color: var(--muted);
 }
 
 .conversation-item-wrapper:hover .conversation-delete {
   opacity: 1;
+}
+
+/* Always show delete on touch screens (no hover) */
+@media (hover: none) {
+  .conversation-delete { opacity: 0.6; }
 }
 
 .conversation-delete:hover {
@@ -704,20 +777,27 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
+  padding: 10px 12px;
   border-radius: 12px;
   background: var(--surface);
+  min-width: 0;
 }
 
 .user-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+  flex: 1;
 }
 
 .user-info strong {
   font-size: 13px;
   color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
 }
 
 .user-info small {
@@ -798,20 +878,34 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
     var(--panel);
 }
 
+/* Topbar: flex layout with clipped center to prevent overflow on narrow screens */
 .topbar {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(255, 253, 248, 0.84);
-  backdrop-filter: blur(16px);
+  background: rgba(255, 253, 248, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  /* Ensure topbar items never overflow on 320px phones */
+  overflow: hidden;
 }
 
 :root[data-theme='dark'] .topbar {
-  background: rgba(38, 39, 35, 0.84);
+  background: rgba(38, 39, 35, 0.88);
 }
 
-.content-area {
-  align-items: stretch;
+/* Center section shrinks gracefully when actions eat space */
+.topbar-center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+}
+
+.mode-toggle-group {
+  flex-shrink: 0;
 }
 
 .messages {

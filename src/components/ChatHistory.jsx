@@ -1,21 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getUserConversations, deleteConversation } from '../services/firebase';
+import { deleteConversation } from '../services/firebase';
 import Icon from './Icon';
 
-export default function ChatHistory({ user, conversations = [], isOpen = false, onClose, onSelectConversation, onNewChat, onDeleteConversation }) {
+export default function ChatHistory({ user, conversations = [], isOpen = false, onClose, onSelectConversation, onNewChat, onDeleteConversation, onLogout }) {
   const handleDeleteConversation = async (conversationId, e) => {
     e.stopPropagation();
-    if (!window.confirm('Are you sure you want to delete this conversation?')) return;
+    if (!window.confirm('Delete this conversation?')) return;
 
-    const result = await deleteConversation(user.uid, conversationId);
-    if (!result.error) {
-      if (onDeleteConversation) {
-        onDeleteConversation(conversationId);
+    // Local-only conversations (id starts with "local_") only exist in localStorage
+    // — skip the Firestore call and remove them directly from state.
+    const isLocalOnly = conversationId.startsWith('local_') || !user?.uid || user.uid === 'devotee_local';
+
+    if (!isLocalOnly) {
+      const result = await deleteConversation(user.uid, conversationId);
+      if (result.error) {
+        alert('Failed to delete: ' + result.error);
+        return;
       }
-    } else {
-      alert('Failed to delete conversation: ' + result.error);
     }
+
+    if (onDeleteConversation) {
+      onDeleteConversation(conversationId);
+    }
+  };
+
+  const handleLogout = () => {
+    if (onLogout) onLogout();
   };
 
   const formatDate = (timestamp) => {
@@ -147,13 +158,28 @@ export default function ChatHistory({ user, conversations = [], isOpen = false, 
         <div className="sidebar-footer">
           <div className="user-profile">
             <div className="avatar">
-              {user?.email?.charAt(0).toUpperCase() || 'U'}
+              {user?.email?.charAt(0).toUpperCase() || user?.displayName?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className="user-info">
-              <strong>{user?.email || 'User'}</strong>
-              <small>Signed in</small>
+              <strong title={user?.email || ''}>
+                {user?.displayName || user?.email || 'Devotee'}
+              </strong>
+              <small>{user?.uid === 'devotee_local' ? 'Guest mode' : 'Signed in'}</small>
             </div>
           </div>
+          {onLogout && (
+            <motion.button
+              className="logout-button"
+              onClick={handleLogout}
+              aria-label="Sign out"
+              title="Sign out"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Icon name="logout" size={15} />
+              <span>Sign out</span>
+            </motion.button>
+          )}
         </div>
       </motion.aside>
     </>

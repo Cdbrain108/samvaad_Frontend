@@ -578,13 +578,22 @@ export default function App() {
       const { logoutUser } = await import('./services/firebase');
       await logoutUser();
     } catch (e) { }
+    // Clear all in-memory state immediately
     setUser(null);
+    setUserProfile(null);
+    setConversations([]);
+    setMessages([]);
+    setCurrentConversationId(null);
+    setUserMemory(null);
+    setShowOnboarding(false);
     setView('landing');
   };
-  // TEMP QA BYPASS — remove before shipping (headless Chrome has no auth).
+
+  // QA bypass param guard — skip if QALandingWrapper is not defined
   const qaParams = new URLSearchParams(window.location.search);
   if (qaParams.get('qa') === 'landing') {
-    return <QALandingWrapper qaParams={qaParams} />;
+    // No-op: QALandingWrapper is not available in production build
+    // Just fall through to normal rendering
   }
 
   return (
@@ -649,6 +658,7 @@ export default function App() {
         onNewChat={startNewChat}
         onSelectConversation={selectConversation}
         onDeleteConversation={deleteConversationHandler}
+        onLogout={handleLogout}
       />
 
       <main className="main-panel">
