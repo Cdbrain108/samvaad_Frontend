@@ -167,9 +167,15 @@ export default function App() {
   const [userMemory, setUserMemory] = useState(null);
   const [inferenceMode, setInferenceMode] = useState(() => {
     try {
-      return localStorage.getItem('samvaad_inference_mode') || 'fast';
+      const explicit = localStorage.getItem('samvaad_user_mode_explicit');
+      if (explicit) {
+        return localStorage.getItem('samvaad_inference_mode') || 'deep';
+      }
+      // Always default to deep mode as intended
+      localStorage.setItem('samvaad_inference_mode', 'deep');
+      return 'deep';
     } catch {
-      return 'fast';
+      return 'deep';
     }
   });
   const [modeNotification, setModeNotification] = useState(null);
@@ -203,6 +209,7 @@ export default function App() {
     setInferenceMode(newMode);
     try {
       localStorage.setItem('samvaad_inference_mode', newMode);
+      localStorage.setItem('samvaad_user_mode_explicit', 'true');
     } catch {
       /* ignore storage errors */
     }
