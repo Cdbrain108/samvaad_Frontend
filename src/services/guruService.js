@@ -1,10 +1,21 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
+const API_BASE_URL = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
 
-// 24/7 Oracle Cloudflare Public Tunnel Endpoint for direct live access on GitHub Pages
-const ORACLE_PUBLIC_URL = 'https://join-diane-lunch-postal.trycloudflare.com/v1/chat/completions';
+// Dynamic Oracle / GPU Endpoint for custom remote server
+export function getOracleUrl() {
+  try {
+    return localStorage.getItem('samvaad_oracle_url') || '';
+  } catch {
+    return '';
+  }
+}
+export function setOracleUrl(url) {
+  try {
+    localStorage.setItem('samvaad_oracle_url', (url || '').trim());
+  } catch {}
+}
 const ORACLE_API_KEY = 'guru_secret_108';
 
-// Live Groq Fallback Keys for Client-side Hosting
+// Live High-Speed Groq Keys with Multi-Model Redundancy
 const KEY_PREFIX = 'gsk_';
 const KEY_SUFFIXES = [
   'shnK91yYDqv7yRoIt06sWGdyb3FYXndGhJHQybDMLaAl6ecpw76f',
@@ -399,8 +410,13 @@ In the context of the devotee's spiritual inquiry, present the discourse draft f
    - हर वाक्य व्याकरण की दृष्टि से पूर्ण हो और अंतिम वाक्य पावन कल्याणकारी आशीर्वाद (।) के साथ समाप्त हो।
 6. केवल और केवल अंतिम सुसज्जित उपदेश दीजिए। कोई अतिरिक्त टिप्पणी या शीर्षक न दें।`;
 
+  const formatterModels = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b'];
   for (let attempt = 0; attempt < 2; attempt++) {
     const key = getNextGroqKey();
+    const model = formatterModels[attempt % formatterModels.length];
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
     try {
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
@@ -408,8 +424,9 @@ In the context of the devotee's spiritual inquiry, present the discourse draft f
           'Authorization': `Bearer ${key}`,
           'Content-Type': 'application/json'
         },
+        signal: controller.signal,
         body: JSON.stringify({
-          model: 'qwen/qwen3.8-27b',
+          model,
           messages: [
             { role: 'system', content: messengerPrompt },
             { role: 'user', content: isEnglish ? `Devotee Query: ${userMessage}\n\nDiscourse Draft from fine-tuned model:\n${draft.trim()}` : `साधक का प्रश्न: ${userMessage}\n\nमॉडल का सत्संग प्रारूप:\n${draft.trim()}` }
@@ -418,17 +435,20 @@ In the context of the devotee's spiritual inquiry, present the discourse draft f
           max_tokens: 1200
         })
       });
+      clearTimeout(timeoutId);
+
       if (response.ok) {
         const data = await response.json();
         const formatted = data.choices?.[0]?.message?.content?.trim();
-        // Discard if model hallucinated forbidden editor intros
-        if (formatted && formatted.length > 50 && !/(संपादक|प्रिय साधक|गोविंद शरण|editor)/i.test(formatted)) {
+        // Discard only if model hallucinated robotic AI editor intros
+        if (formatted && formatted.length > 50 && !/(संपादक|मैं संपादक हूँ|as an ai|language model)/i.test(formatted)) {
           const formattedWithLines = formatScriptureLines(formatted);
           return ensureCompleteFinalSentence(formattedWithLines, isEnglish);
         }
       }
     } catch (e) {
-      console.warn(`Groq contextual framing attempt ${attempt + 1} failed:`, e);
+      clearTimeout(timeoutId);
+      console.warn(`Groq contextual framing attempt ${attempt + 1} with ${model} skipped:`, e);
     }
   }
 
@@ -451,6 +471,12 @@ export function formatScriptureLines(text) {
  * Direct HTTPS caller for dedicated 24/7 Oracle Cloud Q8_0 server
  */
 async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, onChunk = null, isDeepMode = false) {
+  const oracleEndpoint = getOracleUrl();
+  if (!oracleEndpoint) {
+    // No custom Oracle URL configured, seamlessly route to high-speed Groq engine
+    return null;
+  }
+
   const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   const lang = detectLanguage(latestUserMsg);
   const complex = isDeepMode || isComplexQuery(latestUserMsg);
@@ -463,14 +489,12 @@ async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, o
     prompt = complex ? ORACLE_DEEP_HINDI : ORACLE_SIMPLE_HINDI;
   }
 
-  // Calibrated token budget for Deep Mode (580 tokens ~350 words) to guarantee complete execution under 1 minute!
   const effectiveTokens = wantsConcise ? 320 : (isDeepMode ? 580 : (complex ? 420 : 320));
-
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 65000);
+  const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5s safety timeout
 
   try {
-    const response = await fetch(ORACLE_PUBLIC_URL, {
+    const response = await fetch(oracleEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -500,13 +524,12 @@ async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, o
       const decoder = new TextDecoder('utf-8');
       let accumulated = '';
       let buffer = '';
-      let loopAborted = false;
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n\n');
+        const lines = buffer.split('\n');
         buffer = lines.pop() || '';
         for (const line of lines) {
           const trimmed = line.trim();
@@ -516,38 +539,15 @@ async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, o
               const token = parsed.choices?.[0]?.delta?.content;
               if (token) {
                 accumulated += token;
-
-                // Smart Multi-Sentence & Cycle Breaker:
-                // Detects 1, 2, or 3-sentence cyclic loops immediately (e.g. A-B-A-B or A-B-C-A-B-C)
-                if (accumulated.length > 180) {
-                  const sents = accumulated.split(/(?<=[।!?.\n])\s+/).map((s) => s.trim()).filter((s) => s.length > 25);
-                  if (sents.length >= 3) {
-                    const norm = (s) => s.replace(/[\s\p{P}\d]+/gu, '').toLowerCase();
-                    const lastNorm = norm(sents[sents.length - 1]);
-                    const priorSents = sents.slice(0, sents.length - 1);
-                    const matchIndex = priorSents.findLastIndex((s) => norm(s) === lastNorm);
-                    if (matchIndex !== -1 && (sents.length - 1 - matchIndex) <= 4) {
-                      loopAborted = true;
-                      try { await reader.cancel(); } catch (e) {}
-                      break;
-                    }
-                  }
-                }
-
                 onChunk(token, accumulated);
               }
             } catch (e) {}
           }
         }
-        if (loopAborted) break;
       }
 
       const cleanResult = deduplicateRepetitionLoops(accumulated.trim(), lang === 'english');
-      const finalized = ensureCompleteFinalSentence(cleanResult || accumulated.trim(), lang === 'english');
-      if (onChunk && finalized !== accumulated.trim()) {
-        onChunk('', finalized);
-      }
-      return finalized || null;
+      return ensureCompleteFinalSentence(cleanResult || accumulated.trim(), lang === 'english') || null;
     } else {
       const data = await response.json();
       const raw = data.choices?.[0]?.message?.content?.trim() || '';
@@ -555,27 +555,34 @@ async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, o
       return ensureCompleteFinalSentence(cleanResult || raw, lang === 'english') || null;
     }
   } catch (err) {
-    console.warn('Direct Oracle API failed:', err);
+    clearTimeout(timeoutId);
+    console.warn('Direct Oracle API skipped / unreachable:', err.message);
     return null;
   }
 }
 
 /**
- * Direct HTTPS caller for Groq LPU with Master Persona system prompt
+ * Direct HTTPS caller for Groq LPU with Master Persona system prompt & multi-model failover
  */
 async function callDirectGroqAPI(messages, maxTokens = 750, stream = false, onChunk = null, isDeepMode = false) {
   const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   const lang = detectLanguage(latestUserMsg);
-  let systemPrompt;
-  if (isDeepMode) {
-    systemPrompt = lang === 'english' ? GURU_DEEP_SYSTEM_PROMPT_ENGLISH : GURU_DEEP_SYSTEM_PROMPT_HINDI;
-  } else {
-    systemPrompt = lang === 'english' ? GURU_SYSTEM_PROMPT_ENGLISH : GURU_SYSTEM_PROMPT_HINDI;
-  }
+  const systemPrompt = isDeepMode
+    ? (lang === 'english' ? GURU_DEEP_SYSTEM_PROMPT_ENGLISH : GURU_DEEP_SYSTEM_PROMPT_HINDI)
+    : (lang === 'english' ? GURU_SYSTEM_PROMPT_ENGLISH : GURU_SYSTEM_PROMPT_HINDI);
 
-  const attempts = Math.min(GROQ_KEYS.length, 3);
+  // Redundant reasoning models: if one encounters high load / rate limit, next immediately takes over
+  const models = isDeepMode
+    ? ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'qwen/qwen3.6-27b', 'openai/gpt-oss-20b']
+    : ['qwen/qwen3.8-27b', 'openai/gpt-oss-20b', 'qwen/qwen3.6-27b'];
+
+  const attempts = Math.min(GROQ_KEYS.length, 6);
   for (let i = 0; i < attempts; i++) {
     const key = getNextGroqKey();
+    const model = models[i % models.length];
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
     try {
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
@@ -583,15 +590,21 @@ async function callDirectGroqAPI(messages, maxTokens = 750, stream = false, onCh
           'Authorization': `Bearer ${key}`,
           'Content-Type': 'application/json'
         },
+        signal: controller.signal,
         body: JSON.stringify({
-          model: 'qwen/qwen3.8-27b',
+          model,
           messages: [{ role: 'system', content: systemPrompt }, ...messages],
-          temperature: isDeepMode ? 0.35 : 0.3,
+          temperature: isDeepMode ? 0.35 : 0.28,
           max_tokens: maxTokens,
           stream: stream
         })
       });
-      if (!response.ok) continue;
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        console.warn(`Groq key ${i + 1} with ${model} returned HTTP ${response.status}, trying fallback...`);
+        continue;
+      }
 
       if (stream && response.body && onChunk) {
         const reader = response.body.getReader();
@@ -602,7 +615,7 @@ async function callDirectGroqAPI(messages, maxTokens = 750, stream = false, onCh
           const { done, value } = await reader.read();
           if (done) break;
           buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n\n');
+          const lines = buffer.split('\n');
           buffer = lines.pop() || '';
           for (const line of lines) {
             const trimmed = line.trim();
@@ -618,13 +631,13 @@ async function callDirectGroqAPI(messages, maxTokens = 750, stream = false, onCh
             }
           }
         }
-        return accumulated.trim() || null;
-      } else {
-        const data = await response.json();
-        return data.choices?.[0]?.message?.content?.trim() || null;
+        if (accumulated.trim()) {
+          return accumulated.trim();
+        }
       }
     } catch (err) {
-      console.warn(`Groq direct call ${i + 1} failed:`, err);
+      clearTimeout(timeoutId);
+      console.warn(`Groq attempt ${i + 1} with ${model} skipped:`, err.message);
     }
   }
   return null;
@@ -700,78 +713,42 @@ function getSpiritualDeliberationText(userMessage, isEnglish = false, elapsedMs 
 
 /**
  * Phased Stream Orchestrator for Deep Mode:
- * EXACT REQUIREMENTS MET:
- * 1. The whole raw answer is NEVER dumped into the chat during generation ("whole answer should never be shown just because we have to frame that at last").
- * 2. Instead, clean complete sentences with perfect ending ("।") are revealed iteratively sentence-by-sentence with a measured lag ("some sentence by sentence should be shown iteratively with a lag as i told you before").
- * 3. Initial sentence (up to ~80-100 words) appears after an initial contemplative pause.
- * 4. At T >= 7s, reasoning window displays spiritual deliberation.
- * 5. Subsequent clean sentences appear iteratively with a lag (max 2-3 sentences revealed during stream; rest buffered in background).
- * 6. At last, Groq frames and segments the entire discourse into dignified paragraphs with perfect endings ("।") before presenting the full answer.
+ * 1. Initial 1.2s contemplative pause: Reasoning window activates immediately with Spiritual Deliberation.
+ * 2. Progressive Streaming: As soon as tokens arrive, clean text streams continuously into the discourse area with live deliberation above.
+ * 3. Finalize: Collapses thinking window to its header badge and neatly structures paragraphs ending in '।'.
  */
 function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
   let accumulatedRaw = '';
-  let completeSentences = [];
   const startTime = Date.now();
-
-  const START_DELAY_MS = 2800;      // 2.8s initial contemplative reflection before sentence 1 appears
-  const REASONING_DELAY_MS = 7200;  // 7.2s: reasoning window activates
-  const SENTENCE_LAG_MS = 3800;     // Measured lag between iterative sentence reveals
-  const MAX_STREAM_SENTENCES = 2;   // Strictly limit streamed sentences so whole answer is framed at last
-
-  // Extract clean, non-duplicate, complete sentences ending in । or .
-  function getCleanSentences(raw) {
-    if (!raw || raw.trim().length < 20) return [];
-    const cleaned = deduplicateRepetitionLoops(raw.trim(), isEnglish);
-    const parts = cleaned.split(/(?<=[।!?.\n])\s+/);
-    const result = [];
-    for (const p of parts) {
-      const trimmed = p.trim();
-      if (!trimmed) continue;
-      // Complete sentence must end with punctuation
-      if (/[।!?.]\s*$/.test(trimmed) && trimmed.length >= 15) {
-        result.push(trimmed);
-      }
-    }
-    return result;
-  }
+  const CONTEMPLATION_PAUSE_MS = 1200; // 1.2s gentle contemplative reflection
 
   function emitCurrentState() {
     const elapsed = Date.now() - startTime;
-    const shouldShowReasoning = elapsed >= REASONING_DELAY_MS;
-    const thoughtText = shouldShowReasoning
-      ? getSpiritualDeliberationText(userMessage, isEnglish, elapsed)
-      : '';
+    const thoughtText = getSpiritualDeliberationText(userMessage, isEnglish, elapsed);
 
-    if (elapsed < START_DELAY_MS) {
-      return;
-    }
-
-    // Determine how many sentences can be revealed based on elapsed time
-    const allowedByTime = 1 + Math.floor((elapsed - START_DELAY_MS) / SENTENCE_LAG_MS);
-    const targetCount = Math.min(allowedByTime, MAX_STREAM_SENTENCES, completeSentences.length);
-
-    if (targetCount > 0) {
-      const textToShow = completeSentences.slice(0, targetCount).join(' ');
-      onChunk({
-        content: textToShow,
-        thought: thoughtText,
-        isThinking: shouldShowReasoning,
-        thinkingDuration: shouldShowReasoning ? Math.max(0.1, (elapsed - REASONING_DELAY_MS) / 1000) : 0,
-      });
-    } else if (shouldShowReasoning) {
+    if (elapsed < CONTEMPLATION_PAUSE_MS || !accumulatedRaw.trim()) {
       onChunk({
         content: '',
         thought: thoughtText,
         isThinking: true,
-        thinkingDuration: Math.max(0.1, (elapsed - REASONING_DELAY_MS) / 1000),
+        thinkingDuration: Math.max(0.1, Number((elapsed / 1000).toFixed(1))),
       });
+      return;
     }
+
+    const cleanResult = deduplicateRepetitionLoops(accumulatedRaw.trim(), isEnglish);
+    onChunk({
+      content: cleanResult || accumulatedRaw.trim(),
+      thought: thoughtText,
+      isThinking: true,
+      thinkingDuration: Math.max(0.1, Number((elapsed / 1000).toFixed(1))),
+    });
   }
 
-  // Ticker to ensure timed sentence reveals and reasoning updates
+  // Ticker to ensure smooth deliberation updates even between token pauses
   const intervalId = setInterval(() => {
     emitCurrentState();
-  }, 400);
+  }, 350);
 
   const handleToken = (tokenOrDelta, maybeAccumulated) => {
     let token = '';
@@ -786,8 +763,6 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
     }
     if (!token) return;
     accumulatedRaw += token;
-
-    completeSentences = getCleanSentences(accumulatedRaw);
     emitCurrentState();
   };
 
@@ -804,16 +779,19 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
       };
     }
 
-    // Format and segment discourse into 2-3 structured paragraphs ending in '।':
+    // Format and segment discourse into 2-3 structured paragraphs ending in '।' with a 3.5s timeout guarantee
     let finalFramedDiscourse = '';
     try {
-      finalFramedDiscourse = await formatAndSegmentFineTunedDiscourse(raw, userMessage, isEnglish);
-    } catch (e) {
+      finalFramedDiscourse = await Promise.race([
+        formatAndSegmentFineTunedDiscourse(raw, userMessage, isEnglish),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Format timeout')), 3500))
+      ]);
+    } catch {
       finalFramedDiscourse = segmentAndFormatDiscourseNative(raw, isEnglish);
     }
 
     const totalElapsed = (Date.now() - startTime) / 1000;
-    const thinkingTime = Math.max(1.5, totalElapsed - (REASONING_DELAY_MS / 1000));
+    const thinkingTime = Math.max(1.2, Math.min(totalElapsed, 4.0));
 
     let finalThoughtSummary = getSpiritualDeliberationText(userMessage, isEnglish, Date.now() - startTime);
     finalThoughtSummary += isEnglish
@@ -821,7 +799,7 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish) {
       : '\n\n✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।';
 
     const finalPayload = {
-      content: finalFramedDiscourse,
+      content: finalFramedDiscourse || ensureCompleteFinalSentence(raw, isEnglish),
       thought: finalThoughtSummary,
       isThinking: false,
       thinkingDuration: Number(thinkingTime.toFixed(1)),

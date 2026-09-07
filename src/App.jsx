@@ -163,9 +163,9 @@ export default function App() {
   const [userMemory, setUserMemory] = useState(null);
   const [inferenceMode, setInferenceMode] = useState(() => {
     try {
-      return localStorage.getItem('samvaad_inference_mode') || 'deep';
+      return localStorage.getItem('samvaad_inference_mode') || 'fast';
     } catch {
-      return 'deep';
+      return 'fast';
     }
   });
   const [modeNotification, setModeNotification] = useState(null);
