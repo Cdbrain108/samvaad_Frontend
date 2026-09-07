@@ -1,6 +1,7 @@
 const API_BASE_URL = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
 
 const DEFAULT_ORACLE_GURU_URL = 'https://immature-zen-earthen.ngrok-free.dev';
+const DEFAULT_ORACLE_CF_FALLBACK_URL = 'https://generator-enormous-recommend-beautiful.trycloudflare.com';
 
 // Dynamic Oracle / GPU Endpoint for custom remote server
 export function getOracleUrl() {
@@ -9,6 +10,14 @@ export function getOracleUrl() {
     if (saved && saved.trim()) return saved.trim();
   } catch {}
   return (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ORACLE_GURU_URL) || DEFAULT_ORACLE_GURU_URL;
+}
+
+export function getOracleFallbackUrl() {
+  try {
+    const saved = localStorage.getItem('samvaad_oracle_cf_url');
+    if (saved && saved.trim()) return saved.trim();
+  } catch {}
+  return (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ORACLE_CF_FALLBACK_URL) || DEFAULT_ORACLE_CF_FALLBACK_URL;
 }
 
 export function setOracleUrl(url) {
@@ -554,102 +563,110 @@ export function formatScriptureLines(text) {
  * Direct HTTPS caller for dedicated 24/7 Oracle Cloud Q8_0 server
  */
 async function callDirectOracleAPI(messages, maxTokens = 900, stream = false, onChunk = null, isDeepMode = false, userProfile = null, userMemoryContext = '') {
-  const oracleBase = getOracleUrl();
-  if (!oracleBase) {
+  const endpoints = [
+    getOracleUrl(),
+    getOracleFallbackUrl()
+  ].filter(Boolean);
+
+  if (!endpoints.length) {
     // No custom Oracle URL configured, seamlessly route to high-speed Groq engine
     return null;
-  }
-
-  // Normalize endpoint URL: ensure it points to /v1/chat/completions
-  let targetUrl = oracleBase.replace(/\/+$/, '');
-  if (!targetUrl.endsWith('/chat/completions')) {
-    if (targetUrl.endsWith('/v1')) {
-      targetUrl = `${targetUrl}/chat/completions`;
-    } else {
-      targetUrl = `${targetUrl}/v1/chat/completions`;
-    }
   }
 
   const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   const lang = detectLanguage(latestUserMsg);
   const prompt = buildSystemPrompt(isDeepMode, lang, userProfile, userMemoryContext);
 
-  const controller = new AbortController();
-  // Realistic 60s safety timeout for remote Q8_0 GGUF server
-  const timeoutId = setTimeout(() => controller.abort(), 60000);
-
-  try {
-    const response = await fetch(targetUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${ORACLE_API_KEY}`,
-        'ngrok-skip-browser-warning': 'true'
-      },
-      signal: controller.signal,
-      body: JSON.stringify({
-        model: '/home/ubuntu/models/ai-guru-v10-4-Q8_0.gguf',
-        messages: [
-          { role: 'system', content: prompt },
-          ...messages
-        ],
-        temperature: isDeepMode ? 0.32 : 0.28,
-        repeat_penalty: 1.15,
-        frequency_penalty: 0.0,
-        presence_penalty: 0.0,
-        max_tokens: maxTokens,
-        stop: ["<|im_end|>", "</s>", "\n\nUser:", "\n\nQuestion:", "\nUser:", "User:"],
-        stream: stream
-      })
-    });
-    clearTimeout(timeoutId);
-    if (!response.ok) {
-      console.warn(`Oracle API returned HTTP ${response.status} from ${targetUrl}`);
-      return null;
+  for (let attempt = 0; attempt < endpoints.length; attempt++) {
+    const oracleBase = endpoints[attempt];
+    // Normalize endpoint URL: ensure it points to /v1/chat/completions
+    let targetUrl = oracleBase.replace(/\/+$/, '');
+    if (!targetUrl.endsWith('/chat/completions')) {
+      if (targetUrl.endsWith('/v1')) {
+        targetUrl = `${targetUrl}/chat/completions`;
+      } else {
+        targetUrl = `${targetUrl}/v1/chat/completions`;
+      }
     }
 
-    if (stream && response.body && onChunk) {
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let accumulated = '';
-      let buffer = '';
+    const controller = new AbortController();
+    // 60s safety timeout for remote Q8_0 GGUF server
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (trimmed.startsWith('data: ') && trimmed !== 'data: [DONE]') {
-            try {
-              const parsed = JSON.parse(trimmed.slice(6));
-              const token = parsed.choices?.[0]?.delta?.content;
-              if (token) {
-                accumulated += token;
-                onChunk(token, accumulated);
-              }
-            } catch (e) {}
-          }
-        }
+    try {
+      const response = await fetch(targetUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ORACLE_API_KEY}`,
+          'ngrok-skip-browser-warning': 'true'
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: '/home/ubuntu/models/ai-guru-v10-4-Q8_0.gguf',
+          messages: [
+            { role: 'system', content: prompt },
+            ...messages
+          ],
+          temperature: isDeepMode ? 0.32 : 0.28,
+          repeat_penalty: 1.15,
+          frequency_penalty: 0.0,
+          presence_penalty: 0.0,
+          max_tokens: maxTokens,
+          stop: ["<|im_end|>", "</s>", "\n\nUser:", "\n\nQuestion:", "\nUser:", "User:"],
+          stream: stream
+        })
+      });
+      clearTimeout(timeoutId);
+      if (!response.ok) {
+        console.warn(`Oracle API returned HTTP ${response.status} from ${targetUrl}, trying fallback endpoint...`);
+        continue;
       }
 
-      const formatted = formatScriptureLines(accumulated.trim());
-      const cleanResult = deduplicateRepetitionLoops(formatted, lang === 'english');
-      return ensureCompleteFinalSentence(cleanResult || formatted, lang === 'english') || null;
-    } else {
-      const data = await response.json();
-      const raw = data.choices?.[0]?.message?.content?.trim() || '';
-      const formatted = formatScriptureLines(raw);
-      const cleanResult = deduplicateRepetitionLoops(formatted, lang === 'english');
-      return ensureCompleteFinalSentence(cleanResult || formatted, lang === 'english') || null;
+      if (stream && response.body && onChunk) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let accumulated = '';
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('data: ') && trimmed !== 'data: [DONE]') {
+              try {
+                const parsed = JSON.parse(trimmed.slice(6));
+                const token = parsed.choices?.[0]?.delta?.content;
+                if (token) {
+                  accumulated += token;
+                  onChunk(token, accumulated);
+                }
+              } catch (e) {}
+            }
+          }
+        }
+
+        const formatted = formatScriptureLines(accumulated.trim());
+        const cleanResult = deduplicateRepetitionLoops(formatted, lang === 'english');
+        return ensureCompleteFinalSentence(cleanResult || formatted, lang === 'english') || null;
+      } else {
+        const data = await response.json();
+        const raw = data.choices?.[0]?.message?.content?.trim() || '';
+        const formatted = formatScriptureLines(raw);
+        const cleanResult = deduplicateRepetitionLoops(formatted, lang === 'english');
+        return ensureCompleteFinalSentence(cleanResult || formatted, lang === 'english') || null;
+      }
+    } catch (err) {
+      clearTimeout(timeoutId);
+      console.warn(`Direct Oracle API attempt ${attempt + 1} (${targetUrl}) skipped / unreachable:`, err.message);
     }
-  } catch (err) {
-    clearTimeout(timeoutId);
-    console.warn('Direct Oracle API skipped / unreachable:', err.message);
-    return null;
   }
+
+  return null;
 }
 
 /**
