@@ -1,6 +1,7 @@
 const API_BASE_URL = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
 
 const DEFAULT_ORACLE_GURU_URL = 'https://immature-zen-earthen.ngrok-free.dev';
+const DEFAULT_ORACLE_LT_FALLBACK_URL = 'https://samvaad-deep-guru.loca.lt';
 const DEFAULT_ORACLE_CF_FALLBACK_URL = 'https://generator-enormous-recommend-beautiful.trycloudflare.com';
 
 // Dynamic Oracle / GPU Endpoint for custom remote server
@@ -10,6 +11,14 @@ export function getOracleUrl() {
     if (saved && saved.trim()) return saved.trim();
   } catch {}
   return (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ORACLE_GURU_URL) || DEFAULT_ORACLE_GURU_URL;
+}
+
+export function getOracleLtUrl() {
+  try {
+    const saved = localStorage.getItem('samvaad_oracle_lt_url');
+    if (saved && saved.trim()) return saved.trim();
+  } catch {}
+  return (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ORACLE_LT_FALLBACK_URL) || DEFAULT_ORACLE_LT_FALLBACK_URL;
 }
 
 export function getOracleFallbackUrl() {
@@ -565,6 +574,7 @@ export function formatScriptureLines(text) {
 async function callDirectOracleAPI(messages, maxTokens = 900, stream = false, onChunk = null, isDeepMode = false, userProfile = null, userMemoryContext = '') {
   const endpoints = [
     getOracleUrl(),
+    getOracleLtUrl(),
     getOracleFallbackUrl()
   ].filter(Boolean);
 
@@ -599,7 +609,8 @@ async function callDirectOracleAPI(messages, maxTokens = 900, stream = false, on
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${ORACLE_API_KEY}`,
-          'ngrok-skip-browser-warning': 'true'
+          'ngrok-skip-browser-warning': 'true',
+          'Bypass-Tunnel-Reminder': 'true'
         },
         signal: controller.signal,
         body: JSON.stringify({
