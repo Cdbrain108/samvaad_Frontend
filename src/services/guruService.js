@@ -124,19 +124,28 @@ const ORACLE_DEEP_ENGLISH = `You are Pujya Sant Shri Hit Premanand Govind Sharan
 
 /**
  * Ensures the response ends gracefully on a complete, well-formed sentence terminating in '।' (or '.' in English).
- * Strips dangling conjunctions (और, लेकिन, क्योंकि, जब, etc.) and unclosed trailing fragments.
+ * Strips dangling conjunctions (और, लेकिन, क्योंकि, जब, etc.), unclosed list markers (e.g. '\n3.'), and unclosed trailing fragments.
  */
 export function ensureCompleteFinalSentence(text, isEnglish = false) {
   if (!text) return text;
   let t = text.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/  +/g, ' ').trim();
 
-  // Strip trailing dangling conjunctions/connectors
+  // 1. Strip hanging uncompleted list item numbers or bullets (e.g. '\n3.', '\n3)', '\n* ', '\n- ')
+  t = t.replace(/(?:\r?\n)+\s*(?:\d+[\.\)]|[a-zA-Z][\.\)]|[*•-])\s*$/g, '').trim();
+
+  // 2. Strip dangling markdown formatting markers at the end
+  t = t.replace(/\*{1,3}\s*$/g, '').replace(/_{1,3}\s*$/g, '').trim();
+
+  // 3. Strip trailing dangling conjunctions/connectors
   const danglingRegex = isEnglish
     ? /\s+(and|or|but|because|so|if|that|when|then|while|as)\s*$/i
     : /\s+(और|तथा|एवं|या|किन्तु|परन्तु|लेकिन|मगर|क्योंकि|इसलिए|जब|तब|तो|कि|यदि)\s*$/;
   t = t.replace(danglingRegex, '').trim();
 
-  // Repair common truncated modal clauses (e.g. 'परेशान कर सकता' -> complete with predicate and spiritual remedy)
+  // 4. Strip unclosed trailing colon
+  t = t.replace(/[:：]\s*$/g, '').trim();
+
+  // 5. Repair common truncated modal clauses
   if (!isEnglish) {
     t = t.replace(
       /(?:परेशान|विचलित|बाधित)\s+कर\s+सकता[।.]?$/,
@@ -158,11 +167,17 @@ export function ensureCompleteFinalSentence(text, isEnglish = false) {
       /(?:और\s+)?भगवान\s+का\s+भजन[।.]?$/,
       'भगवान का भजन करते हुए अपने जीवन को सफल बनाइए।'
     ).trim();
+    t = t.replace(
+      /(?:प्रभु के चरणों में\s+)?अनन्य[।.]?$/,
+      'प्रभु के चरणों में अनन्य शरणागति रखिए। प्रभु सब मंगल करेंगे।'
+    ).trim();
   }
 
-  // If already ends cleanly with terminal punctuation, return
-  if (/[।!?.\"\']$/.test(t)) return t;
+  // If already ends cleanly with terminal punctuation, verify it's not a dangling list number like "3."
+  if (/[।!?]$/.test(t)) return t;
+  if (/\.$/.test(t) && !/\b\d+\.$/.test(t)) return t;
 
+  // Find last true sentence terminator
   const lastPuncIdx = Math.max(
     t.lastIndexOf('।'),
     t.lastIndexOf('.'),
@@ -170,13 +185,9 @@ export function ensureCompleteFinalSentence(text, isEnglish = false) {
     t.lastIndexOf('?')
   );
 
-  // If there's an unclosed sentence fragment at the tail:
-  if (lastPuncIdx !== -1) {
-    const trailingFragment = t.slice(lastPuncIdx + 1).trim();
-    // If the trailing fragment has no terminal punctuation, trimming to the last complete sentence guarantees ending cleanly at '।'
-    if (trailingFragment.length < 80) {
-      return t.slice(0, lastPuncIdx + 1).trim();
-    }
+  // If there's an unclosed sentence fragment at the tail, trimming back to last sentence guarantees clean '।' ending
+  if (lastPuncIdx !== -1 && lastPuncIdx > 40) {
+    return t.slice(0, lastPuncIdx + 1).trim();
   }
 
   // Gracefully append proper terminal punctuation
@@ -564,7 +575,7 @@ async function callDirectOracleAPI(messages, maxTokens = 1100, stream = false, o
 /**
  * Direct HTTPS caller for Groq LPU with Master Persona system prompt & multi-model failover
  */
-async function callDirectGroqAPI(messages, maxTokens = 750, stream = false, onChunk = null, isDeepMode = false) {
+async function callDirectGroqAPI(messages, maxTokens = 1200, stream = false, onChunk = null, isDeepMode = false) {
   const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   const lang = detectLanguage(latestUserMsg);
   const systemPrompt = isDeepMode
@@ -920,25 +931,25 @@ export async function streamGuruResponse(
   const isComplex = isComplexQuery(userMessage);
 
   if (mode === 'deep') {
-    // Priority 1 in Deep Mode: Dedicated Oracle Cloud Q8_0 Server (budget 580 tokens for sub-60s completion)
+    // Priority 1 in Deep Mode: Dedicated Oracle Cloud Q8_0 Server (generous 1200 token budget for complete discourse)
     const tracker = createDeepModeStreamTracker(onChunk, userMessage, isEnglish);
-    const oracleResult = await callDirectOracleAPI(messages, 580, true, tracker.handleToken, true);
+    const oracleResult = await callDirectOracleAPI(messages, 1200, true, tracker.handleToken, true);
     if (oracleResult) {
       return await tracker.finalize(oracleResult);
     }
-    // Deep fallback: Fast Groq engine with Deep persona
-    const groqResult = await callDirectGroqAPI(messages, 580, true, tracker.handleToken, true);
+    // Deep fallback: Fast Groq engine with Deep persona (generous 1200 tokens)
+    const groqResult = await callDirectGroqAPI(messages, 1200, true, tracker.handleToken, true);
     if (groqResult) {
       return await tracker.finalize(groqResult);
     }
   } else {
-    // Priority 1 in Fast Mode: Instant Groq LPU (clean, direct response)
-    const groqResult = await callDirectGroqAPI(messages, isComplex ? 500 : 350, true, (tok, acc) => onChunk(acc || tok), false);
+    // Priority 1 in Fast Mode: Instant Groq LPU (generous 1100 token budget so answers never truncate mid-thought)
+    const groqResult = await callDirectGroqAPI(messages, 1100, true, (tok, acc) => onChunk(acc || tok), false);
     if (groqResult) {
       return ensureCompleteFinalSentence(groqResult, isEnglish);
     }
     // Fast fallback: Oracle server
-    const oracleResult = await callDirectOracleAPI(messages, isComplex ? 400 : 280, true, (tok, acc) => onChunk(acc || tok), false);
+    const oracleResult = await callDirectOracleAPI(messages, 1000, true, (tok, acc) => onChunk(acc || tok), false);
     if (oracleResult) {
       const refined = await refineDeepTunedResponseWithGroq(oracleResult, userMessage, isEnglish);
       return ensureCompleteFinalSentence(refined || oracleResult, isEnglish);
