@@ -22,7 +22,7 @@ export const SCRIPTURE_DATABASE = [
       'आलस', 'आलस्य', 'सुस्ती', 'प्रमाद', 'आलस आता है', 'आलस कैसे छोड़ें', 'काम करने का मन नहीं करता', 'बैठे रहना', 'अकर्म', 'अकर्मण्यता', 'काम टालना', 'सुस्ती दूर', 'कर्महीन',
       'laziness', 'lazy', 'procrastination', 'procrastinate', 'lethargy', 'inaction', 'lack of motivation', 'demotivated', 'overcome laziness', 'stop being lazy',
       'బద్ధకం', 'సోమరితనం', 'పనిచేయాలనిపించట్లేదు',
-      'alas', 'aalas', 'sustee', 'kam karne ka man nahi karta', 'procrastinating'
+      'alas', 'aalas', 'alasya', 'alasya kaise dur kare', 'alas kaise chhode', 'alas kaise door kare', 'sustee', 'kam karne ka man nahi karta', 'procrastinating'
     ]
   },
 
@@ -57,7 +57,7 @@ export const SCRIPTURE_DATABASE = [
       'मेहनत', 'परिश्रम', 'कड़ी मेहनत', 'सफलता नहीं मिल रही', 'असफल', 'असफलता', 'कर्म का फल', 'मेहनत का फल', 'सफलता कब मिलेगी', 'निराशा कर्म', 'परीक्षा फल',
       'hard work', 'working hard', 'work hard', 'no success', 'not getting success', 'failed', 'failure', 'results', 'fruits of action', 'effort', 'struggling career', 'reward', 'unsuccessful',
       'కష్టపడి', 'కష్టం', 'పనిచేస్తున్నాను', 'విజయం', 'విజయము', 'ఫలితం', 'సఫలత', 'ఓటమి', 'కష్టానికి ప్రతిఫలం',
-      'mehnat kar raha hu', 'safalta nahi mil rahi', 'fal nahi mil raha', 'hardwork', 'karm fal'
+      'mehnat kar raha hu', 'safalta nahi mil rahi', 'fal nahi mil raha', 'hardwork', 'karm fal', 'karm ka phal', 'karm ka fal', 'karm ka phal kab milta hai', 'karm ka fal kab milta hai'
     ]
   },
 
@@ -128,7 +128,7 @@ export const SCRIPTURE_DATABASE = [
       'क्रोध', 'गुस्सा', 'क्रोध कैसे रोकें', 'गुस्सा बहुत आता है', 'क्रोध शांत', 'गुस्से पर नियंत्रण', 'चिड़चिड़ापन',
       'anger', 'angry', 'control anger', 'temper', 'rage', 'how to control temper', 'short tempered',
       'కోపం', 'కోపము', 'క్రోధము',
-      'gussa aata hai', 'gussa kaise roke', 'krodh shant'
+      'gussa aata hai', 'gussa kaise roke', 'krodh shant', 'krodh par kabu', 'krodh kaise kabu kare', 'krodh par kaise kabu karein', 'gusse par kabu', 'gussa kaise shant kare'
     ]
   },
 
@@ -233,7 +233,8 @@ export const SCRIPTURE_DATABASE = [
     keywords: [
       'भगवान रक्षा करेंगे', 'चिंता', 'भविष्य की चिंता', 'परिवार की चिंता', 'योगक्षेम', 'ईश्वर सहारा', 'प्रभु संभालेंगे',
       'will God protect me', 'future anxiety', 'financial anxiety', 'divine care', 'providence', 'who will take care of me',
-      'యోగక్షేమం'
+      'యోగక్షేమం',
+      'bhagwan raksha karenge', 'bhagwan sambhalenge', 'kya bhagwan raksha karenge', 'kya bhagwan meri raksha karenge', 'prabhu raksha karenge'
     ]
   },
 
@@ -518,8 +519,8 @@ function isCasualConversational(query) {
     .replace(/\s+/g, ' ')
     .trim();
 
-  // Pure greetings
-  const pureGreetings = /^(?:राधे\s*राधे|जय\s*श्री\s*(?:कृष्णा?|राम|राधे)|प्रणाम|चरण\s*स्पर्श|नमस्ते|नमस्कार|हेलो|हाय|hello|hi|hey|good\s*(?:morning|evening|afternoon)|hare\s*krishna)$/i;
+  // Pure greetings (Hindi Devanagari, English, and Latin Hinglish)
+  const pureGreetings = /^(?:राधे\s*राधे|जय\s*श्री\s*(?:कृष्णा?|राम|राधे)|प्रणाम|चरण\s*स्पर्श|नमस्ते|नमस्कार|राम\s*राम|हेलो|हाय|hello|hi|hey|good\s*(?:morning|evening|afternoon)|hare\s*krishna|radhe\s*radhe|radhey?\s*radhey?|jai\s*shree?\s*(?:krishna|ram|radhe)|namaste|pranam|charan\s*sparsh|hare\s*(?:krishna|rama?)|ram\s*ram)$/i;
   if (!stripped || pureGreetings.test(stripped) || pureGreetings.test(clean)) return true;
 
   // Simple routine queries like 'how are you'
@@ -571,9 +572,10 @@ async function queryOracleVectorRAG(query) {
     const candidates = Array.isArray(data.results) ? data.results : [];
 
     // Find the highest-scoring candidate that has an authentic, non-empty translation
+    // Strict threshold >= 0.55 prevents random false positives from polluting the prompt
     const top = candidates.find(c =>
       c &&
-      c.score >= 0.38 &&
+      c.score >= 0.55 &&
       c.original_text &&
       ((c.hindi_meaning && c.hindi_meaning.trim().length >= 6) ||
        (c.english_translation && c.english_translation.trim().length >= 6))
@@ -607,6 +609,14 @@ async function queryOracleVectorRAG(query) {
   return null;
 }
 
+const SCRIPTURE_STOP_WORDS = new Set([
+  'kaise', 'kare', 'karein', 'karta', 'karti', 'karo', 'karna', 'karke',
+  'door', 'dur', 'hota', 'hoti', 'hote', 'hai', 'hain', 'ho', 'hoon', 'hun',
+  'nahi', 'nahin', 'mat', 'chahiye', 'batao', 'bataiye', 'kya', 'kyu', 'kyun',
+  'meri', 'mera', 'mere', 'hum', 'hume', 'hame', 'aap', 'apka', 'apki', 'apne',
+  'how', 'what', 'why', 'when', 'where', 'who', 'stop', 'overcome', 'from', 'with', 'and', 'the'
+]);
+
 /**
  * Local keyword & stem scripture matcher fallback
  */
@@ -620,7 +630,7 @@ export function getLocalScriptureGrounding(query) {
   let bestMatch = null;
   let highestScore = 0;
 
-  const queryTokens = cleanQ.split(' ').filter(t => t.length >= 3);
+  const queryTokens = cleanQ.split(' ').filter(t => t.length >= 3 && !SCRIPTURE_STOP_WORDS.has(t));
 
   for (const item of SCRIPTURE_DATABASE) {
     let score = 0;
@@ -640,7 +650,7 @@ export function getLocalScriptureGrounding(query) {
           score += kw.length >= 6 ? 3.5 : 2.5;
         }
       } else {
-        const kwTokens = kw.split(' ').filter(t => t.length >= 3);
+        const kwTokens = kw.split(' ').filter(t => t.length >= 3 && !SCRIPTURE_STOP_WORDS.has(t));
         for (const kt of kwTokens) {
           for (const qt of queryTokens) {
             if (qt === kt) {
@@ -673,14 +683,23 @@ export function getLocalScriptureGrounding(query) {
 
 /**
  * Unified Scripture RAG retrieval:
- * 1. Priority 1: High-speed live Qdrant Vector Search (9,558 passages) on Oracle VM.
- * 2. Priority 2: Zero-latency verified curated catalog fallback.
+ * 1. Priority 1: High-confidence hand-verified curated catalog (score >= 4.0).
+ *    Guarantees that essential core inquiries (fear of death, laziness, depression,
+ *    restless mind, anger, surrender) immediately receive the authentic, pristine shloka.
+ * 2. Priority 2: Live Qdrant Vector Search across 9,558 passages on Oracle VM (score >= 0.55).
+ * 3. Priority 3: Fallback to lower-threshold curated matches.
  */
 export async function getScriptureGrounding(query) {
   if (!query || typeof query !== 'string') return null;
   if (isCasualConversational(query)) return null;
 
-  // 1. Live Vector Search from Oracle Cloud Qdrant database (9,558 scriptures)
+  // 1. Check curated catalog for high-confidence hand-verified match
+  const curatedMatch = getLocalScriptureGrounding(query);
+  if (curatedMatch && curatedMatch.score >= 4.0) {
+    return curatedMatch;
+  }
+
+  // 2. High-speed Live Vector Search from Oracle Cloud Qdrant database (9,558 scriptures)
   try {
     const liveVectorMatch = await queryOracleVectorRAG(query);
     if (liveVectorMatch) {
@@ -688,8 +707,8 @@ export async function getScriptureGrounding(query) {
     }
   } catch (e) {}
 
-  // 2. Fallback to local curated index
-  return getLocalScriptureGrounding(query);
+  // 3. Fallback to any moderate curated match if available
+  return curatedMatch || null;
 }
 
 /**

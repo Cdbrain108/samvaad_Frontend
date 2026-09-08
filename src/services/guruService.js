@@ -434,15 +434,20 @@ export function segmentAndFormatDiscourseNative(text, isEnglish = false) {
     return paragraphs.map((p) => ensureCompleteFinalSentence(p, isEnglish)).join('\n\n');
   }
 
-  // If still 1 paragraph, split balanced into 2-3 segments by word count
-  const words = cleaned.split(/\s+/);
-  if (words.length >= 45) {
-    const p1Count = Math.floor(words.length * 0.35);
-    const p2Count = Math.floor(words.length * 0.35);
-    const p1 = ensureCompleteFinalSentence(words.slice(0, p1Count).join(' '), isEnglish);
-    const p2 = ensureCompleteFinalSentence(words.slice(p1Count, p1Count + p2Count).join(' '), isEnglish);
-    const p3 = ensureCompleteFinalSentence(words.slice(p1Count + p2Count).join(' '), isEnglish);
-    return [p1, p2, p3].filter(Boolean).join('\n\n');
+  // If still 1 paragraph, split balanced into 2-3 segments strictly on complete sentence boundaries (NEVER cut mid-sentence)
+  const sentences = cleaned.match(/[^।!?.\n]+[।!?.]+/g);
+  if (sentences && sentences.length >= 4) {
+    const mid1 = Math.ceil(sentences.length / 3);
+    const mid2 = Math.ceil((sentences.length * 2) / 3);
+    const p1 = sentences.slice(0, mid1).join(' ').trim();
+    const p2 = sentences.slice(mid1, mid2).join(' ').trim();
+    const p3 = sentences.slice(mid2).join(' ').trim();
+    return [p1, p2, p3].filter(Boolean).map((p) => ensureCompleteFinalSentence(p, isEnglish)).join('\n\n');
+  } else if (sentences && sentences.length >= 2) {
+    const mid = Math.ceil(sentences.length / 2);
+    const p1 = sentences.slice(0, mid).join(' ').trim();
+    const p2 = sentences.slice(mid).join(' ').trim();
+    return [p1, p2].filter(Boolean).map((p) => ensureCompleteFinalSentence(p, isEnglish)).join('\n\n');
   }
 
   return ensureCompleteFinalSentence(cleaned, isEnglish);
@@ -629,11 +634,11 @@ async function callDirectOracleAPI(messages, maxTokens = 900, stream = false, on
             ...messages
           ],
           temperature: isDeepMode ? 0.32 : 0.28,
-          repeat_penalty: 1.15,
-          frequency_penalty: 0.0,
-          presence_penalty: 0.0,
+          repeat_penalty: 1.24,
+          frequency_penalty: 0.15,
+          presence_penalty: 0.05,
           max_tokens: maxTokens,
-          stop: ["<|im_end|>", "</s>", "\n\nUser:", "\n\nQuestion:", "\nUser:", "User:"],
+          stop: ["<end_of_turn>", "<start_of_turn>", "<|im_end|>", "</s>", "\n\nUser:", "\n\nQuestion:", "\nUser:", "User:"],
           stream: stream
         })
       });
@@ -1016,7 +1021,7 @@ export async function streamGuruResponse(
   if (mode === 'deep') {
     // Priority 1 in Deep Mode: Dedicated Fine-Tuned Oracle Cloud Q8_0 Server via active tunnel (5.5s timeout)
     const tracker = createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture);
-    const oracleResult = await callDirectOracleAPI(messages, 380, true, tracker.handleToken, true, userProfile, userMemoryContext, scripture);
+    const oracleResult = await callDirectOracleAPI(messages, 700, true, tracker.handleToken, true, userProfile, userMemoryContext, scripture);
     if (oracleResult) {
       return await tracker.finalize(oracleResult);
     }
@@ -1049,7 +1054,7 @@ export async function streamGuruResponse(
     // Fast fallback: Oracle server
     const oracleResult = await callDirectOracleAPI(
       messages,
-      380,
+      700,
       true,
       (tok, acc) => onChunk({ content: acc || tok, scripture: scripture || null }),
       false,
