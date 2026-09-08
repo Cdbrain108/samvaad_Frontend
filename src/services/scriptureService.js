@@ -529,18 +529,81 @@ function isCasualConversational(query) {
   return false;
 }
 
-/**
- * High-accuracy multi-scripture RAG matcher
- * Selects the single most precise scripture that directly answers the seeker's inquiry.
- */
-export function getScriptureGrounding(query) {
-  if (!query || typeof query !== 'string') return null;
-  if (isCasualConversational(query)) return null;
+const RAG_ENDPOINT = 'https://immature-zen-earthen.ngrok-free.dev/rag/search';
 
+/**
+ * Queries the live 9,558-passage Qdrant Vector Database on Oracle Cloud
+ * Executes BAAI/bge-m3 / multilingual cosine similarity search in sub-100ms
+ */
+async function queryOracleVectorRAG(query) {
+  if (typeof fetch === 'undefined') return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 2200);
+
+  let scriptureFilter = 'all';
+  if (/(गीता|gita|भगवद्गीता)/i.test(query)) {
+    scriptureFilter = 'gita';
+  } else if (/(रामायण|ramayan|रामचरित|ramcharitmanas|मानस)/i.test(query)) {
+    scriptureFilter = 'ramcharitmanas';
+  } else if (/(भागवत|bhagavatam|पुराण)/i.test(query)) {
+    scriptureFilter = 'bhagavata';
+  }
+
+  try {
+    const res = await fetch(RAG_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        query: query.trim(),
+        scripture: scriptureFilter,
+        top_k: 2
+      })
+    });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    const top = data.results?.[0];
+
+    // High confidence vector threshold (cosine similarity >= 0.38)
+    if (top && top.score >= 0.38 && top.original_text) {
+      const isGita = (top.scripture_id || '').includes('gita') || (top.reference || '').includes('Gita');
+      return {
+        id: top.id || `qdrant_${Date.now()}`,
+        scripture_id: top.scripture_id || (isGita ? 'bhagavad_gita' : 'ramcharitmanas'),
+        reference: top.reference,
+        original_text: top.original_text,
+        hindi_meaning: top.hindi_meaning,
+        english_translation: top.english_translation || top.hindi_meaning,
+        context_intro_hi: isGita
+          ? `जैसे ${top.reference} में भगवान श्रीकृष्ण कहते हैं कि —`
+          : `जैसे ${top.reference} में पावन उपदेश है कि —`,
+        context_intro_en: isGita
+          ? `Just as revealed in ${top.reference} —`
+          : `Just as proclaimed in ${top.reference} —`,
+        score: top.score,
+        match_type: 'qdrant_vector_rag'
+      };
+    }
+  } catch (err) {
+    clearTimeout(timeoutId);
+  }
+  return null;
+}
+
+/**
+ * Local keyword & stem scripture matcher fallback
+ */
+export function getLocalScriptureGrounding(query) {
+  if (!query || typeof query !== 'string') return null;
   const cleanQ = normalizeQuery(query);
   if (!cleanQ || cleanQ.length < 3) return null;
 
-  // Explicit scripture request check
   const wantsVerse = /(श्लोक|श्लोका|shlok|shloka|verse|गीता|gita|रामायण|ramayan|रामचरितमानस|भागवत|scripture|प्रमाण)/i.test(query);
 
   let bestMatch = null;
@@ -554,11 +617,9 @@ export function getScriptureGrounding(query) {
       const kw = normalizeQuery(keyword);
       if (!kw || kw.length < 2) continue;
 
-      // Exact phrase match
       if (cleanQ === kw) {
         score += 15.0;
       } else if (cleanQ.includes(kw)) {
-        // Multi-word distinct dilemmas get massive specificity boosts
         const wordCount = kw.split(' ').length;
         if (wordCount >= 3) {
           score += 8.0;
@@ -568,7 +629,6 @@ export function getScriptureGrounding(query) {
           score += kw.length >= 6 ? 3.5 : 2.5;
         }
       } else {
-        // Token stem match (e.g. "निराश" vs "निराशा", "समर्पित" vs "समर्पण")
         const kwTokens = kw.split(' ').filter(t => t.length >= 3);
         for (const kt of kwTokens) {
           for (const qt of queryTokens) {
@@ -588,7 +648,6 @@ export function getScriptureGrounding(query) {
     }
   }
 
-  // Minimum relevance threshold: 2.2 (requires at least one clean contextual keyword match)
   const threshold = wantsVerse ? 1.5 : 2.2;
   if (highestScore >= threshold && bestMatch) {
     return {
@@ -599,6 +658,27 @@ export function getScriptureGrounding(query) {
   }
 
   return null;
+}
+
+/**
+ * Unified Scripture RAG retrieval:
+ * 1. Priority 1: High-speed live Qdrant Vector Search (9,558 passages) on Oracle VM.
+ * 2. Priority 2: Zero-latency verified curated catalog fallback.
+ */
+export async function getScriptureGrounding(query) {
+  if (!query || typeof query !== 'string') return null;
+  if (isCasualConversational(query)) return null;
+
+  // 1. Live Vector Search from Oracle Cloud Qdrant database (9,558 scriptures)
+  try {
+    const liveVectorMatch = await queryOracleVectorRAG(query);
+    if (liveVectorMatch) {
+      return liveVectorMatch;
+    }
+  } catch (e) {}
+
+  // 2. Fallback to local curated index
+  return getLocalScriptureGrounding(query);
 }
 
 /**

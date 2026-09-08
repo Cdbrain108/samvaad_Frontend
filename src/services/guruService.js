@@ -1000,10 +1000,10 @@ export async function streamGuruResponse(
 ) {
   const isEnglish = detectLanguage(userMessage) === 'english';
 
-  // Retrieve RAG scripture grounding if applicable
-  const scripture = getScriptureGrounding(userMessage);
+  // Retrieve RAG scripture grounding if applicable (live Qdrant vector search or curated index)
+  const scripture = await getScriptureGrounding(userMessage);
   if (scripture) {
-    console.log(`[+] Grounded with Scripture: ${scripture.reference} (Score: ${scripture.score})`);
+    console.log(`[+] Grounded with Scripture: ${scripture.reference} (Score: ${scripture.score}) [${scripture.match_type}]`);
   }
 
   // Summarize prior chat info into a concise 2-line summary to prevent slow inference
