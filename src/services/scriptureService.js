@@ -568,18 +568,29 @@ async function queryOracleVectorRAG(query) {
 
     if (!res.ok) return null;
     const data = await res.json();
-    const top = data.results?.[0];
+    const candidates = Array.isArray(data.results) ? data.results : [];
 
-    // High confidence vector threshold (cosine similarity >= 0.38)
-    if (top && top.score >= 0.38 && top.original_text) {
+    // Find the highest-scoring candidate that has an authentic, non-empty translation
+    const top = candidates.find(c =>
+      c &&
+      c.score >= 0.38 &&
+      c.original_text &&
+      ((c.hindi_meaning && c.hindi_meaning.trim().length >= 6) ||
+       (c.english_translation && c.english_translation.trim().length >= 6))
+    );
+
+    if (top) {
       const isGita = (top.scripture_id || '').includes('gita') || (top.reference || '').includes('Gita');
+      const hindiMean = (top.hindi_meaning || '').trim();
+      const engMean = (top.english_translation || '').trim();
+
       return {
         id: top.id || `qdrant_${Date.now()}`,
         scripture_id: top.scripture_id || (isGita ? 'bhagavad_gita' : 'ramcharitmanas'),
         reference: top.reference,
         original_text: top.original_text,
-        hindi_meaning: top.hindi_meaning,
-        english_translation: top.english_translation || top.hindi_meaning,
+        hindi_meaning: hindiMean || engMean,
+        english_translation: engMean || hindiMean,
         context_intro_hi: isGita
           ? `जैसे ${top.reference} में भगवान श्रीकृष्ण कहते हैं कि —`
           : `जैसे ${top.reference} में पावन उपदेश है कि —`,
@@ -688,14 +699,11 @@ export function injectScripturePrompt(basePrompt, scripture, isEnglish = false) 
   if (!scripture) return basePrompt;
 
   const intro = isEnglish ? scripture.context_intro_en : scripture.context_intro_hi;
-  const meaning = isEnglish ? scripture.english_translation : scripture.hindi_meaning;
+  const meaning = ((isEnglish ? scripture.english_translation : scripture.hindi_meaning) || scripture.hindi_meaning || scripture.english_translation || '').trim();
 
   if (isEnglish) {
-    const block = `\n\n【SACRED SCRIPTURE GROUNDING (RAG) - MANDATORY CITATION】:
-Scripture Reference: ${scripture.reference}
-Contextual Introduction: ${intro}
-Original Sanskrit Verse: ${scripture.original_text}
-Sacred Meaning: ${meaning}
+    const meaningInstruction = meaning
+      ? `Sacred Meaning: ${meaning}
 
 PRESENTATION FORMAT (MANDATORY):
 1. Naturally weave this verse into your discourse using its authentic introduction:
@@ -703,14 +711,24 @@ PRESENTATION FORMAT (MANDATORY):
    **« ${scripture.original_text} »**
 2. Immediately provide its heartfelt spiritual essence:
    **अर्थात् —** "${meaning}"
-3. Thereafter, in Pujya Maharaj Ji's compassionate, fatherly voice ('Look, dear child...', 'Thakur Ji...'), comfort the seeker's struggle with loving spiritual assurance and Holy Name remembrance ('Radha Radha').`;
+3. Explain the meaning of this holy verse clearly in Pujya Maharaj Ji's compassionate, fatherly voice, connecting its profound wisdom directly to the devotee's query.`
+      : `PRESENTATION FORMAT (MANDATORY):
+1. Naturally weave this verse into your discourse using its authentic introduction:
+   ${intro}
+   **« ${scripture.original_text} »**
+2. In the very next line, explain the heartfelt spiritual meaning of this verse clearly:
+   **अर्थात् —** [Explain the spiritual essence and meaning of this holy verse in simple words]
+3. Connect its wisdom directly to the devotee's life with loving assurance.`;
+
+    const block = `\n\n【SACRED SCRIPTURE GROUNDING (RAG) - MANDATORY CITATION】:
+Scripture Reference: ${scripture.reference}
+Contextual Introduction: ${intro}
+Original Sanskrit Verse: ${scripture.original_text}
+${meaningInstruction}`;
     return basePrompt + block;
   } else {
-    const block = `\n\n【अनिवार्य शास्त्र प्रमाण व प्रसंग निर्देश (SCRIPTURE GROUNDING)】:
-ग्रंथ संदर्भ: ${scripture.reference}
-प्रसंग भूमिका: ${intro}
-मूल संस्कृत श्लोक: ${scripture.original_text}
-शास्त्रसम्मत भावार्थ: ${meaning}
+    const meaningInstruction = meaning
+      ? `शास्त्रसम्मत भावार्थ: ${meaning}
 
 प्रस्तुति प्रारूप (MANDATORY FORMAT):
 1. उत्तर में श्लोक से ठीक पहले उसकी प्रामाणिक प्रसंग भूमिका स्वाभाविक रूप से कहें:
@@ -718,7 +736,20 @@ PRESENTATION FORMAT (MANDATORY):
    **« ${scripture.original_text} »**
 2. श्लोक के ठीक नीचे उसका सरल व मर्मस्पर्शी भावार्थ अवश्य लिखें:
    **अर्थात् —** "${meaning}"
-3. इसके पश्चात पूज्य श्री प्रेमानंद जी महाराज की प्रामाणिक वात्सल्यमयी शैली ('देखो बच्चा...', 'हमारे ठाकुर जी...') में साधक के प्रश्न से जोड़ते हुए उपदेश दीजिए (कर्म को प्रभु सेवा मानना, फल प्रभु पर छोड़ना, और निरंतर 'राधा-राधा' नाम का आश्रय लेना)।
+3. इसके पश्चात पूज्य महाराज जी की वात्सल्यमयी वाणी में इस श्लोक के अर्थ को साधक के प्रश्न से जोड़ते हुए समझाइए (श्लोक का भाव क्या है, यह साधक के भय/संशय को कैसे दूर करता है, और 'राधा-राधा' नाम का आश्रय लेना)।`
+      : `प्रस्तुति प्रारूप (MANDATORY FORMAT):
+1. उत्तर में श्लोक से ठीक पहले उसकी प्रामाणिक प्रसंग भूमिका स्वाभाविक रूप से कहें:
+   ${intro}
+   **« ${scripture.original_text} »**
+2. श्लोक के ठीक नीचे उसका सरल व मर्मस्पर्शी भावार्थ अवश्य स्पष्ट करें:
+   **अर्थात् —** [इस पावन श्लोक का सरल, सुंदर भावार्थ और अर्थ अपनी वाणी में स्पष्ट लिखिए]
+3. इसके पश्चात पूज्य महाराज जी की वात्सल्यमयी वाणी में इस श्लोक के अर्थ को साधक के प्रश्न से जोड़ते हुए उपदेश दीजिए।`;
+
+    const block = `\n\n【अनिवार्य शास्त्र प्रमाण व प्रसंग निर्देश (SCRIPTURE GROUNDING)】:
+ग्रंथ संदर्भ: ${scripture.reference}
+प्रसंग भूमिका: ${intro}
+मूल संस्कृत श्लोक: ${scripture.original_text}
+${meaningInstruction}
 मर्यादा: श्लोक को शुद्ध रखें, **« ${scripture.original_text} »** और **अर्थात् —** का प्रारूप सुरक्षित रखें।`;
     return basePrompt + block;
   }
