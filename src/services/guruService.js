@@ -225,10 +225,10 @@ export function ensureCompleteFinalSentence(text, isEnglish = false) {
   // 2. Strip dangling markdown formatting markers at the end
   t = t.replace(/\*{1,3}\s*$/g, '').replace(/_{1,3}\s*$/g, '').trim();
 
-  // 3. Strip trailing dangling conjunctions/connectors
+  // 3. Strip trailing dangling conjunctions/connectors (even if immediately followed by '।' or '.')
   const danglingRegex = isEnglish
-    ? /\s+(and|or|but|because|so|if|that|when|then|while|as)\s*$/i
-    : /\s+(और|तथा|एवं|या|किन्तु|परन्तु|लेकिन|मगर|क्योंकि|इसलिए|जब|तब|तो|कि|यदि)\s*$/;
+    ? /\s+(and|or|but|because|so|if|that|when|then|while|as)\s*[।.]?$/i
+    : /\s+(और|तथा|एवं|या|किन्तु|परन्तु|लेकिन|मगर|क्योंकि|इसलिए|जब|तब|तो|कि|यदि|व)\s*[।.]?$/;
   t = t.replace(danglingRegex, '').trim();
 
   // 4. Strip unclosed trailing colon
