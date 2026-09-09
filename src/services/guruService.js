@@ -804,8 +804,15 @@ function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedM
   const scriptId = (scripture?.id || '').toLowerCase();
   const scriptRef = (scripture?.reference || '').toLowerCase();
 
-  const isGaruda = /(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(qLower) ||
-                   scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda');
+  const isMatsya = /(मत्स्य|matsya)/i.test(qLower) ||
+                   scriptId.includes('matsya') || scriptRef.includes('मत्स्य') || scriptRef.includes('matsya');
+
+  const isGarudaSins = (/(सबसे\s*बड़ा\s*पाप|महापाप|greatest\s*sin|worst\s*sin|paap|पाप)/i.test(qLower) &&
+                        /(गरुड़|गरुण|garud|garun)/i.test(qLower)) ||
+                       scriptId === 'garuda_purana_sins' || scriptRef.includes('महापाप');
+
+  const isGaruda = !isMatsya && (/(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(qLower) ||
+                   scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda'));
 
   const isGita = /(गीता|geeta|gita|कुरुक्षेत्र|अर्जुन|गांडीव|विषाद|निष्काम|कर्मण्येवाधिकारस्ते)/i.test(qLower) ||
                  scriptId.includes('gita') || scriptRef.includes('गीता') || scriptRef.includes('gita');
@@ -819,7 +826,53 @@ function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedM
   let fullThoughtHindi = '';
   let fullThoughtEnglish = '';
 
-  if (isGaruda) {
+  if (isMatsya) {
+    fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का श्रीमत्स्य पुराण के आलोक में विश्लेषण।
+📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): 24 शास्त्रों (173,396 श्लोक) में से श्रीमत्स्य पुराण (14,000 श्लोक) का अनुसंधान।
+[OK] श्रीमत्स्य पुराण: साक्षात् भगवान मत्स्य व राजा सत्यव्रत (वैवस्वत मनु) के पावन संवाद का समन्वय।
+🐟 मत्स्यावतार प्रसंग: प्रलयकाल के महाजलप्लावन में वेदों की रक्षा, धर्म-स्थापना व राजा मनु की नौका की रक्षा का तात्त्विक अन्वेषण।
+🌊 प्रलय व सृष्टि-संरक्षण: सप्तर्षियों, औषधियों और समस्त जीवन-बीजों को प्रलय से उबारने के ईश्वरीय संकल्प का मंथन।
+📿 धर्म व सत्य की प्रतिष्ठा: 'यतो धर्मस्ततो जयः। धर्मेण धार्यते लोकः सत्ये सर्वं प्रतिष्ठितम्'—सत्य और धर्म के शाश्वत नियमों का निरूपण।
+💡 भवसागर तरण का रहस्य: संसार रूपी प्रलयकारी समुद्र में भगवान के चरणों का आश्रय ही जीव की एकमात्र सुरक्षित नौका।
+🪔 संत-वाणी व पूज्य महाराज जी का वात्सल्यमयी दृष्टिकोण: संसार के तूफानों से विचलित न होकर निरंतर 'राधा-राधा' नाम की नौका में आरूढ़ रहना।
+🕊️ चित्त-प्रसादन व समाधान: साधक के हृदय में धर्म-निष्ठा, आत्म-रक्षा का भरोसा और मंगलकारी आशीर्वाद की संरचना।
+✍️ वाणी संकलन: मत्स्य पुराण के पावन श्लोकों, भावार्थ व पूज्य महाराज जी की प्रामाणिक एकांतिक वार्तालाप शैली में पूर्ण उपदेश का संयोजन।
+✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
+
+    fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual inquiry regarding ("${q}...") in the light of the Matsya Purana.
+📜 Scripture Grounding (AWS Qdrant RAG): Searching 24 sacred scripture collections for Shrimad Matsya Purana (14,000 verses).
+[OK] Shrimad Matsya Purana: Divine dialogue between Lord Matsya and King Satyavrata (Vaivasvata Manu).
+🐟 Matsyavatara Revelation: Lord Vishnu's primal fish incarnation protecting the sacred Vedas and King Manu's boat during the cosmic deluge (Pralaya).
+🌊 Cosmic Deluge & Preservation: Rescuing the Saptarshis, life seeds, and cosmic wisdom from dissolution.
+📿 Triumph of Righteousness: Contemplating 'Yato dharmas tato jayah'—righteousness upholds cosmic order and truth alone prevails.
+💡 Crossing the Ocean of Delusion: In the turbulent ocean of Maya, God's lotus feet serve as the singular unshakable vessel.
+🪔 Maharaj Ji's Fatherly Guidance: Weathering life's storms by anchoring consciousness in ceaseless 'Radha Radha' remembrance.
+🕊️ Spiritual Solace: Establishing unwavering faith, inner courage, and auspicious divine blessings for the seeker.
+✍️ Discourse Synthesis: Finalizing authentic satsang counsel with sacred Matsya Purana verses and fatherly blessings.
+✓ Spiritual deliberation concluded. Complete authentic discourse formulated.`;
+  } else if (isGarudaSins) {
+    fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का गरुड़ पुराण के आलोक में महापाप व कर्म-सिद्धांत का विश्लेषण।
+📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): 24 शास्त्रों में से श्री गरुड़ पुराण (प्रेतकल्प, अध्याय ३५) का अनुसंधान।
+[OK] श्री गरुड़ पुराण: भगवान श्रीहरि विष्णु द्वारा पक्षीराज गरुड़ जी को सबसे बड़े पाप (कृतघ्नता निर्णय) का प्रामाणिक उपदेश।
+⚖️ महापाप का शास्त्रीय निर्णय: 'गोघ्ने चैव सुरापे च चौरे भग्नव्रते तथा। निष्कृतिर्विहिता सद्भिः कृतघ्ने नास्ति निष्कृतिः' का तात्त्विक मंथन।
+💔 कृतघ्नता व विश्वासघात: उपकार को भूलना, उपकारी का अहित करना, मित्रद्रोह तथा माता-पिता व गुरु का तिरस्कार सबसे बड़ा अक्षम्य पाप।
+📿 प्रायश्चित व उद्धार का मार्ग: सच्चे हृदय से पश्चात्ताप, क्षमा-याचना, जीव-सेवा और निरंतर 'राधा-राधा' नाम जप द्वारा अंतःकरण की शुद्धि।
+🪔 संत-वाणी व पूज्य महाराज जी का वात्सल्यमयी दृष्टिकोण: किसी के साथ छल या विश्वासघात न करना, सबके प्रति कृतज्ञ रहना और ठाकुर जी की शरण लेना।
+🕊️ चित्त-प्रसादन व समाधान: साधक के मन से भ्रांति-निवारण, सदाचार की प्रेरणा और मंगलकारी आशीर्वाद की संरचना।
+✍️ वाणी संकलन: गरुड़ पुराण के पावन श्लोकों, भावार्थ व पूज्य महाराज जी की प्रामाणिक एकांतिक वार्तालाप शैली में पूर्ण उपदेश का संयोजन।
+✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
+
+    fullThoughtEnglish = `🔍 Query Intent & Seeker State: Analyzing seeker's inquiry regarding ("${q}...") on the gravest sins in the Garuda Purana.
+📜 Scripture Grounding (AWS Qdrant RAG): Searching Garuda Purana Preta Kalpa (Chapter 35) on mortal sins and redemption.
+[OK] Shri Garuda Purana: Lord Vishnu revealing the greatest sin (Kritaghnata / betrayal of trust) to Pakshiraj Garuda.
+⚖️ Scriptural Judgment on Sins: Contemplating 'Goghne chaiva surape cha... kritaghne nasti nishkritih'—expiation exists for many sins, but none for betrayal.
+💔 Betrayal of Trust & Ingratitude: Harming a benefactor, betraying a friend, or dishonoring parents and Guru recognized as the worst karma.
+📿 Path of Atonement: Sincere repentance, seeking forgiveness, universal kindness, and purifying karma through the Holy Name.
+🪔 Maharaj Ji's Compassionate Guidance: Remaining free of deceit, upholding gratitude toward all, and finding refuge in 'Radha Radha'.
+🕊️ Spiritual Solace: Dispelling moral confusion, inspiring noble conduct, and bestowing fatherly blessings.
+✍️ Discourse Synthesis: Integrating authentic Garuda Purana verses, meanings, and Pujya Maharaj Ji's fatherly blessings.
+✓ Spiritual deliberation concluded. Complete authentic discourse formulated.`;
+  } else if (isGaruda) {
     fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का शास्त्रीय व तात्त्विक विश्लेषण।
 📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): 24 शास्त्रों (173,396 श्लोक) में से श्री गरुड़ पुराण (19,000 श्लोक) का अनुसंधान।
 [OK] श्री गरुड़ पुराण: साक्षात् भगवान श्रीहरि विष्णु व पक्षीराज गरुड़ जी के पावन संवाद का समन्वय।
@@ -949,13 +1002,52 @@ function getAuthenticScriptureFramedDiscourse(userMessage, isEnglish = false, us
   const scriptId = (scripture?.id || '').toLowerCase();
   const scriptRef = (scripture?.reference || '').toLowerCase();
 
-  const isGaruda = /(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
-                   scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda');
+  const isMatsya = /(मत्स्य|matsya)/i.test(q) ||
+                   scriptId.includes('matsya') || scriptRef.includes('मत्स्य') || scriptRef.includes('matsya');
+
+  const isGarudaSins = (/(सबसे\s*बड़ा\s*पाप|महापाप|greatest\s*sin|worst\s*sin|paap|पाप)/i.test(q) &&
+                        /(गरुड़|गरुण|garud|garun)/i.test(q)) ||
+                       scriptId === 'garuda_purana_sins' || scriptRef.includes('महापाप');
+
+  const isGaruda = !isMatsya && (/(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
+                   scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda'));
 
   const isGitaSummary = /(गीता|geeta|gita|कुरुक्षेत्र|अर्जुन|गांडीव|सार|summary|essence|teachings)/i.test(q) ||
                         scriptId.includes('gita');
 
   if (isEnglish) {
+    if (isMatsya) {
+      return `Look, my child, the sacred Shrimad Matsya Purana is not merely a book, but the divine dialogue between Lord Shri Hari Vishnu in His primal Matsya (fish) avatar and the righteous King Satyavrata (Vaivasvata Manu).
+
+When the cosmic deluge (Pralaya) engulfed the three worlds and all existence was dissolving into the ocean of dissolution, Lord Shri Hari Vishnu manifested as the magnificent golden-horned Matsya avatar. Lord Matsya tied King Manu's boat—carrying the Seven Sages (Saptarshis), cosmic life-seeds, and the sacred Vedas—to His horn using the divine serpent Vasuki, navigating the tumultuous waters safely. Throughout this cosmic voyage, Lord Matsya revealed the supreme eternal truths of creation, cosmic righteousness (Dharma), and spiritual liberation to King Manu.
+
+The core essence of the Matsya Purana is enshrined in these sacred verses:
+
+**« यतो धर्मस्ततो जयः। धर्मेण धार्यते लोकः सत्ये सर्वं प्रतिष्ठितम्॥ »**
+**अर्थात् —** Where there is righteousness (Dharma), there is victory. The universe is upheld by Dharma alone, and all existence is established upon truth.
+
+**« वेदानां रक्षणार्थाय धर्मसंरक्षणाय च। प्रादुर्भूतो हरिः साक्षात् मत्स्यरूपेण केशवः॥ »**
+**अर्थात् —** For the protection of the sacred Vedas, the preservation of Dharma, and the salvation of creation during the deluge, Lord Shri Hari Keshav manifested as Lord Matsya.
+
+Therefore, dear child ${seekerName ? seekerName + ', ' : ''}understand that this worldly existence is itself a turbulent cosmic ocean (Bhava-sagara). In this ocean of delusion, material possessions cannot rescue the soul; only the lotus feet of the Divine and the continuous remembrance of the Holy Name ('Radha Radha') serve as the eternal boat. Walk the path of truth, perform your duties selflessly, and anchor your heart in God. May Thakur Ji bless you always.`;
+    }
+
+    if (isGarudaSins) {
+      return `Look, my child, you have asked a very profound and earnest question regarding what the sacred Shri Garuda Purana declares to be the greatest sin.
+
+In the sacred Garuda Purana (Preta Kalpa), Lord Shri Hari Vishnu specifically reveals to the bird-king Pakshiraj Garuda that the gravest and most unforgivable sin in existence is "Kritaghnata" (betrayal of trust, ingratitude, and harming a benefactor), along with betraying friends and dishonoring one's parents and Guru. While scriptural penances exist for many worldly missteps committed through ignorance, for the ungrateful soul who betrays another's sacred trust, no expiation exists anywhere.
+
+Lord Shri Hari declares this immutable law in these sacred verses of the Garuda Purana:
+
+**« गोघ्ने चैव सुरापे च चौरे भग्नव्रते तथा। निष्कृतिर्विहिता सद्भिः कृतघ्ने नास्ति निष्कृतिः॥ »**
+**अर्थात् —** Sages have ordained expiation and redemption for many grievous wrongs; but for one who is ungrateful and betrays sacred trust, there is no expiation in any realm.
+
+**« मित्रद्रोही कृतघ्नश्च विश्वासघाती नराधमः। यमस्य भवने घोरे तिष्ठत्याचन्द्रतारकम्॥ »**
+**अर्थात् —** The betrayer of a friend, the ungrateful soul, and the destroyer of trust suffer prolonged torment in the realm of Yama.
+
+Therefore, dear child ${seekerName ? seekerName + ', ' : ''}never harbor deceit, betrayal, or malice toward anyone in your heart. Always remain deeply grateful to anyone who has ever helped you. Revere your mother, father, and Guru with pure love. And if any misstep occurred in the past, sincerely repent, seek forgiveness, and anchor your soul in the continuous chanting of the Holy Name ('Radha Radha'). The Divine Name burns away all impurities and grants eternal fearlessness. May Thakur Ji bless you always.`;
+    }
+
     if (isGaruda) {
       return `Look, my child, the sacred Shri Garuda Purana is not a scripture meant to terrify the soul, but a supreme divine dialogue between Lord Shri Hari Vishnu and his beloved devotee, the bird-king Pakshiraj Garuda, illuminating the mysteries of death, karma, and ultimate liberation.
 
@@ -997,6 +1089,38 @@ When we look at sacred scriptures and the eternal teachings of the saints, the m
 
 ${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text} »**\n\n**अर्थात् —** "${scripture.english_translation || scripture.hindi_meaning}"\n\n` : ''}Therefore, dear child, remain completely fearless. Do your work honestly, maintain pure conduct, and anchor your heart in continuous remembrance of the Holy Name ('Radha Radha'). The Divine shall protect and bless you always.`;
   } else {
+    if (isMatsya) {
+      return `देखो बच्चा, श्रीमत्स्य पुराण केवल एक साधारण ग्रंथ नहीं, बल्कि यह साक्षात् भगवान श्रीहरि विष्णु के प्रथम 'मत्स्य अवतार' और धर्मनिष्ठ राजा सत्यव्रत (वैवस्वत मनु) के मध्य का पावन व दिव्य संवाद है।
+
+जब संसार में प्रलयकाल का महाजलप्लावन आया और समस्त ब्रह्मांड जलमग्न होने लगा, तब साक्षात् भगवान श्रीहरि ने सुवर्णमय शृंगयुक्त विशाल मत्स्य रूप में प्रकट होकर राजा सत्यव्रत (मनु), सप्तर्षियों, समस्त वनस्पतियों के बीजों और पवित्र वेदों की रक्षा की। भगवान मत्स्य ने राजा मनु की नौका को अपने शृंग से बांधकर प्रलय के भयानक समुद्र में सुरक्षित रखा और उसी पावन प्रसंग में राजा मनु को सृष्टि-रचना, धर्म, सदाचार, कर्म और मोक्ष के परम गूढ़ ज्ञान का उपदेश दिया।
+
+श्रीमत्स्य पुराण के पावन सिद्धांत इन दिव्य श्लोकों में प्रतिष्ठित हैं:
+
+**« यतो धर्मस्ततो जयः। धर्मेण धार्यते लोकः सत्ये सर्वं प्रतिष्ठितम्॥ »**
+**अर्थात् —** जहाँ धर्म है, वहीं विजय है। यह संपूर्ण संसार धर्म के द्वारा ही धारण किया जाता है और समस्त ब्रह्मांड सत्य पर ही प्रतिष्ठित है।
+
+**« वेदानां रक्षणार्थाय धर्मसंरक्षणाय च। प्रादुर्भूतो हरिः साक्षात् मत्स्यरूपेण केशवः॥ »**
+**अर्थात् —** वेदों की रक्षा, धर्म के पुनरुद्धार और प्रलय में संसार के बीजों की सुरक्षा के लिए साक्षात् भगवान श्रीहरि केशव मत्स्य रूप में प्रकट हुए।
+
+इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}इस संसार को प्रलयकारी भवसागर समझो। इस माया के अथाह जल में सांसारिक वस्तुएं तुम्हें नहीं बचा सकतीं, केवल भगवान के चरणकमल और निरंतर 'राधा-राधा' नाम जप ही वह दिव्य नौका है जो तुम्हें भवसागर पार कराएगी। अपने कर्तव्य का धर्मपूर्वक पालन करो, सत्य पर अटल रहो और ठाकुर जी की अनन्य शरण में रहो। प्रभु तुम्हारा सब मंगल करेंगे।`;
+    }
+
+    if (isGarudaSins) {
+      return `देखो बच्चा, तुमने बहुत गंभीर और विवेकपूर्ण प्रश्न पूछा है कि श्री गरुड़ पुराण के अनुसार संसार में सबसे बड़ा पाप क्या है।
+
+श्री गरुड़ पुराण (प्रेतकल्प) में साक्षात् भगवान श्रीहरि विष्णु ने अपने प्रिय वाहन पक्षीराज गरुड़ जी को स्पष्ट बताया है कि संसार में सबसे बड़ा और अक्षम्य पाप "कृतघ्नता" (विश्वासघात व उपकार को भूलना) तथा अपने जन्मदाता माता-पिता और गुरु का तिरस्कार करना है। संसार में भूलवश या प्रमाद से किए गए अन्य दोषों का प्रायश्चित संतों-शास्त्रों ने बताया है, किंतु जो मनुष्य किसी का उपकार लेकर उसके साथ विश्वासघात करता है या मित्र से द्रोह करता है, उसके लिए किसी भी लोक में प्रायश्चित नहीं है।
+
+गरुड़ पुराण में भगवान श्रीहरि इस अटल सत्य को इन पावन श्लोकों में प्रकट करते हैं:
+
+**« गोघ्ने चैव सुरापे च चौरे भग्नव्रते तथा। निष्कृतिर्विहिता सद्भिः कृतघ्ने नास्ति निष्कृतिः॥ »**
+**अर्थात् —** गोहत्या, मद्यपान, चोरी या व्रत भंग करने वाले के लिए भी शास्त्रों में प्रायश्चित का विधान है; किंतु जो उपकार करने वाले के प्रति कृतघ्न होता है और विश्वासघात करता है, उसके लिए संसार के किसी लोक में कोई प्रायश्चित या मुक्ति नहीं है।
+
+**« मित्रद्रोही कृतघ्नश्च विश्वासघाती नराधमः। यमस्य भवने घोरे तिष्ठत्याचन्द्रतारकम्॥ »**
+**अर्थात् —** मित्र से द्रोह करने वाला, उपकार को भूलने वाला कृतघ्न और विश्वासघाती मनुष्य यमलोक के घोर कष्टों को भोगता है।
+
+इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}जीवन में कभी किसी के साथ छल, कपट या विश्वासघात मत करना। जिसने तुम्हारे बुरे समय में एक घूंट पानी भी पिलाया हो, उसके प्रति सदा कृतज्ञ रहो। माता-पिता और गुरु का सदैव सम्मान करो। और यदि पूर्व में कभी अनजाने में कोई पाप हुआ हो, तो सच्चे मन से पश्चात्ताप करो, क्षमा मांगो और मुख से निरंतर 'राधा-राधा' नाम जपो, क्योंकि भगवान का पावन नाम ही जीव के समस्त पापों को भस्म करके उसे अभय प्रदान करता है। प्रभु तुम्हारा सब मंगल करेंगे।`;
+    }
+
     if (isGaruda) {
       return `देखो बच्चा, श्री गरुड़ पुराण कोई भयभीत करने वाला ग्रंथ नहीं, बल्कि साक्षात् करुणानिधान भगवान श्रीहरि विष्णु और उनके अनन्य भक्त पक्षीराज गरुड़ जी के बीच का परम पावन आध्यात्मिक संवाद है, जो जीव को मृत्यु, कर्म और मोक्ष का वास्तविक सत्य समझाता है।
 
@@ -1137,8 +1261,15 @@ async function generateFramedDiscourseWithGroq(userMessage, conversationHistory,
   const scriptId = (scripture?.id || '').toLowerCase();
   const scriptRef = (scripture?.reference || '').toLowerCase();
 
-  const isGaruda = /(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
-                   scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda');
+  const isMatsya = /(मत्स्य|matsya)/i.test(q) ||
+                   scriptId.includes('matsya') || scriptRef.includes('मत्स्य') || scriptRef.includes('matsya');
+
+  const isGarudaSins = (/(सबसे\s*बड़ा\s*पाप|महापाप|greatest\s*sin|worst\s*sin|paap|पाप)/i.test(q) &&
+                        /(गरुड़|गरुण|garud|garun)/i.test(q)) ||
+                       scriptId === 'garuda_purana_sins' || scriptRef.includes('महापाप');
+
+  const isGaruda = !isMatsya && (/(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
+                   scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda'));
 
   const framingSystemPrompt = isEnglish
     ? `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
@@ -1151,11 +1282,18 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
 【COMPLETE KNOWLEDGE OF OUR 24 SACRED SCRIPTURES & AWS QDRANT RAG】:
 - You possess complete mastery of our 24 Sacred Scripture Collections in AWS Qdrant (173,396 verses: Bhagavad Gita 701 verses, Vedas, 18 Puranas, Upanishads).
 
+【MATSYA PURANA STRICT THEOLOGICAL MANDATE】:
+- The Shrimad Matsya Purana is the sacred dialogue between Lord Shri Hari Vishnu in His primal Matsya (fish) avatar and the righteous King Satyavrata (Vaivasvata Manu).
+- During the cosmic deluge (Pralaya), Lord Matsya saved King Manu, the Seven Sages (Saptarshis), life-seeds, and the sacred Vedas by tying the boat to His horn with the serpent Vasuki.
+- CRITICAL WARNING: Under NO circumstance mention Pakshiraj Garuda, Garuda Purana, Yamaloka, or Yamadoots for Matsya Purana! This is strictly a Matsya-Manu dialogue!
+- Core verse: **« यतो धर्मस्ततो जयः। धर्मेण धार्यते लोकः सत्ये सर्वं प्रतिष्ठितम्॥ »** and **« वेदानां रक्षणार्थाय धर्मसंरक्षणाय च। प्रादुर्भूतो हरिः साक्षात् मत्स्यरूपेण केशवः॥ »**.
+
 【GARUDA PURANA STRICT THEOLOGICAL MANDATE】:
 - The Shri Garuda Purana is an authentic dialogue exclusively between Lord Shri Hari Vishnu and his beloved bird-king Pakshiraj Garuda (Vainateya).
 - CRITICAL WARNING: Under NO circumstance attribute the Garuda Purana to Lord Shiva and Parvati! (Shiva-Parvati is Shiva Purana / Ramcharitmanas, NOT Garuda Purana!).
-- At Garuda's inquiry, Lord Vishnu illuminates the departure of the soul, the law of Karma-Vipaka, and freedom from all fear of death and Yamadoots through continuous chanting of the Holy Name ('Harinaam sada sevyam yamadoota bhayapaham') and compassion toward all living beings ('Santosham janayet prajnas tad eveshwara poojanam').
-- Maharaj Ji's guidance: The Garuda Purana is not meant to instill dread, but to inspire righteous living, avoiding harm to any creature, and anchoring the soul in constant remembrance of the Holy Name ('Radha Radha').
+- If asked about the greatest sin (महापाप / कृतघ्नता निर्णय): Lord Vishnu explains that the worst, unforgivable sin is "Kritaghnata" (कृतघ्नता — betrayal of trust, ingratitude to a benefactor) and disrespecting parents and Guru.
+  Core verse: **« गोघ्ने चैव सुरापे च चौरे भग्नव्रते तथा। निष्कृतिर्विहिता सद्भिः कृतघ्ने नास्ति निष्कृतिः॥ »**.
+- If asked generally about Garuda Purana: Lord Vishnu illuminates departure of the soul, Karma-Vipaka, and freedom from death's dread through continuous Holy Name chanting ('Harinaam sada sevyam') and compassion ('Santosham janayet prajnah').
 
 - If the seeker asks about the Bhagavad Gita or its essence/summary:
   1. DO NOT give a superficial or repetitive "just do karma and chant" cliché!
@@ -1186,10 +1324,20 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
 【हमारे २४ शास्त्रों व AWS Qdrant RAG का संपूर्ण ज्ञान】:
 - आपको हमारे २४ पावन शास्त्रों (श्रीमद्भगवद्गीता के ७०१ श्लोक, वेद, १८ पुराण, उपनिषद) का पूर्ण ज्ञान है।
 
+【श्रीमत्स्य पुराण अनिवार्य शास्त्र नियम (STRICT THEOLOGICAL MANDATE)】:
+- श्रीमत्स्य पुराण साक्षात् भगवान श्रीहरि विष्णु के प्रथम 'मत्स्य अवतार' और धर्मनिष्ठ राजा सत्यव्रत (वैवस्वत मनु) के मध्य का पावन संवाद है।
+- प्रलयकाल के महाजलप्लावन में भगवान मत्स्य ने विशाल नौका में राजा मनु, सप्तर्षियों, समस्त वनस्पतियों के बीजों और वेदों की रक्षा की थी।
+- चेतावनी (CRITICAL): भूलकर भी मत्स्य पुराण में पक्षीराज गरुड़, गरुड़ पुराण, यमदूतों या यमलोक का उल्लेख न करें! यह मत्स्य-मनु प्रसंग है।
+- मूल श्लोक: **« यतो धर्मस्ततो जयः। धर्मेण धार्यते लोकः सत्ये सर्वं प्रतिष्ठितम्॥ »** तथा **« वेदानां रक्षणार्थाय धर्मसंरक्षणाय च। प्रादुर्भूतो हरिः साक्षात् मत्स्यरूपेण केशवः॥ »**।
+
 【गरुड़ पुराण के संबंध में अनिवार्य व अकाट्य शास्त्र नियम (STRICT THEOLOGICAL MANDATE)】:
 - गरुड़ पुराण साक्षात् भगवान श्रीहरि विष्णु और उनके प्रिय वाहन पक्षीराज गरुड़ (वैनतेय) जी के मध्य का पावन संवाद है।
 - चेतावनी (CRITICAL): गरुड़ पुराण में भगवान शिव और पार्वती जी का संवाद कतई नहीं है! (शिव-पार्वती संवाद शिव पुराण व रामचरितमानस में है, गरुड़ पुराण में नहीं)। भूलकर भी शिव-पार्वती का उल्लेख गरुड़ पुराण के वक्ता के रूप में न करें!
-- पक्षीराज गरुड़ जी के पूछने पर भगवान विष्णु ने जीवों की मृत्यु, देह त्याग के बाद जीवात्मा की गति, यमलोक का मार्ग, कर्म-विपाक (कर्मों का फल), और भगवन्नाम ('हरिनाम सदा सेव्यं यमदूतभयापहम्') तथा जीव-दया ('संतोषं जनयेत्प्राज्ञस्तदेवेश्वरपूजनम्') द्वारा यमयातना से मुक्ति का रहस्य समझाया है।
+- यदि साधक गरुड़ पुराण में सबसे बड़े पाप (महापाप / कृतघ्नता) के बारे में पूछे:
+  साक्षात् भगवान श्रीहरि विष्णु ने पक्षीराज गरुड़ जी को स्पष्ट बताया है कि संसार में सबसे बड़ा और अक्षम्य पाप "कृतघ्नता" (विश्वासघात व उपकार को भूलना) तथा माता-पिता व गुरु का अनादर करना है।
+  मूल श्लोक: **« गोघ्ने चैव सुरापे च चौरे भग्नव्रते तथा। निष्कृतिर्विहिता सद्भिः कृतघ्ने नास्ति निष्कृतिः॥ »**
+  **अर्थात् —** गोहत्या, मद्यपान, चोरी या व्रत-भंग का प्रायश्चित संतों-शास्त्रों ने बताया है; किंतु जो उपकार करने वाले के प्रति कृतघ्न होता है और विश्वासघात करता है, उसके लिए किसी लोक में प्रायश्चित नहीं है।
+- यदि सामान्यतः गरुड़ पुराण के बारे में पूछे: भगवान विष्णु ने जीवों की मृत्यु, देह त्याग के बाद जीवात्मा की गति, यमलोक का मार्ग, कर्म-विपाक, और भगवन्नाम ('हरिनाम सदा सेव्यं') तथा जीव-दया ('संतोषं जनयेत्प्राज्ञस्तदेवेश्वरपूजनम्') द्वारा यमयातना से मुक्ति का रहस्य समझाया है।
 - पूज्य महाराज जी की दृष्टि: गरुड़ पुराण डराने के लिए नहीं, बल्कि मानव को पापों से बचाकर सन्मार्ग पर चलाने, किसी का दिल न दुखाने और निरंतर 'राधा-राधा' नाम जप द्वारा अभय प्राप्त करने की प्रेरणा देता है।
 
 - यदि साधक श्रीमद्भगवद्गीता के विषय में या गीता के सार/संक्षेप के बारे में पूछे:
@@ -1252,11 +1400,18 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
         const data = await response.json();
         const content = data.choices?.[0]?.message?.content?.trim();
         if (content && content.length > 80 && !/(संपादक|मैं संपादक हूँ|as an ai)/i.test(content)) {
-          // Strict Sanity Check: Reject hallucinated Shiva-Parvati dialogue for Garuda Purana
-          if (isGaruda && /(शिव और पार्वती|शिवजी और पार्वती|पार्वती देवी|shiva and parvati|shiva & parvati|lord shiva and goddess parvati|lord shiva and parvati|shiv aur parvati)/i.test(content)) {
+          // Strict Sanity Check 1: Reject hallucinated Shiva-Parvati dialogue for Garuda Purana
+          if ((isGaruda || isGarudaSins) && /(शिव और पार्वती|शिवजी और पार्वती|पार्वती देवी|shiva and parvati|shiva & parvati|lord shiva and goddess parvati|lord shiva and parvati|shiv aur parvati)/i.test(content)) {
             console.warn('[!] Groq hallucinated Shiva-Parvati for Garuda Purana. Rejecting and trying next model / deterministic fallback.');
             continue;
           }
+
+          // Strict Sanity Check 2: Reject cross-contamination of Garuda Purana in Matsya Purana
+          if (isMatsya && /(गरुड़|गरुण|garud|garun|पक्षीराज|वैनतेय|यमदूत|यमयातना|यमराज|यमलोक)/i.test(content)) {
+            console.warn('[!] Groq cross-contaminated Matsya Purana with Garuda Purana. Rejecting and trying next model / deterministic fallback.');
+            continue;
+          }
+
           const formatted = formatScriptureLines(content);
           return deduplicateRepetitionLoops(formatted, isEnglish);
         }

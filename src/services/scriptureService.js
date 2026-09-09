@@ -49,7 +49,44 @@ export const SCRIPTURE_DATABASE = [
     ]
   },
 
-  // 1. Laziness, Inaction & Duty (कर्म ज्यायो ह्यकर्मणः)
+  // 0C. Garuda Purana Greatest Sin & Betrayal (महापाप, कृतघ्नता, मित्रद्रोह व माता-पिता अनादर निर्णय)
+  {
+    id: 'garuda_purana_sins',
+    scripture_id: 'garuda_purana',
+    reference: 'श्री गरुड़ पुराण (Garuda Purana · महापाप व कृतघ्नता निर्णय)',
+    original_text: 'गोघ्ने चैव सुरापे च चौरे भग्नव्रते तथा। निष्कृतिर्विहिता सद्भिः कृतघ्ने नास्ति निष्कृतिः॥ मित्रद्रोही कृतघ्नश्च विश्वासघाती नराधमः। यमस्य भवने घोरे तिष्ठत्याचन्द्रतारकम्॥',
+    hindi_meaning: 'श्री गरुड़ पुराण (प्रेतकल्प) में साक्षात् भगवान श्रीहरि विष्णु ने पक्षीराज गरुड़ जी को बताया है कि संसार में सबसे बड़ा और अक्षम्य पाप "कृतघ्नता" (विश्वासघात व उपकार को भूलना) और मित्रद्रोह है। शास्त्रों में गोहत्या, मद्यपान या चोरी का प्रायश्चित संभव है, किंतु जो व्यक्ति उपकार करने वाले का बुरा करता है, विश्वासघात करता है, अथवा अपने जन्मदाता माता-पिता और गुरु का अनादर करता है, उसके लिए संसार के किसी लोक में मुक्ति या प्रायश्चित नहीं है।',
+    english_translation: 'In the sacred Garuda Purana (Preta Kalpa), Lord Shri Hari Vishnu reveals to the bird-king Garuda that the gravest and most unforgivable sin is "Kritaghnata" (betrayal of trust, ingratitude, and harming a benefactor) along with betraying friends and disrespecting parents and Guru. Sages prescribe expiation for many misdeeds, but for a betrayer of trust and an ungrateful soul, no atonement exists in any realm.',
+    context_intro_hi: 'जैसे श्री गरुड़ पुराण में साक्षात् भगवान श्रीहरि विष्णु पक्षीराज गरुड़ जी को सबसे बड़े पाप और कृतघ्नता का निर्णय समझाते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Bhagavan Shri Hari Vishnu reveals the gravest sins and the fate of betrayal to Garuda in the Garuda Purana —',
+    keywords: [
+      'garun puran me sabse bada paap', 'garuda puran me sabse bada paap', 'garun puran me sabse bada paap kya hai',
+      'garuda purana greatest sin', 'garun puran paap', 'garuda puran paap', 'garun puran me paap',
+      'sabse bada paap garun puran', 'sabse bada paap garuda puran', 'garun puran ke anusaar sabse bada paap',
+      'गरुड़ पुराण में सबसे बड़ा पाप', 'गरुण पुराण में सबसे बड़ा पाप', 'गरुड़ पुराण में पाप', 'गरुण पुराण में पाप',
+      'गरुड़ पुराण महापाप', 'गरुण पुराण महापाप', 'गरुड़ पुराण पाप फल', 'garuda purana sins', 'garun puran sins',
+      'garun puran mahapaap', 'garuda puran mahapaap', 'sabse bada paap kya likha hai', 'sabse bada paap kya hai garun puran'
+    ]
+  },
+
+  // 0D. Matsya Purana Core (भगवान मत्स्य व राजा मनु संवाद, प्रलय, वेद-रक्षा व धर्म प्रतिष्ठा)
+  {
+    id: 'matsya_purana_core',
+    scripture_id: 'matsya_purana',
+    reference: 'श्रीमत्स्य पुराण (Matsya Purana · भगवान मत्स्य व राजा मनु संवाद)',
+    original_text: 'यतो धर्मस्ततो जयः। धर्मेण धार्यते लोकः सत्ये सर्वं प्रतिष्ठितम्॥ वेदानां रक्षणार्थाय धर्मसंरक्षणाय च। प्रादुर्भूतो हरिः साक्षात् मत्स्यरूपेण केशवः॥',
+    hindi_meaning: 'श्रीमत्स्य पुराण में भगवान श्रीहरि विष्णु के प्रथम मत्स्य अवतार का पावन चरित्र वर्णित है। जब प्रलयकाल के महाजलप्लावन में समस्त सृष्टि डूबने लगी थी, तब भगवान श्रीहरि ने मत्स्य रूप धारण करके राजा सत्यव्रत (वैवस्वत मनु), सप्तर्षियों, समस्त वनस्पतियों के बीजों और पवित्र वेदों की रक्षा की थी। इस पुराण में भगवान मत्स्य ने राजा मनु को सृष्टि-रचना, धर्म, कर्म, सदाचार और मोक्ष के परम सत्य का उपदेश दिया है।',
+    english_translation: 'In the sacred Matsya Purana, the divine descent of Lord Shri Hari Vishnu as the Matsya (fish) avatar is revealed. During the cosmic deluge (Pralaya), Lord Matsya rescued King Satyavrata (Vaivasvata Manu), the Seven Sages (Saptarshis), cosmic life-seeds, and the sacred Vedas. Lord Matsya imparted supreme cosmic wisdom to King Manu, establishing that righteousness upholds the universe and truth alone triumphs.',
+    context_intro_hi: 'जैसे श्रीमत्स्य पुराण में साक्षात् भगवान मत्स्य राजा सत्यव्रत (मनु) को प्रलय के महाजलप्लावन में धर्म और सत्य का रहस्य समझाते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Lord Matsya illuminates cosmic wisdom and truth to King Satyavrata Manu during the great deluge in the Matsya Purana —',
+    keywords: [
+      'matsya puran', 'matsya puran me kya hai', 'matsya puran kya hai', 'matsya purana', 'matsya purana summary',
+      'matsya puran ke baare me', 'matsya puran katha', 'matsyavatar', 'matsya avatar', 'matsya purana kya hai',
+      'मत्स्य पुराण', 'मत्स्य पुराण में क्या है', 'मत्स्य पुराण क्या है', 'मत्स्य अवतार', 'मत्स्य पुराण का सार',
+      'मत्स्य पुराण कथा', 'राजा मनु और मत्स्य', 'what is matsya purana', 'tell me about matsya puran',
+      'matsya puran me kya likha hai', 'matsya puran details'
+    ]
+  },
   {
     id: 'gita_3_8',
     scripture_id: 'bhagavad_gita',
@@ -662,15 +699,68 @@ const SCRIPTURE_STOP_WORDS = new Set([
   'how', 'what', 'why', 'when', 'where', 'who', 'stop', 'overcome', 'from', 'with', 'and', 'the'
 ]);
 
+const SCRIPTURE_TOPIC_GATES = [
+  {
+    topic: 'matsya_purana',
+    patterns: [/(मत्स्य|matsya)/i],
+    allowedScriptureIds: ['matsya_purana']
+  },
+  {
+    topic: 'garuda_purana',
+    patterns: [/(गरुड़|गरुण|garud|garun)/i],
+    allowedScriptureIds: ['garuda_purana']
+  },
+  {
+    topic: 'shiva_purana',
+    patterns: [/(शिव\s*पुराण|shiva\s*puran|shiv\s*puran)/i],
+    allowedScriptureIds: ['shiva_purana']
+  },
+  {
+    topic: 'vishnu_purana',
+    patterns: [/(विष्णु\s*पुराण|vishnu\s*puran)/i],
+    allowedScriptureIds: ['vishnu_purana']
+  },
+  {
+    topic: 'bhagavata_purana',
+    patterns: [/(श्रीमद्भागवत|भागवत\s*पुराण|bhagavat|bhagavatam)/i],
+    allowedScriptureIds: ['bhagavata_purana']
+  },
+  {
+    topic: 'bhagavad_gita',
+    patterns: [/(गीता|भगवद्गीता|gita|geeta)/i],
+    allowedScriptureIds: ['bhagavad_gita']
+  },
+  {
+    topic: 'ramcharitmanas',
+    patterns: [/(रामायण|रामचरितमानस|ramayan|ramcharitmanas|मानस)/i],
+    allowedScriptureIds: ['ramcharitmanas']
+  }
+];
+
+function isTopicExcluded(cleanQ, item) {
+  for (const gate of SCRIPTURE_TOPIC_GATES) {
+    if (gate.patterns.some(p => p.test(cleanQ))) {
+      // If the query specifically targets this scripture, reject items belonging to other scriptures
+      if (!gate.allowedScriptureIds.includes(item.scripture_id)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 /**
  * Local keyword & stem scripture matcher fallback
+ * Features:
+ * 1. Topic exclusivity gating (prevents cross-scripture contamination)
+ * 2. Bounded scoring (max per item instead of unbounded token accumulation)
  */
 export function getLocalScriptureGrounding(query) {
   if (!query || typeof query !== 'string') return null;
   const cleanQ = normalizeQuery(query);
   if (!cleanQ || cleanQ.length < 3) return null;
 
-  const wantsVerse = /(श्लोक|श्लोका|shlok|shloka|verse|गीता|gita|रामायण|ramayan|रामचरितमानस|भागवत|scripture|प्रमाण)/i.test(query);
+  const wantsVerse = /(श्लोक|श्लोका|shlok|shloka|verse|गीता|gita|रामायण|ramayan|रामचरितमानस|भागवत|scripture|प्रमाण|पुराण|puran)/i.test(query);
 
   let bestMatch = null;
   let highestScore = 0;
@@ -678,38 +768,50 @@ export function getLocalScriptureGrounding(query) {
   const queryTokens = cleanQ.split(' ').filter(t => t.length >= 3 && !SCRIPTURE_STOP_WORDS.has(t));
 
   for (const item of SCRIPTURE_DATABASE) {
-    let score = 0;
+    // 1. Topic exclusivity: Do not let Garuda Purana match Matsya Purana, or vice versa
+    if (isTopicExcluded(cleanQ, item)) {
+      continue;
+    }
+
+    let maxKeywordScore = 0;
     for (const keyword of item.keywords) {
       const kw = normalizeQuery(keyword);
       if (!kw || kw.length < 2) continue;
 
+      let kwScore = 0;
       if (cleanQ === kw) {
-        score += 15.0;
+        kwScore = 15.0;
       } else if (cleanQ.includes(kw)) {
         const wordCount = kw.split(' ').length;
         if (wordCount >= 3) {
-          score += 8.0;
+          kwScore = 8.0;
         } else if (wordCount === 2) {
-          score += 5.5;
+          kwScore = 5.5;
         } else {
-          score += kw.length >= 6 ? 3.5 : 2.5;
+          kwScore = kw.length >= 6 ? 3.5 : 2.5;
         }
       } else {
         const kwTokens = kw.split(' ').filter(t => t.length >= 3 && !SCRIPTURE_STOP_WORDS.has(t));
+        let tokenMatches = 0;
         for (const kt of kwTokens) {
           for (const qt of queryTokens) {
             if (qt === kt) {
-              score += 2.5;
+              tokenMatches += 1.5;
             } else if (qt.length >= 4 && kt.length >= 4 && (qt.startsWith(kt.slice(0, -1)) || kt.startsWith(qt.slice(0, -1)))) {
-              score += 2.0;
+              tokenMatches += 1.0;
             }
           }
         }
+        kwScore = tokenMatches;
+      }
+
+      if (kwScore > maxKeywordScore) {
+        maxKeywordScore = kwScore;
       }
     }
 
-    if (score > highestScore) {
-      highestScore = score;
+    if (maxKeywordScore > highestScore) {
+      highestScore = maxKeywordScore;
       bestMatch = item;
     }
   }
