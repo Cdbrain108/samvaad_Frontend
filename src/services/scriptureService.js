@@ -530,11 +530,11 @@ function isCasualConversational(query) {
   return false;
 }
 
-const RAG_ENDPOINT = 'https://immature-zen-earthen.ngrok-free.dev/rag/search';
+const RAG_ENDPOINT = 'http://54.252.47.101/rag/search';
 
 /**
- * Queries the live 9,558-passage Qdrant Vector Database on Oracle Cloud
- * Executes BAAI/bge-m3 / multilingual cosine similarity search in sub-100ms
+ * Queries the live SOTA 1024-d Qdrant Vector Database on AWS
+ * Executes intfloat/multilingual-e5-large semantic search in sub-250ms
  */
 async function queryOracleVectorRAG(query) {
   if (typeof fetch === 'undefined') return null;
