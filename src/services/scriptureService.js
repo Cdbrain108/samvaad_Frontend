@@ -27,6 +27,28 @@ export const SCRIPTURE_DATABASE = [
     ]
   },
 
+  // 0B. Garuda Purana Core & Summary (भगवान विष्णु व पक्षीराज गरुड़ संवाद, मृत्यु, कर्म-विपाक व नाम महिमा)
+  {
+    id: 'garuda_purana_core',
+    scripture_id: 'garuda_purana',
+    reference: 'श्री गरुड़ पुराण (Garuda Purana · भगवान विष्णु व गरुड़ जी संवाद)',
+    original_text: 'हरिनाम सदा सेव्यं यमदूतभयापहम्। ये जपन्ति हरेश्चित्ते न तेषां यमयातना॥ येन केन प्रकारेण यस्य कस्यापि जन्तुनः। संतोषं जनयेत्प्राज्ञस्तदेवेश्वरपूजनम्॥',
+    hindi_meaning: 'गरुड़ पुराण में साक्षात् भगवान श्रीहरि विष्णु अपने प्रिय वाहन पक्षीराज गरुड़ जी को उपदेश देते हैं कि जीव को अपने शुभ-अशुभ कर्मों का फल अवश्य भोगना पड़ता है। किंतु जो निरंतर भगवान के पावन नाम का जप करते हैं और किसी भी प्राणी को कष्ट न देकर परोपकार व संतोष प्रदान करते हैं, उन्हें यमदूतों का कोई भय नहीं रहता और वे समस्त यमयातनाओं से छूटकर वैकुंठ धाम को प्राप्त होते हैं।',
+    english_translation: 'In the sacred Garuda Purana, Lord Shri Hari Vishnu instructs the bird-king Garuda that every soul experiences the fruits of its karma. Yet those who continuously chant the holy name of God and serve living beings with compassion are freed from all fear of death, attaining the supreme divine abode.',
+    context_intro_hi: 'जैसे श्री गरुड़ पुराण में साक्षात् भगवान श्रीहरि विष्णु पक्षीराज गरुड़ जी को जीवन, मृत्यु और परम गति का रहस्य समझाते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Bhagavan Shri Hari Vishnu illuminates the mysteries of life, karma, and ultimate liberation to Garuda in the Garuda Purana —',
+    keywords: [
+      'garun puran', 'garun puran me kya hai', 'garun puran me kya hota hai', 'garun puran kya hai', 'garun puran ke baare me batao',
+      'garun puran ke bare me', 'garuda puran', 'garuda puran me kya hai', 'garuda purana', 'garuda purana kya hai',
+      'garud puran', 'garud puran me kya hai', 'garud puran kya hai', 'garuda purana summary',
+      'गरुड़ पुराण', 'गरुड़ पुराण में क्या है', 'गरुड पुराण', 'गरुड़ पुराण का सार', 'गरुण पुराण', 'गरुण पुराण में क्या है',
+      'गरुड़ पुराण क्या है', 'गरुण पुराण क्या है', 'गरुड़ पुराण के बारे में बताओ', 'गरुड़ पुराण कथा',
+      'what is garuda purana', 'what is in garun puran', 'tell me about garun puran', 'tell me about garuda puran',
+      'garun puran ki katha', 'garuda puran katha', 'garun puran sankshep', 'garun puran updesh', 'yamlok', 'yamdoot',
+      'मृत्यु के बाद क्या होता है', 'मृत्यु के बाद जीव की गति', 'यमलोक क्या है'
+    ]
+  },
+
   // 1. Laziness, Inaction & Duty (कर्म ज्यायो ह्यकर्मणः)
   {
     id: 'gita_3_8',
@@ -568,7 +590,7 @@ async function queryOracleVectorRAG(query) {
     scriptureFilter = 'ramayana';
   } else if (/(वेद|veda|vedas|ऋग्वेद|सामवेद|यजुर्वेद|अथर्ववेद)/i.test(query)) {
     scriptureFilter = 'veda';
-  } else if (/(पुराण|puran|purana|भागवत|bhagavatam|देवी|शिव|विष्णु|अग्नि|गरुड़|वामन|कूर्म|मत्स्य|स्कन्द|नारद)/i.test(query)) {
+  } else if (/(पुराण|puran|purana|भागवत|bhagavatam|देवी|शिव|विष्णु|अग्नि|गरुड़|गरुण|garud|garun|वामन|कूर्म|मत्स्य|स्कन्द|नारद)/i.test(query)) {
     scriptureFilter = 'purana';
   } else if (/(महाभारत|mahabharata)/i.test(query)) {
     scriptureFilter = 'mahabharata';

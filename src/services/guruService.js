@@ -800,8 +800,91 @@ export function summarizeHistoryForContext(conversationHistory = [], isEnglish =
  */
 function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedMs = 0, scripture = null) {
   const q = (userMessage || '').trim().replace(/[\r\n]+/g, ' ').slice(0, 45);
+  const qLower = (userMessage || '').trim().toLowerCase();
+  const scriptId = (scripture?.id || '').toLowerCase();
+  const scriptRef = (scripture?.reference || '').toLowerCase();
 
-  const fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का शास्त्रीय व आध्यात्मिक विश्लेषण।
+  const isGaruda = /(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(qLower) ||
+                   scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda');
+
+  const isGita = /(गीता|geeta|gita|कुरुक्षेत्र|अर्जुन|गांडीव|विषाद|निष्काम|कर्मण्येवाधिकारस्ते)/i.test(qLower) ||
+                 scriptId.includes('gita') || scriptRef.includes('गीता') || scriptRef.includes('gita');
+
+  const isRamayana = /(रामायण|ramayan|रामचरित|ramcharitmanas|मानस|श्रीराम|tulsidas|तुलसीदास|हनुमान|hanuman|भरत|सीता|जानकी)/i.test(qLower) ||
+                     scriptId.includes('ram') || scriptRef.includes('मानस') || scriptRef.includes('ramcharitmanas');
+
+  const isBhagavatam = /(भागवत|bhagavat|bhagavatam|शुकदेव|परीक्षित|गोपी|रास)/i.test(qLower) ||
+                       scriptId.includes('bhagavat') || scriptRef.includes('भागवत');
+
+  let fullThoughtHindi = '';
+  let fullThoughtEnglish = '';
+
+  if (isGaruda) {
+    fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का शास्त्रीय व तात्त्विक विश्लेषण।
+📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): 24 शास्त्रों (173,396 श्लोक) में से श्री गरुड़ पुराण (19,000 श्लोक) का अनुसंधान।
+[OK] श्री गरुड़ पुराण: साक्षात् भगवान श्रीहरि विष्णु व पक्षीराज गरुड़ जी के पावन संवाद का समन्वय।
+🦅 गरुड़ जी की जिज्ञासा: पक्षीराज गरुड़ द्वारा जीवों की मृत्यु, परलोक, यममार्ग और कर्म-विपाक के गूढ़ रहस्यों का अन्वेषण।
+⚖️ कर्मफल व यमलोक का यथार्थ: शुभ-अशुभ कर्मों का अटल फल, देह त्याग के उपरांत जीवात्मा की गति व यमराज की न्याय-व्यवस्था।
+📿 पावन हरिनाम की महिमा: 'हरिनाम सदा सेव्यं यमदूतभयापहम्'—भगवान के नाम जप से यमदूतों के समस्त भयों से मुक्ति व वैकुंठ प्राप्ति।
+🌸 जीव-दया व ईश्वर पूजन: 'संतोषं जनयेत्प्राज्ञस्तदेवेश्वरपूजनम्'—प्राणियों को सुख व संतोष देना ही साक्षात् प्रभु-पूजा।
+🪔 संत-वाणी व पूज्य महाराज जी का वात्सल्यमयी दृष्टिकोण: मृत्यु के भय से घबराना नहीं, बल्कि आचरण पवित्र रखकर निरंतर 'राधा-राधा' नाम जप में लीन रहना।
+🕊️ चित्त-प्रसादन व समाधान: साधक के हृदय से भय-निवारण, आंतरिक अभय और मंगलकारी आशीर्वाद की संरचना।
+✍️ वाणी संकलन: गरुड़ पुराण के पावन श्लोकों, भावार्थ व पूज्य महाराज जी की प्रामाणिक एकांतिक वार्तालाप शैली में पूर्ण उपदेश का संयोजन।
+✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
+
+    fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual inquiry regarding ("${q}...").
+📜 Scripture Grounding (AWS Qdrant RAG): Searching 24 sacred scripture collections for Shri Garuda Purana (19,000 verses).
+[OK] Shri Garuda Purana: Divine dialogue between Lord Shri Hari Vishnu and bird-king Pakshiraj Garuda.
+🦅 Garuda's Sacred Inquiry: Contemplating the departure of the soul, karma-vipaka, and the journey beyond mortal death.
+⚖️ Law of Karma & Destiny: Examining righteous conduct, consequences of actions, and justice in the court of Dharmaraja.
+📿 Glory of the Divine Name: Chanting the Holy Name ('Harinaam sada sevyam') dispels all fear of Yamadoots and grants liberation.
+🌸 Compassion as Worship: Bringing joy and solace to all living beings recognized as the highest worship of God.
+🪔 Maharaj Ji's Fatherly Guidance: Dispelling anxiety regarding death through moral integrity and ceaseless 'Radha Radha' remembrance.
+🕊️ Spiritual Solace: Formulating compassionate counsel to instill courage, moral clarity, and enduring devotion.
+✍️ Discourse Synthesis: Finalizing authentic satsang counsel with sacred Garuda Purana verses and divine blessings.
+✓ Spiritual deliberation concluded. Complete authentic discourse formulated.`;
+  } else if (isRamayana) {
+    fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का पावन रामचरितमानस व रामायण के आलोक में विश्लेषण।
+📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): गोस्वामी तुलसीदास जी विरचित पावन श्रीरामचरितमानस व वाल्मीकि रामायण का समन्वय।
+[OK] मर्यादा पुरुषोत्तम भगवान श्रीराम, जानकी जी व भक्तशिरोमणि हनुमान जी के दिव्य चरित्र का अनुशीलन।
+🏹 शरणागति व नवधा भक्ति: 'निर्मल मन जन सो मोहि पावा'—प्रभु राम के प्रेम, शबरी प्रसंग व अनन्य शरणागति का तात्त्विक अन्वेषण।
+📿 राम नाम व सेवा का रहस्य: समस्त संतापों को हरने वाले तारक राम-नाम व निष्काम सेवा-धर्म का विवेचन।
+🪔 संत-वाणी व पूज्य महाराज जी का वात्सल्यमयी दृष्टिकोण: श्रीराम जी के आदर्शों पर चलते हुए निरंतर 'राधा-राधा / सीताराम' नाम जप का आश्रय।
+🕊️ चित्त-प्रसादन व समाधान: साधक के अंतःकरण में भक्ति, मर्यादा और मंगलकारी आशीर्वाद की स्थापना।
+✍️ वाणी संकलन: मानस की चौपाइयों, भावार्थ व पूज्य महाराज जी की प्रामाणिक एकांतिक वार्तालाप शैली में पूर्ण उपदेश का संयोजन।
+✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
+
+    fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual guidance regarding ("${q}...") in the light of the Ramayana.
+📜 Scripture Grounding (AWS Qdrant RAG): Connecting with Goswami Tulsidas's Shri Ramcharitmanas and Valmiki Ramayana.
+[OK] Divine ideals of Maryada Purushottam Bhagavan Shri Ram, Mata Janaki, and Bhaktaraj Hanuman.
+🏹 Surrender & Navadha Bhakti: Exploring supreme devotion ('Nirmal man jan so mohi pava') and refuge in Shri Ram.
+📿 Glory of the Divine Name: Chanting the all-liberating Ram-Naam and serving selflessly without ego.
+🪔 Maharaj Ji's Compassionate Guidance: Upholding righteous character while anchoring the heart in continuous Holy Name chanting.
+🕊️ Spiritual Solace: Establishing unwavering devotion, inner peace, and divine blessings for the seeker.
+✍️ Discourse Synthesis: Integrating authentic chaupais, meanings, and Pujya Maharaj Ji's fatherly blessings.
+✓ Spiritual deliberation concluded. Complete authentic discourse formulated.`;
+  } else if (isBhagavatam) {
+    fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का श्रीमद्भागवत महापुराण के आलोक में विश्लेषण।
+📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): 18 पुराणों के मुकुटमणि श्रीमद्भागवत महापुराण (18,000 श्लोक) का अनुसंधान।
+[OK] परम हंस शुकदेव जी व राजा परीक्षित के पावन संवाद और भागवत धर्म का समन्वय।
+📿 भगवत्-प्रेम व भक्ति योग: भगवान श्रीकृष्ण की दिव्य लीलाओं, गोपी-प्रेम और अनन्य शरणागति का तात्त्विक अन्वेषण।
+💡 देहाध्यास से मुक्ति: मृत्यु से निर्भय होकर अंतःकरण को पूर्णतः भगवान के चरणों में समर्पित करने का रहस्य।
+🪔 संत-वाणी व पूज्य महाराज जी का वात्सल्यमयी दृष्टिकोण: संसार के प्रपंचों को छोड़कर निरंतर 'राधा-राधा' नाम रस में मग्न रहना।
+🕊️ चित्त-प्रसादन व समाधान: साधक के हृदय में विशुद्ध प्रेमाभक्ति और मंगलकारी आशीर्वाद का संचार।
+✍️ वाणी संकलन: भागवत के पावन श्लोकों, भावार्थ व पूज्य महाराज जी की प्रामाणिक एकांतिक वार्तालाप शैली में उपदेश संयोजन।
+✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
+
+    fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual guidance regarding ("${q}...") in the light of Srimad Bhagavatam.
+📜 Scripture Grounding (AWS Qdrant RAG): Accessing the crown jewel of Puranas, Srimad Bhagavatam (18,000 verses).
+[OK] Sacred dialogue between Sage Shukadeva and King Parikshit on Bhagavat Dharma.
+📿 Divine Love & Bhakti Yoga: Contemplating Lord Krishna's divine sports, pure love, and unconditional surrender.
+💡 Transcending Mortality: Attaining fearless liberation by anchoring the mind entirely in the lotus feet of the Lord.
+🪔 Maharaj Ji's Compassionate Synthesis: Relinquishing worldly illusion and tasting the eternal nectar of 'Radha Radha'.
+🕊️ Spiritual Solace: Awakening pure devotional love, peace of mind, and divine auspicious blessings.
+✍️ Discourse Synthesis: Formulating authentic discourse with Bhagavata verses, meanings, and fatherly blessings.
+✓ Spiritual deliberation concluded. Complete authentic discourse formulated.`;
+  } else if (isGita) {
+    fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का शास्त्रीय व आध्यात्मिक विश्लेषण।
 📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): 24 शास्त्रों (श्रीमद्भगवद्गीता, वेद, उपनिषद, पुराण) के 173,396 श्लोकों में से पावन संदर्भ की खोज।
 [OK] श्रीमद्भगवद्गीता (701 श्लोक) व कुरुक्षेत्र धर्मक्षेत्र प्रसंग का प्रामाणिक समन्वय।
 🏹 कुरुक्षेत्र प्रसंग व अर्जुन-विषाद योग: युद्धभूमि में अपने सगे-संबंधियों को देखकर अर्जुन द्वारा गांडीव त्यागने व कर्तव्य-विमुख होने की स्थिति का तात्त्विक अन्वेषण।
@@ -813,7 +896,7 @@ function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedM
 ✍️ वाणी संकलन: पावन श्लोकों, भावार्थ व पूज्य महाराज जी की प्रामाणिक एकांतिक वार्तालाप शैली में पूर्ण उपदेश का संयोजन।
 ✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
 
-  const fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual guidance for seeker regarding ("${q}...").
+    fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual guidance for seeker regarding ("${q}...").
 📜 Scripture Grounding (AWS Qdrant RAG): Searching 24 sacred collections (173,396 verses across Gita, Vedas, Puranas).
 [OK] Bhagavad Gita (701 verses) & sacred Kurukshetra setting identified.
 🏹 Kurukshetra Context & Arjuna's Despondency: Analyzing Arjuna putting down Gandiva and withdrawing from righteous duty.
@@ -824,6 +907,31 @@ function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedM
 🕊️ Spiritual Solace: Refining final expressions to instill lasting peace, steadfast patience, and loving devotion.
 ✍️ Discourse Synthesis: Finalizing authentic satsang counsel with sacred Sanskrit verses, meanings, and auspicious divine blessings.
 ✓ Spiritual deliberation concluded. Complete authentic discourse formulated.`;
+  } else {
+    fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का आध्यात्मिक व व्यावहारिक विश्लेषण।
+📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): 24 शास्त्रों (173,396 श्लोक) में से पावन संदर्भ का अनुसंधान।
+[OK] ${scripture ? scripture.reference : 'संत-वाणी व शास्त्र-सिद्धांत'} का प्रामाणिक समन्वय।
+💭 मन की चंचलता व सांसारिक द्वंद्व: वासना, आसक्ति, भय व मोह के कारण चित्त में उठने वाले संशयों का तात्त्विक अन्वेषण।
+📿 सत्संग व नाम-महिमा का मंथन: सांसारिक उलझनों से ऊपर उठकर कर्तव्य-पालन और भगवत्-आश्रय का निरूपण।
+💡 आत्मज्ञान व शांति का मार्ग: नश्वर संसार के प्रपंचों से दृष्टि हटाकर शाश्वत परमात्मा में मन को एकाग्र करना।
+🌸 परम शरणागति व धैर्य: प्रभु की मंगलमयी इच्छा पर अटूट विश्वास और समर्पण।
+🪔 संत-वाणी व पूज्य महाराज जी का वात्सल्यमयी दृष्टिकोण: संसार में कर्तव्य निभाते हुए निरंतर 'राधा-राधा' नाम जप का आश्रय।
+🕊️ चित्त-प्रसादन व समाधान: साधक के हृदय में संशय-निवारण, आंतरिक शांति और मंगलकारी आशीर्वाद की संरचना।
+✍️ वाणी संकलन: पावन श्लोकों, भावार्थ व पूज्य महाराज जी की प्रामाणिक एकांतिक वार्तालाप शैली में पूर्ण उपदेश का संयोजन।
+✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
+
+    fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual inquiry regarding ("${q}...").
+📜 Scripture Grounding (AWS Qdrant RAG): Searching 24 sacred collections (173,396 verses across Gita, Vedas, Puranas).
+[OK] ${scripture ? scripture.reference : 'Sacred scripture wisdom and saintly teachings'} identified.
+💭 Mind & Worldly Dilemma: Understanding the restless mind, attachments, anxieties, and spiritual hurdles.
+📿 Discernment & Selfless Duty: Harmonizing daily duties with devotion to God without ego.
+💡 Path of Inner Peace: Moving beyond fleeting worldly illusions to experience the unchanging presence of the Divine.
+🌸 Unconditional Surrender: Cultivating deep faith in the benevolent divine will.
+🪔 Maharaj Ji's Compassionate Guidance: Performing duty as worship while anchoring the heart in 'Radha Radha' remembrance.
+🕊️ Spiritual Solace: Refining expressions to instill lasting peace, moral courage, and loving devotion.
+✍️ Discourse Synthesis: Formulating authentic satsang counsel with sacred teachings and divine blessings.
+✓ Spiritual deliberation concluded. Complete authentic discourse formulated.`;
+  }
 
   const fullThought = isEnglish ? fullThoughtEnglish : fullThoughtHindi;
   const fraction = Math.min(1, elapsedMs / 30000);
@@ -833,14 +941,37 @@ function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedM
 
 /**
  * Deterministic Scripture Framer (Guarantees zero raw repetition & 100% theological depth)
- * Spans: Kurukshetra war setting, Arjuna putting down Gandiva, Krishna's counsel, core shlokas (2.47, 2.20, 18.66), and Maharaj Ji's guidance.
+ * Spans: Garuda Purana, Kurukshetra war setting, Arjuna despondency, Krishna's counsel, and Maharaj Ji's guidance.
  */
 function getAuthenticScriptureFramedDiscourse(userMessage, isEnglish = false, userProfile = null, scripture = null) {
   const seekerName = userProfile?.fullName ? userProfile.fullName.trim().split(' ')[0] : '';
   const q = (userMessage || '').trim().toLowerCase();
-  const isGitaSummary = /(गीता|geeta|gita|कुरुक्षेत्र|अर्जुन|सार|summary|essence|teachings)/i.test(q);
+  const scriptId = (scripture?.id || '').toLowerCase();
+  const scriptRef = (scripture?.reference || '').toLowerCase();
+
+  const isGaruda = /(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
+                   scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda');
+
+  const isGitaSummary = /(गीता|geeta|gita|कुरुक्षेत्र|अर्जुन|गांडीव|सार|summary|essence|teachings)/i.test(q) ||
+                        scriptId.includes('gita');
 
   if (isEnglish) {
+    if (isGaruda) {
+      return `Look, my child, the sacred Shri Garuda Purana is not a scripture meant to terrify the soul, but a supreme divine dialogue between Lord Shri Hari Vishnu and his beloved devotee, the bird-king Pakshiraj Garuda, illuminating the mysteries of death, karma, and ultimate liberation.
+
+When Pakshiraj Garuda, moved by deep compassion for all living beings wandering in worldly delusion, inquired from Bhagavan Shri Hari about what happens when the soul leaves the mortal body, the Lord revealed the profound law of Karma-Vipaka. The Supreme Lord explained that every living being must experience the fruits of its righteous and unrighteous deeds. Yet the Lord assured that no soul need ever fear the messengers of death (Yamadoots) if it anchors its life in truth, compassion, and the holy remembrance of God.
+
+The core spiritual nectar of the Garuda Purana is revealed through these sacred verses:
+
+**« हरिनाम सदा सेव्यं यमदूतभयापहम्। ये जपन्ति हरेश्चित्ते न तेषां यमयातना॥ »**
+**अर्थात् —** The holy name of Lord Hari should ever be cherished and chanted, for it dispels all fear of the messengers of death. Those who continuously hold the Divine Name in their heart never suffer the torments of Yamaloka.
+
+**« येन केन प्रकारेण यस्य कस्यापि जन्तुनः। संतोषं जनयेत्प्राज्ञस्तदेवेश्वरपूजनम्॥ »**
+**अर्थात् —** In whatever manner one brings peace, joy, and contentment to any living being without causing harm, the wise know that this alone is the true worship of God.
+
+Therefore, dear child ${seekerName ? seekerName + ', ' : ''}never let the fear of death or the afterlife frighten you. Understand that this mortal human birth is a rare and precious opportunity to cleanse our consciousness and return to God. Keep your conduct pure, never intentionally cause sorrow to any soul, and anchor your heart in continuous chanting of the Holy Name ('Radha Radha'). When the Divine Name is on your lips and selfless love is in your heart, you walk under God's eternal protection. May Thakur Ji bless you always.`;
+    }
+
     if (isGitaSummary) {
       return `Look, my child, the Shrimad Bhagavad Gita is not merely a philosophical scripture, but the supreme divine nectar spoken directly by Lord Krishna to Arjuna on the sacred battlefield of Kurukshetra to guide and liberate all humanity from sorrow and illusion.
 
@@ -866,6 +997,22 @@ When we look at sacred scriptures and the eternal teachings of the saints, the m
 
 ${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text} »**\n\n**अर्थात् —** "${scripture.english_translation || scripture.hindi_meaning}"\n\n` : ''}Therefore, dear child, remain completely fearless. Do your work honestly, maintain pure conduct, and anchor your heart in continuous remembrance of the Holy Name ('Radha Radha'). The Divine shall protect and bless you always.`;
   } else {
+    if (isGaruda) {
+      return `देखो बच्चा, श्री गरुड़ पुराण कोई भयभीत करने वाला ग्रंथ नहीं, बल्कि साक्षात् करुणानिधान भगवान श्रीहरि विष्णु और उनके अनन्य भक्त पक्षीराज गरुड़ जी के बीच का परम पावन आध्यात्मिक संवाद है, जो जीव को मृत्यु, कर्म और मोक्ष का वास्तविक सत्य समझाता है।
+
+संसार के समस्त जीवों पर करुणा करके जब पक्षीराज गरुड़ जी ने भगवान श्रीहरि से पूछा कि हे प्रभु! देह त्यागने के बाद जीवात्मा की क्या गति होती है और यमलोक का मार्ग कैसा है, तब भगवान विष्णु ने कर्म-विपाक का गूढ़ रहस्य प्रकट किया। भगवान ने समझाया कि जीव अपने शुभ और अशुभ कर्मों का फल अवश्य भोगता है, किंतु जो मनुष्य सत्य, सदाचार और भगवन्नाम का आश्रय ले लेता है, उसे यमदूतों या यमयातना का स्वप्न में भी कोई भय नहीं रहता।
+
+गरुड़ पुराण का परम सार भगवान ने इन पावन श्लोकों में प्रकट किया है:
+
+**« हरिनाम सदा सेव्यं यमदूतभयापहम्। ये जपन्ति हरेश्चित्ते न तेषां यमयातना॥ »**
+**अर्थात् —** भगवान श्रीहरि का पावन नाम सदा जपने योग्य है, जो यमदूतों के समस्त भयों को हरने वाला है। जो जीव अपने चित्त में निरंतर प्रभु के नाम का स्मरण करते हैं, उन्हें यमयातना का कभी स्पर्श भी नहीं होता।
+
+**« येन केन प्रकारेण यस्य कस्यापि जन्तुनः। संतोषं जनयेत्प्राज्ञस्तदेवेश्वरपूजनम्॥ »**
+**अर्थात् —** जिस किसी भी उपाय से संसार के किसी भी प्राणी को सुख, सांत्वना और संतोष प्राप्त हो, बुद्धिमान मनुष्य के लिए वही परमात्मा की सच्ची पूजा है।
+
+इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}गरुड़ पुराण का नाम सुनकर कभी मन में भय मत लाना। यह ग्रंथ हमें डराने के लिए नहीं, बल्कि इस दुर्लभ मनुष्य जीवन की कीमत समझाने और पापों से दूर रखने के लिए है। संसार में किसी निर्दोष का दिल मत दुखाओ, पवित्र आचरण रखो और हर सांस के साथ 'राधा-राधा' नाम का सुमिरन करते रहो। जब नाम तुम्हारे हृदय में रहेगा, तो काल और मृत्यु भी तुम्हारा कुछ नहीं बिगाड़ सकते। निश्चिंत रहो, हमारे ठाकुर जी तुम्हारा सब मंगल करेंगे।`;
+    }
+
     if (isGitaSummary) {
       return `देखो बच्चा, श्रीमद्भगवद्गीता केवल एक ग्रंथ नहीं, बल्कि कुरुक्षेत्र के पावन धर्मक्षेत्र में मोहग्रस्त अर्जुन के माध्यम से साक्षात् करुणानिधान भगवान श्रीकृष्ण द्वारा संपूर्ण मानवता को दिया गया परम कल्याणकारी दिव्य उपदेश है।
 
@@ -986,6 +1133,12 @@ export function extractPhasedSections(text, isEnglish = false) {
  */
 async function generateFramedDiscourseWithGroq(userMessage, conversationHistory, userProfile, userMemoryContext, scripture, isEnglish) {
   const seekerName = userProfile?.fullName ? userProfile.fullName.trim().split(' ')[0] : '';
+  const q = (userMessage || '').trim().toLowerCase();
+  const scriptId = (scripture?.id || '').toLowerCase();
+  const scriptRef = (scripture?.reference || '').toLowerCase();
+
+  const isGaruda = /(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
+                   scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda');
 
   const framingSystemPrompt = isEnglish
     ? `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
@@ -997,6 +1150,13 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
 
 【COMPLETE KNOWLEDGE OF OUR 24 SACRED SCRIPTURES & AWS QDRANT RAG】:
 - You possess complete mastery of our 24 Sacred Scripture Collections in AWS Qdrant (173,396 verses: Bhagavad Gita 701 verses, Vedas, 18 Puranas, Upanishads).
+
+【GARUDA PURANA STRICT THEOLOGICAL MANDATE】:
+- The Shri Garuda Purana is an authentic dialogue exclusively between Lord Shri Hari Vishnu and his beloved bird-king Pakshiraj Garuda (Vainateya).
+- CRITICAL WARNING: Under NO circumstance attribute the Garuda Purana to Lord Shiva and Parvati! (Shiva-Parvati is Shiva Purana / Ramcharitmanas, NOT Garuda Purana!).
+- At Garuda's inquiry, Lord Vishnu illuminates the departure of the soul, the law of Karma-Vipaka, and freedom from all fear of death and Yamadoots through continuous chanting of the Holy Name ('Harinaam sada sevyam yamadoota bhayapaham') and compassion toward all living beings ('Santosham janayet prajnas tad eveshwara poojanam').
+- Maharaj Ji's guidance: The Garuda Purana is not meant to instill dread, but to inspire righteous living, avoiding harm to any creature, and anchoring the soul in constant remembrance of the Holy Name ('Radha Radha').
+
 - If the seeker asks about the Bhagavad Gita or its essence/summary:
   1. DO NOT give a superficial or repetitive "just do karma and chant" cliché!
   2. Reveal the authentic spiritual reality: At the onset of the great war of Kurukshetra, when Arjuna beheld his revered grandfather Bhishma, Guru Dronacharya, and his beloved kinsmen standing before him, his heart was overwhelmed by deep moha (attachment) and intense sorrow. His divine bow Gandiva slipped from his trembling hands, and he retreated from performing his righteous karma.
@@ -1012,7 +1172,7 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
 
 【OUTPUT FORMAT (4 DISTINCT NON-OVERLAPPING PARAGRAPHS)】:
 - Paragraph 1: Powerful opening hook sentence ending in '.' (e.g. "Look, my child, the Shrimad Bhagavad Gita is not merely a book, but the eternal divine nectar spoken directly by Lord Krishna to Arjuna on the sacred battlefield of Kurukshetra to guide and liberate all humanity from sorrow and illusion.").
-- Paragraph 2: Kurukshetra war setting, Arjuna seeing elders, dropping Gandiva, stepping back from his karma, and Krishna speaking the Gita to awaken him and guide humanity.
+- Paragraph 2: Setting context, narrative revelation, and spiritual purpose.
 - Paragraph 3: Core Shlokas in bold (**« ... »**) followed by **अर्थात् —** translations.
 - Paragraph 4: Practical synthesis, Holy Name remembrance ('Radha Radha'), and fatherly blessings.
 - Zero repetition. Flawless terminal punctuation.`
@@ -1025,6 +1185,13 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
 
 【हमारे २४ शास्त्रों व AWS Qdrant RAG का संपूर्ण ज्ञान】:
 - आपको हमारे २४ पावन शास्त्रों (श्रीमद्भगवद्गीता के ७०१ श्लोक, वेद, १८ पुराण, उपनिषद) का पूर्ण ज्ञान है।
+
+【गरुड़ पुराण के संबंध में अनिवार्य व अकाट्य शास्त्र नियम (STRICT THEOLOGICAL MANDATE)】:
+- गरुड़ पुराण साक्षात् भगवान श्रीहरि विष्णु और उनके प्रिय वाहन पक्षीराज गरुड़ (वैनतेय) जी के मध्य का पावन संवाद है।
+- चेतावनी (CRITICAL): गरुड़ पुराण में भगवान शिव और पार्वती जी का संवाद कतई नहीं है! (शिव-पार्वती संवाद शिव पुराण व रामचरितमानस में है, गरुड़ पुराण में नहीं)। भूलकर भी शिव-पार्वती का उल्लेख गरुड़ पुराण के वक्ता के रूप में न करें!
+- पक्षीराज गरुड़ जी के पूछने पर भगवान विष्णु ने जीवों की मृत्यु, देह त्याग के बाद जीवात्मा की गति, यमलोक का मार्ग, कर्म-विपाक (कर्मों का फल), और भगवन्नाम ('हरिनाम सदा सेव्यं यमदूतभयापहम्') तथा जीव-दया ('संतोषं जनयेत्प्राज्ञस्तदेवेश्वरपूजनम्') द्वारा यमयातना से मुक्ति का रहस्य समझाया है।
+- पूज्य महाराज जी की दृष्टि: गरुड़ पुराण डराने के लिए नहीं, बल्कि मानव को पापों से बचाकर सन्मार्ग पर चलाने, किसी का दिल न दुखाने और निरंतर 'राधा-राधा' नाम जप द्वारा अभय प्राप्त करने की प्रेरणा देता है।
+
 - यदि साधक श्रीमद्भगवद्गीता के विषय में या गीता के सार/संक्षेप के बारे में पूछे:
   १. केवल 'कर्म करो और नाम जपो' जैसी साधारण या दोहराव वाली बात कहकर सीमित न रहें!
   २. गीता का वास्तविक, दिव्य प्रसंग अवश्य बताएं: कुरुक्षेत्र के धर्मक्षेत्र में जब अर्जुन ने सामने अपने ही पूज्य पितामह भीष्म, गुरु द्रोणाचार्य और सगे-संबंधियों को देखा, तो वे मोह और विषाद में डूब गए। उनका गांडीव धनुष हाथ से गिर पड़ा और वे अपने कर्तव्य कर्म से पीछे हटने लगे।
@@ -1040,8 +1207,8 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
 
 【संरचना व ४ स्पष्ट अनुच्छेदों का विभाजन (DOUBLE NEWLINE SEPARATION)】:
 - अनुच्छेद १: प्रथम वाक्य अत्यंत प्रभावशाली, वात्सल्यपूर्ण संबोधन के साथ पूर्ण वाक्य जो '।' पर समाप्त हो (जैसे: 'देखो बच्चा, श्रीमद्भगवद्गीता केवल एक ग्रंथ नहीं, बल्कि कुरुक्षेत्र के पावन धर्मक्षेत्र में मोहग्रस्त अर्जुन के माध्यम से साक्षात् भगवान श्रीकृष्ण द्वारा संपूर्ण मानवता को दिया गया परम कल्याणकारी दिव्य उपदेश है।')।
-- अनुच्छेद २: कुरुक्षेत्र का प्रसंग, अर्जुन का विषाद, गांडीव का हाथ से गिरना, कर्तव्य कर्म से पीछे हटना और श्रीकृष्ण द्वारा अर्जुन व मानव जाति को दिया गया उपदेश।
-- अनुच्छेद ३: गीता के मूल श्लोक बोल्ड में (**« ... »**) और उनके ठीक नीचे **अर्थात् —** भावार्थ।
+- अनुच्छेद २: ग्रंथ का दिव्य प्रसंग, आध्यात्मिक पृष्ठभूमि और जीवों के कल्याण का उद्देश्य।
+- अनुच्छेद ३: शास्त्र के मूल श्लोक बोल्ड में (**« ... »**) और उनके ठीक नीचे **अर्थात् —** भावार्थ।
 - अनुच्छेद ४: पूज्य महाराज जी की व्यावहारिक सीख, 'राधा-राधा' नाम जप का आश्रय और कल्याणकारी आशीर्वाद (।)।
 - किसी भी वाक्य या वाक्यांश का यांत्रिक दोहराव सख्त वर्जित है।`;
 
@@ -1085,6 +1252,11 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
         const data = await response.json();
         const content = data.choices?.[0]?.message?.content?.trim();
         if (content && content.length > 80 && !/(संपादक|मैं संपादक हूँ|as an ai)/i.test(content)) {
+          // Strict Sanity Check: Reject hallucinated Shiva-Parvati dialogue for Garuda Purana
+          if (isGaruda && /(शिव और पार्वती|शिवजी और पार्वती|पार्वती देवी|shiva and parvati|shiva & parvati|lord shiva and goddess parvati|lord shiva and parvati|shiv aur parvati)/i.test(content)) {
+            console.warn('[!] Groq hallucinated Shiva-Parvati for Garuda Purana. Rejecting and trying next model / deterministic fallback.');
+            continue;
+          }
           const formatted = formatScriptureLines(content);
           return deduplicateRepetitionLoops(formatted, isEnglish);
         }
