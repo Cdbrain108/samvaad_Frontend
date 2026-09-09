@@ -14,6 +14,7 @@ export default function ReasoningBlock({
   isThinking = false,
   duration = 0,
   scripture = null,
+  isEnglish = false,
 }) {
   const [isOpen, setIsOpen] = useState(Boolean(isThinking));
   const [isExpanded, setIsExpanded] = useState(false);
@@ -21,6 +22,7 @@ export default function ReasoningBlock({
   const [elapsed, setElapsed] = useState(0);
   const streamRef = useRef(null);
 
+  const isEnglishView = Boolean(isEnglish) || (thought && /^(?:🔍\s*Query Intent|Contemplating|Searching|Analyzing)/i.test(thought));
   const [displayedThought, setDisplayedThought] = useState(thought || '');
 
   useEffect(() => {
@@ -150,7 +152,9 @@ export default function ReasoningBlock({
           >
             <div className="claude-scripture-box">
               <div className="claude-scripture-header">
-                <span className="claude-scripture-meta-title">शास्त्र प्रमाण (Sacred Citation)</span>
+                <span className="claude-scripture-meta-title">
+                  {isEnglishView ? 'Sacred Citation (शास्त्र प्रमाण)' : 'शास्त्र प्रमाण (Sacred Citation)'}
+                </span>
                 <span className="claude-scripture-ref">{scripture.reference}</span>
               </div>
               {scripture.original_text && (
@@ -160,7 +164,10 @@ export default function ReasoningBlock({
               )}
               {(scripture.hindi_meaning || scripture.english_translation) && (
                 <div className="claude-scripture-meaning">
-                  <strong>अर्थ:</strong> {scripture.hindi_meaning || scripture.english_translation}
+                  <strong>{isEnglishView ? 'Meaning:' : 'अर्थ:'}</strong>{' '}
+                  {isEnglishView
+                    ? (scripture.english_translation || scripture.hindi_meaning)
+                    : (scripture.hindi_meaning || scripture.english_translation)}
                 </div>
               )}
             </div>

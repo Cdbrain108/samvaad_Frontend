@@ -931,6 +931,7 @@ export default function App() {
                               isThinking={message.isThinking}
                               duration={message.thinkingDuration}
                               scripture={message.scripture}
+                              isEnglish={index > 0 && messages[index - 1] ? !/[\u0900-\u097F]/.test(messages[index - 1].content || '') : false}
                             />
                           )}
 
