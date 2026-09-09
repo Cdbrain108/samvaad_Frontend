@@ -548,7 +548,7 @@ export function formatScriptureLines(text) {
   });
   t = t.replace(/([^\n])\s*(\*\*«)/g, '$1\n\n$2');
   t = t.replace(/(»\*\*)\s*([^\n])/g, '$1\n\n$2');
-  t = t.replace(/([^\n])\s*(?:\*\*|\*|\b)(?:अर्थात्|भावार्थ|Meaning)\b/gi, '$1\n\n');
+  t = t.replace(/([^\n])\s*((?:\*\*|\*|\b)(?:अर्थात्|भावार्थ|Meaning)\b)/gi, '$1\n\n$2');
   // Consolidate Meaning/अर्थात् header with following quote or translation onto a single line so it stays inside .rich-arthat-line
   t = t.replace(/(^|[^\n])\s*(?:\*\*|\*|\b)(अर्थात्|भावार्थ|Meaning)\s*[:—\-]\s*(?:\*\*)?\r?\n+([^\n]+)/gim, '$1\n\n**$2 —** $3');
   // If the meaning was quoted and contains internal newlines, join them with spaces so it stays on a single card

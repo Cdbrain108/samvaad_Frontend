@@ -125,9 +125,9 @@ In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's speci
 
 $2`),t=t.replace(/(»\*\*)\s*([^\n])/g,`$1
 
-$2`),t=t.replace(/([^\n])\s*(?:\*\*|\*|\b)(?:अर्थात्|भावार्थ|Meaning)\b/gi,`$1
+$2`),t=t.replace(/([^\n])\s*((?:\*\*|\*|\b)(?:अर्थात्|भावार्थ|Meaning)\b)/gi,`$1
 
-`),t=t.replace(/(^|[^\n])\s*(?:\*\*|\*|\b)(अर्थात्|भावार्थ|Meaning)\s*[:—\-]\s*(?:\*\*)?\r?\n+([^\n]+)/gim,`$1
+$2`),t=t.replace(/(^|[^\n])\s*(?:\*\*|\*|\b)(अर्थात्|भावार्थ|Meaning)\s*[:—\-]\s*(?:\*\*)?\r?\n+([^\n]+)/gim,`$1
 
 **$2 —** $3`),t=t.replace(/(\*\*(?:अर्थात्|भावार्थ|Meaning)\s*[:—\-]\s*\*\*)\s*["“]([\s\S]*?)["”]/gi,(e,t,n)=>`${t} "${n.replace(/\r?\n\s*/g,` `).trim()}"`),t=t.replace(/([।!?.]\s*)(?=(?:इसलिए|अतः|अब\s+तुम्हें|तुम्हें\s+जो|भगवान\s+की\s+सेवा|इस\s+श्लोक|इस\s+प्रसंग|Therefore|So,\s+dear\s+child|Now,\s+my\s+child|Through\s+this\s+verse|Hold\s+the\s+Holy\s+Name))/gi,`$1
 
