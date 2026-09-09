@@ -389,7 +389,7 @@ Key features for seekers:
 
 /* ---------- main landing page ---------- */
 
-export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme }) {
+export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onToggleTheme }) {
   const scrollRef = useRef(null)
   const askInputRef = useRef(null)
   const activeRef = useRef(0)
@@ -658,6 +658,17 @@ export default function LandingPage({ onEnter, onAsk, darkMode, onToggleTheme })
               Night 🌙
             </span>
           </button>
+          {onSignIn && (
+            <button
+              className="theme-pill-toggle"
+              onClick={onSignIn}
+              style={{ cursor: 'pointer', padding: '8px 16px', fontWeight: 600, fontSize: '0.85rem' }}
+              type="button"
+              aria-label="Sign In to account"
+            >
+              Sign In
+            </button>
+          )}
           <button className="rust-button cta-button" onClick={onEnter}>
             <span aria-hidden="true">🙏</span> Start Asking
           </button>

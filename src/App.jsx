@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { onAuthStateChange, saveConversation, getUserConversations, getConversation, updateConversation, getUserMemory, saveUserMemory, getUserProfileInfo, saveUserProfileInfo, signInWithGoogle } from './services/firebase';
+import { onAuthStateChange, saveConversation, getUserConversations, getConversation, updateConversation, getUserMemory, saveUserMemory, getUserProfileInfo, saveUserProfileInfo, signInWithGoogle, loginUser, registerUser } from './services/firebase';
 import { generateGuruResponse, streamGuruResponse, generateChatTitle, isCasualConversational } from './services/guruService';
 import Composer from './components/Composer';
 import Icon from './components/Icon';
@@ -188,9 +188,13 @@ function RespondingIndicator({ isDeep = false }) {
 // QA Landing wrapper removed to allow full live chat interaction
 
 // ─── Guest Login Modal ──────────────────────────────────────────────────────
-function GuestLoginModal({ onLogin, onClose }) {
+function GuestLoginModal({ onLogin, onClose, onOpenFullLogin }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isRegister, setIsRegister] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showEmailForm, setShowEmailForm] = useState(false);
 
   const handleGoogleSignIn = async () => {
     setError('');
@@ -209,6 +213,37 @@ function GuestLoginModal({ onLogin, onClose }) {
     }
   };
 
+  const handleEmailAuth = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!email.trim() || !password) {
+      setError('Please enter both email and password.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+    setLoading(true);
+    try {
+      let result;
+      if (isRegister) {
+        result = await registerUser(email.trim(), password);
+      } else {
+        result = await loginUser(email.trim(), password);
+      }
+      if (result.error) {
+        setError(result.error);
+      } else {
+        onLogin(result.user);
+      }
+    } catch (err) {
+      setError(err?.message || 'Authentication failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="guest-login-overlay" role="dialog" aria-modal="true" aria-label="Sign in required">
       <motion.div
@@ -221,7 +256,7 @@ function GuestLoginModal({ onLogin, onClose }) {
         <div className="guest-login-icon" aria-hidden="true">ॐ</div>
         <h2 className="guest-login-title">Continue Your Journey</h2>
         <p className="guest-login-desc">
-          You've experienced a glimpse of Samvaad. Sign in with Google to unlock unlimited conversations, persistent memory, and your full spiritual journey.
+          You've experienced a glimpse of Samvaad. Sign in to unlock unlimited conversations, persistent memory, and your full spiritual journey.
         </p>
 
         {error && (
@@ -245,15 +280,139 @@ function GuestLoginModal({ onLogin, onClose }) {
           <span>{loading ? 'Signing in…' : 'Continue with Google'}</span>
         </motion.button>
 
+        <div className="auth-divider" style={{ margin: '14px 0', display: 'flex', alignItems: 'center', gap: '10px', color: '#6b7280', fontSize: '0.78rem' }}>
+          <span style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></span>
+          <span>or with email & password</span>
+          <span style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></span>
+        </div>
+
+        {!showEmailForm ? (
+          <button
+            type="button"
+            className="guest-email-toggle-btn"
+            onClick={() => setShowEmailForm(true)}
+            style={{
+              width: '100%',
+              padding: '11px 16px',
+              borderRadius: '12px',
+              border: '1px solid rgba(167, 139, 250, 0.3)',
+              background: 'rgba(255, 255, 255, 0.05)',
+              color: '#e5e7eb',
+              fontSize: '0.88rem',
+              fontWeight: 500,
+              cursor: 'pointer',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+          >
+            <span>✉️</span> Sign in with Email / Password
+          </button>
+        ) : (
+          <form onSubmit={handleEmailAuth} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px', textAlign: 'left' }}>
+            <div>
+              <input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.14)',
+                  background: 'rgba(0,0,0,0.3)',
+                  color: '#ffffff',
+                  fontSize: '0.88rem',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+            <div>
+              <input
+                type="password"
+                placeholder={isRegister ? 'Create a password (min 6 chars)' : 'Password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.14)',
+                  background: 'rgba(0,0,0,0.3)',
+                  color: '#ffffff',
+                  fontSize: '0.88rem',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '11px 16px',
+                borderRadius: '10px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                color: '#ffffff',
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                marginTop: '4px'
+              }}
+            >
+              {loading ? 'Please wait…' : (isRegister ? 'Create Account' : 'Sign In')}
+            </button>
+            <div style={{ textAlign: 'center', marginTop: '6px', fontSize: '0.8rem', color: '#9ca3af' }}>
+              {isRegister ? 'Already have an account? ' : "Don't have an account? "}
+              <button
+                type="button"
+                onClick={() => { setIsRegister(!isRegister); setError(''); }}
+                style={{ background: 'none', border: 'none', color: '#a78bfa', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+              >
+                {isRegister ? 'Sign in' : 'Create one'}
+              </button>
+            </div>
+          </form>
+        )}
+
         <div className="guest-login-features">
           <span>✨ Unlimited questions</span>
           <span>🧠 Persistent memory</span>
           <span>📜 Chat history</span>
         </div>
 
-        <button className="guest-login-dismiss" onClick={onClose} type="button" aria-label="Continue as guest">
-          Maybe later
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+          {onOpenFullLogin && (
+            <button
+              type="button"
+              onClick={onOpenFullLogin}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#a78bfa',
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                opacity: 0.85,
+                padding: '2px 6px'
+              }}
+            >
+              Open dedicated login page ↗
+            </button>
+          )}
+          <button className="guest-login-dismiss" onClick={onClose} type="button" aria-label="Continue as guest">
+            Maybe later
+          </button>
+        </div>
       </motion.div>
     </div>
   );
@@ -823,6 +982,7 @@ export default function App() {
             darkMode={darkMode}
             onEnter={openChat}
             onAsk={askFromLanding}
+            onSignIn={() => setView('login')}
             onToggleTheme={() => setDarkMode((current) => !current)}
           />
         </motion.div>
@@ -836,7 +996,10 @@ export default function App() {
           exit={{ opacity: 0, y: -18 }}
           transition={{ type: 'spring', stiffness: 220, damping: 26 }}
         >
-          <Login onLogin={(u) => { setUser(u); setView('chat'); }} />
+          <Login
+            onLogin={(u) => { handleGuestLoginSuccess(u); setView('chat'); }}
+            onBack={() => setView('chat')}
+          />
         </motion.div>
       )}
 
@@ -1208,6 +1371,10 @@ export default function App() {
           <GuestLoginModal
             onLogin={handleGuestLoginSuccess}
             onClose={() => setShowGuestLoginModal(false)}
+            onOpenFullLogin={() => {
+              setShowGuestLoginModal(false);
+              setView('login');
+            }}
           />
         )}
       </AnimatePresence>

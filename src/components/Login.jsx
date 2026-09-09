@@ -24,7 +24,7 @@ const featureItem = {
   visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 220, damping: 22 } },
 };
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, onBack }) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -88,6 +88,28 @@ export default function Login({ onLogin }) {
         transition={{ type: 'spring', stiffness: 200, damping: 22 }}
       >
         <div className="auth-header">
+          {onBack && (
+            <div style={{ textAlign: 'left', marginBottom: '14px' }}>
+              <button
+                type="button"
+                className="link-button"
+                onClick={onBack}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--spiritual-muted, #806b5b)',
+                  cursor: 'pointer',
+                  fontSize: '0.88rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: 0
+                }}
+              >
+                ← Back to Samvaad
+              </button>
+            </div>
+          )}
           <div className="auth-brand">
             <span className="om-seal" aria-hidden="true">ॐ</span>
             <span className="auth-wordmark">Samvaad AI</span>
@@ -186,6 +208,19 @@ export default function Login({ onLogin }) {
             </button>
           </p>
         </div>
+
+        {onBack && (
+          <div style={{ textAlign: 'center', marginTop: '18px' }}>
+            <button
+              type="button"
+              className="link-button"
+              onClick={onBack}
+              style={{ fontSize: '0.84rem', opacity: 0.8 }}
+            >
+              Continue as Devotee Guest →
+            </button>
+          </div>
+        )}
 
         <motion.div
           className="auth-features"
