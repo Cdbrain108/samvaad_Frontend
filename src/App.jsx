@@ -342,6 +342,7 @@ export default function App() {
   }, [darkMode]);
 
   const userScrolledUpRef = useRef(false);
+  const scrollRafRef = useRef(null); // throttle lock — prevents scroll layout thrashing during streaming
 
   // Track user scroll position so streaming never locks the page or overrides manual scrolling
   const handleContentScroll = useCallback(() => {
@@ -352,14 +353,26 @@ export default function App() {
     userScrolledUpRef.current = distanceFromBottom > 80;
   }, []);
 
-  // Auto-scroll chat to bottom ONLY if devotee hasn't scrolled up to read/inspect past dialogue
+  // Auto-scroll to bottom — throttled via rAF to prevent visual shake during rapid streaming updates
   useEffect(() => {
     if (!contentAreaRef.current) return;
     if (userScrolledUpRef.current) return;
 
-    const el = contentAreaRef.current;
-    // Direct container scroll: never interrupts touch/wheel events, never locks mouse clicks, buttons, or page controls
-    el.scrollTop = el.scrollHeight;
+    // Cancel any pending scroll frame first (prevents back-to-back layout thrashes)
+    if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
+
+    scrollRafRef.current = requestAnimationFrame(() => {
+      scrollRafRef.current = null;
+      if (!contentAreaRef.current || userScrolledUpRef.current) return;
+      contentAreaRef.current.scrollTop = contentAreaRef.current.scrollHeight;
+    });
+
+    return () => {
+      if (scrollRafRef.current) {
+        cancelAnimationFrame(scrollRafRef.current);
+        scrollRafRef.current = null;
+      }
+    };
   }, [messages]);
 
   // Listen for auth state changes
@@ -541,8 +554,12 @@ export default function App() {
     const message = (typeof explicitMessage === 'string' ? explicitMessage : draft).trim();
     if (!message) return;
 
-    // Guest users get exactly 1 free question — on the 2nd attempt, show the login modal
-    if (activeUser.uid === 'devotee_local' && guestMessageCount >= 1) {
+    // Guest users get exactly 1 free question.
+    // Double-check sessionStorage directly to guard against stale React closure state.
+    const rawGuestCount = (() => {
+      try { return parseInt(sessionStorage.getItem('samvaad_guest_q_count') || '0', 10); } catch { return guestMessageCount; }
+    })();
+    if (activeUser.uid === 'devotee_local' && (guestMessageCount >= 1 || rawGuestCount >= 1)) {
       setShowGuestLoginModal(true);
       return;
     }
@@ -1149,7 +1166,13 @@ export default function App() {
           ))}
         </motion.div>
 
-        <Composer value={draft} onChange={setDraft} onSubmit={submitMessage} />
+        <Composer
+          value={draft}
+          onChange={setDraft}
+          onSubmit={submitMessage}
+          guestLimitReached={user?.uid === 'devotee_local' && guestMessageCount >= 1}
+          onGuestLimitClick={() => setShowGuestLoginModal(true)}
+        />
       </main>
 
       <OnboardingModal isOpen={showOnboarding} onSubmit={handleOnboardingSubmit} />
