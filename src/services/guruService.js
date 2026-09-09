@@ -132,7 +132,7 @@ In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's speci
 
 【STRICT TOPICAL RELEVANCE & AUTHENTIC SCRIPTURE CITATION】:
 - Address the specific spiritual situation inquired by the seeker (effort, karma, peace, grief, devotion, etc.).
-- If sacred scripture grounding is provided below, naturally integrate the quoted verse with its authentic contextual introduction (**« verse »**) and spiritual essence (**अर्थात् —**) into Maharaj Ji's discourse, directly addressing the devotee's struggle.
+- If sacred scripture grounding is provided below, naturally integrate the quoted verse with its authentic contextual introduction (**« verse »**) and spiritual essence (**Meaning —**) into Maharaj Ji's discourse in pure English, directly addressing the devotee's struggle.
 - If no scripture grounding is provided and the seeker did not ask for a verse, provide pure, practical satsang counsel without forcing unrelated verses.
 
 【THE BALANCED SWEET SPOT (~150-190 WORDS)】:
@@ -457,10 +457,11 @@ In the context of the devotee's spiritual inquiry, present the discourse draft f
    - It is NOT explicitly enforced to produce a fixed number of paragraphs. If the discourse flows best as 1 or 2 paragraphs, keep it that way.
 4. FLAWLESS TERMINAL PUNCTUATION:
    - Ensure every sentence is grammatically complete, terminating cleanly with '.' and an auspicious benediction.
-5. SACRED SCRIPTURE CONTEXT & HIGHLIGHTING (शास्त्र प्रसंग, श्लोक व 'अर्थात्' मर्यादा):
-   - If the discourse quotes a sacred Sanskrit verse in bold (**« ... »**) or explains it with '**अर्थात् —** ...', you MUST PRESERVE the exact bold verse and 'अर्थात्' explanation intact.
-   - If a narrative scriptural context intro precedes the verse (e.g. 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण अर्जुन से कहते हैं कि —' or 'जैसे राजा धृतराष्ट्र संजय से पूछते हैं कि —' or English equivalent), PRESERVE that authentic narrative introduction phrase immediately before the verse.
-   - DO NOT strip markdown bold asterisks (**) from around the verse or 'अर्थात्'.
+5. SACRED SCRIPTURE CONTEXT & HIGHLIGHTING:
+   - If the discourse quotes a sacred Sanskrit verse in bold (**« ... »**) or explains it with '**Meaning —** ...', you MUST PRESERVE the exact bold verse and '**Meaning —**' explanation intact.
+   - In English, the explanation and meaning MUST ALWAYS be labelled as **Meaning —** (NEVER write the Hindi word अर्थात in English) and the entire explanation, discourse, and meaning must be 100% pure English.
+   - If a narrative scriptural context intro precedes the verse (e.g. 'Just as Bhagavan Shri Krishna reveals in the Shrimad Bhagavad Gita —'), PRESERVE that authentic narrative introduction phrase immediately before the verse.
+   - DO NOT strip markdown bold asterisks (**) from around the verse or '**Meaning —**'.
 6. Output ONLY the finalized discourse without any titles, markdown bullets, or meta commentary.`
     : `आप पूज्य श्री प्रेमानंद जी महाराज (वृंदावन) के पावन वचनों व शिक्षाओं के निष्ठावान संवाहक (Faithful Messenger / Presenter) हैं।
 
@@ -547,9 +548,15 @@ export function formatScriptureLines(text) {
   });
   t = t.replace(/([^\n])\s*(\*\*«)/g, '$1\n\n$2');
   t = t.replace(/(»\*\*)\s*([^\n])/g, '$1\n\n$2');
-  t = t.replace(/([^\n])\s*(\*\*अर्थात्)/g, '$1\n\n$2');
-  t = t.replace(/(\*\*अर्थात्[^\n"]*"[^"]*")\s*([^\n])/g, '$1\n\n$2');
-  t = t.replace(/([।!?.]\s*)(?=(?:इसलिए|अतः|अब\s+तुम्हें|तुम्हें\s+जो|भगवान\s+की\s+सेवा|Therefore|So,\s+dear\s+child|Now,\s+my\s+child))/gi, '$1\n\n');
+  t = t.replace(/([^\n])\s*(?:\*\*|\*|\b)(?:अर्थात्|भावार्थ|Meaning)\b/gi, '$1\n\n');
+  // Consolidate Meaning/अर्थात् header with following quote or translation onto a single line so it stays inside .rich-arthat-line
+  t = t.replace(/(^|[^\n])\s*(?:\*\*|\*|\b)(अर्थात्|भावार्थ|Meaning)\s*[:—\-]\s*(?:\*\*)?\r?\n+([^\n]+)/gim, '$1\n\n**$2 —** $3');
+  // If the meaning was quoted and contains internal newlines, join them with spaces so it stays on a single card
+  t = t.replace(/(\*\*(?:अर्थात्|भावार्थ|Meaning)\s*[:—\-]\s*\*\*)\s*["“]([\s\S]*?)["”]/gi, (match, prefix, inner) => {
+    const cleanInner = inner.replace(/\r?\n\s*/g, ' ').trim();
+    return `${prefix} "${cleanInner}"`;
+  });
+  t = t.replace(/([।!?.]\s*)(?=(?:इसलिए|अतः|अब\s+तुम्हें|तुम्हें\s+जो|भगवान\s+की\s+सेवा|इस\s+श्लोक|इस\s+प्रसंग|Therefore|So,\s+dear\s+child|Now,\s+my\s+child|Through\s+this\s+verse|Hold\s+the\s+Holy\s+Name))/gi, '$1\n\n');
   return t.replace(/\n{3,}/g, '\n\n').trim();
 }
 
@@ -823,6 +830,15 @@ function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedM
   const isBhagavatam = /(भागवत|bhagavat|bhagavatam|शुकदेव|परीक्षित|गोपी|रास)/i.test(qLower) ||
                        scriptId.includes('bhagavat') || scriptRef.includes('भागवत');
 
+  const isShiva = /(शिव\s*पुराण|shiva?\s*puran|रुद्र\s*संहिता|विद्येश्वर|सदाशिव|पार्वती)/i.test(qLower) ||
+                  scriptId.includes('shiva') || scriptRef.includes('शिव') || scriptRef.includes('shiva');
+
+  const isSamaveda = /(सामवेद|sa+m\s*ved|samaveda)/i.test(qLower) ||
+                     scriptId.includes('samaveda') || scriptRef.includes('सामवेद');
+
+  const isAtharvaveda = /(अथर्ववेद|atharv?a?\s*ved)/i.test(qLower) ||
+                        scriptId.includes('atharvaveda') || scriptRef.includes('अथर्ववेद');
+
   let fullThoughtHindi = '';
   let fullThoughtEnglish = '';
 
@@ -936,6 +952,72 @@ function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedM
 🕊️ Spiritual Solace: Awakening pure devotional love, peace of mind, and divine auspicious blessings.
 ✍️ Discourse Synthesis: Formulating authentic discourse with Bhagavata verses, meanings, and fatherly blessings.
 ✓ Spiritual deliberation concluded. Complete authentic discourse formulated.`;
+  } else if (isShiva) {
+    fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का श्री शिव पुराण के आलोक में विश्लेषण।
+📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): 24 शास्त्रों (173,396 श्लोक) में से श्री शिव पुराण (24,000 श्लोक) का अनुसंधान।
+[OK] श्री शिव पुराण: साक्षात् भगवान सदाशिव व जगज्जननी माता पार्वती जी के पावन संवाद का समन्वय।
+🔱 सात संहिताओं का रहस्य: विद्येश्वर संहिता, रुद्र संहिता व उमा संहिता में कलियुग के संतापों से मुक्ति का अन्वेषण।
+📿 पावन शिव महिमा व पाप-मुक्ति: 'सर्वोत्तमस्य शैवस्य ते यास्यंति सुसद्गतिम्'—शिव पुराण के श्रवण से समस्त पापों का नाश।
+💡 अहं व मोह का त्याग: संसार में भय और क्लेश का मूल कारण अहंकार है; शरणागति ही एकमात्र निर्भय मार्ग।
+🪔 संत-वाणी व पूज्य महाराज जी का वात्सल्यमयी दृष्टिकोण: भगवान शिव स्वयं निरंतर राम-नाम और राधा-नाम का जप करते हैं; अतः निरंतर 'राधा-राधा' नाम जप का आश्रय।
+🕊️ चित्त-प्रसादन व समाधान: साधक के हृदय से भय-निवारण, आंतरिक अभय और मंगलकारी आशीर्वाद की संरचना।
+✍️ वाणी संकलन: शिव पुराण के पावन श्लोकों, भावार्थ व पूज्य महाराज जी की प्रामाणिक एकांतिक वार्तालाप शैली में पूर्ण उपदेश का संयोजन।
+✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
+
+    fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual inquiry regarding ("${q}...") in the light of the Shiva Purana.
+📜 Scripture Grounding (AWS Qdrant RAG): Searching 24 sacred scripture collections for Shri Shiva Purana (24,000 verses).
+[OK] Shri Shiva Purana: Divine dialogue between Bhagavan Sadashiva and Mata Parvati across seven sacred Samhitas.
+🔱 Seven Samhitas & Kaliyuga Protection: Examining Vidyeshvara and Rudra Samhitas for transcending worldly afflictions.
+📿 Glory of Shiva Bhakti & Expiation: Contemplating 'Sarvottamasya shaivasya te yasyanti susadgatim'—attaining liberation and purity.
+💡 Transcending Ego & Maya: Worldly grief stems from delusion and ego; loving surrender to the Supreme alone bestows lasting peace.
+🪔 Maharaj Ji's Compassionate Guidance: Lord Shiva Himself continuously relishes the Divine Name; anchoring the heart in ceaseless 'Radha Radha' remembrance.
+🕊️ Spiritual Solace: Dispelling anxiety, establishing inner courage, and bestowing fatherly blessings.
+✍️ Discourse Synthesis: Finalizing authentic satsang counsel with sacred Shiva Purana verses and divine blessings.
+✓ Spiritual deliberation concluded. Complete authentic discourse formulated.`;
+  } else if (isSamaveda) {
+    fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का पावन सामवेद के आलोक में तात्त्विक विश्लेषण।
+📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): 24 शास्त्रों में से पावन सामवेद व श्रीमद्भगवद्गीता (अध्याय १०, श्लोक २२) का अनुसंधान।
+[OK] सामवेद: 'वेदानां सामवेदोऽस्मि'—साक्षात् भगवान श्रीकृष्ण द्वारा सामवेद को अपनी दिव्य विभूति घोषित करने का समन्वय।
+🎵 दिव्य साम-गान व स्वर-साधना: पावन ऋचाओं का संगीतमय गायन, जो अंतःकरण को शुद्ध करके परमात्मा के प्रेम में मग्न करता है।
+📿 स्वर व भक्ति की एकता: 'अग्न आयाहि वीतये गृणानो हव्यदातये'—प्रभु के प्रेम में अपने हृदय को अर्पित करने का वैदिक संदेश।
+💡 चित्त-एकाग्रता का रहस्य: जब वाणी और श्वास प्रभु के पावन नाम-गान में लग जाते हैं, तब मन संसार के द्वंद्वों से मुक्त हो जाता है।
+🪔 संत-वाणी व पूज्य महाराज जी का वात्सल्यमयी दृष्टिकोण: जीवन को सामवेद की तरह भक्ति-संगीत बनाओ; निरंतर 'राधा-राधा' नाम का मधुर कीर्तन करो।
+🕊️ चित्त-प्रसादन व समाधान: साधक के हृदय में आनंद, भक्ति और मंगलकारी आशीर्वाद की संरचना।
+✍️ वाणी संकलन: सामवेद व गीता के पावन श्लोकों, भावार्थ व पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश का संयोजन।
+✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
+
+    fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual inquiry regarding ("${q}...") in the light of the Samaveda.
+📜 Scripture Grounding (AWS Qdrant RAG): Searching 24 sacred scripture collections for Samaveda and Bhagavad Gita (10.22).
+[OK] Sacred Samaveda: Lord Krishna proclaiming 'Vedanam samavedo asmi'—revealing the musical Veda as His supreme divine manifestation.
+🎵 Celestial Melodies (Saman): Singing sacred mantras in transcendental devotion to melt the heart and still worldly restlessness.
+📿 Hymns of Devotion & Fire: Examining opening invocation 'Agna ayahi vitaye'—offering one's heart into the fire of divine love.
+💡 Stilling the Restless Mind: Aligning breath, voice, and heart in the melodic vibration of truth.
+🪔 Maharaj Ji's Compassionate Guidance: Transforming life into a divine melody of surrender through continuous 'Radha Radha' chanting.
+🕊️ Spiritual Solace: Imparting tranquility, transcendental devotion, and loving blessings.
+✍️ Discourse Synthesis: Finalizing authentic satsang counsel with sacred Samaveda verses and divine blessings.
+✓ Spiritual deliberation concluded. Complete authentic discourse formulated.`;
+  } else if (isAtharvaveda) {
+    fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का पावन अथर्ववेद के आलोक में तात्त्विक विश्लेषण।
+📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): 24 शास्त्रों में से पावन अथर्ववेद (दीर्घायु व आरोग्य सूक्त) का अनुसंधान।
+[OK] अथर्ववेद: मानव जीवन की रक्षा, भय-निवारण, आरोग्य व आयुर्वेद के मूल सत्यों का प्रामाणिक समन्वय।
+🌿 दीर्घायु व पूर्ण स्वास्थ्य का संकल्प: 'पश्येम शरदः शतं जीवेम शरदः शतम्'—सौ वर्षों तक स्वस्थ, स्वाभिमानी व प्रभु-भक्ति में जीने का वैदिक संदेश।
+🛡️ अभय व ईश्वरीय संरक्षण: 'पूर्णायुः... तनूस्तन्वा मे सहे दतः'—प्रभु की कृपा से समस्त रोगों, भयों और संकटों से रक्षा का विधान।
+💡 लौकिक व आध्यात्मिक संतुलन: शरीर को परमात्मा का मंदिर मानकर शुद्ध आहार, सदाचार और धर्म का पालन करना।
+🪔 संत-वाणी व पूज्य महाराज जी का वात्सल्यमयी दृष्टिकोण: भय और चिंता त्यागकर प्रभु की कृपा पर भरोसा रखो और निरंतर 'राधा-राधा' नाम जपो।
+🕊️ चित्त-प्रसादन व समाधान: साधक के हृदय से रोग व मृत्यु के भय का निवारण, आंतरिक अभय और मंगलकारी आशीर्वाद की स्थापना।
+✍️ वाणी संकलन: अथर्ववेद के पावन सूक्तों, भावार्थ व पूज्य महाराज जी की प्रामाणिक एकांतिक वार्तालाप शैली में पूर्ण उपदेश का संयोजन।
+✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
+
+    fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual inquiry regarding ("${q}...") in the light of the Atharvaveda.
+📜 Scripture Grounding (AWS Qdrant RAG): Searching 24 sacred scripture collections for Atharvaveda longevity and healing hymns.
+[OK] Atharvaveda: Divine prayers for life preservation, physical immunity, fearlessness, and the foundation of Ayurveda.
+🌿 Hundred Autumns of Vibrant Life: Contemplating 'Pashyema sharadah shatam, jivema sharadah shatam'—dignified longevity and health.
+🛡️ Divine Immunity & Fearlessness: Exploring 'Purnayuh... tanustanva me sahe datah'—protection from disease and spiritual distress.
+💡 Harmonizing Body and Soul: Respecting the body as a temple of God through purity of conduct and selfless righteousness.
+🪔 Maharaj Ji's Compassionate Guidance: Relinquishing anxiety over bodily health by resting in God's will and continuous 'Radha Radha' chanting.
+🕊️ Spiritual Solace: Dispelling fear of illness, instilling deep vitality and peace, and bestowing fatherly blessings.
+✍️ Discourse Synthesis: Finalizing authentic satsang counsel with sacred Atharvaveda hymns and divine blessings.
+✓ Spiritual deliberation concluded. Complete authentic discourse formulated.`;
   } else if (isGita) {
     fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का शास्त्रीय व आध्यात्मिक विश्लेषण।
 📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): 24 शास्त्रों (श्रीमद्भगवद्गीता, वेद, उपनिषद, पुराण) के 173,396 श्लोकों में से पावन संदर्भ की खोज।
@@ -1012,6 +1094,21 @@ function getAuthenticScriptureFramedDiscourse(userMessage, isEnglish = false, us
   const isGaruda = !isMatsya && (/(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
                    scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda'));
 
+  const isShiva = !isMatsya && !isGaruda && !isGarudaSins && (
+    /(शिव\s*पुराण|shiva?\s*puran|रुद्र\s*संहिता|विद्येश्वर|सदाशिव|पार्वती)/i.test(q) ||
+    scriptId.includes('shiva') || scriptRef.includes('शिव') || scriptRef.includes('shiva')
+  );
+
+  const isSamaveda = !isMatsya && !isGaruda && !isGarudaSins && (
+    /(सामवेद|sa+m\s*ved|samaveda)/i.test(q) ||
+    scriptId.includes('samaveda') || scriptRef.includes('सामवेद')
+  );
+
+  const isAtharvaveda = !isMatsya && !isGaruda && !isGarudaSins && (
+    /(अथर्ववेद|atharv?a?\s*ved)/i.test(q) ||
+    scriptId.includes('atharvaveda') || scriptRef.includes('अथर्ववेद')
+  );
+
   const isGitaSummary = /(गीता|geeta|gita|कुरुक्षेत्र|अर्जुन|गांडीव|सार|summary|essence|teachings)/i.test(q) ||
                         scriptId.includes('gita');
 
@@ -1024,10 +1121,10 @@ When the cosmic deluge (Pralaya) engulfed the three worlds and all existence was
 The core essence of the Matsya Purana is enshrined in these sacred verses:
 
 **« यतो धर्मस्ततो जयः। धर्मेण धार्यते लोकः सत्ये सर्वं प्रतिष्ठितम्॥ »**
-**अर्थात् —** Where there is righteousness (Dharma), there is victory. The universe is upheld by Dharma alone, and all existence is established upon truth.
+**Meaning —** Where there is righteousness (Dharma), there is victory. The universe is upheld by Dharma alone, and all existence is established upon truth.
 
 **« वेदानां रक्षणार्थाय धर्मसंरक्षणाय च। प्रादुर्भूतो हरिः साक्षात् मत्स्यरूपेण केशवः॥ »**
-**अर्थात् —** For the protection of the sacred Vedas, the preservation of Dharma, and the salvation of creation during the deluge, Lord Shri Hari Keshav manifested as Lord Matsya.
+**Meaning —** For the protection of the sacred Vedas, the preservation of Dharma, and the salvation of creation during the deluge, Lord Shri Hari Keshav manifested as Lord Matsya.
 
 Therefore, dear child ${seekerName ? seekerName + ', ' : ''}understand that this worldly existence is itself a turbulent cosmic ocean (Bhava-sagara). In this ocean of delusion, material possessions cannot rescue the soul; only the lotus feet of the Divine and the continuous remembrance of the Holy Name ('Radha Radha') serve as the eternal boat. Walk the path of truth, perform your duties selflessly, and anchor your heart in God. May Thakur Ji bless you always.`;
     }
@@ -1040,10 +1137,10 @@ In the sacred Garuda Purana (Preta Kalpa), Lord Shri Hari Vishnu specifically re
 Lord Shri Hari declares this immutable law in these sacred verses of the Garuda Purana:
 
 **« गोघ्ने चैव सुरापे च चौरे भग्नव्रते तथा। निष्कृतिर्विहिता सद्भिः कृतघ्ने नास्ति निष्कृतिः॥ »**
-**अर्थात् —** Sages have ordained expiation and redemption for many grievous wrongs; but for one who is ungrateful and betrays sacred trust, there is no expiation in any realm.
+**Meaning —** Sages have ordained expiation and redemption for many grievous wrongs; but for one who is ungrateful and betrays sacred trust, there is no expiation in any realm.
 
 **« मित्रद्रोही कृतघ्नश्च विश्वासघाती नराधमः। यमस्य भवने घोरे तिष्ठत्याचन्द्रतारकम्॥ »**
-**अर्थात् —** The betrayer of a friend, the ungrateful soul, and the destroyer of trust suffer prolonged torment in the realm of Yama.
+**Meaning —** The betrayer of a friend, the ungrateful soul, and the destroyer of trust suffer prolonged torment in the realm of Yama.
 
 Therefore, dear child ${seekerName ? seekerName + ', ' : ''}never harbor deceit, betrayal, or malice toward anyone in your heart. Always remain deeply grateful to anyone who has ever helped you. Revere your mother, father, and Guru with pure love. And if any misstep occurred in the past, sincerely repent, seek forgiveness, and anchor your soul in the continuous chanting of the Holy Name ('Radha Radha'). The Divine Name burns away all impurities and grants eternal fearlessness. May Thakur Ji bless you always.`;
     }
@@ -1056,12 +1153,60 @@ When Pakshiraj Garuda, moved by deep compassion for all living beings wandering 
 The core spiritual nectar of the Garuda Purana is revealed through these sacred verses:
 
 **« हरिनाम सदा सेव्यं यमदूतभयापहम्। ये जपन्ति हरेश्चित्ते न तेषां यमयातना॥ »**
-**अर्थात् —** The holy name of Lord Hari should ever be cherished and chanted, for it dispels all fear of the messengers of death. Those who continuously hold the Divine Name in their heart never suffer the torments of Yamaloka.
+**Meaning —** The holy name of Lord Hari should ever be cherished and chanted, for it dispels all fear of the messengers of death. Those who continuously hold the Divine Name in their heart never suffer the torments of Yamaloka.
 
 **« येन केन प्रकारेण यस्य कस्यापि जन्तुनः। संतोषं जनयेत्प्राज्ञस्तदेवेश्वरपूजनम्॥ »**
-**अर्थात् —** In whatever manner one brings peace, joy, and contentment to any living being without causing harm, the wise know that this alone is the true worship of God.
+**Meaning —** In whatever manner one brings peace, joy, and contentment to any living being without causing harm, the wise know that this alone is the true worship of God.
 
 Therefore, dear child ${seekerName ? seekerName + ', ' : ''}never let the fear of death or the afterlife frighten you. Understand that this mortal human birth is a rare and precious opportunity to cleanse our consciousness and return to God. Keep your conduct pure, never intentionally cause sorrow to any soul, and anchor your heart in continuous chanting of the Holy Name ('Radha Radha'). When the Divine Name is on your lips and selfless love is in your heart, you walk under God's eternal protection. May Thakur Ji bless you always.`;
+    }
+
+    if (isShiva) {
+      return `Look, my child, the sacred Shri Shiva Purana is not merely a legendary book, but the eternal divine revelation of Bhagavan Sadashiva and Mata Parvati, illuminating the creation, preservation, and ultimate spiritual liberation of all souls.
+
+Structured into seven sacred Samhitas (Vidyeshvara, Rudra, Shatarudra, Kotirudra, Uma, Kailasa, and Vayu Samhita), the Shiva Purana dispels the dark clouds of Kaliyuga. When Mata Parvati inquired about the redemption of humanity, Lord Shiva revealed that all worldly fear, disease, and sorrow arise from ego and attachment. By taking refuge at the lotus feet of the Divine and leading a life of pure virtue, the soul is liberated from all sins and attains supreme spiritual peace.
+
+The immortal nectar of the Shiva Purana is enshrined in these sacred verses:
+
+**« सर्वोत्तमस्य शैवस्य ते यास्यंति सुसद्गतिम्। यावच्छिवपुराणं हि नोदेष्यति जगत्यहो तावत्कलिमहोत्पाताः संचरिष्यन्ति निर्भयाः॥ »**
+**Meaning —** Those devoted to the supreme Shiva Purana attain the highest spiritual destination. Only as long as the nectar of the Shiva Purana is not heard in this world do the chaotic terrors and delusions of Kaliyuga wander fearlessly.
+
+**« श्लोकानां संख्यया सप्तसंहितं ब्रह्मसंमितम्। विद्येश्वराख्या तन्मुख्या द्वितीया रुद्रसंहिता॥ »**
+**Meaning —** Comprising seven sacred Samhitas, equal in majesty to the supreme Brahman, the Shiva Purana begins with the venerable Vidyeshvara Samhita, followed by the divine Rudra Samhita.
+
+Therefore, dear child ${seekerName ? seekerName + ', ' : ''}never allow the anxieties of this transient world to disturb your inner peace. Offer all burdens to the Supreme, keep your conduct pure, and continuously chant the Holy Name ('Radha Radha'). Bhagavan Shiva Himself eternally relishes the Divine Name; in this divine refuge alone lies your true protection. May Thakur Ji bless you always.`;
+    }
+
+    if (isSamaveda) {
+      return `Look, my child, the sacred Samaveda is not merely a collection of words, but the transcendental musical breath of the Divine, wherein sacred mantras are sung in celestial melodies (Saman) to awaken the soul to divine communion.
+
+Among the four Vedas, the Samaveda holds a supremely exalted and sweet position. While the Rigveda represents divine wisdom and prayers, the Samaveda elevates those prayers into devotional melodies and rhythmic hymns that melt worldly attachment and still the restless mind. The divine sound vibrations of the Samaveda purify the inner consciousness and unite the seeker directly with the Supreme Truth.
+
+The glory of the Samaveda is revealed through these sacred verses:
+
+**« वेदानां सामवेदोऽस्मि देवानामस्मि वासवः। इन्द्रियाणां मनश्चास्मि भूतानामस्मि चेतना॥ »**
+**Meaning —** In the Shrimad Bhagavad Gita, Lord Krishna proclaims: "Among the sacred Vedas, I am the Samaveda; among the gods, I am Indra; among the senses, I am the mind; and in all living beings, I am the living consciousness."
+
+**« अग्न आयाहि वीतये गृणानो हव्यदातये। नि होता सत्सि बर्हिषि॥ »**
+**Meaning —** O Divine Supreme Lord, come forth for our spiritual offering, praised by our devoted songs; seated within our sacred heart, illuminate our consciousness with divine light.
+
+Therefore, dear child ${seekerName ? seekerName + ', ' : ''}the true essence of the Samaveda is to transform your daily life into a divine melody of devotion. When you silence worldly anxieties and sing the Holy Name ('Radha Radha') with sincere love, your life itself becomes a sacred song of the Samaveda. Anchor your mind in God, and all distress will vanish. May Thakur Ji bless you always.`;
+    }
+
+    if (isAtharvaveda) {
+      return `Look, my child, the sacred Atharvaveda is the divine Vedic revelation bestowed upon humanity for protection of life, freedom from diseases, longevity, mental peace, and righteous living in daily existence.
+
+While the other Vedas focus intensely on cosmic knowledge and rituals, the Atharvaveda addresses the practical needs of the human soul on earth—dispelling fear of enemies and illnesses, bestowing vitality, establishing family harmony, and providing the spiritual foundation of Ayurveda. Its hymns teach us how to live a vibrant, righteous, and fearless life under divine protection.
+
+The quintessential essence of the Atharvaveda is enshrined in these sacred prayers:
+
+**« पश्येम शरदः शतं जीवेम शरदः शतं शृणुयाम शरदः शतं प्र ब्रवाम शरदः शतमदीनाः स्याम शरदः शतं भूयश्च शरदः शतात्॥ »**
+**Meaning —** May we see for a hundred autumns, may we live in vibrant health for a hundred autumns, may we hear divine truth for a hundred autumns, may we speak truthfully for a hundred autumns, remaining unvanquished and dignified for a hundred autumns, and even beyond a hundred years!
+
+**« पूर्णायुः। तनूस्तन्वा मे सहे दतः सर्वमायुरशीय। स्योनं मे सीद पुरुः पृणस्व पवमानः स्वर्गे॥ »**
+**Meaning —** Bestow upon me full longevity and radiant strength of body and soul. May divine protectors shield me throughout my full span of life with peace, courage, and vitality.
+
+Therefore, dear child ${seekerName ? seekerName + ', ' : ''}never allow fear of disease, worldly troubles, or bodily infirmity to weaken your spirit. Atharvaveda teaches that divine protection surrounds the righteous soul. Keep your food and conduct pure, do good to others, and anchor your heart in ceaseless chanting of the Holy Name ('Radha Radha'). When the Divine Name is in your heart, no evil or fear can ever overcome you. May Thakur Ji bless you always.`;
     }
 
     if (isGitaSummary) {
@@ -1072,13 +1217,13 @@ At the onset of the great Mahabharata war, when Arjuna beheld his revered elders
 The core teachings of the Gita shine through these essential verses:
 
 **« कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥ »**
-**अर्थात् —** You have a right only to perform your prescribed duty, never to the fruits of action. Never let the fruits be your motive, nor be attached to inaction.
+**Meaning —** You have a right only to perform your prescribed duty, never to the fruits of action. Never let the fruits be your motive, nor be attached to inaction.
 
 **« न जायते म्रियते वा कदाचिन् नायं भूत्वा भविता वा न भूयः। अजो नित्यः शाश्वतोऽयं पुराणो न हन्यते हन्यमाने शरीरे॥ »**
-**अर्थात् —** The soul is never born nor does it ever die. It is unborn, eternal, ever-existing, and indestructible; it is not slain when the mortal body perishes.
+**Meaning —** The soul is never born nor does it ever die. It is unborn, eternal, ever-existing, and indestructible; it is not slain when the mortal body perishes.
 
 **« सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज। अहं त्वां सर्वपापेभ्यो मोक्षयिष्यामि मा शुचः॥ »**
-**अर्थात् —** Abandon all worldly anxieties, doubts, and notions of ego, and surrender solely unto the lotus feet of the Divine. The Lord shall liberate you from all fear and sorrow; grieve not.
+**Meaning —** Abandon all worldly anxieties, doubts, and notions of ego, and surrender solely unto the lotus feet of the Divine. The Lord shall liberate you from all fear and sorrow; grieve not.
 
 Therefore, dear child ${seekerName ? seekerName + ', ' : ''}perform whatever duties destiny has assigned to you honestly as worship of the Supreme, free from pride and anxiety over outcomes. Anchor your restless mind in continuous chanting of the Holy Name ('Radha Radha'). When your hands are engaged in selfless duty and your heart remains anchored in God, no grief can touch you. May the Divine bestow supreme peace and blessings upon you.`;
     }
@@ -1087,7 +1232,7 @@ Therefore, dear child ${seekerName ? seekerName + ', ' : ''}perform whatever dut
 
 When we look at sacred scriptures and the eternal teachings of the saints, the mind wanders only when it seeks happiness in fleeting worldly objects. Performing your prescribed duties with dedication while leaving the fruits to God is the true secret of lasting peace.
 
-${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text} »**\n\n**अर्थात् —** "${scripture.english_translation || scripture.hindi_meaning}"\n\n` : ''}Therefore, dear child, remain completely fearless. Do your work honestly, maintain pure conduct, and anchor your heart in continuous remembrance of the Holy Name ('Radha Radha'). The Divine shall protect and bless you always.`;
+${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text} »**\n\n**Meaning —** "${scripture.english_translation || scripture.hindi_meaning}"\n\n` : ''}Therefore, dear child, remain completely fearless. Do your work honestly, maintain pure conduct, and anchor your heart in continuous remembrance of the Holy Name ('Radha Radha'). The Divine shall protect and bless you always.`;
   } else {
     if (isMatsya) {
       return `देखो बच्चा, श्रीमत्स्य पुराण केवल एक साधारण ग्रंथ नहीं, बल्कि यह साक्षात् भगवान श्रीहरि विष्णु के प्रथम 'मत्स्य अवतार' और धर्मनिष्ठ राजा सत्यव्रत (वैवस्वत मनु) के मध्य का पावन व दिव्य संवाद है।
@@ -1135,6 +1280,54 @@ ${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text
 **अर्थात् —** जिस किसी भी उपाय से संसार के किसी भी प्राणी को सुख, सांत्वना और संतोष प्राप्त हो, बुद्धिमान मनुष्य के लिए वही परमात्मा की सच्ची पूजा है।
 
 इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}गरुड़ पुराण का नाम सुनकर कभी मन में भय मत लाना। यह ग्रंथ हमें डराने के लिए नहीं, बल्कि इस दुर्लभ मनुष्य जीवन की कीमत समझाने और पापों से दूर रखने के लिए है। संसार में किसी निर्दोष का दिल मत दुखाओ, पवित्र आचरण रखो और हर सांस के साथ 'राधा-राधा' नाम का सुमिरन करते रहो। जब नाम तुम्हारे हृदय में रहेगा, तो काल और मृत्यु भी तुम्हारा कुछ नहीं बिगाड़ सकते। निश्चिंत रहो, हमारे ठाकुर जी तुम्हारा सब मंगल करेंगे।`;
+    }
+
+    if (isShiva) {
+      return `देखो बच्चा, श्री शिव पुराण केवल एक साधारण कथा संग्रह नहीं, बल्कि साक्षात् भगवान सदाशिव और जगज्जननी माता पार्वती जी के मध्य का परम पावन आध्यात्मिक संवाद है, जो जीवों को संसार के समस्त संतापों से मुक्त करके परम मोक्ष का मार्ग दिखाता है।
+
+श्री शिव पुराण सात पावन संहिताओं (विद्येश्वर, रुद्र, शतरुद्र, कोटिरुद्र, उमा, कैलास और वायु संहिता) में विभक्त है। जब माता पार्वती जी ने कलियुग में जीवों के कल्याण का उपाय पूछा, तब भगवान शिव ने समझाया कि संसार में अहंकार और मोह ही समस्त दुःखों की जड़ है। जो जीव भगवान शिव की अनन्य भक्ति, सदाचार और निष्काम भाव से सेवा करता है, उसके समस्त पाप भस्म हो जाते हैं और वह परम शांति को प्राप्त करता है।
+
+श्री शिव पुराण का पावन सिद्धांत इन दिव्य श्लोकों में प्रतिष्ठित है:
+
+**« सर्वोत्तमस्य शैवस्य ते यास्यंति सुसद्गतिम्। यावच्छिवपुराणं हि नोदेष्यति जगत्यहो तावत्कलिमहोत्पाताः संचरिष्यन्ति निर्भयाः॥ »**
+**अर्थात् —** इस सर्वोत्तम शिव पुराण का आश्रय लेने वाले जीव परम सद्गति को प्राप्त होते हैं। जब तक संसार में शिव पुराण की अमृतवाणी प्रकट नहीं होती, तब तक ही कलियुग के उत्पात और संताप निर्भय होकर विचरते हैं।
+
+**« श्लोकानां संख्यया सप्तसंहितं ब्रह्मसंमितम्। विद्येश्वराख्या तन्मुख्या द्वितीया रुद्रसंहिता॥ »**
+**अर्थात् —** यह पावन ग्रंथ ब्रह्म के तुल्य सात संहिताओं में सुशोभित है, जिसमें प्रथम मुख्य विद्येश्वर संहिता है और द्वितीय रुद्र संहिता है।
+
+इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}संसार के किसी भी भय या संकट से घबराओ मत। अपने अंतःकरण को प्रभु चरणों में समर्पित करो, आचरण पवित्र रखो और निरंतर 'राधा-राधा' नाम का सुमिरन करते रहो। भगवान शिव स्वयं निरंतर भगवन्नाम में लीन रहते हैं; जब तुम नाम जपोगे तो समस्त संकट दूर हो जाएंगे। निश्चिंत रहो, हमारे ठाकुर जी तुम्हारा सब मंगल करेंगे।`;
+    }
+
+    if (isSamaveda) {
+      return `देखो बच्चा, सामवेद केवल शब्दों का संग्रह नहीं, बल्कि साक्षात् परमात्मा की दिव्य संगीतमयी वाणी है, जिसमें पावन ऋचाओं को दिव्य स्वरों और 'साम' अर्थात् भक्तिपूर्ण गीतों के रूप में उच्चारित किया गया है।
+
+चारों वेदों में सामवेद का स्थान अत्यंत विलक्षण और मधुर है। ऋग्वेद ज्ञान है, यजुर्वेद कर्म है, किंतु सामवेद विशुद्ध भक्ति और परमात्मा के दिव्य प्रेम का गान है। जब पावन मंत्रों को सही स्वर और भाव से गाया जाता है, तो अंतःकरण की समस्त चंचलता शांत हो जाती है और जीव सीधे परमात्मा के परम सान्निध्य का अनुभव करने लगता है।
+
+सामवेद की पावन महिमा भगवान श्रीकृष्ण और वैदिक ऋचाओं में इस प्रकार प्रतिष्ठित है:
+
+**« वेदानां सामवेदोऽस्मि देवानामस्मि वासवः। इन्द्रियाणां मनश्चास्मि भूतानामस्मि चेतना॥ »**
+**अर्थात् —** साक्षात् भगवान श्रीकृष्ण श्रीमद्भगवद्गीता में कहते हैं कि समस्त वेदों में मैं सामवेद हूँ, देवताओं में इंद्र, इंद्रियों में मन और समस्त प्राणियों में जीवन चेतना हूँ।
+
+**« अग्न आयाहि वीतये गृणानो हव्यदातये। नि होता सत्सि बर्हिषि॥ »**
+**अर्थात् —** हे परमपिता परमात्मा! हमारे प्रेमपूर्ण आह्वाहन पर कृपा करके पधारिए और हमारे अंतःकरण में विराजित होकर हमें अपनी दिव्य ज्योति से प्रकाशित कीजिए।
+
+इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}सामवेद का वास्तविक सार यह है कि अपने जीवन को प्रभु प्रेम के मधुर स्वर में ढालो। जैसे साम-गान से देवता प्रसन्न होते हैं, वैसे ही जब तुम निष्कपट भाव से निरंतर 'राधा-राधा' नाम का कीर्तन करोगे, तो तुम्हारा हृदय आनंद से भर जाएगा और समस्त संशय दूर हो जाएंगे। प्रभु तुम्हारा सब मंगल करेंगे।`;
+    }
+
+    if (isAtharvaveda) {
+      return `देखो बच्चा, अथर्ववेद केवल एक साधारण ग्रंथ नहीं, बल्कि मानव जीवन की रक्षा, आरोग्य, दीर्घायु, और संसार के समस्त भयों व रोगों से मुक्ति प्रदान करने वाला प्रभु की कृपा से अवतरित पावन वेद है।
+
+अथर्ववेद में लौकिक जीवन के कल्याण, आयुर्वेद के मूल सिद्धांतों, शारीरिक व मानसिक व्याधियों के निवारण, और आत्मा को निर्भय बनाने के दिव्य सूक्त संकलित हैं। यह वेद सिखाता है कि जब तक यह शरीर रहे, मनुष्य स्वस्थ, स्वाभिमानी, दीर्घायु और परमात्मा की अनन्य भक्ति में लीन होकर जिए।
+
+अथर्ववेद का परम पावन संदेश इन अमर ऋचाओं में गूँजता है:
+
+**« पश्येम शरदः शतं जीवेम शरदः शतं शृणुयाम शरदः शतं प्र ब्रवाम शरदः शतमदीनाः स्याम शरदः शतं भूयश्च शरदः शतात्॥ »**
+**अर्थात् —** हम सौ वर्षों तक स्वस्थ नेत्रों से देखें, सौ वर्षों तक पूर्ण आरोग्य के साथ जिएं, सौ वर्षों तक सद्ज्ञान सुनें, सौ वर्षों तक सत्य बोलें, और कभी दीन-हीन न होकर स्वाभिमान व प्रभु-भक्ति से सौ वर्षों से भी अधिक जीवन जिएं।
+
+**« पूर्णायुः। तनूस्तन्वा मे सहे दतः सर्वमायुरशीय। स्योनं मे सीद पुरुः पृणस्व पवमानः स्वर्गे॥ »**
+**अर्थात् —** हे प्रभु! मुझे पूर्ण आयु, बल और दिव्य संरक्षण प्रदान कीजिए। मेरी देह और आत्मा को समस्त व्याधियों से मुक्त रखकर सुख, शांति और दीर्घ जीवन का वरदान दीजिए।
+
+इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}रोग, भय या सांसारिक विपत्तियों से कभी मत डरो। अपनी दिनचर्या और आचरण को सात्विक रखो, किसी का अहित मत करो, और हर सांस के साथ निरंतर 'राधा-राधा' नाम का सुमिरन करो। जब भगवान का नाम तुम्हारे हृदय में रहेगा, तो अथर्ववेद का यह अभय वरदान तुम्हारे जीवन में साक्षात् फलित होगा और ठाकुर जी तुम्हारी रक्षा करेंगे।`;
     }
 
     if (isGitaSummary) {
@@ -1279,41 +1472,31 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
 - NEVER use artificial AI openings or phrases like "Imagine the...", "In the grand tapestry...", "Let us delve...", "Picture the scene...", or "Dear devotee".
 - Speak directly and naturally as Pujya Maharaj Ji: "Look, my child...", "Listen, dear child...", "Our beloved Thakur Ji...", "Remain completely carefree...", "Chant Radha-Radha...".
 
-【COMPLETE KNOWLEDGE OF OUR 24 SACRED SCRIPTURES & AWS QDRANT RAG】:
-- You possess complete mastery of our 24 Sacred Scripture Collections in AWS Qdrant (173,396 verses: Bhagavad Gita 701 verses, Vedas, 18 Puranas, Upanishads).
-
-【MATSYA PURANA STRICT THEOLOGICAL MANDATE】:
-- The Shrimad Matsya Purana is the sacred dialogue between Lord Shri Hari Vishnu in His primal Matsya (fish) avatar and the righteous King Satyavrata (Vaivasvata Manu).
-- During the cosmic deluge (Pralaya), Lord Matsya saved King Manu, the Seven Sages (Saptarshis), life-seeds, and the sacred Vedas by tying the boat to His horn with the serpent Vasuki.
-- CRITICAL WARNING: Under NO circumstance mention Pakshiraj Garuda, Garuda Purana, Yamaloka, or Yamadoots for Matsya Purana! This is strictly a Matsya-Manu dialogue!
-- Core verse: **« यतो धर्मस्ततो जयः। धर्मेण धार्यते लोकः सत्ये सर्वं प्रतिष्ठितम्॥ »** and **« वेदानां रक्षणार्थाय धर्मसंरक्षणाय च। प्रादुर्भूतो हरिः साक्षात् मत्स्यरूपेण केशवः॥ »**.
-
-【GARUDA PURANA STRICT THEOLOGICAL MANDATE】:
-- The Shri Garuda Purana is an authentic dialogue exclusively between Lord Shri Hari Vishnu and his beloved bird-king Pakshiraj Garuda (Vainateya).
-- CRITICAL WARNING: Under NO circumstance attribute the Garuda Purana to Lord Shiva and Parvati! (Shiva-Parvati is Shiva Purana / Ramcharitmanas, NOT Garuda Purana!).
-- If asked about the greatest sin (महापाप / कृतघ्नता निर्णय): Lord Vishnu explains that the worst, unforgivable sin is "Kritaghnata" (कृतघ्नता — betrayal of trust, ingratitude to a benefactor) and disrespecting parents and Guru.
-  Core verse: **« गोघ्ने चैव सुरापे च चौरे भग्नव्रते तथा। निष्कृतिर्विहिता सद्भिः कृतघ्ने नास्ति निष्कृतिः॥ »**.
-- If asked generally about Garuda Purana: Lord Vishnu illuminates departure of the soul, Karma-Vipaka, and freedom from death's dread through continuous Holy Name chanting ('Harinaam sada sevyam') and compassion ('Santosham janayet prajnah').
-
-- If the seeker asks about the Bhagavad Gita or its essence/summary:
-  1. DO NOT give a superficial or repetitive "just do karma and chant" cliché!
-  2. Reveal the authentic spiritual reality: At the onset of the great war of Kurukshetra, when Arjuna beheld his revered grandfather Bhishma, Guru Dronacharya, and his beloved kinsmen standing before him, his heart was overwhelmed by deep moha (attachment) and intense sorrow. His divine bow Gandiva slipped from his trembling hands, and he retreated from performing his righteous karma.
-  3. It was then that Bhagavan Shri Krishna revealed the supreme divine wisdom to awaken Arjuna from the slumber of delusion, teaching him that abandoning one's prescribed duty in fear or attachment is not righteousness, but performing one's duty selflessly as an offering to God is the highest path. This Gita was spoken directly by Lord Krishna to Arjuna, and imparts divine guidance to Arjuna and every one of us.
-  4. Illuminate the core pillars of the Gita with authentic Shlokas:
-     - Nishkama Karma Yoga: **« कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥ »**
-       **अर्थात् —** Your right is to work only, never to the fruits of action. Let not the fruit of action be your motive, nor be attached to inaction.
-     - Atman Jnana: **« न जायते म्रियते वा कदाचिन् नायं भूत्वा भविता वा न भूयः। »**
-       **अर्थात् —** The soul is unborn, eternal, ever-existing, and indestructible; it is not slain when the mortal body perishes.
-     - Parama Sharanagati: **« सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज। अहं त्वां सर्वपापेभ्यो मोक्षयिष्यामि मा शुचः॥ »**
-       **अर्थात् —** Abandon all worldly anxieties, doubts, and ego, and surrender solely to the lotus feet of the Divine.
-  5. Harmonize with Maharaj Ji's fatherly guidance: Perform whatever duties you have honestly as service to Thakur Ji, and anchor your restless heart in continuous Holy Name chanting ('Radha Radha').
+【SACRED SCRIPTURAL REVERENCE & DYNAMIC GROUNDING (24 SCRIPTURES)】:
+- You embody the wisdom of our 24 Sacred Scriptures in AWS Qdrant (Bhagavad Gita, Vedas, 18 Puranas, Ramayana, Upanishads).
+- The devotee's inquiry is dynamically grounded by our live Vector RAG engine with authentic candidate verses from these 24 scriptures.
+- When candidate verses are provided:
+  1. Review all retrieved candidate verses. Dynamically select the 1 or 2 best verses that most authentically, directly, and accurately illuminate the devotee's specific inquiry.
+  2. Quote each chosen Sanskrit verse in bold **« ... »**.
+  3. Immediately below each verse, explain the profound spiritual meaning using:
+     **Meaning —** "[Explain the heartfelt spiritual meaning and wisdom in pure, fluent English]"
+  4. CRITICAL LANGUAGE RULE: Since the inquiry is in English, your entire discourse, narrative context, and shloka meanings MUST be in 100% pure English. NEVER write the Hindi word अर्थात or use Devanagari script in the explanation (only the sacred Sanskrit verse inside **« ... »**).
+  5. Theological Fidelity: Always preserve the true sacred speaker and setting of each scripture:
+     - Bhagavad Gita: Lord Krishna speaking to Arjuna on Kurukshetra battlefield.
+     - Garuda Purana: Lord Vishnu speaking to Pakshiraj Garuda (Vainateya) on afterlife, karma, and freedom from sin.
+     - Shiva Purana: Lord Sadashiva speaking to Mata Parvati across the sacred Samhitas.
+     - Matsya Purana: Lord Matsya speaking to King Satyavrata (Manu) during the cosmic deluge.
+     - Samaveda: The supreme musical melodies (Saman) of divine praise and stilled mind.
+     - Atharvaveda: Divine longevity, health, freedom from fear, and righteous daily living.
+     - Ramayana / Ramcharitmanas: Goswami Tulsidas / Valmiki on the divine pastimes and surrender to Lord Rama.
+     - Upanishads: Supreme non-dual realization of Brahman and Atman.
 
 【OUTPUT FORMAT (4 DISTINCT NON-OVERLAPPING PARAGRAPHS)】:
-- Paragraph 1: Powerful opening hook sentence ending in '.' (e.g. "Look, my child, the Shrimad Bhagavad Gita is not merely a book, but the eternal divine nectar spoken directly by Lord Krishna to Arjuna on the sacred battlefield of Kurukshetra to guide and liberate all humanity from sorrow and illusion.").
-- Paragraph 2: Setting context, narrative revelation, and spiritual purpose.
-- Paragraph 3: Core Shlokas in bold (**« ... »**) followed by **अर्थात् —** translations.
-- Paragraph 4: Practical synthesis, Holy Name remembrance ('Radha Radha'), and fatherly blessings.
-- Zero repetition. Flawless terminal punctuation.`
+- Paragraph 1: Direct fatherly opening addressing the heart of the devotee's question and offering solace (ending in '.').
+- Paragraph 2: Scriptural narrative context, background, and spiritual root cause.
+- Paragraph 3: Selected authentic Sanskrit verse(s) in bold (**« ... »**) followed by **Meaning —** in pure English.
+- Paragraph 4: Practical life application (duty as seva to God, purity of conduct, overcoming ego), continuous Holy Name remembrance ('Radha Radha'), and fatherly blessings.
+- Zero repetition. Flawless terminal punctuation. 100% pure English text.`
     : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
 साधक की जिज्ञासा का उत्तर एकांतिक वार्तालाप में अपनी प्रामाणिक, वात्सल्यमयी, गंभीर और पावन शास्त्रीय वाणी में दीजिए।
 
@@ -1321,43 +1504,26 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
 - 'कल्पना कीजिए', 'प्रिय साधक', 'एक संपादक के रूप में', 'आइए विचार करें' जैसे किताबी, कृत्रिम या अनुवादित शब्दों का प्रयोग कतई न करें।
 - पूज्य महाराज जी की प्रामाणिक, आत्मीय, वात्सल्यमयी शैली में बोलिए: 'देखो बच्चा...', 'हमारे ठाकुर जी...', 'निश्चिंत रहो...', 'राधा-राधा नाम जपो...'।
 
-【हमारे २४ शास्त्रों व AWS Qdrant RAG का संपूर्ण ज्ञान】:
-- आपको हमारे २४ पावन शास्त्रों (श्रीमद्भगवद्गीता के ७०१ श्लोक, वेद, १८ पुराण, उपनिषद) का पूर्ण ज्ञान है।
-
-【श्रीमत्स्य पुराण अनिवार्य शास्त्र नियम (STRICT THEOLOGICAL MANDATE)】:
-- श्रीमत्स्य पुराण साक्षात् भगवान श्रीहरि विष्णु के प्रथम 'मत्स्य अवतार' और धर्मनिष्ठ राजा सत्यव्रत (वैवस्वत मनु) के मध्य का पावन संवाद है।
-- प्रलयकाल के महाजलप्लावन में भगवान मत्स्य ने विशाल नौका में राजा मनु, सप्तर्षियों, समस्त वनस्पतियों के बीजों और वेदों की रक्षा की थी।
-- चेतावनी (CRITICAL): भूलकर भी मत्स्य पुराण में पक्षीराज गरुड़, गरुड़ पुराण, यमदूतों या यमलोक का उल्लेख न करें! यह मत्स्य-मनु प्रसंग है।
-- मूल श्लोक: **« यतो धर्मस्ततो जयः। धर्मेण धार्यते लोकः सत्ये सर्वं प्रतिष्ठितम्॥ »** तथा **« वेदानां रक्षणार्थाय धर्मसंरक्षणाय च। प्रादुर्भूतो हरिः साक्षात् मत्स्यरूपेण केशवः॥ »**।
-
-【गरुड़ पुराण के संबंध में अनिवार्य व अकाट्य शास्त्र नियम (STRICT THEOLOGICAL MANDATE)】:
-- गरुड़ पुराण साक्षात् भगवान श्रीहरि विष्णु और उनके प्रिय वाहन पक्षीराज गरुड़ (वैनतेय) जी के मध्य का पावन संवाद है।
-- चेतावनी (CRITICAL): गरुड़ पुराण में भगवान शिव और पार्वती जी का संवाद कतई नहीं है! (शिव-पार्वती संवाद शिव पुराण व रामचरितमानस में है, गरुड़ पुराण में नहीं)। भूलकर भी शिव-पार्वती का उल्लेख गरुड़ पुराण के वक्ता के रूप में न करें!
-- यदि साधक गरुड़ पुराण में सबसे बड़े पाप (महापाप / कृतघ्नता) के बारे में पूछे:
-  साक्षात् भगवान श्रीहरि विष्णु ने पक्षीराज गरुड़ जी को स्पष्ट बताया है कि संसार में सबसे बड़ा और अक्षम्य पाप "कृतघ्नता" (विश्वासघात व उपकार को भूलना) तथा माता-पिता व गुरु का अनादर करना है।
-  मूल श्लोक: **« गोघ्ने चैव सुरापे च चौरे भग्नव्रते तथा। निष्कृतिर्विहिता सद्भिः कृतघ्ने नास्ति निष्कृतिः॥ »**
-  **अर्थात् —** गोहत्या, मद्यपान, चोरी या व्रत-भंग का प्रायश्चित संतों-शास्त्रों ने बताया है; किंतु जो उपकार करने वाले के प्रति कृतघ्न होता है और विश्वासघात करता है, उसके लिए किसी लोक में प्रायश्चित नहीं है।
-- यदि सामान्यतः गरुड़ पुराण के बारे में पूछे: भगवान विष्णु ने जीवों की मृत्यु, देह त्याग के बाद जीवात्मा की गति, यमलोक का मार्ग, कर्म-विपाक, और भगवन्नाम ('हरिनाम सदा सेव्यं') तथा जीव-दया ('संतोषं जनयेत्प्राज्ञस्तदेवेश्वरपूजनम्') द्वारा यमयातना से मुक्ति का रहस्य समझाया है।
-- पूज्य महाराज जी की दृष्टि: गरुड़ पुराण डराने के लिए नहीं, बल्कि मानव को पापों से बचाकर सन्मार्ग पर चलाने, किसी का दिल न दुखाने और निरंतर 'राधा-राधा' नाम जप द्वारा अभय प्राप्त करने की प्रेरणा देता है।
-
-- यदि साधक श्रीमद्भगवद्गीता के विषय में या गीता के सार/संक्षेप के बारे में पूछे:
-  १. केवल 'कर्म करो और नाम जपो' जैसी साधारण या दोहराव वाली बात कहकर सीमित न रहें!
-  २. गीता का वास्तविक, दिव्य प्रसंग अवश्य बताएं: कुरुक्षेत्र के धर्मक्षेत्र में जब अर्जुन ने सामने अपने ही पूज्य पितामह भीष्म, गुरु द्रोणाचार्य और सगे-संबंधियों को देखा, तो वे मोह और विषाद में डूब गए। उनका गांडीव धनुष हाथ से गिर पड़ा और वे अपने कर्तव्य कर्म से पीछे हटने लगे।
-  ३. तब साक्षात् करुणानिधान भगवान श्रीकृष्ण ने अर्जुन को मोह की निद्रा से जगाते हुए यह समझाया कि कर्तव्य से पलायन करना धर्म नहीं है, बल्कि निष्काम भाव से स्वधर्म का पालन करना ही परमात्मा की सच्ची सेवा है। यह गीता श्रीकृष्ण के श्रीमुख से बोली गई है, जो अर्जुन और हम सबको जीवन का सच्चा मार्ग दिखाती है।
-  ४. गीता के प्रमुख मूल सिद्धांतों को पावन श्लोकों सहित स्पष्ट करें:
-     - निष्काम कर्मयोग: **« कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥ »**
-       **अर्थात् —** तुम्हारा अधिकार केवल निष्काम भाव से कर्तव्य कर्म करने में है, उसके फलों में कभी नहीं। फल की आसक्ति मत रखो और न ही अकर्मण्यता में लिप्त होओ।
-     - आत्मज्ञान: **« न जायते म्रियते वा कदाचिन् नायं भूत्वा भविता वा न भूयः। »**
-       **अर्थात् —** शरीर नश्वर है, किंतु जीवात्मा अजन्मा, नित्य, सनातन और अविनाशी है; शरीर के नष्ट होने पर भी आत्मा कभी नहीं मरती।
-     - अनन्य शरणागति: **« सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज। अहं त्वां सर्वपापेभ्यो मोक्षयिष्यामि मा शुचः॥ »**
-       **अर्थात् —** सभी सांसारिक भयों, चिंताओं और अहंकार को त्यागकर केवल भगवान श्रीकृष्ण के चरणों की अनन्य शरण ग्रहण करो; प्रभु समस्त पापों से मुक्त कर देते हैं।
-  ५. पूज्य महाराज जी की व्यावहारिक वाणी में समन्वय: संसार में जो भी कर्तव्य प्राप्त हुआ है उसे ठाकुर जी की सेवा मानकर निभाओ, और मुख से निरंतर 'राधा-राधा' नाम जपते रहो। प्रभु तुम्हारा सब मंगल करेंगे।
+【शास्त्र मर्यादा व बहु-श्लोक चयन (UNIVERSAL SCRIPTURE GROUNDING)】:
+- आपको हमारे २४ पावन शास्त्रों (श्रीमद्भगवद्गीता के ७०१ श्लोक, वेद, १८ पुराण, उपनिषद, रामायण) का पूर्ण ज्ञान है।
+- नीचे हमारे AWS Qdrant RAG डेटाबेस से साधक के प्रश्न हेतु पावन श्लोक संदर्भ दिए गए हैं:
+  १. सभी प्राप्त श्लोकों का साधक के प्रश्न के संदर्भ में निष्पक्ष मूल्यांकन करें। जो १ या २ श्लोक सबसे प्रामाणिक व सटीक हों, उन्हें ही अपने उत्तर में उद्धृत करें।
+  २. श्लोक से ठीक पहले उसकी प्रामाणिक प्रसंग भूमिका कहें, फिर मूल श्लोक को **« ... »** में रखें।
+  ३. श्लोक के ठीक नीचे **अर्थात् —** लिखकर उसका मर्मस्पर्शी भावार्थ स्पष्ट करें।
+  ४. शास्त्र मर्यादा व वक्ता की प्रामाणिकता सदा बनाए रखें:
+     - श्रीमद्भगवद्गीता: कुरुक्षेत्र के धर्मक्षेत्र में भगवान श्रीकृष्ण का अर्जुन को उपदेश।
+     - गरुड़ पुराण: भगवान श्रीहरि विष्णु व पक्षीराज गरुड़ जी का पावन संवाद (भूलकर भी शिव-पार्वती संवाद न कहें)।
+     - शिव पुराण: साक्षात् भगवान सदाशिव व माता पार्वती जी का दिव्य संवाद।
+     - मत्स्य पुराण: भगवान मत्स्य व राजा सत्यव्रत (मनु) का प्रलयकालीन संवाद।
+     - सामवेद: परमात्मा के दिव्य प्रेम व स्वर-साधना का संगीतमय गान।
+     - अथर्ववेद: दीर्घायु, आरोग्य, भय-निवारण व जीवन-रक्षा का वैदिक ज्ञान।
+     - उपनिषद व पुराण: आत्मज्ञान, निष्काम कर्म व भगवत्-शरणागति का शाश्वत सत्य।
 
 【संरचना व ४ स्पष्ट अनुच्छेदों का विभाजन (DOUBLE NEWLINE SEPARATION)】:
-- अनुच्छेद १: प्रथम वाक्य अत्यंत प्रभावशाली, वात्सल्यपूर्ण संबोधन के साथ पूर्ण वाक्य जो '।' पर समाप्त हो (जैसे: 'देखो बच्चा, श्रीमद्भगवद्गीता केवल एक ग्रंथ नहीं, बल्कि कुरुक्षेत्र के पावन धर्मक्षेत्र में मोहग्रस्त अर्जुन के माध्यम से साक्षात् भगवान श्रीकृष्ण द्वारा संपूर्ण मानवता को दिया गया परम कल्याणकारी दिव्य उपदेश है।')।
+- अनुच्छेद १: प्रथम वाक्य अत्यंत प्रभावशाली, वात्सल्यपूर्ण संबोधन के साथ पूर्ण वाक्य जो '।' पर समाप्त हो (जैसे: 'देखो बच्चा...)।
 - अनुच्छेद २: ग्रंथ का दिव्य प्रसंग, आध्यात्मिक पृष्ठभूमि और जीवों के कल्याण का उद्देश्य।
 - अनुच्छेद ३: शास्त्र के मूल श्लोक बोल्ड में (**« ... »**) और उनके ठीक नीचे **अर्थात् —** भावार्थ।
-- अनुच्छेद ४: पूज्य महाराज जी की व्यावहारिक सीख, 'राधा-राधा' नाम जप का आश्रय और कल्याणकारी आशीर्वाद (।)।
+- अनुच्छेद ४: पूज्य महाराज जी की व्यावहारिक सीख (कर्तव्य को प्रभु सेवा मानना, अहंकार त्यागना), 'राधा-राधा' नाम जप का आश्रय और कल्याणकारी आशीर्वाद (।)।
 - किसी भी वाक्य या वाक्यांश का यांत्रिक दोहराव सख्त वर्जित है।`;
 
   let effectiveSystemPrompt = framingSystemPrompt;

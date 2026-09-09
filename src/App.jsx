@@ -105,7 +105,7 @@ function RichText({ content, streaming = false }) {
             </span>
           );
         }
-        const isArthat = /^(?:\*\*|\*|\b)?(?:अर्थात्|भावार्थ|अर्थ\s*[:—\-]|meaning\s*[:—\-])/i.test(trimmed);
+        const isArthat = /^(?:\*\*|\*|\b)?(?:अर्थात्|भावार्थ|अर्थ|meaning)\b/i.test(trimmed);
         const isShlok = !isArthat && (
           (trimmed.includes('«') && trimmed.includes('»')) ||
           (trimmed.includes('॥') && (trimmed.startsWith('**') || trimmed.endsWith('**') || trimmed.startsWith('«'))) ||

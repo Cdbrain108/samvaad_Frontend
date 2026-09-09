@@ -87,6 +87,91 @@ export const SCRIPTURE_DATABASE = [
       'matsya puran me kya likha hai', 'matsya puran details'
     ]
   },
+
+  // 0E. Shiva Purana Core (भगवान शिव व माता पार्वती, विद्येश्वर व रुद्र संहिता, पाप-मुक्ति व शिव-भक्ति)
+  {
+    id: 'shiva_purana_core',
+    scripture_id: 'shiva_purana',
+    reference: 'श्री शिव पुराण (Shiva Purana · विद्येश्वर व रुद्र संहिता)',
+    original_text: 'सर्वोत्तमस्य शैवस्य ते यास्यंति सुसद्गतिम्। यावच्छिवपुराणं हि नोदेष्यति जगत्यहो तावत्कलिमहोत्पाताः संचरिष्यन्ति निर्भयाः॥ श्लोकानां संख्यया सप्तसंहितं ब्रह्मसंमितम्। विद्येश्वराख्या तन्मुख्या द्वितीया रुद्रसंहिता॥',
+    hindi_meaning: 'श्री शिव पुराण में साक्षात् भगवान सदाशिव की पराभक्ति, सृष्टि के प्राकट्य और जीवों के उद्धार का मार्ग वर्णित है। जब तक संसार में शिव पुराण का प्राकट्य नहीं होता, तब तक ही कलियुग के उत्पात निर्भय होकर विचरते हैं। इस पावन पुराण की सात संहिताएँ हैं (विद्येश्वर, रुद्र, शतरुद्र, कोटिरुद्र, उमा, कैलास व वायु संहिता)। इसके श्रवण और शिव-स्मरण से जीव समस्त पापों से मुक्त होकर परम सद्गति को प्राप्त करता है।',
+    english_translation: 'In the sacred Shiva Purana, the supreme glory, grace, and eternal truth of Bhagavan Sadashiva are revealed. As long as the nectar of the Shiva Purana is not heard, the afflictions of Kaliyuga wander fearlessly. Comprising seven divine Samhitas (Vidyeshvara, Rudra, and others), this sacred scripture liberates the soul from all sins and confers ultimate spiritual realization and peace.',
+    context_intro_hi: 'जैसे श्री शिव पुराण में भगवान सदाशिव की महिमा और कलियुग के संतापों के निवारण का पावन उपदेश है कि —',
+    context_intro_en: 'Just as Bhagavan Sadashiva reveals the divine path of redemption and ultimate liberation in the Shiva Purana —',
+    keywords: [
+      'shiv puran', 'shiva puran', 'shiv purana', 'shiva purana', 'shiv puran me kya hai', 'shiva puran me kya hai',
+      'shiv purana me kya hai', 'shiva purana me kya hai', 'what is in shiva purana', 'what is shiva purana',
+      'tell me about shiv puran', 'tell me about shiva puran', 'shiv puran ka saransh', 'shiva purana summary',
+      'शिव पुराण', 'शिव पुराण में क्या है', 'शिव पुराण क्या है', 'शिवपुराण का सार', 'शिवपुराण कथा', 'शिव पुराण उपदेश'
+    ]
+  },
+
+  // 0F. Samaveda Core & Melody (साम-गान, दिव्य स्वर, भक्ति-संगीत व श्रीमद्भगवद्गीता १०.२२)
+  {
+    id: 'samaveda_core',
+    scripture_id: 'samaveda',
+    reference: 'सामवेद व श्रीमद्भगवद्गीता १०.२२ (Samaveda · भक्ति संगीत व दिव्य स्वर)',
+    original_text: 'वेदानां सामवेदोऽस्मि देवानामस्मि वासवः। इन्द्रियाणां मनश्चास्मि भूतानामस्मि चेतना॥ अग्न आयाहि वीतये गृणानो हव्यदातये। नि होता सत्सि बर्हिषि॥',
+    hindi_meaning: 'श्रीमद्भगवद्गीता में साक्षात् भगवान श्रीकृष्ण कहते हैं कि वेदों में मैं सामवेद हूँ। सामवेद समस्त वेदों का वह दिव्य संगीतमय स्वरूप है, जिसमें परमात्मा की स्तुति दिव्य स्वरों और साम-गान के माध्यम से की जाती है। सामवेद का सार यह है कि जब भक्त अपने मन, वाणी और स्वर को भगवत्भक्ति में लीन कर देता है, तब उसका अंतःकरण परम शांत होकर परमात्मा से एकाकार हो जाता है।',
+    english_translation: 'In the Shrimad Bhagavad Gita, Lord Krishna proclaims: "Among the Vedas, I am the Samaveda." The Samaveda is the supreme musical and melodic manifestation of Vedic wisdom, wherein hymns are sung in transcendental devotion. Its essence teaches that when one unites heart and breath in divine remembrance, the soul attains supreme peace and divine communion.',
+    context_intro_hi: 'जैसे साक्षात् भगवान श्रीकृष्ण सामवेद की दिव्यता प्रकट करते हुए और सामवेद के पावन मंगलाचरण में उपदेश है कि —',
+    context_intro_en: 'Just as Lord Krishna reveals the divine musical glory of the Samaveda in the Bhagavad Gita and the opening Samaveda hymn proclaims —',
+    keywords: [
+      'saamved', 'samved', 'samaveda', 'saamveda', 'saamved ka sarash kya hai', 'saamved ka saransh', 'samved ka saransh',
+      'samved me kya hai', 'saamved me kya hai', 'samaveda summary', 'what is in samaveda', 'what is samaveda',
+      'tell me about samaveda', 'tell me about saamved', 'essence of samaveda', 'samaveda teachings',
+      'सामवेद', 'सामवेद में क्या है', 'सामवेद का सार', 'सामवेद का सारांश', 'सामवेद क्या है', 'सामवेद की कथा'
+    ]
+  },
+
+  // 0G. Atharvaveda Core & Healing (दीर्घायु, पूर्ण आरोग्य, भय-निवारण व आयुर्वेद का मूल)
+  {
+    id: 'atharvaveda_core',
+    scripture_id: 'atharvaveda',
+    reference: 'अथर्ववेद १९.६७.१ व १९.६१ (Atharvaveda · दीर्घायु, आरोग्य व अभय सूक्त)',
+    original_text: 'पश्येम शरदः शतं जीवेम शरदः शतं शृणुयाम शरदः शतं प्र ब्रवाम शरदः शतमदीनाः स्याम शरदः शतं भूयश्च शरदः शतात्॥ पूर्णायुः। तनूस्तन्वा मे सहे दतः सर्वमायुरशीय। स्योनं मे सीद पुरुः पृणस्व पवमानः स्वर्गे॥',
+    hindi_meaning: 'अथर्ववेद में मानव जीवन की रक्षा, आरोग्य, दीर्घायु, भय-निवारण और परमात्मा की सर्वव्यापक कृपा का विशद वर्णन है। अथर्ववेद का यह पावन सूक्त प्रार्थना करता है कि हम सौ वर्षों तक स्वस्थ नेत्रों से देखें, सौ वर्षों तक पूर्ण आरोग्य के साथ जिएं, सौ वर्षों तक सद्ज्ञान सुनें, दीन-हीन न होकर स्वाभिमान और प्रभु-भक्ति से जिएं। अथर्ववेद लौकिक जीवन में रोगों, दुःखों और भयों से मुक्ति देकर आत्मा को पूर्ण अभय प्रदान करता है।',
+    english_translation: 'The Atharvaveda illuminates divine healing, longevity, immunity from diseases, freedom from fear, and practical righteousness in daily life. Its quintessential hymn prays: "May we see for a hundred autumns, may we live for a hundred autumns, may we hear for a hundred autumns, speaking truthfully and living unvanquished in faith and vigor." It assures divine protection from all earthly distress and fears.',
+    context_intro_hi: 'जैसे अथर्ववेद में पूर्ण आयु, आरोग्य और भय-निवारण का पावन सूक्त उपदेश करता है कि —',
+    context_intro_en: 'Just as the Atharvaveda imparts the sacred prayer for health, longevity, and divine protection from all fear —',
+    keywords: [
+      'atharvaved', 'atharva veda', 'atharvaveda', 'atharvaved me kya hai', 'atharva veda me kya hai', 'atharvaved kya hai',
+      'what is in atharvaveda', 'what is atharvaveda', 'atharvaveda summary', 'tell me about atharvaveda', 'essence of atharvaveda',
+      'अथर्ववेद', 'अथर्ववेद में क्या है', 'अथर्ववेद क्या है', 'अथर्ववेद का सार', 'अथर्ववेद का सारांश', 'अथर्ववेद के उपदेश'
+    ]
+  },
+
+  // 0H. Rigveda Core (गायत्री मंत्र, संगच्छध्वं सूक्त व वैदिक ज्ञान का उद्गम)
+  {
+    id: 'rigveda_core',
+    scripture_id: 'rigveda',
+    reference: 'ऋग्वेद ३.६२.१० व १०.१९१.२ (Rigveda · गायत्री व संगच्छध्वं सूक्त)',
+    original_text: 'ॐ भूर्भुवः स्वः तत्सवितुर्वरेण्यं भर्गो देवस्य धीमहि धियो यो नः प्रचोदयात्॥ संगच्छध्वं संवदध्वं सं वो मनांसि जानताम्। देवा भागं यथा पूर्वे सञ्जानाना उपासते॥',
+    hindi_meaning: 'ऋग्वेद समस्त वेदों में सबसे प्राचीन और ज्ञान का मूल आधार है। इसमें साक्षात् गायत्री मंत्र और विश्व-एकता का संगच्छध्वं सूक्त निहित है। ऋग्वेद का सार है कि हम सब मिलकर चलें, एक स्वर में सत्य बोलें, हमारे हृदय और मन एकाकार हों, और परमपिता परमात्मा की दिव्य ज्योति हमारी बुद्धि को सन्मार्ग पर प्रेरित करे।',
+    english_translation: 'The Rigveda is the most ancient fountainhead of divine cosmic wisdom, enshrining the universal Gayatri Mantra and the hymn of cosmic unity (Samgacchadhvam). It commands: "Walk together, speak together in harmony, let your minds comprehend truth together, and may the Divine Illuminator guide our intellect on the righteous path."',
+    context_intro_hi: 'जैसे ऋग्वेद के पावन गायत्री व संगच्छध्वं सूक्त में उपदेश है कि —',
+    context_intro_en: 'Just as the Rigveda reveals the supreme light of truth and universal harmony —',
+    keywords: [
+      'rigved', 'rigveda', 'rig veda', 'rigved me kya hai', 'rigveda me kya hai', 'what is in rigveda', 'what is rigveda',
+      'tell me about rigveda', 'rigveda summary', 'ऋग्वेद', 'ऋग्वेद में क्या है', 'ऋग्वेद का सार', 'ऋग्वेद क्या है'
+    ]
+  },
+
+  // 0I. Yajurveda Core (ईशावास्योपनिषद, त्यागपूर्वक उपभोग व शान्ति पाठ)
+  {
+    id: 'yajurveda_core',
+    scripture_id: 'yajurveda',
+    reference: 'यजुर्वेद (शुक्ल) ४०.१ व ३६.१८ (Yajurveda · ईशावास्योपनिषद व शान्ति सूक्त)',
+    original_text: 'ईशा वास्यमिदं सर्वं यत्किञ्च जगत्यां जगत्। तेन त्यक्तेन भुञ्जीथा मा गृधः कस्यस्विद्धनम्॥ मित्रस्याहं चक्षुषा सर्वाणि भूतानि समीक्षे। मित्रस्य चक्षुषा समीक्षामहे॥',
+    hindi_meaning: 'यजुर्वेद यज्ञ, कर्म, कर्तव्य और अंतरात्मा के समर्पण का शास्त्र है। इसका ४०वाँ अध्याय प्रसिद्ध ईशावास्योपनिषद है, जो सिखाता है कि इस चराचर जगत के कण-कण में परमात्मा व्याप्त हैं; अतः त्यागपूर्वक उपभोग करो और किसी के धन या वस्तु का लोभ मत करो। हम सभी प्राणियों को मित्र और बंधु की दृष्टि से देखें।',
+    english_translation: 'The Yajurveda is the sacred scripture of righteous action, sacrifice, duty, and spiritual surrender. Its celebrated fortieth chapter (Ishavasya Upanishad) proclaims that the entire cosmos is enveloped by the Supreme Divine; therefore, live with detachment without coveting another’s possessions, and behold all living beings through the eyes of a loving friend.',
+    context_intro_hi: 'जैसे यजुर्वेद में परमात्मा की सर्वव्यापकता और निष्काम कर्म का पावन उपदेश है कि —',
+    context_intro_en: 'Just as the Yajurveda illuminates divine omnipresence and compassionate living —',
+    keywords: [
+      'yajurved', 'yajurveda', 'yajur veda', 'yajurved me kya hai', 'what is in yajurveda', 'what is yajurveda',
+      'tell me about yajurveda', 'yajurveda summary', 'यजुर्वेद', 'यजुर्वेद में क्या है', 'यजुर्वेद का सार', 'यजुर्वेद क्या है'
+    ]
+  },
   {
     id: 'gita_3_8',
     scripture_id: 'bhagavad_gita',
@@ -613,25 +698,30 @@ const RAG_ENDPOINT = 'http://54.252.47.101/rag/search';
 /**
  * Queries the live SOTA 1024-d Qdrant Vector Database on AWS
  * Executes intfloat/multilingual-e5-large semantic search in sub-250ms
+ * Retrieves top 5 candidates for intelligent model evaluation
  */
 async function queryOracleVectorRAG(query) {
-  if (typeof fetch === 'undefined') return null;
+  if (typeof fetch === 'undefined') return [];
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 2200);
+  const timeoutId = setTimeout(() => controller.abort(), 2400);
 
   let scriptureFilter = 'all';
-  if (/(गीता|gita|भगवद्गीता)/i.test(query)) {
+  if (/(गीता|gita|geeta|भगवद्गीता)/i.test(query)) {
     scriptureFilter = 'gita';
   } else if (/(रामायण|ramayan|रामचरित|ramcharitmanas|मानस|वाल्मीकि)/i.test(query)) {
     scriptureFilter = 'ramayana';
-  } else if (/(वेद|veda|vedas|ऋग्वेद|सामवेद|यजुर्वेद|अथर्ववेद)/i.test(query)) {
+  } else if (/(ऋग्वेद|सामवेद|यजुर्वेद|अथर्ववेद|वेद|veda|vedas|rigved|yajurved|samved|saamved|atharvaved)/i.test(query)) {
     scriptureFilter = 'veda';
-  } else if (/(पुराण|puran|purana|भागवत|bhagavatam|देवी|शिव|विष्णु|अग्नि|गरुड़|गरुण|garud|garun|वामन|कूर्म|मत्स्य|स्कन्द|नारद)/i.test(query)) {
+  } else if (/(शिव\s*पुराण|shiv\s*puran|shiva\s*puran)/i.test(query)) {
+    scriptureFilter = 'purana';
+  } else if (/(पुराण|puran|purana|भागवत|bhagavatam|देवी|विष्णु|अग्नि|गरुड़|गरुण|garud|garun|वामन|कूर्म|मत्स्य|स्कन्द|नारद)/i.test(query)) {
     scriptureFilter = 'purana';
   } else if (/(महाभारत|mahabharata)/i.test(query)) {
     scriptureFilter = 'mahabharata';
   }
+
+  const cleanQ = normalizeQuery(query);
 
   try {
     const res = await fetch(RAG_ENDPOINT, {
@@ -644,51 +734,55 @@ async function queryOracleVectorRAG(query) {
       body: JSON.stringify({
         query: query.trim(),
         scripture: scriptureFilter,
-        top_k: 2
+        top_k: 5
       })
     });
     clearTimeout(timeoutId);
 
-    if (!res.ok) return null;
+    if (!res.ok) return [];
     const data = await res.json();
-    const candidates = Array.isArray(data.results) ? data.results : [];
+    const rawCandidates = Array.isArray(data.results) ? data.results : [];
 
-    // Find the highest-scoring candidate that has an authentic, non-empty translation
-    // Strict threshold >= 0.55 prevents random false positives from polluting the prompt
-    const top = candidates.find(c =>
-      c &&
-      c.score >= 0.55 &&
-      c.original_text &&
-      ((c.hindi_meaning && c.hindi_meaning.trim().length >= 6) ||
-       (c.english_translation && c.english_translation.trim().length >= 6))
-    );
+    const validCandidates = [];
+    for (const c of rawCandidates) {
+      if (!c || !c.original_text || c.score < 0.55) continue;
+      const hindiMean = (c.hindi_meaning || '').trim();
+      const engMean = (c.english_translation || '').trim();
+      if (hindiMean.length < 6 && engMean.length < 6) continue;
 
-    if (top) {
-      const isGita = (top.scripture_id || '').includes('gita') || (top.reference || '').includes('Gita');
-      const hindiMean = (top.hindi_meaning || '').trim();
-      const engMean = (top.english_translation || '').trim();
-
-      return {
-        id: top.id || `qdrant_${Date.now()}`,
-        scripture_id: top.scripture_id || (isGita ? 'bhagavad_gita' : 'ramcharitmanas'),
-        reference: top.reference,
-        original_text: top.original_text,
+      const scriptureId = c.scripture_id || ((c.reference || '').toLowerCase().includes('gita') ? 'bhagavad_gita' : 'sacred_text');
+      const itemCandidate = {
+        id: c.id || `qdrant_${Date.now()}_${Math.random()}`,
+        scripture_id: scriptureId,
+        reference: c.reference,
+        original_text: c.original_text,
         hindi_meaning: hindiMean || engMean,
         english_translation: engMean || hindiMean,
-        context_intro_hi: isGita
-          ? `जैसे ${top.reference} में भगवान श्रीकृष्ण कहते हैं कि —`
-          : `जैसे ${top.reference} में पावन उपदेश है कि —`,
-        context_intro_en: isGita
-          ? `Just as revealed in ${top.reference} —`
-          : `Just as proclaimed in ${top.reference} —`,
-        score: top.score,
+        score: c.score,
         match_type: 'qdrant_vector_rag'
       };
+
+      // Check topic exclusion gate:
+      if (isTopicExcluded(cleanQ, itemCandidate)) {
+        continue;
+      }
+
+      const isGita = (itemCandidate.scripture_id || '').includes('gita') || (itemCandidate.reference || '').includes('Gita');
+      itemCandidate.context_intro_hi = isGita
+        ? `जैसे ${c.reference} में भगवान श्रीकृष्ण कहते हैं कि —`
+        : `जैसे ${c.reference} में पावन उपदेश है कि —`;
+      itemCandidate.context_intro_en = isGita
+        ? `Just as revealed in ${c.reference} —`
+        : `Just as proclaimed in ${c.reference} —`;
+
+      validCandidates.push(itemCandidate);
     }
+
+    return validCandidates;
   } catch (err) {
     clearTimeout(timeoutId);
   }
-  return null;
+  return [];
 }
 
 const SCRIPTURE_STOP_WORDS = new Set([
@@ -699,7 +793,7 @@ const SCRIPTURE_STOP_WORDS = new Set([
   'how', 'what', 'why', 'when', 'where', 'who', 'stop', 'overcome', 'from', 'with', 'and', 'the'
 ]);
 
-const SCRIPTURE_TOPIC_GATES = [
+export const SCRIPTURE_TOPIC_GATES = [
   {
     topic: 'matsya_purana',
     patterns: [/(मत्स्य|matsya)/i],
@@ -712,18 +806,18 @@ const SCRIPTURE_TOPIC_GATES = [
   },
   {
     topic: 'shiva_purana',
-    patterns: [/(शिव\s*पुराण|shiva\s*puran|shiv\s*puran)/i],
-    allowedScriptureIds: ['shiva_purana']
+    patterns: [/(शिव\s*पुराण|shiva?\s*puran)/i],
+    allowedScriptureIds: ['shiva_purana', 'shiva']
   },
   {
     topic: 'vishnu_purana',
     patterns: [/(विष्णु\s*पुराण|vishnu\s*puran)/i],
-    allowedScriptureIds: ['vishnu_purana']
+    allowedScriptureIds: ['vishnu_purana', 'vishnu']
   },
   {
     topic: 'bhagavata_purana',
     patterns: [/(श्रीमद्भागवत|भागवत\s*पुराण|bhagavat|bhagavatam)/i],
-    allowedScriptureIds: ['bhagavata_purana']
+    allowedScriptureIds: ['bhagavata_purana', 'srimad_bhagavatam']
   },
   {
     topic: 'bhagavad_gita',
@@ -734,41 +828,76 @@ const SCRIPTURE_TOPIC_GATES = [
     topic: 'ramcharitmanas',
     patterns: [/(रामायण|रामचरितमानस|ramayan|ramcharitmanas|मानस)/i],
     allowedScriptureIds: ['ramcharitmanas']
+  },
+  {
+    topic: 'samaveda',
+    patterns: [/(सामवेद|sa+m\s*ved|samaveda)/i],
+    allowedScriptureIds: ['samaveda', 'bhagavad_gita']
+  },
+  {
+    topic: 'atharvaveda',
+    patterns: [/(अथर्ववेद|atharv?a?\s*ved)/i],
+    allowedScriptureIds: ['atharvaveda']
+  },
+  {
+    topic: 'rigveda',
+    patterns: [/(ऋग्वेद|ri?g\s*ved)/i],
+    allowedScriptureIds: ['rigveda']
+  },
+  {
+    topic: 'yajurveda',
+    patterns: [/(यजुर्वेद|yajur?\s*ved)/i],
+    allowedScriptureIds: ['yajurveda']
   }
 ];
 
-function isTopicExcluded(cleanQ, item) {
+export function isTopicExcluded(cleanQ, item) {
+  if (!cleanQ || !item) return false;
+  const sId = (item.scripture_id || '').toLowerCase();
+  const ref = (item.reference || '').toLowerCase();
+
+  // 1. Check predefined topic gates
   for (const gate of SCRIPTURE_TOPIC_GATES) {
     if (gate.patterns.some(p => p.test(cleanQ))) {
-      // If the query specifically targets this scripture, reject items belonging to other scriptures
-      if (!gate.allowedScriptureIds.includes(item.scripture_id)) {
+      // If the query specifically targets this scripture, check if item matches any allowed ID or reference
+      const matchesAllowed = gate.allowedScriptureIds.some(allowed => 
+        sId.includes(allowed) || ref.includes(allowed)
+      );
+      if (!matchesAllowed) {
         return true;
       }
     }
   }
+
+  // 2. Dynamic Universal Scripture Detection for ANY named Purana, Veda, or Upanishad
+  const dynamicMatch = cleanQ.match(/(\b[a-z\u0900-\u097F]{3,})\s*(?:पुराण|पुराणा|puran|purana|वेद|वेदा|ved|veda|vedas|उपनिषद|उपनिषद्|upanishad)\b/i);
+  if (dynamicMatch) {
+    const targetScripture = dynamicMatch[1].toLowerCase();
+    // Exclude if neither reference nor scripture_id contains the target scripture root
+    if (!sId.includes(targetScripture) && !ref.includes(targetScripture)) {
+      return true;
+    }
+  }
+
   return false;
 }
 
 /**
- * Local keyword & stem scripture matcher fallback
- * Features:
- * 1. Topic exclusivity gating (prevents cross-scripture contamination)
- * 2. Bounded scoring (max per item instead of unbounded token accumulation)
+ * Local keyword & stem scripture matches
+ * Gathers all authentic candidates from SCRIPTURE_DATABASE matching query and passing topic gates
  */
-export function getLocalScriptureGrounding(query) {
-  if (!query || typeof query !== 'string') return null;
+export function getLocalScriptureMatches(query) {
+  if (!query || typeof query !== 'string') return [];
   const cleanQ = normalizeQuery(query);
-  if (!cleanQ || cleanQ.length < 3) return null;
+  if (!cleanQ || cleanQ.length < 3) return [];
 
-  const wantsVerse = /(श्लोक|श्लोका|shlok|shloka|verse|गीता|gita|रामायण|ramayan|रामचरितमानस|भागवत|scripture|प्रमाण|पुराण|puran)/i.test(query);
-
-  let bestMatch = null;
-  let highestScore = 0;
-
+  const wantsVerse = /(श्लोक|श्लोका|shlok|shloka|verse|गीता|gita|रामायण|ramayan|रामचरितमानस|भागवत|scripture|प्रमाण|पुराण|puran|वेद|veda)/i.test(query);
   const queryTokens = cleanQ.split(' ').filter(t => t.length >= 3 && !SCRIPTURE_STOP_WORDS.has(t));
 
+  const scoredMatches = [];
+
   for (const item of SCRIPTURE_DATABASE) {
-    // 1. Topic exclusivity: Do not let Garuda Purana match Matsya Purana, or vice versa
+    // 1. Topic exclusivity: Do not let Garuda Purana match Matsya Purana, Samaveda match Vamana, etc.
     if (isTopicExcluded(cleanQ, item)) {
       continue;
     }
@@ -810,113 +939,122 @@ export function getLocalScriptureGrounding(query) {
       }
     }
 
-    if (maxKeywordScore > highestScore) {
-      highestScore = maxKeywordScore;
-      bestMatch = item;
+    const threshold = wantsVerse ? 1.5 : 2.2;
+    if (maxKeywordScore >= threshold) {
+      scoredMatches.push({
+        ...item,
+        score: Number(maxKeywordScore.toFixed(2)),
+        match_type: 'semantic_rag'
+      });
     }
   }
 
-  const threshold = wantsVerse ? 1.5 : 2.2;
-  if (highestScore >= threshold && bestMatch) {
-    return {
-      ...bestMatch,
-      score: Number(highestScore.toFixed(2)),
-      match_type: 'semantic_rag'
-    };
-  }
+  return scoredMatches.sort((a, b) => b.score - a.score);
+}
 
-  return null;
+export function getLocalScriptureGrounding(query) {
+  const matches = getLocalScriptureMatches(query);
+  return matches.length ? matches[0] : null;
 }
 
 /**
  * Unified Scripture RAG retrieval:
- * 1. Priority 1: High-confidence hand-verified curated catalog (score >= 4.0).
- *    Guarantees that essential core inquiries (fear of death, laziness, depression,
- *    restless mind, anger, surrender) immediately receive the authentic, pristine shloka.
- * 2. Priority 2: Live Qdrant Vector Search across 9,558 passages on Oracle VM (score >= 0.55).
- * 3. Priority 3: Fallback to lower-threshold curated matches.
+ * 1. Priority 1: High-confidence hand-verified curated catalog matches (score >= 4.0).
+ * 2. Priority 2: Live Qdrant Vector Search across 9,558 passages on AWS (score >= 0.55).
+ * 3. Gathers candidate pool (up to 4 authentic candidates) for Groq evaluation.
  */
 export async function getScriptureGrounding(query) {
   if (!query || typeof query !== 'string') return null;
   if (isCasualConversational(query)) return null;
 
-  // 1. Check curated catalog for high-confidence hand-verified match
-  const curatedMatch = getLocalScriptureGrounding(query);
-  if (curatedMatch && curatedMatch.score >= 4.0) {
-    return curatedMatch;
-  }
+  // 1. Gather all matching curated entries that pass topic gates
+  const curatedMatches = getLocalScriptureMatches(query);
 
-  // 2. High-speed Live Vector Search from Oracle Cloud Qdrant database (9,558 scriptures)
+  // 2. High-speed Live Vector Search from Oracle Cloud Qdrant database (5 candidates)
+  let vectorCandidates = [];
   try {
-    const liveVectorMatch = await queryOracleVectorRAG(query);
-    if (liveVectorMatch) {
-      return liveVectorMatch;
-    }
+    vectorCandidates = await queryOracleVectorRAG(query);
   } catch (e) {}
 
-  // 3. Fallback to any moderate curated match if available
-  return curatedMatch || null;
+  // 3. Assemble unified candidate pool, deduplicated by original_text or reference
+  const candidatePool = [];
+  const seenVerses = new Set();
+
+  for (const c of [...curatedMatches, ...vectorCandidates]) {
+    const key = (c.original_text || c.reference || '').slice(0, 30);
+    if (!seenVerses.has(key)) {
+      seenVerses.add(key);
+      candidatePool.push(c);
+    }
+  }
+
+  if (!candidatePool.length) return null;
+
+  // The primary scripture object is candidatePool[0], and we attach candidatePool.slice(0, 4)
+  const primary = { ...candidatePool[0] };
+  primary.candidates = candidatePool.slice(0, 4);
+  return primary;
 }
 
 /**
  * Injects formatted scripture grounding cleanly into Maharaj Ji's system prompt
+ * Passes multiple evaluated candidates to Groq so Groq dynamically decides the best authentic verses
  */
 export function injectScripturePrompt(basePrompt, scripture, isEnglish = false) {
   if (!scripture) return basePrompt;
 
-  const intro = isEnglish ? scripture.context_intro_en : scripture.context_intro_hi;
-  const meaning = ((isEnglish ? scripture.english_translation : scripture.hindi_meaning) || scripture.hindi_meaning || scripture.english_translation || '').trim();
+  const candidateList = (scripture.candidates && scripture.candidates.length)
+    ? scripture.candidates
+    : [scripture];
 
   if (isEnglish) {
-    const meaningInstruction = meaning
-      ? `Sacred Meaning: ${meaning}
+    const candidateBlocks = candidateList.map((c, idx) => {
+      const trans = (c.english_translation || c.hindi_meaning || '').trim();
+      return `【Candidate Scripture Verse ${idx + 1}】:
+Reference: ${c.reference}
+Original Sanskrit Verse: **« ${c.original_text} »**
+Meaning: "${trans}"`;
+    }).join('\n\n');
 
-PRESENTATION FORMAT (MANDATORY):
-1. Naturally weave this verse into your discourse using its authentic introduction:
-   ${intro}
-   **« ${scripture.original_text} »**
-2. Immediately provide its heartfelt spiritual essence:
-   **अर्थात् —** "${meaning}"
-3. Explain the meaning of this holy verse clearly in Pujya Maharaj Ji's compassionate, fatherly voice, connecting its profound wisdom directly to the devotee's query.`
-      : `PRESENTATION FORMAT (MANDATORY):
-1. Naturally weave this verse into your discourse using its authentic introduction:
-   ${intro}
-   **« ${scripture.original_text} »**
-2. In the very next line, explain the heartfelt spiritual meaning of this verse clearly:
-   **अर्थात् —** [Explain the spiritual essence and meaning of this holy verse in simple words]
-3. Connect its wisdom directly to the devotee's life with loving assurance.`;
+    const promptExtension = `\n\n【SACRED SCRIPTURE GROUNDING (RAG) - MULTI-VERSE EVALUATION & CITATION】:
+The devotee's spiritual inquiry is grounded in our 24 Sacred Scripture collections in AWS Qdrant. Below are authentic candidate scriptural verses retrieved for this inquiry:
 
-    const block = `\n\n【SACRED SCRIPTURE GROUNDING (RAG) - MANDATORY CITATION】:
-Scripture Reference: ${scripture.reference}
-Contextual Introduction: ${intro}
-Original Sanskrit Verse: ${scripture.original_text}
-${meaningInstruction}`;
-    return basePrompt + block;
+${candidateBlocks}
+
+MANDATORY INSTRUCTIONS FOR SELECTION, MEANING & PRESENTATION:
+1. SCRIPTURAL FIDELITY & SELECTION: Review all retrieved candidate verses above against the devotee's specific query. Select the 1 or 2 verses that most authentically, directly, and accurately illuminate the devotee's question. Reject any candidate that is extraneous or not from the scripture asked.
+2. 100% PURE ENGLISH LANGUAGE: Since the devotee asked in English, your entire discourse, narrative context, and shloka meanings MUST be in 100% pure English only. Do NOT use any Hindi or Devanagari text in the explanation (only the sacred Sanskrit verse inside **« ... »**).
+3. MANDATORY FORMATTING FOR SHLOKA & MEANING:
+   - Introduce each selected verse naturally with authentic scriptural context:
+     As revealed in [Scripture Reference]:
+     **« [Sanskrit verse] »**
+   - In the very next line, provide the spiritual essence using the exact English prefix:
+     **Meaning —** "[Explain the heartfelt spiritual meaning and wisdom of this verse in pure, beautiful English]"
+4. COMPASSIONATE SATSANG VOICE: Connect the meaning of the sacred verse directly to the devotee's life in Pujya Maharaj Ji's fatherly, affectionate voice, guiding them to surrender fear and anchor their heart in continuous Holy Name chanting ('Radha Radha').`;
+
+    return basePrompt + promptExtension;
   } else {
-    const meaningInstruction = meaning
-      ? `शास्त्रसम्मत भावार्थ: ${meaning}
+    const candidateBlocks = candidateList.map((c, idx) => {
+      const trans = (c.hindi_meaning || c.english_translation || '').trim();
+      return `【पावन शास्त्र प्रमाण संदर्भ ${idx + 1}】:
+ग्रंथ संदर्भ: ${c.reference}
+मूल संस्कृत श्लोक: **« ${c.original_text} »**
+शास्त्रसम्मत भावार्थ: "${trans}"`;
+    }).join('\n\n');
 
-प्रस्तुति प्रारूप (MANDATORY FORMAT):
-1. उत्तर में श्लोक से ठीक पहले उसकी प्रामाणिक प्रसंग भूमिका स्वाभाविक रूप से कहें:
-   ${intro}
-   **« ${scripture.original_text} »**
-2. श्लोक के ठीक नीचे उसका सरल व मर्मस्पर्शी भावार्थ अवश्य लिखें:
-   **अर्थात् —** "${meaning}"
-3. इसके पश्चात पूज्य महाराज जी की वात्सल्यमयी वाणी में इस श्लोक के अर्थ को साधक के प्रश्न से जोड़ते हुए समझाइए (श्लोक का भाव क्या है, यह साधक के भय/संशय को कैसे दूर करता है, और 'राधा-राधा' नाम का आश्रय लेना)।`
-      : `प्रस्तुति प्रारूप (MANDATORY FORMAT):
-1. उत्तर में श्लोक से ठीक पहले उसकी प्रामाणिक प्रसंग भूमिका स्वाभाविक रूप से कहें:
-   ${intro}
-   **« ${scripture.original_text} »**
-2. श्लोक के ठीक नीचे उसका सरल व मर्मस्पर्शी भावार्थ अवश्य स्पष्ट करें:
-   **अर्थात् —** [इस पावन श्लोक का सरल, सुंदर भावार्थ और अर्थ अपनी वाणी में स्पष्ट लिखिए]
-3. इसके पश्चात पूज्य महाराज जी की वात्सल्यमयी वाणी में इस श्लोक के अर्थ को साधक के प्रश्न से जोड़ते हुए उपदेश दीजिए।`;
+    const promptExtension = `\n\n【अनिवार्य शास्त्र प्रमाण व बहु-श्लोक चयन निर्देश (SCRIPTURE GROUNDING)】:
+साधक की आध्यात्मिक जिज्ञासा के समाधान हेतु हमारे २४ पावन शास्त्रों से निम्नलिखित प्रामाणिक श्लोक संदर्भ प्राप्त हुए हैं:
 
-    const block = `\n\n【अनिवार्य शास्त्र प्रमाण व प्रसंग निर्देश (SCRIPTURE GROUNDING)】:
-ग्रंथ संदर्भ: ${scripture.reference}
-प्रसंग भूमिका: ${intro}
-मूल संस्कृत श्लोक: ${scripture.original_text}
-${meaningInstruction}
-मर्यादा: श्लोक को शुद्ध रखें, **« ${scripture.original_text} »** और **अर्थात् —** का प्रारूप सुरक्षित रखें।`;
-    return basePrompt + block;
+${candidateBlocks}
+
+अनिवार्य निर्देश (MANDATORY INSTRUCTIONS):
+1. शास्त्र मर्यादा व चयन: उपरोक्त श्लोकों का साधक के प्रश्न के आलोक में मूल्यांकन करें। जो १ या २ श्लोक साधक के प्रश्न का सबसे सटीक, प्रमाणिक और मर्मस्पर्शी समाधान करते हों, उन्हें ही अपने उत्तर में उद्धृत करें।
+2. प्रस्तुति प्रारूप: श्लोक से ठीक पहले उसकी प्रामाणिक प्रसंग भूमिका कहें, फिर मूल श्लोक को **« ... »** में रखें, और ठीक नीचे **अर्थात् —** लिखकर उसका मर्मस्पर्शी भावार्थ स्पष्ट करें:
+   जैसे [शास्त्र संदर्भ] में पावन उपदेश है कि —
+   **« [मूल संस्कृत श्लोक] »**
+   **अर्थात् —** "[सरल व सुंदर भावार्थ]"
+3. वात्सल्यमयी सत्संग: श्लोक के भाव को पूज्य महाराज जी की करुणामयी वाणी में साधक की स्थिति से जोड़ें, और निरंतर 'राधा-राधा' नाम के आश्रय से अभय प्रदान करें।`;
+
+    return basePrompt + promptExtension;
   }
 }
