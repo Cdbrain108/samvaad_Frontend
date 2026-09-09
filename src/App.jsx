@@ -275,7 +275,10 @@ export default function App() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [userMemory, setUserMemory] = useState(null);
   // Guest user: track how many questions they've asked (limit = 1)
-  const [guestMessageCount, setGuestMessageCount] = useState(0);
+  // Use sessionStorage so the count survives Firebase auth re-fires (e.g. logout) within the same tab session
+  const [guestMessageCount, setGuestMessageCount] = useState(() => {
+    try { return parseInt(sessionStorage.getItem('samvaad_guest_q_count') || '0', 10); } catch { return 0; }
+  });
   const [showGuestLoginModal, setShowGuestLoginModal] = useState(false);
   const [inferenceMode, setInferenceMode] = useState(() => {
     try {
@@ -426,7 +429,8 @@ export default function App() {
         setConversations([]);
         setMessages([]);
         setCurrentConversationId(null);
-        setGuestMessageCount(0);
+        // NOTE: Do NOT reset guestMessageCount here — it lives in sessionStorage
+        // and must survive logout so the 1-question limit stays enforced for the whole tab session.
         setUserMemory(null);
         setUserProfile(null);
         setShowOnboarding(false);
@@ -645,7 +649,11 @@ export default function App() {
 
       // Guest users: no persistence — session only, increment their question counter
       if (activeUser.uid === 'devotee_local') {
-        setGuestMessageCount(prev => prev + 1);
+        setGuestMessageCount(prev => {
+          const next = prev + 1;
+          try { sessionStorage.setItem('samvaad_guest_q_count', String(next)); } catch {}
+          return next;
+        });
         // Don't save to localStorage or Firestore for guests
       } else {
         const conversationData = {
@@ -707,6 +715,8 @@ export default function App() {
     setShowGuestLoginModal(false);
     setShowOnboarding(false);
     setView('landing');
+    // Clear the session counter so a re-authenticated real user doesn’t inherit guest quota
+    try { sessionStorage.removeItem('samvaad_guest_q_count'); } catch {}
   };
 
   // Handle successful sign-in from the guest modal — stay on chat page
@@ -714,6 +724,8 @@ export default function App() {
     setShowGuestLoginModal(false);
     setUser(signedInUser);
     setGuestMessageCount(0);
+    // Clear sessionStorage counter so this real user gets a clean slate
+    try { sessionStorage.removeItem('samvaad_guest_q_count'); } catch {}
     // Load their Firestore conversations
     try {
       const result = await getUserConversations(signedInUser.uid, 50);
