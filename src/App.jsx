@@ -498,8 +498,8 @@ export default function App() {
         content: '',
         initialContent: '',
         subsequentContent: '',
-        thought: '',
-        isThinking: false, // Model starts directly without reasoning window!
+        thought: inferenceMode === 'deep' ? '🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न का शास्त्रीय विश्लेषण...' : '',
+        isThinking: inferenceMode === 'deep',
         thinkingDuration: 0,
         timestamp: new Date(),
         mode: inferenceMode

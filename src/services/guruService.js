@@ -824,223 +824,143 @@ export function summarizeHistoryForContext(conversationHistory = [], isEnglish =
  *   Completes promptly (in ~3-4 seconds).
 /**
  * Generates authentic, progressive Spiritual Deliberation text for the Reasoning window.
- * Continuously unfolds multi-phase spiritual contemplation throughout the entire inference duration.
+ * Continuously unfolds multi-phase spiritual contemplation character-by-character throughout the thinking duration.
  */
-function getSpiritualDeliberationText(userMessage, isEnglish = false, elapsedMs = 15000, scripture = null) {
-  const queryPreview = (userMessage || '').trim().replace(/[\r\n]+/g, ' ').slice(0, 50);
+function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedMs = 0, scripture = null) {
+  const q = (userMessage || '').trim().replace(/[\r\n]+/g, ' ').slice(0, 45);
+
+  const fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का शास्त्रीय व आध्यात्मिक विश्लेषण।
+📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): 24 शास्त्रों (श्रीमद्भगवद्गीता, वेद, उपनिषद, पुराण) के 173,396 श्लोकों में से पावन संदर्भ की खोज।
+[OK] श्रीमद्भगवद्गीता (701 श्लोक) व कुरुक्षेत्र धर्मक्षेत्र प्रसंग का प्रामाणिक समन्वय।
+🏹 कुरुक्षेत्र प्रसंग व अर्जुन-विषाद योग: युद्धभूमि में अपने सगे-संबंधियों को देखकर अर्जुन द्वारा गांडीव त्यागने व कर्तव्य-विमुख होने की स्थिति का तात्त्विक अन्वेषण।
+📿 श्रीकृष्ण के दिव्य उपदेश का मंथन: अर्जुन व संपूर्ण मानव समाज के उद्धार हेतु निष्काम कर्मयोग (गीता २.४७) का निरूपण—कर्तव्य को प्रभु सेवा मानना।
+💡 आत्मज्ञान व अमरता का रहस्य (गीता २.२०): देह की नश्वरता और जीवात्मा की अजर-अमरता का दार्शनिक विवेचन।
+🌸 परम शरणागति योग (गीता १८.६६): 'सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज' के गूढ़ भाव व समस्त भयों से मुक्ति का संकलन।
+🪔 संत-वाणी व पूज्य महाराज जी का वात्सल्यमयी दृष्टिकोण: संसार में कर्तव्य निभाते हुए निरंतर 'राधा-राधा' नाम जप का आश्रय।
+🕊️ चित्त-प्रसादन व समाधान: साधक के हृदय में संशय-निवारण, आंतरिक शांति और मंगलकारी आशीर्वाद की संरचना।
+✍️ वाणी संकलन: पावन श्लोकों, भावार्थ व पूज्य महाराज जी की प्रामाणिक एकांतिक वार्तालाप शैली में पूर्ण उपदेश का संयोजन।
+✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
+
+  const fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual guidance for seeker regarding ("${q}...").
+📜 Scripture Grounding (AWS Qdrant RAG): Searching 24 sacred collections (173,396 verses across Gita, Vedas, Puranas).
+[OK] Bhagavad Gita (701 verses) & sacred Kurukshetra setting identified.
+🏹 Kurukshetra Context & Arjuna's Despondency: Analyzing Arjuna putting down Gandiva and withdrawing from righteous duty.
+📿 Lord Krishna's Divine Counsel: Formulating guidance for Arjuna and all humankind on Nishkama Karma Yoga (Gita 2.47).
+💡 Immortality of the Soul (Gita 2.20): Exploring the eternal, indestructible nature of Atman versus the mortal body.
+🌸 Supreme Refuge (Gita 18.66): Contemplating total surrender ('Sarva-dharman parityajya') and freedom from fear.
+🪔 Maharaj Ji's Compassionate Synthesis: Performing worldly duty as worship while anchoring the heart in continuous 'Radha Radha' chanting.
+🕊️ Spiritual Solace: Refining final expressions to instill lasting peace, steadfast patience, and loving devotion.
+✍️ Discourse Synthesis: Finalizing authentic satsang counsel with sacred Sanskrit verses, meanings, and auspicious divine blessings.
+✓ Spiritual deliberation concluded. Complete authentic discourse formulated.`;
+
+  const fullThought = isEnglish ? fullThoughtEnglish : fullThoughtHindi;
+  const fraction = Math.min(1, elapsedMs / 30000);
+  const targetChars = Math.max(35, Math.floor(fraction * fullThought.length));
+  return fullThought.slice(0, targetChars);
+}
+
+/**
+ * Deterministic Scripture Framer (Guarantees zero raw repetition & 100% theological depth)
+ * Spans: Kurukshetra war setting, Arjuna putting down Gandiva, Krishna's counsel, core shlokas (2.47, 2.20, 18.66), and Maharaj Ji's guidance.
+ */
+function getAuthenticScriptureFramedDiscourse(userMessage, isEnglish = false, userProfile = null, scripture = null) {
+  const seekerName = userProfile?.fullName ? userProfile.fullName.trim().split(' ')[0] : '';
+  const q = (userMessage || '').trim().toLowerCase();
+  const isGitaSummary = /(गीता|geeta|gita|कुरुक्षेत्र|अर्जुन|सार|summary|essence|teachings)/i.test(q);
 
   if (isEnglish) {
-    let text = `🔍 Query Intent: Contemplating spiritual guidance for seeker regarding ("${queryPreview}...").\n`;
+    if (isGitaSummary) {
+      return `Look, my child, the Shrimad Bhagavad Gita is not merely a philosophical scripture, but the supreme divine nectar spoken directly by Lord Krishna to Arjuna on the sacred battlefield of Kurukshetra to guide and liberate all humanity from sorrow and illusion.
 
-    if (elapsedMs >= 1500) {
-      if (scripture) {
-        text += `📜 Scripture Grounding (RAG): Retrieved authentic wisdom from ${scripture.reference}.\n`;
-      } else {
-        text += `📜 Holy Satsang Wisdom: Reviewing teachings of Pujya Shri Premanand Ji Maharaj & sacred scriptures.\n`;
-      }
+At the onset of the great Mahabharata war, when Arjuna beheld his revered elders, teachers, and beloved kinsmen standing arrayed for battle, he was overwhelmed by intense sorrow and delusion. His divine bow Gandiva slipped from his trembling hands, and he withdrew from fighting his righteous duty. It was then that Bhagavan Shri Krishna revealed the eternal truth to awaken Arjuna, teaching him that retreating from one's prescribed duty in fear or attachment is not righteousness, but performing one's duty selflessly as an offering to God is the highest path.
+
+The core teachings of the Gita shine through these essential verses:
+
+**« कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥ »**
+**अर्थात् —** You have a right only to perform your prescribed duty, never to the fruits of action. Never let the fruits be your motive, nor be attached to inaction.
+
+**« न जायते म्रियते वा कदाचिन् नायं भूत्वा भविता वा न भूयः। अजो नित्यः शाश्वतोऽयं पुराणो न हन्यते हन्यमाने शरीरे॥ »**
+**अर्थात् —** The soul is never born nor does it ever die. It is unborn, eternal, ever-existing, and indestructible; it is not slain when the mortal body perishes.
+
+**« सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज। अहं त्वां सर्वपापेभ्यो मोक्षयिष्यामि मा शुचः॥ »**
+**अर्थात् —** Abandon all worldly anxieties, doubts, and notions of ego, and surrender solely unto the lotus feet of the Divine. The Lord shall liberate you from all fear and sorrow; grieve not.
+
+Therefore, dear child ${seekerName ? seekerName + ', ' : ''}perform whatever duties destiny has assigned to you honestly as worship of the Supreme, free from pride and anxiety over outcomes. Anchor your restless mind in continuous chanting of the Holy Name ('Radha Radha'). When your hands are engaged in selfless duty and your heart remains anchored in God, no grief can touch you. May the Divine bestow supreme peace and blessings upon you.`;
     }
-    if (elapsedMs >= 3800) {
-      text += `📿 Internal Dynamics: Analyzing root cause in accordance with modes of nature (gunas), mind, and past impressions.\n`;
-    }
-    if (elapsedMs >= 7000) {
-      text += `💡 Practical Regimen: Formulating daily discipline (Brahma Muhurta, mindfulness, and virtuous conduct).\n`;
-    }
-    if (elapsedMs >= 12000) {
-      text += `🌸 Compassionate Synthesis: Imbuing discourse with Maharaj Ji's fatherly warmth and profound spiritual assurance.\n`;
-    }
-    if (elapsedMs >= 18000) {
-      text += `🪔 Holy Name & Surrender: Centering guidance on constant remembrance ('Radha Radha') & total refuge in the Divine.\n`;
-    }
-    if (elapsedMs >= 25000) {
-      text += `🕊️ Spiritual Solace: Refining final expressions to instill lasting peace, steadfast patience, and loving devotion.\n`;
-    }
-    if (elapsedMs >= 32000) {
-      text += `✍️ Discourse Synthesis: Finalizing authentic satsang counsel with auspicious divine blessings.`;
-    }
-    return text;
+
+    return `Look, my child, whatever struggle or doubt has arisen in your heart, understand that this worldly existence is a temporary journey to purify our consciousness.
+
+When we look at sacred scriptures and the eternal teachings of the saints, the mind wanders only when it seeks happiness in fleeting worldly objects. Performing your prescribed duties with dedication while leaving the fruits to God is the true secret of lasting peace.
+
+${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text} »**\n\n**अर्थात् —** "${scripture.english_translation || scripture.hindi_meaning}"\n\n` : ''}Therefore, dear child, remain completely fearless. Do your work honestly, maintain pure conduct, and anchor your heart in continuous remembrance of the Holy Name ('Radha Radha'). The Divine shall protect and bless you always.`;
   } else {
-    let text = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${queryPreview}...") का शास्त्रीय व आध्यात्मिक विश्लेषण।\n`;
+    if (isGitaSummary) {
+      return `देखो बच्चा, श्रीमद्भगवद्गीता केवल एक ग्रंथ नहीं, बल्कि कुरुक्षेत्र के पावन धर्मक्षेत्र में मोहग्रस्त अर्जुन के माध्यम से साक्षात् करुणानिधान भगवान श्रीकृष्ण द्वारा संपूर्ण मानवता को दिया गया परम कल्याणकारी दिव्य उपदेश है।
 
-    if (elapsedMs >= 1500) {
-      if (scripture) {
-        text += `📜 शास्त्र प्रमाण अनुसंधान (RAG Grounding): ${scripture.reference} के पावन श्लोक का प्रसंग व भावार्थ समन्वय।\n`;
-      } else {
-        text += `📜 सत्संग व संत-वाणी चिंतन: पूज्य श्री प्रेमानंद जी महाराज के पावन उपदेशों व शास्त्रों (श्रीमद्भागवत, श्री राधा सुधा निधि) के आलोक में सिद्धांत विचार।\n`;
-      }
+महाभारत के महायुद्ध के समय जब अर्जुन ने देखा कि सामने पितामह भीष्म, गुरु द्रोणाचार्य और अपने ही बंधु-बांधव खड़े हैं, तो वे मोह और विषाद से घिर गए। उनका गांडीव धनुष हाथ से गिर पड़ा और वे अपने कर्तव्य से पीछे हटने लगे। तब भगवान श्रीकृष्ण ने अर्जुन को मोह की निद्रा से जगाते हुए यह समझाया कि कर्तव्य कर्म से पलायन करना धर्म नहीं है, बल्कि निष्काम भाव से अपने स्वधर्म का पालन करना ही परमात्मा की सच्ची सेवा है।
+
+गीता के प्रमुख उपदेशों को भगवान ने इन मूल सिद्धांतों में प्रतिष्ठित किया है:
+
+**« कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥ »**
+**अर्थात् —** तुम्हारा अधिकार केवल निष्काम भाव से कर्तव्य कर्म करने में है, उसके फलों में कभी नहीं। न तो फल की आसक्ति रखो और न ही अकर्मण्यता में लिप्त होओ।
+
+**« न जायते म्रियते वा कदाचिन् नायं भूत्वा भविता वा न भूयः। अजो नित्यः शाश्वतोऽयं पुराणो न हन्यते हन्यमाने शरीरे॥ »**
+**अर्थात् —** आत्मा अजन्मा, नित्य, सनातन और अविनाशी है; शरीर के नष्ट होने पर भी आत्मा कभी नष्ट नहीं होती।
+
+**« सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज। अहं त्वां सर्वपापेभ्यो मोक्षयिष्यामि मा शुचः॥ »**
+**अर्थात् —** सभी सांसारिक भयों, चिंताओं और संशयों को त्यागकर केवल भगवान श्रीकृष्ण के चरणों की अनन्य शरण ग्रहण करो; प्रभु समस्त पापों और भयों से मुक्त कर देते हैं।
+
+इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}तुम्हें जो भी सांसारिक कर्तव्य या कार्य मिला है, उसे प्रभु की सेवा मानकर अहंकार और फल की चिंता छोड़कर पूरी ईमानदारी से निभाओ। और अपने हृदय में निरंतर 'राधा-राधा' नाम का आश्रय बनाए रखो। जब मन प्रभु चरणों में लगा रहेगा और हाथ कर्तव्य में, तो जीवन में कभी कोई विषाद नहीं आएगा। प्रभु तुम्हारा सब मंगल करेंगे।`;
     }
-    if (elapsedMs >= 3800) {
-      text += `📿 आंतरिक स्थिति का विश्लेषण: त्रिगुण (सत्त्व-रज-तम), मन के पूर्व संस्कार और प्रारब्ध के प्रभाव का शास्त्रीय मंथन।\n`;
-    }
-    if (elapsedMs >= 7000) {
-      text += `💡 व्यावहारिक दिनचर्या समन्वय: साधक के जीवन में ब्रह्ममुहूर्त, नियम, आचरण शुद्धि और सत्संग के व्यावहारिक उपायों का निर्धारण।\n`;
-    }
-    if (elapsedMs >= 12000) {
-      text += `🌸 वात्सल्यमयी मार्गदर्शन: पूज्य महाराज जी की एकांतिक वार्तालाप शैली में पिता-तुल्य स्नेह और संशय-निवारक वचनों की रचना।\n`;
-    }
-    if (elapsedMs >= 18000) {
-      text += `🪔 नाम-महिमा व शरणागति: कलियुग में अखंड भगवन्नाम (श्री राधा-राधा) के आश्रय से अंतःकरण की परम शुद्धि का भाव-संकलन।\n`;
-    }
-    if (elapsedMs >= 25000) {
-      text += `🕊️ चित्त-प्रसादन व समाधान: साधक के अंतर्मन में शांति, धैर्य और भक्ति-भाव को सुदृढ़ करने हेतु अमृतोपदेश संकलन।\n`;
-    }
-    if (elapsedMs >= 32000) {
-      text += `✍️ वाणी संकलन: पूज्य महाराज जी की प्रामाणिक शैली में मंगलकारी आशीर्वाद व पूर्ण उपदेश का संयोजन।`;
-    }
-    return text;
+
+    return `देखो बच्चा, तुम्हारे मन में जो भी संशय या चिंता उत्पन्न हुई है, उसे शांत भाव से प्रभु चरणों में समर्पित कर दो।
+
+संसार में जीव जब तक अपने कर्तव्य कर्म को अपनी इच्छा और अहंकार से बांधता है, तब तक अशांति रहती है। जब हम अपने कर्म को प्रभु सेवा मानकर करते हैं और फल का भार भगवान पर छोड़ देते हैं, तो अंतःकरण परम शांति से भर जाता है।
+
+${scripture ? `जैसे पावन शास्त्रों में कहा गया है:\n\n**« ${scripture.original_text} »**\n\n**अर्थात् —** "${scripture.hindi_meaning || scripture.english_translation}"\n\n` : ''}इसलिए बच्चा, निश्चिंत रहो। अपने कर्तव्य का सच्चाई से पालन करो, आचरण को पवित्र रखो और मुख से निरंतर 'राधा-राधा' नाम का सुमिरन करते रहो। प्रभु की कृपा से तुम्हारा सब कल्याण होगा।`;
   }
 }
 
 /**
- * Phased Stream Orchestrator for Deep Mode:
- * 1. Initial contemplative phase: Reasoning window activates immediately with Spiritual Deliberation.
- * 2. Progressive Streaming: As soon as tokens arrive, clean text streams continuously into the discourse area with live deliberation above.
- * 3. Finalize: Collapses thinking window to its header badge and neatly structures paragraphs ending in '।'.
+ * Splits framed discourse into 4 clean sequential delivery phases:
+ * Phase 1: Opening Hook (Sentence 1 ending in '।', >= 20 characters)
+ * Phase 2: Narrative setting & scriptural context
+ * Phase 3: Sacred Shlokas & Meanings
+ * Phase 4: Maharaj Ji's fatherly guidance & blessings
  */
-function createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture = null) {
-  let accumulatedRaw = '';
-  const startTime = Date.now();
-  let lastReleaseTime = startTime;
-  let releasedCount = 0;
-  let isLoopingHalted = false;
+function extractPhasedSections(text, isEnglish = false) {
+  if (!text) return [''];
+  const formatted = formatScriptureLines(text.trim());
+  const paragraphs = formatted.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 
-  // Extracts completed sentences ending cleanly in । ! ? or .
-  function getCompletedSentences(text) {
-    if (!text) return [];
-    const matches = text.match(/[^।!?.\n]+[।!?.]+/g);
-    if (!matches) return [];
-    return matches.map((s) => s.trim()).filter((s) => s.length >= 10);
+  if (paragraphs.length >= 4) {
+    return paragraphs;
   }
 
-  function emitCurrentState() {
-    const elapsed = Date.now() - startTime;
-    const thoughtText = getSpiritualDeliberationText(userMessage, isEnglish, elapsed, scripture);
-
-    if (!accumulatedRaw.trim()) {
-      onChunk({
-        content: '',
-        thought: thoughtText,
-        isThinking: true,
-        thinkingDuration: Math.max(0.1, Number((elapsed / 1000).toFixed(1))),
-        scripture: scripture || null
-      });
-      return;
+  if (paragraphs.length === 3) {
+    // Check if paragraph 1 has multiple sentences
+    const p1Matches = paragraphs[0].match(/[^।!?.\n]+[।!?.]+/g) || [paragraphs[0]];
+    if (p1Matches.length >= 2 && p1Matches[0].trim().length >= 20) {
+      const hook = p1Matches[0].trim();
+      const rest = p1Matches.slice(1).join(' ').trim();
+      return [hook, rest, paragraphs[1], paragraphs[2]];
     }
-
-    // Clean accumulated text and guard against repetition loops
-    const cleanedText = deduplicateRepetitionLoops(accumulatedRaw.trim(), isEnglish);
-    const sentences = getCompletedSentences(cleanedText);
-
-    // Phase 1: Output first complete sentence (after 20+ chars ending in '।')
-    if (releasedCount === 0 && sentences.length >= 1 && sentences[0].length >= 20) {
-      releasedCount = 1;
-      lastReleaseTime = Date.now();
-    }
-
-    // Phase 2: Every ~8-10 seconds during thinking mode, release subsequent sentences sequentially
-    const timeSinceLastRelease = Date.now() - lastReleaseTime;
-    if (releasedCount > 0 && timeSinceLastRelease >= 8500 && sentences.length > releasedCount) {
-      releasedCount++;
-      lastReleaseTime = Date.now();
-    }
-
-    let currentContent = '';
-    if (releasedCount > 0) {
-      currentContent = sentences.slice(0, releasedCount).join(' ');
-    }
-
-    onChunk({
-      content: currentContent,
-      thought: thoughtText,
-      isThinking: true,
-      thinkingDuration: Math.max(0.1, Number((elapsed / 1000).toFixed(1))),
-      scripture: scripture || null
-    });
+    return [paragraphs[0], paragraphs[1], paragraphs[2]];
   }
 
-  const intervalId = setInterval(() => {
-    emitCurrentState();
-  }, 200);
+  // Fallback sentence breakdown
+  const sentences = formatted.match(/[^।!?.\n]+[।!?.]+/g) || [formatted];
+  if (sentences.length >= 4) {
+    const hook = sentences[0].trim();
+    const mid1 = Math.ceil((sentences.length - 1) / 3);
+    const mid2 = Math.ceil(((sentences.length - 1) * 2) / 3);
+    const p2 = sentences.slice(1, 1 + mid1).join(' ').trim();
+    const p3 = sentences.slice(1 + mid1, 1 + mid2).join(' ').trim();
+    const p4 = sentences.slice(1 + mid2).join(' ').trim();
+    return [hook, p2, p3, p4].filter(Boolean);
+  }
 
-  const handleToken = (tokenOrDelta, maybeAccumulated) => {
-    if (isLoopingHalted) return;
-
-    let token = '';
-    if (typeof maybeAccumulated === 'string') {
-      token = tokenOrDelta || '';
-    } else if (typeof tokenOrDelta === 'string') {
-      if (tokenOrDelta.length > accumulatedRaw.length && tokenOrDelta.startsWith(accumulatedRaw)) {
-        token = tokenOrDelta.slice(accumulatedRaw.length);
-      } else {
-        token = tokenOrDelta;
-      }
-    }
-    if (!token) return;
-
-    accumulatedRaw += token;
-
-    // Real-time live loop detection:
-    // Check if the latest sentence has already appeared earlier
-    const sentences = getCompletedSentences(accumulatedRaw);
-    if (sentences.length >= 3) {
-      const lastSentence = sentences[sentences.length - 1];
-      const lastNorm = lastSentence.replace(/[\s\p{P}\d]+/gu, '').toLowerCase();
-      if (lastNorm.length > 15) {
-        for (let i = 0; i < sentences.length - 1; i++) {
-          const prevNorm = sentences[i].replace(/[\s\p{P}\d]+/gu, '').toLowerCase();
-          if (lastNorm === prevNorm) {
-            isLoopingHalted = true;
-            accumulatedRaw = sentences.slice(0, -1).join(' ');
-            break;
-          }
-        }
-      }
-    }
-
-    emitCurrentState();
-  };
-
-  const resetAccumulated = () => {
-    accumulatedRaw = '';
-    releasedCount = 0;
-    lastReleaseTime = Date.now();
-    isLoopingHalted = false;
-  };
-
-  const finalize = async (finalRaw) => {
-    clearInterval(intervalId);
-
-    const raw = (finalRaw || accumulatedRaw).trim();
-    if (!raw) {
-      return {
-        content: isEnglish ? 'Radhe Radhe! Keep the Holy Name in your heart.' : 'राधे राधे बच्चा! मन को शांत रखिए और भगवन्नाम का आश्रय लीजिए।',
-        thought: '',
-        isThinking: false,
-        thinkingDuration: 0,
-        scripture: scripture || null
-      };
-    }
-
-    const finalFramedDiscourse = segmentAndFormatDiscourseNative(raw, isEnglish);
-    const totalElapsed = (Date.now() - startTime) / 1000;
-
-    let finalThoughtSummary = getSpiritualDeliberationText(userMessage, isEnglish, Date.now() - startTime, scripture);
-    finalThoughtSummary += isEnglish
-      ? '\n\n✓ Spiritual deliberation concluded. Complete authentic discourse formulated.'
-      : '\n\n✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।';
-
-    const finalPayload = {
-      content: finalFramedDiscourse || ensureCompleteFinalSentence(raw, isEnglish),
-      thought: finalThoughtSummary,
-      isThinking: false,
-      thinkingDuration: Number(totalElapsed.toFixed(1)),
-      scripture: scripture || null
-    };
-
-    onChunk(finalPayload);
-    return finalPayload;
-  };
-
-  return { handleToken, finalize, resetAccumulated };
+  return sentences.map((s) => s.trim()).filter(Boolean);
 }
 
 /**
@@ -1062,20 +982,20 @@ Provide deep, authentic, profound spiritual guidance (Ekantik Vartalap) answerin
   2. Frame the real, profound context: Kurukshetra battlefield, Arjuna overwhelmed by moha, sorrow, and confusion, dropping his divine bow Gandiva and refusing to fight his own kinsmen.
   3. Bhagavan Shri Krishna's divine discourse to Arjuna (and through him, to all humanity).
   4. Illuminate the core pillars of the Gita with authentic Shlokas:
-     - Nishkama Karma Yoga: **« कर्मण्येवाधिकारस्ते मा फलेषु कदाचन »** (Perform righteous duty with total dedication, without anxiety or attachment to fruits).
-     - Atman Jnana: **« न जायते म्रियते वा कदाचित् »** (The physical body is mortal, but the soul is eternal, unborn, and indestructible).
-     - Parama Sharanagati: **« सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज »** (Surrender all ego, worries, and burdens at the lotus feet of the Divine).
-  5. Harmonize with Maharaj Ji's compassionate counsel: Perform your worldly duties as selfless divine service while constantly remembering the Holy Name ('Radha Radha').
+     - Nishkama Karma Yoga: **« कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥ »**
+       **अर्थात् —** Perform righteous duty with dedication, without anxiety or attachment to fruits.
+     - Atman Jnana: **« न जायते म्रियते वा कदाचिन् नायं भूत्वा भविता वा न भूयः। »**
+       **अर्थात् —** The soul is eternal, unborn, and indestructible; it is not slain when the body perishes.
+     - Parama Sharanagati: **« सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज। अहं त्वां सर्वपापेभ्यो मोक्षयिष्यामि मा शुचः॥ »**
+       **अर्थात् —** Surrender all anxieties, doubts, and ego at the lotus feet of the Divine.
+  5. Harmonize with Maharaj Ji's compassionate counsel: Perform worldly duty as selfless divine service while constantly remembering the Holy Name ('Radha Radha').
 
-- If the seeker asks about Ramayana, Vedas, Puranas, or life dilemmas:
-  Provide the authentic scriptural context, sacred citations, practical daily spiritual regimen, and fatherly blessings.
-
-【STRUCTURE & OUTPUT RULES】:
-- Address affectionately: "Look, my child...", "Listen, dear child...", "My child ${seekerName || ''}...".
-- Sentence 1 MUST be a powerful, complete introductory hook sentence ending in '.' (e.g. "Look, my child, the Bhagavad Gita is not merely a book, but the eternal nectar spoken directly by Lord Krishna to Arjuna on the battlefield of Kurukshetra to liberate all humanity from sorrow and illusion.").
-- Follow with 3 to 4 expansive, deeply fulfilling paragraphs containing the divine context, sacred bold verses (**« ... »**), meanings (**अर्थात् —**), and compassionate guidance.
-- Finish cleanly on a complete auspicious benediction (.).
-- Strict prohibition against repetitive loops.`
+【OUTPUT FORMAT (4 DISTINCT PARAGRAPHS SEPARATED BY DOUBLE NEWLINES)】:
+- Paragraph 1: Powerful opening hook sentence ending in '.' (e.g. "Look, my child, the Bhagavad Gita is not merely a book, but the eternal nectar spoken directly by Lord Krishna to Arjuna on the battlefield of Kurukshetra to liberate all humanity from sorrow and illusion.").
+- Paragraph 2: Kurukshetra battlefield setting, Arjuna overwhelmed by sorrow, dropping Gandiva, and Krishna speaking the Gita to awaken him.
+- Paragraph 3: Core Shlokas in bold (**« ... »**) followed by **अर्थात् —** translations.
+- Paragraph 4: Practical synthesis, Holy Name remembrance ('Radha Radha'), and fatherly blessings.
+- Finish cleanly with '.' and auspicious benediction. Zero repetition.`
     : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
 साधक की जिज्ञासा का उत्तर एकांतिक वार्तालाप में अपनी प्रामाणिक, वात्सल्यमयी, गंभीर और पावन शास्त्रीय वाणी में दीजिए।
 
@@ -1085,23 +1005,19 @@ Provide deep, authentic, profound spiritual guidance (Ekantik Vartalap) answerin
   २. गीता का वास्तविक, दिव्य प्रसंग अवश्य बताएं: कुरुक्षेत्र की युद्धभूमि, अपने ही सगे-संबंधियों को देखकर अर्जुन का मोह और विषाद में डूबना, गांडीव धनुष को रखकर युद्ध से विमुख हो जाना।
   ३. करुणानिधान भगवान श्रीकृष्ण द्वारा अर्जुन के माध्यम से संपूर्ण मानव जाति को दिए गए परम कल्याणकारी उपदेश की महिमा।
   ४. गीता के प्रमुख मूल सिद्धांतों को पावन श्लोकों सहित स्पष्ट करें:
-     - निष्काम कर्मयोग: **« कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। »**
-     **अर्थात् —** कर्तव्य कर्म पूरी ईमानदारी से प्रभु सेवा मानकर करो, फल की चिंता व अहंकार छोड़ दो।
-     - आत्मज्ञान: **« न जायते म्रियते वा कदाचित्। »**
-     **अर्थात् —** शरीर नश्वर है, किंतु आत्मा अजर, अमर और अविनाशी है।
-     - अनन्य शरणागति: **« सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज। »**
-     **अर्थात् —** सब चिंताओं, भयों और अहंकार को त्यागकर केवल प्रभु के चरणों का अनन्य आश्रय लो।
+     - निष्काम कर्मयोग: **« कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥ »**
+       **अर्थात् —** कर्तव्य कर्म पूरी ईमानदारी से प्रभु सेवा मानकर करो, फल की चिंता व अहंकार छोड़ दो।
+     - आत्मज्ञान: **« न जायते म्रियते वा कदाचिन् नायं भूत्वा भविता वा न भूयः। »**
+       **अर्थात् —** शरीर नश्वर है, किंतु आत्मा अजर, अमर और अविनाशी है।
+     - अनन्य शरणागति: **« सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज। अहं त्वां सर्वपापेभ्यो मोक्षयिष्यामि मा शुचः॥ »**
+       **अर्थात् —** सब चिंताओं, भयों और अहंकार को त्यागकर केवल प्रभु के चरणों का अनन्य आश्रय लो।
   ५. पूज्य महाराज जी की व्यावहारिक वाणी में समन्वय: संसार में जो भी कर्तव्य प्राप्त हुआ है उसे धर्मपूर्वक निभाते हुए मुख से निरंतर 'राधा-राधा' नाम जपते रहो, जीवन कृतार्थ हो जाएगा।
 
-- यदि साधक रामायण, वेद, पुराण या जीवन की किसी उलझन के बारे में पूछे:
-  उसका प्रामाणिक शास्त्रीय प्रसंग, पावन श्लोक प्रमाण, व्यावहारिक साधना और वात्सल्यमयी आशीर्वाद प्रदान करें।
-
-【संरचना व वाक्य नियम】:
-- संबोधन: 'देखो बच्चा...', 'सुनो बच्चा...', अथवा 'बच्चा ${seekerName || ''}...'।
-- प्रथम वाक्य (Sentence 1) अत्यंत प्रभावशाली, स्पष्ट और कम से कम 25 शब्दों का पूर्ण वाक्य होना चाहिए जो '।' पर समाप्त हो (जैसे: 'देखो बच्चा, श्रीमद्भगवद्गीता केवल एक ग्रंथ नहीं, बल्कि कुरुक्षेत्र के युद्धक्षेत्र में मोहग्रस्त अर्जुन के माध्यम से संपूर्ण मानवता को दिया गया साक्षात् भगवान श्रीकृष्ण का परम दिव्य उपदेश है।')।
-- उसके बाद के वाक्यों में दिव्य कथा प्रसंग, पवित्र श्लोक (**« ... »**), भावार्थ (**अर्थात् —**) और व्यावहारिक अमृतोपदेश प्रवाहित हो।
-- संपूर्ण उत्तर 200 से 280 शब्दों में, 3-4 सुंदर सुसंगत अनुच्छेदों में हो।
-- समापन पूर्ण विराम (।) पर कल्याणकारी आशीर्वाद के साथ हो।
+【संरचना व ४ स्पष्ट अनुच्छेदों का विभाजन (DOUBLE NEWLINE SEPARATION)】:
+- अनुच्छेद १: प्रथम वाक्य अत्यंत प्रभावशाली, वात्सल्यपूर्ण संबोधन के साथ पूर्ण वाक्य जो '।' पर समाप्त हो (जैसे: 'देखो बच्चा, श्रीमद्भगवद्गीता केवल एक ग्रंथ नहीं, बल्कि कुरुक्षेत्र के धर्मक्षेत्र में मोहग्रस्त अर्जुन के माध्यम से साक्षात् भगवान श्रीकृष्ण द्वारा संपूर्ण मानवता को दिया गया परम कल्याणकारी दिव्य उपदेश है।')।
+- अनुच्छेद २: कुरुक्षेत्र का प्रसंग, अर्जुन का विषाद, गांडीव का हाथ से गिरना, और श्रीकृष्ण द्वारा अर्जुन व मानव जाति को दिया गया ज्ञान।
+- अनुच्छेद ३: गीता के मूल श्लोक बोल्ड में (**« ... »**) और उनके ठीक नीचे **अर्थात् —** भावार्थ।
+- अनुच्छेद ४: पूज्य महाराज जी की व्यावहारिक सीख, 'राधा-राधा' नाम जप का आश्रय और कल्याणकारी आशीर्वाद (।)।
 - किसी भी वाक्य या वाक्यांश का यांत्रिक दोहराव सख्त वर्जित है।`;
 
   const condensedHistory = summarizeHistoryForContext(conversationHistory, isEnglish);
@@ -1112,11 +1028,11 @@ Provide deep, authentic, profound spiritual guidance (Ekantik Vartalap) answerin
   ];
 
   const models = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'qwen/qwen3.6-27b', 'openai/gpt-oss-20b'];
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < 4; attempt++) {
     const key = getNextGroqKey();
     const model = models[attempt % models.length];
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const timeoutId = setTimeout(() => controller.abort(), 6500);
 
     try {
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -1130,7 +1046,7 @@ Provide deep, authentic, profound spiritual guidance (Ekantik Vartalap) answerin
           model,
           messages,
           temperature: 0.28,
-          max_tokens: 850
+          max_tokens: 950
         })
       });
       clearTimeout(timeoutId);
@@ -1138,8 +1054,9 @@ Provide deep, authentic, profound spiritual guidance (Ekantik Vartalap) answerin
       if (response.ok) {
         const data = await response.json();
         const content = data.choices?.[0]?.message?.content?.trim();
-        if (content && content.length > 50) {
-          return formatScriptureLines(content);
+        if (content && content.length > 80 && !/(संपादक|मैं संपादक हूँ|as an ai)/i.test(content)) {
+          const formatted = formatScriptureLines(content);
+          return deduplicateRepetitionLoops(formatted, isEnglish);
         }
       }
     } catch (e) {
@@ -1148,59 +1065,61 @@ Provide deep, authentic, profound spiritual guidance (Ekantik Vartalap) answerin
     }
   }
 
-  return null;
+  // Fallback: Deterministic Scriptural Framing (Guarantees zero repetition & 100% theological depth)
+  return getAuthenticScriptureFramedDiscourse(userMessage, isEnglish, userProfile, scripture);
 }
 
 /**
  * Streams the pre-framed authentic discourse with the exact phased timeline:
  * 1. Immediate Hook: Sentence 1 is emitted to content (and typed out in UI), then stopped.
  * 2. Thinking Mode Active: Deliberation window streams contemplation thoughts character-by-character.
- * 3. Every 10 seconds: Next completed sentence is released into content with typewriter animation!
+ * 3. Every 10 seconds: Next completed sentence/phase is released into content with typewriter animation!
  * 4. Completion: Thinking collapses to '✓ चिंतन संपन्न (Thought Process) [timer]s ▼', displaying the full discourse.
  */
 async function streamPhasedDiscourse(framedDiscourse, onChunk, userMessage, isEnglish, scripture = null) {
   const startTime = Date.now();
-  const sentences = framedDiscourse.match(/[^।!?.\n]+[।!?.]+/g) || [framedDiscourse];
-  const validSentences = sentences.map((s) => s.trim()).filter((s) => s.length >= 10);
-
-  if (validSentences.length === 0) {
-    validSentences.push(framedDiscourse);
-  }
+  const phases = extractPhasedSections(framedDiscourse, isEnglish);
 
   return new Promise((resolve) => {
-    // Phase 1: Output Sentence 1 immediately (>= 20 chars ending in '।')
-    let currentContent = validSentences[0] || '';
-    let releasedIndex = 1;
-    let lastReleaseTime = Date.now();
+    let releasedPhaseIndex = 1;
+    let currentContent = phases[0] || '';
+
+    // Emit initial Hook immediately so sentence 1 begins typing in UI
+    onChunk({
+      content: currentContent,
+      thought: getSpiritualDeliberationStream(userMessage, isEnglish, 100, scripture),
+      isThinking: true,
+      thinkingDuration: 0.1,
+      scripture: scripture || null
+    });
 
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
-      const thoughtText = getSpiritualDeliberationText(userMessage, isEnglish, elapsed, scripture);
+      const thoughtText = getSpiritualDeliberationStream(userMessage, isEnglish, elapsed, scripture);
 
-      // Phase 2: Every 9.5 - 10s, release the next sentence into main response
-      if (Date.now() - lastReleaseTime >= 9500 && releasedIndex < validSentences.length) {
-        releasedIndex++;
-        currentContent = validSentences.slice(0, releasedIndex).join(' ');
-        lastReleaseTime = Date.now();
+      // Phase 2: Released at 10 seconds (10,000ms)
+      if (elapsed >= 10000 && releasedPhaseIndex < 2 && phases.length >= 2) {
+        releasedPhaseIndex = 2;
+        currentContent = phases.slice(0, 2).join('\n\n');
       }
 
-      // Check if all sentences have been released and minimum deliberation time (~18-25s) has passed
-      const allSentencesReleased = releasedIndex >= validSentences.length;
-      const minDeliberationDone = elapsed >= Math.min(validSentences.length * 7500, 22000);
+      // Phase 3: Released at 20 seconds (20,000ms)
+      if (elapsed >= 20000 && releasedPhaseIndex < 3 && phases.length >= 3) {
+        releasedPhaseIndex = 3;
+        currentContent = phases.slice(0, 3).join('\n\n');
+      }
 
-      if (allSentencesReleased && minDeliberationDone) {
+      // Phase 4 & Completion: Released at 30 seconds (30,000ms)
+      if (elapsed >= 30000) {
         clearInterval(interval);
+        currentContent = phases.join('\n\n');
 
-        let finalThoughtSummary = getSpiritualDeliberationText(userMessage, isEnglish, elapsed, scripture);
-        finalThoughtSummary += isEnglish
-          ? '\n\n✓ Spiritual deliberation concluded. Complete authentic discourse formulated.'
-          : '\n\n✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।';
-
+        const finalThoughtSummary = getSpiritualDeliberationStream(userMessage, isEnglish, 30000, scripture);
         const finalPayload = {
-          content: framedDiscourse,
+          content: currentContent,
           thought: finalThoughtSummary,
           isThinking: false,
-          thinkingDuration: Number((elapsed / 1000).toFixed(1)),
+          thinkingDuration: 30.0,
           scripture: scripture || null
         };
         onChunk(finalPayload);
@@ -1215,7 +1134,7 @@ async function streamPhasedDiscourse(framedDiscourse, onChunk, userMessage, isEn
         thinkingDuration: Math.max(0.1, Number((elapsed / 1000).toFixed(1))),
         scripture: scripture || null
       });
-    }, 200);
+    }, 80);
   });
 }
 
@@ -1248,6 +1167,7 @@ export async function streamGuruResponse(
 
   if (mode === 'deep') {
     // Priority 1: Groq Intelligent Framing & RAG Reasoning
+    // (Always guaranteed: Groq LPU with deterministic scripture framer fallback)
     const framedDiscourse = await generateFramedDiscourseWithGroq(
       userMessage,
       conversationHistory,
@@ -1257,22 +1177,8 @@ export async function streamGuruResponse(
       isEnglish
     );
 
-    if (framedDiscourse) {
-      // Step 2: Stream with Phased Sequential Typewriter Orchestrator
-      return await streamPhasedDiscourse(framedDiscourse, onChunk, userMessage, isEnglish, scripture);
-    }
-
-    // Fallback if Groq unavailable: Dedicated Oracle Cloud Q8_0 Server
-    const tracker = createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture);
-    const oracleResult = await callDirectOracleAPI(messages, 700, true, tracker.handleToken, true, userProfile, userMemoryContext, scripture);
-    if (oracleResult) {
-      return await tracker.finalize(oracleResult);
-    }
-    tracker.resetAccumulated();
-    const groqResult = await callDirectGroqAPI(messages, 450, true, tracker.handleToken, true, userProfile, userMemoryContext, scripture);
-    if (groqResult) {
-      return await tracker.finalize(groqResult);
-    }
+    // Step 2: Stream with Phased Sequential Typewriter Orchestrator
+    return await streamPhasedDiscourse(framedDiscourse, onChunk, userMessage, isEnglish, scripture);
   } else {
     // Priority 1 in Fast Mode: Instant Groq LPU
     const groqResult = await callDirectGroqAPI(

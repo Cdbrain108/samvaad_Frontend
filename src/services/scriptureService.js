@@ -8,6 +8,25 @@
  */
 
 export const SCRIPTURE_DATABASE = [
+  // 0. Comprehensive Gita Summary & Core Teachings (कुरुक्षेत्र, अर्जुन विषाद, निष्काम कर्म व शरणागति)
+  {
+    id: 'gita_summary_core',
+    scripture_id: 'bhagavad_gita',
+    reference: 'श्रीमद्भगवद्गीता २.४७ व १८.६६ (Bhagavad Gita Summary & Core)',
+    original_text: 'कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥ सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज। अहं त्वां सर्वपापेभ्यो मोक्षयिष्यामि मा शुचः॥',
+    hindi_meaning: 'कुरुक्षेत्र के धर्मक्षेत्र में मोहग्रस्त होकर कर्तव्य से विमुख होते अर्जुन को भगवान श्रीकृष्ण ने उपदेश दिया कि तुम्हारा अधिकार केवल निष्काम भाव से कर्म करने में है, फल में कभी नहीं। और अंत में समस्त भयों, संशयों और चिंताओं को त्यागकर केवल भगवान की अनन्य शरण में आओ।',
+    english_translation: 'On the sacred battlefield of Kurukshetra, when Arjuna was overwhelmed by delusion and sorrow, Lord Krishna commanded him to perform righteous duty without attachment to fruits, and ultimately surrender all doubts and fears at the lotus feet of the Divine.',
+    context_intro_hi: 'जैसे कुरुक्षेत्र के युद्धक्षेत्र में मोहग्रस्त अर्जुन को जागृत करते हुए साक्षात् भगवान श्रीकृष्ण संपूर्ण गीता के सार रूप में कहते हैं कि —',
+    context_intro_en: 'Just as Bhagavan Shri Krishna guides the despondent Arjuna on the sacred battlefield of Kurukshetra, revealing the supreme essence of the Bhagavad Gita —',
+    keywords: [
+      'summary of geeta', 'geeta summary', 'summary of gita', 'gita summary', 'summary of the gita', 'summary of the geeta',
+      'गीता का सार', 'गीता का सारांश', 'गीता का संक्षेप', 'गीता के बारे में', 'भगवद्गीता का सार', 'गीता का उपदेश', 'गीता के मुख्य उपदेश', 'गीता क्या सिखाती है',
+      'tell me about geeta', 'tell me about gita', 'what is geeta', 'what is gita', 'explain geeta', 'explain gita', 'essence of geeta', 'essence of gita',
+      'core teachings of gita', 'core teachings of geeta', 'teachings of bhagavad gita', 'teachings of gita', 'geeta ke updesh', 'gita ke updesh',
+      'geeta ka saar', 'gita ka saar', 'geeta ka sar', 'gita ka sar', 'geeta summary in hindi', 'gita summary in hindi'
+    ]
+  },
+
   // 1. Laziness, Inaction & Duty (कर्म ज्यायो ह्यकर्मणः)
   {
     id: 'gita_3_8',
