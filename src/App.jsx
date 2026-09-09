@@ -434,9 +434,13 @@ export default function App() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [userMemory, setUserMemory] = useState(null);
   // Guest user: track how many questions they've asked (limit = 1)
-  // Use sessionStorage so the count survives Firebase auth re-fires (e.g. logout) within the same tab session
+  // Use localStorage & sessionStorage so the 1 QA limit cannot be bypassed by new tabs, refreshes, or logout
   const [guestMessageCount, setGuestMessageCount] = useState(() => {
-    try { return parseInt(sessionStorage.getItem('samvaad_guest_q_count') || '0', 10); } catch { return 0; }
+    try {
+      const l = parseInt(localStorage.getItem('samvaad_guest_q_count') || '0', 10);
+      const s = parseInt(sessionStorage.getItem('samvaad_guest_q_count') || '0', 10);
+      return Math.max(isNaN(l) ? 0 : l, isNaN(s) ? 0 : s);
+    } catch { return 0; }
   });
   const [showGuestLoginModal, setShowGuestLoginModal] = useState(false);
   const [inferenceMode, setInferenceMode] = useState(() => {
@@ -650,6 +654,19 @@ export default function App() {
     return user;
   };
 
+  const isGuestUser = !user || user.uid === 'devotee_local';
+  const getIsGuestLimitReached = () => {
+    const isGuest = !user || user.uid === 'devotee_local';
+    if (!isGuest) return false;
+    try {
+      const l = parseInt(localStorage.getItem('samvaad_guest_q_count') || '0', 10);
+      const s = parseInt(sessionStorage.getItem('samvaad_guest_q_count') || '0', 10);
+      return Math.max(isNaN(l) ? 0 : l, isNaN(s) ? 0 : s, guestMessageCount) >= 1;
+    } catch {
+      return guestMessageCount >= 1;
+    }
+  };
+
   const openChat = () => {
     ensureUser();
     setView('chat');
@@ -661,6 +678,10 @@ export default function App() {
     ensureUser();
     setView('chat');
     window.scrollTo(0, 0);
+    if (getIsGuestLimitReached()) {
+      setShowGuestLoginModal(true);
+      return;
+    }
     if (question && question.trim()) {
       setTimeout(() => submitMessage(question), 150);
     }
@@ -682,6 +703,10 @@ export default function App() {
   };
 
   const startNewChat = async () => {
+    if (getIsGuestLimitReached()) {
+      setShowGuestLoginModal(true);
+      return;
+    }
     voice.stop();
     await maybeAutoNameChatOnLeave();
     setMessages([]);
@@ -722,19 +747,14 @@ export default function App() {
 
   const submitMessage = async (explicitMessage, speakResponse = false) => {
     const activeUser = user || ensureUser();
-    // Block ALL submissions while any response is in flight (responding = waiting for first chunk, streaming = receiving chunks)
-    // This prevents race conditions where the mid-stream counter check sees count=0 and lets a second question through
+    // Block ALL submissions while any response is in flight
     if (isResponding || isStreaming) return;
 
     const message = (typeof explicitMessage === 'string' ? explicitMessage : draft).trim();
     if (!message) return;
 
-    // Guest users get exactly 1 free question.
-    // Double-check sessionStorage directly to guard against stale React closure state.
-    const rawGuestCount = (() => {
-      try { return parseInt(sessionStorage.getItem('samvaad_guest_q_count') || '0', 10); } catch { return guestMessageCount; }
-    })();
-    if (activeUser.uid === 'devotee_local' && (guestMessageCount >= 1 || rawGuestCount >= 1)) {
+    // Guest users get exactly 1 free question
+    if (getIsGuestLimitReached()) {
       setShowGuestLoginModal(true);
       return;
     }
@@ -779,12 +799,14 @@ export default function App() {
       };
 
       // GUEST LIMIT: Increment counter IMMEDIATELY before streaming starts.
-      // Previously this was done after the stream completed — but between first chunk and completion
-      // isResponding=false while isStreaming=true, so a 2nd submit could sneak through with count still 0.
+      // Persist in both localStorage and sessionStorage so it cannot be bypassed.
       if (activeUser.uid === 'devotee_local') {
         setGuestMessageCount(prev => {
-          const next = prev + 1;
-          try { sessionStorage.setItem('samvaad_guest_q_count', String(next)); } catch {}
+          const next = Math.max(prev + 1, 1);
+          try {
+            localStorage.setItem('samvaad_guest_q_count', String(next));
+            sessionStorage.setItem('samvaad_guest_q_count', String(next));
+          } catch {}
           return next;
         });
       }
@@ -899,6 +921,7 @@ export default function App() {
   };
 
   const handleLogout = async () => {
+    const wasRealUser = user && user.uid !== 'devotee_local';
     try {
       const { logoutUser } = await import('./services/firebase');
       await logoutUser();
@@ -910,12 +933,16 @@ export default function App() {
     setMessages([]);
     setCurrentConversationId(null);
     setUserMemory(null);
-    setGuestMessageCount(0);
     setShowGuestLoginModal(false);
     setShowOnboarding(false);
     setView('landing');
-    // Clear the session counter so a re-authenticated real user doesn’t inherit guest quota
-    try { sessionStorage.removeItem('samvaad_guest_q_count'); } catch {}
+    if (wasRealUser) {
+      setGuestMessageCount(0);
+      try {
+        localStorage.removeItem('samvaad_guest_q_count');
+        sessionStorage.removeItem('samvaad_guest_q_count');
+      } catch {}
+    }
   };
 
   // Handle successful sign-in from the guest modal — stay on chat page
@@ -923,8 +950,11 @@ export default function App() {
     setShowGuestLoginModal(false);
     setUser(signedInUser);
     setGuestMessageCount(0);
-    // Clear sessionStorage counter so this real user gets a clean slate
-    try { sessionStorage.removeItem('samvaad_guest_q_count'); } catch {}
+    // Clear storage counter so this real user gets a clean slate
+    try {
+      localStorage.removeItem('samvaad_guest_q_count');
+      sessionStorage.removeItem('samvaad_guest_q_count');
+    } catch {}
     // Load their Firestore conversations
     try {
       const result = await getUserConversations(signedInUser.uid, 50);
@@ -1210,7 +1240,16 @@ export default function App() {
             voice={voice}
           />
           {messages.length === 0 ? (
-            <Welcome suggestions={promptSuggestions} onSelectPrompt={setDraft} />
+            <Welcome
+              suggestions={promptSuggestions}
+              onSelectPrompt={(prompt) => {
+                if (getIsGuestLimitReached()) {
+                  setShowGuestLoginModal(true);
+                } else {
+                  setDraft(prompt);
+                }
+              }}
+            />
           ) : (
             <section className="messages" aria-label="Conversation">
               {messages.map((message, index) => {
@@ -1357,7 +1396,7 @@ export default function App() {
           onChange={setDraft}
           onSubmit={submitMessage}
           isDisabled={isResponding || isStreaming}
-          guestLimitReached={user?.uid === 'devotee_local' && guestMessageCount >= 1 && !isResponding && !isStreaming}
+          guestLimitReached={getIsGuestLimitReached() && !isResponding && !isStreaming}
           onGuestLimitClick={() => setShowGuestLoginModal(true)}
         />
       </main>

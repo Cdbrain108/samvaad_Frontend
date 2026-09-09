@@ -2,14 +2,14 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
 
-// Firebase configuration from environment variables
+// Firebase configuration with environment variables and project defaults
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY || '').trim() || 'AIzaSyAa2MPLyrxxiYS6in7Ojv_jVmlzglwXXGw',
+  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '').trim() || 'samvaad-ai-db3a1.firebaseapp.com',
+  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID || '').trim() || 'samvaad-ai-db3a1',
+  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '').trim() || 'samvaad-ai-db3a1.firebasestorage.app',
+  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '').trim() || '293750023914',
+  appId: (import.meta.env.VITE_FIREBASE_APP_ID || '').trim() || '1:293750023914:web:753705201ae0bfd07e9993'
 };
 
 // Check if valid Firebase configuration is provided
