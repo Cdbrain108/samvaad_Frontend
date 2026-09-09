@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { onAuthStateChange, saveConversation, getUserConversations, getConversation, updateConversation, getUserMemory, saveUserMemory, getUserProfileInfo, saveUserProfileInfo, signInWithGoogle } from './services/firebase';
-import { generateGuruResponse, streamGuruResponse, generateChatTitle } from './services/guruService';
+import { generateGuruResponse, streamGuruResponse, generateChatTitle, isCasualConversational } from './services/guruService';
 import Composer from './components/Composer';
 import Icon from './components/Icon';
 import LandingPage from './components/LandingPage';
@@ -590,13 +590,14 @@ export default function App() {
         userMemory.preferences?.length ? `Preferences: ${userMemory.preferences.join(', ')}` : ''
       ].filter(Boolean).join('\n') : '';
 
+      const isCasual = isCasualConversational(message);
       const assistantMsg = {
         role: 'assistant',
         content: '',
         initialContent: '',
         subsequentContent: '',
-        thought: inferenceMode === 'deep' ? '🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न का शास्त्रीय विश्लेषण...' : '',
-        isThinking: inferenceMode === 'deep',
+        thought: (!isCasual && inferenceMode === 'deep') ? '🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न का शास्त्रीय विश्लेषण...' : '',
+        isThinking: !isCasual && inferenceMode === 'deep',
         thinkingDuration: 0,
         timestamp: new Date(),
         mode: inferenceMode

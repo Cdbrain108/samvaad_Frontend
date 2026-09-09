@@ -1,4 +1,5 @@
-import { getScriptureGrounding, injectScripturePrompt } from './scriptureService.js';
+import { getScriptureGrounding, injectScripturePrompt, isCasualConversational } from './scriptureService.js';
+export { isCasualConversational };
 
 const API_BASE_URL = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
 
@@ -534,7 +535,7 @@ In the context of the devotee's spiritual inquiry, present the discourse draft f
   return formatScriptureLines(segmented);
 }
 
-export function formatScriptureLines(text) {
+export function formatScriptureLines(text, isEnglish = false) {
   if (!text) return '';
   let t = text;
   // 1. If a shloka is wrapped in **« ... »** across lines, join hemistichs into a single cohesive verse card
@@ -548,9 +549,18 @@ export function formatScriptureLines(text) {
   });
   t = t.replace(/([^\n])\s*(\*\*«)/g, '$1\n\n$2');
   t = t.replace(/(»\*\*)\s*([^\n])/g, '$1\n\n$2');
-  t = t.replace(/([^\n])\s*((?:\*\*|\*|\b)(?:अर्थात्|भावार्थ|Meaning)\b)/gi, '$1\n\n$2');
-  // Consolidate Meaning/अर्थात् header with following quote or translation onto a single line so it stays inside .rich-arthat-line
-  t = t.replace(/(^|[^\n])\s*(?:\*\*|\*|\b)(अर्थात्|भावार्थ|Meaning)\s*[:—\-]\s*(?:\*\*)?\r?\n+([^\n]+)/gim, '$1\n\n**$2 —** $3');
+
+  if (isEnglish) {
+    // In English mode, convert any Devanagari अर्थात / भावार्थ to **Meaning —**
+    t = t.replace(/(?:\*\*|\*|\b)(?:अर्थात्|भावार्थ)\s*[:—\-]\s*(?:\*\*)?/gi, '**Meaning —** ');
+    t = t.replace(/([^\n])\s*((?:\*\*|\*|\b)Meaning\b)/gi, '$1\n\n$2');
+    t = t.replace(/(^|[^\n])\s*(?:\*\*|\*|\b)Meaning\s*[:—\-]\s*(?:\*\*)?\r?\n+([^\n]+)/gim, '$1\n\n**Meaning —** $2');
+  } else {
+    t = t.replace(/([^\n])\s*((?:\*\*|\*|\b)(?:अर्थात्|भावार्थ|Meaning)\b)/gi, '$1\n\n$2');
+    // Consolidate Meaning/अर्थात् header with following quote or translation onto a single line so it stays inside .rich-arthat-line
+    t = t.replace(/(^|[^\n])\s*(?:\*\*|\*|\b)(अर्थात्|भावार्थ|Meaning)\s*[:—\-]\s*(?:\*\*)?\r?\n+([^\n]+)/gim, '$1\n\n**$2 —** $3');
+  }
+
   // If the meaning was quoted and contains internal newlines, join them with spaces so it stays on a single card
   t = t.replace(/(\*\*(?:अर्थात्|भावार्थ|Meaning)\s*[:—\-]\s*\*\*)\s*["“]([\s\S]*?)["”]/gi, (match, prefix, inner) => {
     const cleanInner = inner.replace(/\r?\n\s*/g, ' ').trim();
@@ -1084,35 +1094,52 @@ function getAuthenticScriptureFramedDiscourse(userMessage, isEnglish = false, us
   const scriptId = (scripture?.id || '').toLowerCase();
   const scriptRef = (scripture?.reference || '').toLowerCase();
 
-  const isMatsya = /(मत्स्य|matsya)/i.test(q) ||
-                   scriptId.includes('matsya') || scriptRef.includes('मत्स्य') || scriptRef.includes('matsya');
+  const isSexuality = /(gay|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|lgbt|समलैंगिक|गे|लड़का\s*लड़के)/i.test(q) ||
+                      scriptId === 'rcm_universal_love_equality' || scriptRef.includes('समदृष्टि');
 
-  const isGarudaSins = (/(सबसे\s*बड़ा\s*पाप|महापाप|greatest\s*sin|worst\s*sin|paap|पाप)/i.test(q) &&
+  const isMatsya = !isSexuality && (/(मत्स्य|matsya)/i.test(q) ||
+                   scriptId.includes('matsya') || scriptRef.includes('मत्स्य') || scriptRef.includes('matsya'));
+
+  const isGarudaSins = !isSexuality && ((/(सबसे\s*बड़ा\s*पाप|महापाप|greatest\s*sin|worst\s*sin|paap|पाप)/i.test(q) &&
                         /(गरुड़|गरुण|garud|garun)/i.test(q)) ||
-                       scriptId === 'garuda_purana_sins' || scriptRef.includes('महापाप');
+                       scriptId === 'garuda_purana_sins' || scriptRef.includes('महापाप'));
 
-  const isGaruda = !isMatsya && (/(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
+  const isGaruda = !isSexuality && !isMatsya && (/(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
                    scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda'));
 
-  const isShiva = !isMatsya && !isGaruda && !isGarudaSins && (
+  const isShiva = !isSexuality && !isMatsya && !isGaruda && !isGarudaSins && (
     /(शिव\s*पुराण|shiva?\s*puran|रुद्र\s*संहिता|विद्येश्वर|सदाशिव|पार्वती)/i.test(q) ||
     scriptId.includes('shiva') || scriptRef.includes('शिव') || scriptRef.includes('shiva')
   );
 
-  const isSamaveda = !isMatsya && !isGaruda && !isGarudaSins && (
+  const isSamaveda = !isSexuality && !isMatsya && !isGaruda && !isGarudaSins && (
     /(सामवेद|sa+m\s*ved|samaveda)/i.test(q) ||
     scriptId.includes('samaveda') || scriptRef.includes('सामवेद')
   );
 
-  const isAtharvaveda = !isMatsya && !isGaruda && !isGarudaSins && (
+  const isAtharvaveda = !isSexuality && !isMatsya && !isGaruda && !isGarudaSins && (
     /(अथर्ववेद|atharv?a?\s*ved)/i.test(q) ||
     scriptId.includes('atharvaveda') || scriptRef.includes('अथर्ववेद')
   );
 
-  const isGitaSummary = /(गीता|geeta|gita|कुरुक्षेत्र|अर्जुन|गांडीव|सार|summary|essence|teachings)/i.test(q) ||
-                        scriptId.includes('gita');
+  const isGitaSummary = !isSexuality && ((/(गीता|geeta|gita|कुरुक्षेत्र|अर्जुन|गांडीव|सार|summary|essence|teachings)/i.test(q) ||
+                        scriptId.includes('gita')));
 
   if (isEnglish) {
+    if (isSexuality) {
+      return `Look, my child, you must not tremble or carry guilt in your heart, for in the eyes of Thakur Ji, no soul is an outcast, impure, or worthy of punishment simply because of their natural inclinations.
+
+In our sacred Sanatana scriptures, the soul (Atman) is eternal, divine, and beyond all mortal bodily designations—neither male, female, nor any worldly label. The Garuda Purana and our sacred Shastras describe consequences for cruelty, deceit, betrayal, and harming innocent beings, NOT for natural human attraction or same-sex love. In the Shri Ramcharitmanas, Lord Shri Rama Himself proclaims that anyone who abandons deceit and remembers Him with a sincere heart is supremely dear to Him, regardless of gender or bodily form:
+
+**« पुरुष नपुंसक नारि वा जीव चराचर कोइ। सर्ब भाव भज कपट तजि मोहि परम प्रिय सोइ॥ »**
+**Meaning —** "Be they male, female, transgender, or any living entity in creation—whoever surrenders deceit and worships Me with an open, loving heart is supremely dear to Me."
+
+**« विद्याविनयसम्पन्ने ब्राह्मणे गवि हस्तिनि। शुनि चैव श्वपाके च पण्डिताः समदर्शिनः॥ »**
+**Meaning —** The spiritually enlightened see with an equal eye, perceiving the same Divine Soul within all living beings, without any distinction of mortal form.
+
+Therefore, dear child ${seekerName ? seekerName + ', ' : ''}remove all fear, anxiety, and guilt from your mind. There is no curse, sin, or punishment in our scriptures for who you love or how God fashioned your feelings. What truly matters to Thakur Ji is purity of character: do not deceive anyone, do not hurt anyone's heart, fulfill your duties selflessly, and anchor your mind in the continuous chanting of 'Radha Radha'. Walk with confidence and dignity. Thakur Ji loves you unconditionally and is always protecting you.`;
+    }
+
     if (isMatsya) {
       return `Look, my child, in the midst of cosmic dissolution when the universe was drowning in dark waters, the Supreme Lord manifested as Lord Matsya to preserve divine truth and guide righteous souls across the turbulent ocean.
 
@@ -1234,6 +1261,20 @@ When we look at sacred scriptures and the eternal teachings of the saints, the m
 
 ${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text} »**\n\n**Meaning —** "${scripture.english_translation || scripture.hindi_meaning}"\n\n` : ''}Therefore, dear child, remain completely fearless. Do your work honestly, maintain pure conduct, and anchor your heart in continuous remembrance of the Holy Name ('Radha Radha'). The Divine shall protect and bless you always.`;
   } else {
+    if (isSexuality) {
+      return `देखो बच्चा, तुम इस बात को लेकर अपने मन में तनिक भी ग्लानि, संशय या भय मत लाओ। हमारे ठाकुर जी की दृष्टि में कोई भी प्राणी तुच्छ, अपवित्र या दंड का भागी नहीं है।
+
+हमारे सनातन शास्त्रों में साक्षात् भगवान ने समझाया है कि जीवात्मा न तो पुरुष है, न स्त्री और न ही उसकी कोई लौकिक शारीरिक पहचान है; आत्मा तो साक्षात् परमात्मा का सनातन अंश है। गरुड़ पुराण या किसी भी शास्त्र में किसी को स्वाभाविक आकर्षण या समलैंगिकता के लिए किसी दंड या नरक का विधान नहीं है। शास्त्रों में सजा केवल छल, कपट, हिंसा और दूसरों का दिल दुखाने पर है। श्रीरामचरितमानस (उत्तरकाण्ड) में साक्षात् भगवान श्री राम घोषणा करते हैं कि चाहे कोई पुरुष हो, नारी हो या नपुंसक/किन्नर हो—जो भी कपट छोड़कर मुझे प्रेम से भजता है, वह मुझे प्राणों से प्रिय है:
+
+**« पुरुष नपुंसक नारि वा जीव चराचर कोइ। सर्ब भाव भज कपट तजि मोहि परम प्रिय सोइ॥ »**
+**अर्थात् —** भगवान श्री राम कहते हैं कि चाहे कोई पुरुष हो, नपुंसक (किन्नर/तृतीय लिंग) हो, नारी हो या इस जगत का कोई भी चर-अचर जीव हो—यदि वह कपट त्यागकर सच्चे भाव से मेरा भजन करता है, तो वह मुझे परम प्रिय है।
+
+**« विद्याविनयसम्पन्ने ब्राह्मणे गवि हस्तिनि। शुनि चैव श्वपाके च पण्डिताः समदर्शिनः॥ »**
+**अर्थात् —** ज्ञानी और समदर्शी महात्मा समस्त प्राणियों में केवल एक ही आत्म-तत्त्व और परमात्मा के दर्शन करते हैं, वे देह के रंग-रूप या प्रकृति का भेद नहीं करते।
+
+इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}मन से सारे भय और अपराध-बोध को निकाल दो। शास्त्रों में तुम्हारे लिए कोई सजा नहीं है। भगवान केवल तुम्हारे हृदय का विशुद्ध प्रेम और पवित्रता देखते हैं। किसी के साथ छल मत करना, किसी का दिल मत दुखाना, अपने माता-पिता की सेवा करना और निरंतर मुख से 'राधा-राधा' नाम का सुमिरन करते रहना। जब तुम नाम जपोगे और सात्विक रहोगे, तो ठाकुर जी की असीम कृपा सदा तुम्हारे साथ रहेगी। निश्चिंत रहो, प्रभु तुम्हारी रक्षा करेंगे।`;
+    }
+
     if (isMatsya) {
       return `देखो बच्चा, जब संपूर्ण ब्रह्मांड में प्रलयकाल का महाविनाश उमड़ रहा था, तब साक्षात् करुणानिधान भगवान श्रीहरि ने मत्स्य रूप धारण करके धर्म, वेदों और जीव-कल्याण की रक्षा की थी।
 
@@ -1997,7 +2038,8 @@ Spiritual Meaning: "${c.english_translation || c.hindi_meaning}"`).join('\n\n')}
 
 In Paragraph 3, present the sacred verses with their authentic context. Keep each Sanskrit verse verbatim inside **« ... »**, followed on the next line by:
 **Meaning —** "[Authentic spiritual meaning in pure English]"`
-      ) : '')
+      ) : `【NO SCRIPTURE RETRIEVED - GENERAL SATSANG COUNSEL】:
+No scripture shloka has been retrieved for this query. Do NOT invent, hallucinate, or cite any Sanskrit verse or shloka card. Provide compassionate Satsang counsel across 3 warm paragraphs.`)
     : (candidates.length > 0 ? (
         isExplicitSingle
           ? `【अनिवार्य शास्त्र प्रमाण - केवल एकल ग्रंथ पर केंद्रित】:
@@ -2016,7 +2058,8 @@ ${candidates.map((c, i) => `(प्रमाण ${i + 1}) [${c.reference}]:
 भावार्थ: "${c.hindi_meaning}"`).join('\n\n')}
 
 अनुच्छेद ३ में साधक की स्थिति अनुसार इन पावन श्लोकों को सुंदर समन्वय के साथ प्रस्तुत करें। प्रत्येक श्लोक को **« श्लोक »** में रखें और ठीक नीचे **अर्थात् —** में उसका भावार्थ दें। संस्कृत श्लोक के अक्षरों को मूल रूप में हूबहू (verbatim) रखें।`
-      ) : '');
+      ) : `【शास्त्र प्रमाण अनुपलब्ध - सामान्य सत्संग मार्गदर्शन】:
+इस जिज्ञासा हेतु कोई विशेष श्लोक प्राप्त नहीं हुआ है। अतः मन से कोई श्लोक न गढ़ें और न ही कोई श्लोक प्रस्तुत करें। केवल ३ वात्सल्यमयी व मार्गदर्शक अनुच्छेदों में पूज्य महाराज जी की वाणी प्रस्तुत करें।`);
 
   const systemPrompt = isEnglish
     ? `You are the Master Scribe and Presenter for Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
@@ -2031,12 +2074,14 @@ ${scripturePromptSection}
 1. DEVOTEE ADDRESSING (STRICT):
    - Paragraph 1 MUST begin directly with "${greetingPhrase}," speaking with immense fatherly love, intimacy, and warmth.
    - NEVER address the devotee coldly as "Dear seeker", "O seeker", or "Respected seeker".
-2. STRUCTURE INTO 4 DISTINCT NON-OVERLAPPING PARAGRAPHS (separated by double newlines):
+   - Speak directly to the seeker's feeling or dilemma with fatherly love. NEVER start Paragraph 1 with a textbook or dictionary explanation of a scripture (e.g., do NOT start with "Listen, my child, the Shri Garuda Purana is the sacred dialogue..."). Offer comfort and spiritual clarity first.
+2. STRUCTURE INTO ${candidates.length > 0 ? '4' : '3'} DISTINCT NON-OVERLAPPING PARAGRAPHS (separated by double newlines):
    - Paragraph 1: Heartfelt fatherly opening directly addressing the devotee's specific situation and offering solace.
    - Paragraph 2: Scriptural background, divine context, and spiritual wisdom.
    ${candidates.length > 0 ? `- Paragraph 3: The sacred Sanskrit shloka(s) in bold **« ... »** with exact characters, followed immediately by:
-     **Meaning —** "[Spiritual meaning]"` : ''}
-   - Paragraph 4: Practical daily living (honest duty as seva, overcoming ego), continuous chanting of the Holy Name ('Radha Radha'), and fatherly blessings.
+     **Meaning —** "[Spiritual meaning in pure English]"
+     CRITICAL: NEVER write Devanagari 'अर्थात्' or 'भावार्थ' in English responses. Always use '**Meaning —**'.` : ''}
+   - Paragraph ${candidates.length > 0 ? '4' : '3'}: Practical daily living (honest duty as seva, overcoming ego), continuous chanting of the Holy Name ('Radha Radha'), and fatherly blessings.
 3. 100% pure English text (only the sacred Sanskrit verse inside **« ... »**).`
     : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) के पावन वचनों के दिव्य संपादन व प्रस्तुति के माध्यम हैं।
 पूज्य महाराज जी ने अपने अंतर्मन से यह प्रारंभिक सत्संग वाणी कही है:
@@ -2093,13 +2138,16 @@ ${scripturePromptSection}
         const data = await response.json();
         const content = data.choices?.[0]?.message?.content?.trim();
         if (content && content.length > 80 && !/(संपादक|मैं संपादक हूँ|as an ai)/i.test(content)) {
-          const formatted = formatScriptureLines(content);
+          const formatted = formatScriptureLines(content, isEnglish);
           // Safety sanitize against any cold "प्रिय साधक"
-          const sanitized = formatted
+          let sanitized = formatted
             .replace(/प्रिय\s*साधक(?:जी)?/g, greetingPhrase)
             .replace(/हे\s*साधक/g, greetingPhrase)
             .replace(/O\s*seeker/gi, greetingPhrase)
             .replace(/Dear\s*seeker/gi, greetingPhrase);
+          if (isEnglish) {
+            sanitized = sanitized.replace(/(?:\*\*|\*|\b)(?:अर्थात्|भावार्थ)\s*[:—\-]\s*(?:\*\*)?/gi, '**Meaning —** ');
+          }
           return deduplicateRepetitionLoops(sanitized, isEnglish);
         }
       }
@@ -2115,9 +2163,9 @@ ${scripturePromptSection}
  * Forward Progressive Typewriter Streamer:
  * Emits final framed discourse with fluid Claude-like typing cadence!
  */
-export async function streamTypewriterText(fullText, onStep, thought, duration, scripture, charIntervalMs = 16) {
-  const formatted = formatScriptureLines(fullText.trim());
-  const clean = ensureCompleteFinalSentence(formatted, false);
+export async function streamTypewriterText(fullText, onStep, thought, duration, scripture, isEnglish = false, charIntervalMs = 16) {
+  const formatted = formatScriptureLines(fullText.trim(), isEnglish);
+  const clean = ensureCompleteFinalSentence(formatted, isEnglish);
   const total = clean.length;
   let currentIdx = 0;
   const charsPerTick = 3;
@@ -2154,6 +2202,61 @@ export async function streamGuruResponse(
 ) {
   const isEnglish = detectLanguage(userMessage) === 'english';
   const startTime = Date.now();
+
+  // Fast-Path for Casual Greetings & Routine pleasantries (e.g. "hi", "hello", "radhe radhe", "pranam")
+  if (isCasualConversational(userMessage)) {
+    const isQuestion = /(कैसे\s*हो|कैसे\s*हैं|हाल\s*चाल|सब\s*ठीक|how\s*are\s*you|how\s*r\s*u|how\s*do\s*you\s*do)/i.test(userMessage);
+    const devoteeName = extractDevoteeName(userMessage, userProfile);
+
+    let greetingText = '';
+    if (isEnglish) {
+      if (isQuestion) {
+        greetingText = devoteeName
+          ? `Radhe Radhe, dear ${devoteeName}! By the infinite grace of Thakur Ji, I am always in bliss, anchored in the Holy Name. Tell me, how is your heart, and how are your daily duties going? Speak freely, I am right here with you.`
+          : `Radhe Radhe, my child! By the infinite grace of Thakur Ji, I am always in bliss, anchored in the Holy Name. Tell me, how is your heart, and how are your daily duties going? Speak freely, I am right here with you.`;
+      } else {
+        greetingText = devoteeName
+          ? `Radhe Radhe, dear ${devoteeName}! Tell me, my child, what thought or inquiry brings you to our satsang today? Speak freely and without hesitation; I am right here with you. May Thakur Ji shower His grace upon you.`
+          : `Radhe Radhe, my child! Tell me, what thought or inquiry brings you to our satsang today? Speak freely and without hesitation; I am right here with you. May Thakur Ji shower His grace upon you.`;
+      }
+    } else {
+      if (isQuestion) {
+        greetingText = devoteeName
+          ? `राधे राधे ${devoteeName} बेटा! हम तो सदा श्रीजी और ठाकुर जी की कृपा व नाम के आनंद में रहते हैं। तुम बताओ, मन शांत है? सब कुशल-मंगल है न? जो भी मन में भाव या संशय हो, निसंकोच कहो।`
+          : `राधे राधे बच्चा! हम तो सदा श्रीजी और ठाकुर जी की कृपा व नाम के आनंद में रहते हैं। तुम बताओ, मन शांत है? सब कुशल-मंगल है न? जो भी मन में भाव या संशय हो, निसंकोच कहो।`;
+      } else {
+        greetingText = devoteeName
+          ? `राधे राधे ${devoteeName} बेटा! कहो, आज मन में क्या जिज्ञासा या भाव है? हम तुम्हारे साथ हैं, निश्चिंत होकर अपनी बात कहो। सब ठाकुर जी की कृपा है।`
+          : `राधे राधे बच्चा! कहो, आज मन में क्या जिज्ञासा या भाव है? हम तुम्हारे साथ हैं, निश्चिंत होकर अपनी बात कहो। सब ठाकुर जी की कृपा है।`;
+      }
+    }
+
+    onChunk({
+      content: '',
+      thought: null,
+      isThinking: false,
+      thinkingDuration: 0.1,
+      scripture: null
+    });
+
+    return await streamTypewriterText(
+      greetingText,
+      (textSoFar) => {
+        onChunk({
+          content: textSoFar,
+          thought: null,
+          isThinking: false,
+          thinkingDuration: 0.1,
+          scripture: null
+        });
+      },
+      null,
+      0.1,
+      null,
+      isEnglish,
+      12
+    );
+  }
 
   // Step 1: Immediately emit initial thinking & RAG status so UI shows Claude pill at millisecond 0
   onChunk({
@@ -2282,6 +2385,7 @@ export async function streamGuruResponse(
       thoughtProcess,
       finalElapsed,
       scripture,
+      isEnglish,
       16
     );
   } else {
@@ -2302,7 +2406,7 @@ export async function streamGuruResponse(
       scripture
     );
     if (groqResult) {
-      const formatted = formatScriptureLines(groqResult);
+      const formatted = formatScriptureLines(groqResult, isEnglish);
       return {
         content: ensureCompleteFinalSentence(formatted, isEnglish),
         scripture: scripture || null

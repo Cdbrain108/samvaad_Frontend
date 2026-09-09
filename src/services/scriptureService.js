@@ -408,6 +408,25 @@ export const SCRIPTURE_DATABASE = [
     ]
   },
 
+  // 12B. Equality of All Souls, Gender Transcendence & God's Unconditional Love (पुरुष नपुंसक नारि वा जीव चराचर कोइ)
+  {
+    id: 'rcm_universal_love_equality',
+    scripture_id: 'ramcharitmanas',
+    reference: 'श्रीरामचरितमानस उत्तरकाण्ड ८७.२ व श्रीमद्भगवद्गीता ५.१८ (Ramcharitmanas & Gita · समदृष्टि व अहैतुक प्रेम)',
+    original_text: 'पुरुष नपुंसक नारि वा जीव चराचर कोइ। सर्ब भाव भज कपट तजि मोहि परम प्रिय सोइ॥ विद्याविनयसम्पन्ने ब्राह्मणे गवि हस्तिनि। शुनि चैव श्वपाके च पण्डिताः समदर्शिनः॥',
+    hindi_meaning: 'श्रीरामचरितमानस में साक्षात् भगवान श्री राम घोषणा करते हैं कि चाहे कोई पुरुष हो, नपुंसक (किन्नर/तृतीय लिंग) हो, नारी हो या कोई भी चराचर जीव हो—यदि वह कपट त्यागकर सच्चे भाव से मुझे भजता है, तो वह मुझे प्राणों से भी अधिक प्रिय है। श्रीमद्भगवद्गीता में भगवान कहते हैं कि ज्ञानीजन सभी जीवों में एक ही आत्म-तत्त्व को समान रूप से देखते हैं। परमात्मा शरीर की बनावट या लौकिक आकर्षण नहीं, केवल हृदय का विशुद्ध प्रेम और नाम-जप देखते हैं। शास्त्रों में किसी की स्वाभाविक प्रवृत्ति या समलैंगिकता के लिए कोई सजा या नरक नहीं है।',
+    english_translation: 'In the Ramcharitmanas (Uttarkand 87.2), Lord Rama proclaims: "Be they male, female, transgender, or any living entity in creation—whoever surrenders deceit and loves Me sincerely is supremely dear to Me." In the Bhagavad Gita (5.18), Lord Krishna reveals that the wise perceive the same Divine Soul equally within all beings. The Divine does not judge bodily nature or physical attraction, but cherishes only purity of heart, selfless love, and devotion. There is no scriptural punishment for one’s inherent nature; only deceit and cruelty bind the soul.',
+    context_intro_hi: 'जैसे श्रीरामचरितमानस में साक्षात् भगवान श्री राम समस्त जीवों के प्रति अपने समदर्शी व अहैतुक प्रेम की घोषणा करते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Lord Rama declares His unconditional love for all souls irrespective of bodily form in the Ramcharitmanas —',
+    keywords: [
+      'gay', 'i am gay', 'i am a gay', 'homosexual', 'homosexuality', 'same sex', 'attracted to boys', 'attracted to men', 'like boys',
+      'queer', 'lgbt', 'lgbtq', 'lesbian', 'transgender', 'gender identity', 'gay punishment', 'punishment for being gay', 'sexuality',
+      'i like boys', 'as a boy i like boys', 'punishment is there in our scriptures', 'is there any punishment is there in our scriptures',
+      'is there any punishment', 'garun puran me koi saja hai', 'kya iske liye garun puran me koi saja hai',
+      'गे', 'समलैंगिक', 'लड़के पसंद हैं', 'सजा है क्या', 'गे होना पाप है क्या', 'किन्नर', 'समलैंगिकता', 'लड़का लड़के से प्यार', 'गरुड़ पुराण में कोई सजा'
+    ]
+  },
+
   // 13. God's Personal Care & Protection (अनन्याश्चिन्तयन्तो मां)
   {
     id: 'gita_9_22',
@@ -695,7 +714,7 @@ function normalizeQuery(text) {
  * Returns true if the query is merely a greeting or casual remark
  * that should receive warm natural Satsang discourse WITHOUT forcing an unprompted scripture shlok.
  */
-function isCasualConversational(query) {
+export function isCasualConversational(query) {
   if (!query) return true;
   let clean = query.trim().toLowerCase();
   if (clean.length < 3) return true;
@@ -708,11 +727,11 @@ function isCasualConversational(query) {
     .trim();
 
   // Pure greetings (Hindi Devanagari, English, and Latin Hinglish)
-  const pureGreetings = /^(?:राधे\s*राधे|जय\s*श्री\s*(?:कृष्णा?|राम|राधे)|प्रणाम|चरण\s*स्पर्श|नमस्ते|नमस्कार|राम\s*राम|हेलो|हाय|hello|hi|hey|good\s*(?:morning|evening|afternoon)|hare\s*krishna|radhe\s*radhe|radhey?\s*radhey?|jai\s*shree?\s*(?:krishna|ram|radhe)|namaste|pranam|charan\s*sparsh|hare\s*(?:krishna|rama?)|ram\s*ram)$/i;
+  const pureGreetings = /^(?:राधे\s*राधे|जय\s*श्री\s*(?:कृष्णा?|राम|राधे)|प्रणाम|चरण\s*स्पर्श|नमस्ते|नमस्कार|राम\s*राम|हेलो|हाय|hello|hi|hey|good\s*(?:morning|evening|afternoon)|hare\s*krishna|radhe\s*radhe|radhey?\s*radhey?|jai\s*shree?\s*(?:krishna|ram|radhe)|namaste|pranam|charan\s*sparsh|hare\s*(?:krishna|rama?)|ram\s*ram|hey\s*there|hello\s*there|hi\s*there)$/i;
   if (!stripped || pureGreetings.test(stripped) || pureGreetings.test(clean)) return true;
 
   // Simple routine queries like 'how are you'
-  const casualQuestions = /^(?:आप\s*कैसे\s*हैं|कैसे\s*हो|सब\s*ठीक\s*है|हाल\s*चाल|how\s*are\s*you|who\s*are\s*you|how\s*r\s*u)$/i;
+  const casualQuestions = /^(?:आप\s*कैसे\s*हैं|कैसे\s*हो|सब\s*ठीक\s*है|हाल\s*चाल|how\s*are\s*you|who\s*are\s*you|how\s*r\s*u|how\s*do\s*you\s*do)$/i;
   if (casualQuestions.test(stripped) || casualQuestions.test(clean)) return true;
 
   return false;
@@ -882,6 +901,12 @@ export function isTopicExcluded(cleanQ, item) {
   const sId = (item.scripture_id || '').toLowerCase();
   const ref = (item.reference || '').toLowerCase();
 
+  // Exclude criminal sin verses and other puranas for sexuality questions - ONLY allow rcm_universal_love_equality
+  const isSexuality = /(gay|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|lgbt|समलैंगिक|गे|लड़का\s*लड़के)/i.test(cleanQ);
+  if (isSexuality) {
+    return item.id !== 'rcm_universal_love_equality';
+  }
+
   // 1. Check predefined topic gates
   for (const gate of SCRIPTURE_TOPIC_GATES) {
     if (gate.patterns.some(p => p.test(cleanQ))) {
@@ -987,6 +1012,11 @@ export function detectExplicitScriptureInQuery(query) {
   if (!query || typeof query !== 'string') return null;
   const q = query.toLowerCase();
 
+  // If query is asking about sexuality/homosexuality, do NOT isolate to punitive texts like Garuda Purana
+  if (/(gay|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|lgbt|समलैंगिक|गे)/i.test(q)) {
+    return null;
+  }
+
   const scriptures = [
     { key: 'garuda', name: 'श्री गरुड़ पुराण (Garuda Purana)', regex: /(गरुड़|गरुण|garud|garun)/i },
     { key: 'matsya', name: 'श्री मत्स्य पुराण (Matsya Purana)', regex: /(मत्स्य|matsya)/i },
@@ -1030,6 +1060,20 @@ export function getLocalScriptureGrounding(query) {
 export async function getScriptureGrounding(query) {
   if (!query || typeof query !== 'string') return null;
   if (isCasualConversational(query)) return null;
+
+  const isSexuality = /(gay|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|lgbt|समलैंगिक|गे|लड़का\s*लड़के)/i.test(query);
+  if (isSexuality) {
+    const rcmMatch = SCRIPTURE_DATABASE.find(item => item.id === 'rcm_universal_love_equality');
+    if (rcmMatch) {
+      return {
+        ...rcmMatch,
+        score: 10.0,
+        match_type: 'curated_catalog',
+        isExplicitSingle: false,
+        candidates: [rcmMatch]
+      };
+    }
+  }
 
   const explicitTarget = detectExplicitScriptureInQuery(query);
 
