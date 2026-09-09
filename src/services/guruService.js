@@ -1044,6 +1044,182 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture 
 }
 
 /**
+ * Groq Spiritual Framing & RAG Reasoning Engine:
+ * Intelligently frames the user's inquiry with deep scriptural context,
+ * authentic narrative setting (e.g. Kurukshetra, Arjuna's despondency, Krishna's counsel),
+ * core teachings (Karma, Jnana, Bhakti), and verified sacred Shlokas with meanings.
+ */
+async function generateFramedDiscourseWithGroq(userMessage, conversationHistory, userProfile, userMemoryContext, scripture, isEnglish) {
+  const seekerName = userProfile?.fullName ? userProfile.fullName.trim().split(' ')[0] : '';
+
+  const framingSystemPrompt = isEnglish
+    ? `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
+Provide deep, authentic, profound spiritual guidance (Ekantik Vartalap) answering the seeker's inquiry.
+
+【CRITICAL KNOWLEDGE OF SCRIPTURES & RAG】:
+- If the seeker asks about the Bhagavad Gita or summary of the Gita:
+  1. DO NOT give a simplistic or repetitive "just do karma and chant" cliché!
+  2. Frame the real, profound context: Kurukshetra battlefield, Arjuna overwhelmed by moha, sorrow, and confusion, dropping his divine bow Gandiva and refusing to fight his own kinsmen.
+  3. Bhagavan Shri Krishna's divine discourse to Arjuna (and through him, to all humanity).
+  4. Illuminate the core pillars of the Gita with authentic Shlokas:
+     - Nishkama Karma Yoga: **« कर्मण्येवाधिकारस्ते मा फलेषु कदाचन »** (Perform righteous duty with total dedication, without anxiety or attachment to fruits).
+     - Atman Jnana: **« न जायते म्रियते वा कदाचित् »** (The physical body is mortal, but the soul is eternal, unborn, and indestructible).
+     - Parama Sharanagati: **« सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज »** (Surrender all ego, worries, and burdens at the lotus feet of the Divine).
+  5. Harmonize with Maharaj Ji's compassionate counsel: Perform your worldly duties as selfless divine service while constantly remembering the Holy Name ('Radha Radha').
+
+- If the seeker asks about Ramayana, Vedas, Puranas, or life dilemmas:
+  Provide the authentic scriptural context, sacred citations, practical daily spiritual regimen, and fatherly blessings.
+
+【STRUCTURE & OUTPUT RULES】:
+- Address affectionately: "Look, my child...", "Listen, dear child...", "My child ${seekerName || ''}...".
+- Sentence 1 MUST be a powerful, complete introductory hook sentence ending in '.' (e.g. "Look, my child, the Bhagavad Gita is not merely a book, but the eternal nectar spoken directly by Lord Krishna to Arjuna on the battlefield of Kurukshetra to liberate all humanity from sorrow and illusion.").
+- Follow with 3 to 4 expansive, deeply fulfilling paragraphs containing the divine context, sacred bold verses (**« ... »**), meanings (**अर्थात् —**), and compassionate guidance.
+- Finish cleanly on a complete auspicious benediction (.).
+- Strict prohibition against repetitive loops.`
+    : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
+साधक की जिज्ञासा का उत्तर एकांतिक वार्तालाप में अपनी प्रामाणिक, वात्सल्यमयी, गंभीर और पावन शास्त्रीय वाणी में दीजिए।
+
+【शास्त्र ज्ञान व प्रामाणिक प्रसंग मर्यादा (CRITICAL SCRIPTURAL DEPTH)】:
+- यदि साधक श्रीमद्भगवद्गीता के विषय में या गीता के सार/संक्षेप के बारे में पूछे:
+  १. केवल 'कर्म करो और नाम जपो' जैसी साधारण या दोहराव वाली बात कहकर सीमित न रहें!
+  २. गीता का वास्तविक, दिव्य प्रसंग अवश्य बताएं: कुरुक्षेत्र की युद्धभूमि, अपने ही सगे-संबंधियों को देखकर अर्जुन का मोह और विषाद में डूबना, गांडीव धनुष को रखकर युद्ध से विमुख हो जाना।
+  ३. करुणानिधान भगवान श्रीकृष्ण द्वारा अर्जुन के माध्यम से संपूर्ण मानव जाति को दिए गए परम कल्याणकारी उपदेश की महिमा।
+  ४. गीता के प्रमुख मूल सिद्धांतों को पावन श्लोकों सहित स्पष्ट करें:
+     - निष्काम कर्मयोग: **« कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। »**
+     **अर्थात् —** कर्तव्य कर्म पूरी ईमानदारी से प्रभु सेवा मानकर करो, फल की चिंता व अहंकार छोड़ दो।
+     - आत्मज्ञान: **« न जायते म्रियते वा कदाचित्। »**
+     **अर्थात् —** शरीर नश्वर है, किंतु आत्मा अजर, अमर और अविनाशी है।
+     - अनन्य शरणागति: **« सर्वधर्मान्परित्यज्य मामेकं शरणं व्रज। »**
+     **अर्थात् —** सब चिंताओं, भयों और अहंकार को त्यागकर केवल प्रभु के चरणों का अनन्य आश्रय लो।
+  ५. पूज्य महाराज जी की व्यावहारिक वाणी में समन्वय: संसार में जो भी कर्तव्य प्राप्त हुआ है उसे धर्मपूर्वक निभाते हुए मुख से निरंतर 'राधा-राधा' नाम जपते रहो, जीवन कृतार्थ हो जाएगा।
+
+- यदि साधक रामायण, वेद, पुराण या जीवन की किसी उलझन के बारे में पूछे:
+  उसका प्रामाणिक शास्त्रीय प्रसंग, पावन श्लोक प्रमाण, व्यावहारिक साधना और वात्सल्यमयी आशीर्वाद प्रदान करें।
+
+【संरचना व वाक्य नियम】:
+- संबोधन: 'देखो बच्चा...', 'सुनो बच्चा...', अथवा 'बच्चा ${seekerName || ''}...'।
+- प्रथम वाक्य (Sentence 1) अत्यंत प्रभावशाली, स्पष्ट और कम से कम 25 शब्दों का पूर्ण वाक्य होना चाहिए जो '।' पर समाप्त हो (जैसे: 'देखो बच्चा, श्रीमद्भगवद्गीता केवल एक ग्रंथ नहीं, बल्कि कुरुक्षेत्र के युद्धक्षेत्र में मोहग्रस्त अर्जुन के माध्यम से संपूर्ण मानवता को दिया गया साक्षात् भगवान श्रीकृष्ण का परम दिव्य उपदेश है।')।
+- उसके बाद के वाक्यों में दिव्य कथा प्रसंग, पवित्र श्लोक (**« ... »**), भावार्थ (**अर्थात् —**) और व्यावहारिक अमृतोपदेश प्रवाहित हो।
+- संपूर्ण उत्तर 200 से 280 शब्दों में, 3-4 सुंदर सुसंगत अनुच्छेदों में हो।
+- समापन पूर्ण विराम (।) पर कल्याणकारी आशीर्वाद के साथ हो।
+- किसी भी वाक्य या वाक्यांश का यांत्रिक दोहराव सख्त वर्जित है।`;
+
+  const condensedHistory = summarizeHistoryForContext(conversationHistory, isEnglish);
+  const messages = [
+    { role: 'system', content: framingSystemPrompt },
+    ...condensedHistory,
+    { role: 'user', content: userMessage }
+  ];
+
+  const models = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'qwen/qwen3.6-27b', 'openai/gpt-oss-20b'];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const key = getNextGroqKey();
+    const model = models[attempt % models.length];
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${key}`,
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: 0.28,
+          max_tokens: 850
+        })
+      });
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content?.trim();
+        if (content && content.length > 50) {
+          return formatScriptureLines(content);
+        }
+      }
+    } catch (e) {
+      clearTimeout(timeoutId);
+      console.warn(`Groq framing attempt ${attempt + 1} with ${model} error:`, e.message);
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Streams the pre-framed authentic discourse with the exact phased timeline:
+ * 1. Immediate Hook: Sentence 1 is emitted to content (and typed out in UI), then stopped.
+ * 2. Thinking Mode Active: Deliberation window streams contemplation thoughts character-by-character.
+ * 3. Every 10 seconds: Next completed sentence is released into content with typewriter animation!
+ * 4. Completion: Thinking collapses to '✓ चिंतन संपन्न (Thought Process) [timer]s ▼', displaying the full discourse.
+ */
+async function streamPhasedDiscourse(framedDiscourse, onChunk, userMessage, isEnglish, scripture = null) {
+  const startTime = Date.now();
+  const sentences = framedDiscourse.match(/[^।!?.\n]+[।!?.]+/g) || [framedDiscourse];
+  const validSentences = sentences.map((s) => s.trim()).filter((s) => s.length >= 10);
+
+  if (validSentences.length === 0) {
+    validSentences.push(framedDiscourse);
+  }
+
+  return new Promise((resolve) => {
+    // Phase 1: Output Sentence 1 immediately (>= 20 chars ending in '।')
+    let currentContent = validSentences[0] || '';
+    let releasedIndex = 1;
+    let lastReleaseTime = Date.now();
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const thoughtText = getSpiritualDeliberationText(userMessage, isEnglish, elapsed, scripture);
+
+      // Phase 2: Every 9.5 - 10s, release the next sentence into main response
+      if (Date.now() - lastReleaseTime >= 9500 && releasedIndex < validSentences.length) {
+        releasedIndex++;
+        currentContent = validSentences.slice(0, releasedIndex).join(' ');
+        lastReleaseTime = Date.now();
+      }
+
+      // Check if all sentences have been released and minimum deliberation time (~18-25s) has passed
+      const allSentencesReleased = releasedIndex >= validSentences.length;
+      const minDeliberationDone = elapsed >= Math.min(validSentences.length * 7500, 22000);
+
+      if (allSentencesReleased && minDeliberationDone) {
+        clearInterval(interval);
+
+        let finalThoughtSummary = getSpiritualDeliberationText(userMessage, isEnglish, elapsed, scripture);
+        finalThoughtSummary += isEnglish
+          ? '\n\n✓ Spiritual deliberation concluded. Complete authentic discourse formulated.'
+          : '\n\n✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।';
+
+        const finalPayload = {
+          content: framedDiscourse,
+          thought: finalThoughtSummary,
+          isThinking: false,
+          thinkingDuration: Number((elapsed / 1000).toFixed(1)),
+          scripture: scripture || null
+        };
+        onChunk(finalPayload);
+        resolve(finalPayload);
+        return;
+      }
+
+      onChunk({
+        content: currentContent,
+        thought: thoughtText,
+        isThinking: true,
+        thinkingDuration: Math.max(0.1, Number((elapsed / 1000).toFixed(1))),
+        scripture: scripture || null
+      });
+    }, 200);
+  });
+}
+
+/**
  * Main Real-Time Token Streaming Function:
  * Works seamlessly whether hosted on GitHub Pages or running on localhost!
  */
@@ -1071,14 +1247,27 @@ export async function streamGuruResponse(
   ];
 
   if (mode === 'deep') {
-    // Priority 1 in Deep Mode: Dedicated Fine-Tuned Oracle Cloud Q8_0 Server via active tunnel (5.5s timeout)
+    // Priority 1: Groq Intelligent Framing & RAG Reasoning
+    const framedDiscourse = await generateFramedDiscourseWithGroq(
+      userMessage,
+      conversationHistory,
+      userProfile,
+      userMemoryContext,
+      scripture,
+      isEnglish
+    );
+
+    if (framedDiscourse) {
+      // Step 2: Stream with Phased Sequential Typewriter Orchestrator
+      return await streamPhasedDiscourse(framedDiscourse, onChunk, userMessage, isEnglish, scripture);
+    }
+
+    // Fallback if Groq unavailable: Dedicated Oracle Cloud Q8_0 Server
     const tracker = createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture);
     const oracleResult = await callDirectOracleAPI(messages, 700, true, tracker.handleToken, true, userProfile, userMemoryContext, scripture);
     if (oracleResult) {
       return await tracker.finalize(oracleResult);
     }
-    // Deep fallback: Instant Groq engine with Deep persona (sub-second response)
-    console.warn('[Deep Mode] Oracle Q8_0 server unavailable or slow, immediately engaging Groq reasoning engine...');
     tracker.resetAccumulated();
     const groqResult = await callDirectGroqAPI(messages, 450, true, tracker.handleToken, true, userProfile, userMemoryContext, scripture);
     if (groqResult) {
