@@ -8,7 +8,14 @@ const quickPrompts = [
   { label: 'Give practice', prompt: 'Give me one small reflection practice for this question: ' },
 ]
 
-export default function Composer({ value, onChange, onSubmit, guestLimitReached = false, onGuestLimitClick }) {
+export default function Composer({
+  value,
+  onChange,
+  onSubmit,
+  isDisabled = false,
+  guestLimitReached = false,
+  onGuestLimitClick,
+}) {
   const textareaRef = useRef(null)
 
   useEffect(() => {
@@ -23,6 +30,7 @@ export default function Composer({ value, onChange, onSubmit, guestLimitReached 
       e.preventDefault()
       e.stopPropagation()
     }
+    if (isDisabled) return
     if (guestLimitReached) {
       onGuestLimitClick && onGuestLimitClick()
       return
@@ -35,6 +43,7 @@ export default function Composer({ value, onChange, onSubmit, guestLimitReached 
   function handleKeyDown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
+      if (isDisabled) return
       if (guestLimitReached) {
         onGuestLimitClick && onGuestLimitClick()
         return
@@ -44,6 +53,7 @@ export default function Composer({ value, onChange, onSubmit, guestLimitReached 
   }
 
   function addQuickPrompt(prompt) {
+    if (isDisabled) return
     if (guestLimitReached) { onGuestLimitClick && onGuestLimitClick(); return }
     const nextValue = value.trim() ? `${value.trim()} ${prompt}` : prompt
     onChange(nextValue)
@@ -66,7 +76,7 @@ export default function Composer({ value, onChange, onSubmit, guestLimitReached 
           <span className="composer-lock-icon" aria-hidden="true">🔒</span>
           <span className="composer-lock-text">
             <strong>Sign in to continue your spiritual journey</strong>
-            <small>You've used your free question &mdash; sign in with Google for unlimited access</small>
+            <small>You&rsquo;ve used your free question &mdash; sign in with Google for unlimited access</small>
           </span>
           <span className="composer-lock-cta">Sign in →</span>
         </motion.button>
@@ -83,8 +93,9 @@ export default function Composer({ value, onChange, onSubmit, guestLimitReached 
             key={item.label}
             type="button"
             onClick={() => addQuickPrompt(item.prompt)}
-            whileHover={{ scale: 1.03, y: -1 }}
-            whileTap={{ scale: 0.97 }}
+            disabled={isDisabled}
+            whileHover={isDisabled ? {} : { scale: 1.03, y: -1 }}
+            whileTap={isDisabled ? {} : { scale: 0.97 }}
             transition={{ type: 'spring', stiffness: 400, damping: 20 }}
           >
             {item.label}
@@ -96,7 +107,7 @@ export default function Composer({ value, onChange, onSubmit, guestLimitReached 
           aria-label="Message Samvaad"
           onChange={(event) => onChange(event.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask a devotional question, or continue your learning journey..."
+          placeholder={isDisabled ? 'Guru ji is responding...' : 'Ask a devotional question, or continue your learning journey...'}
           ref={textareaRef}
           rows="1"
           value={value}
@@ -105,11 +116,11 @@ export default function Composer({ value, onChange, onSubmit, guestLimitReached 
         <motion.button
           className="send-button"
           aria-label="Send message"
-          disabled={!value.trim()}
+          disabled={!value.trim() || isDisabled}
           onClick={handleSend}
           type="submit"
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.92 }}
+          whileHover={!value.trim() || isDisabled ? {} : { scale: 1.08 }}
+          whileTap={!value.trim() || isDisabled ? {} : { scale: 0.92 }}
         >
           <Icon name="send" size={19} />
         </motion.button>

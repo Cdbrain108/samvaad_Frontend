@@ -342,38 +342,52 @@ export default function App() {
   }, [darkMode]);
 
   const userScrolledUpRef = useRef(false);
-  const scrollRafRef = useRef(null); // throttle lock — prevents scroll layout thrashing during streaming
+  const scrollRafRef = useRef(null);       // pending rAF id
+  const scrollTimerRef = useRef(null);     // pending setTimeout id for throttle
+  const lastScrollTimeRef = useRef(0);    // timestamp of last actual scroll write
 
   // Track user scroll position so streaming never locks the page or overrides manual scrolling
   const handleContentScroll = useCallback(() => {
     if (!contentAreaRef.current) return;
     const el = contentAreaRef.current;
-    // If distance from bottom exceeds 80px, devotee has deliberately scrolled up to read/interact
+    // If distance from bottom exceeds 80px, devotee has deliberately scrolled up
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
     userScrolledUpRef.current = distanceFromBottom > 80;
   }, []);
 
-  // Auto-scroll to bottom — throttled via rAF to prevent visual shake during rapid streaming updates
+  // Perform the actual scroll — single point of truth
+  const doScrollToBottom = useCallback(() => {
+    scrollRafRef.current = null;
+    if (!contentAreaRef.current || userScrolledUpRef.current) return;
+    contentAreaRef.current.scrollTop = contentAreaRef.current.scrollHeight;
+    lastScrollTimeRef.current = Date.now();
+  }, []);
+
+  // Auto-scroll: time-throttled (max 10x/sec) so rapid streaming never causes visual shake.
+  // During 30-50 msg updates/sec, we collapse them into at most one DOM write per 100ms.
   useEffect(() => {
-    if (!contentAreaRef.current) return;
-    if (userScrolledUpRef.current) return;
+    if (!contentAreaRef.current || userScrolledUpRef.current) return;
 
-    // Cancel any pending scroll frame first (prevents back-to-back layout thrashes)
-    if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
+    const elapsed = Date.now() - lastScrollTimeRef.current;
+    const THROTTLE_MS = 100;
 
-    scrollRafRef.current = requestAnimationFrame(() => {
-      scrollRafRef.current = null;
-      if (!contentAreaRef.current || userScrolledUpRef.current) return;
-      contentAreaRef.current.scrollTop = contentAreaRef.current.scrollHeight;
-    });
-
-    return () => {
-      if (scrollRafRef.current) {
-        cancelAnimationFrame(scrollRafRef.current);
-        scrollRafRef.current = null;
+    if (elapsed >= THROTTLE_MS) {
+      // Enough time has passed — schedule immediately via rAF (next vsync)
+      if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
+      scrollRafRef.current = requestAnimationFrame(doScrollToBottom);
+    } else {
+      // Too soon — only schedule a deferred write if none is pending
+      if (!scrollTimerRef.current) {
+        scrollTimerRef.current = setTimeout(() => {
+          scrollTimerRef.current = null;
+          if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
+          scrollRafRef.current = requestAnimationFrame(doScrollToBottom);
+        }, THROTTLE_MS - elapsed);
       }
-    };
-  }, [messages]);
+    }
+
+    return () => { /* intentionally don’t cancel on cleanup — let the deferred write fire */ };
+  }, [messages, doScrollToBottom]);
 
   // Listen for auth state changes
   useEffect(() => {
@@ -549,7 +563,9 @@ export default function App() {
 
   const submitMessage = async (explicitMessage, speakResponse = false) => {
     const activeUser = user || ensureUser();
-    if (isResponding) return;
+    // Block ALL submissions while any response is in flight (responding = waiting for first chunk, streaming = receiving chunks)
+    // This prevents race conditions where the mid-stream counter check sees count=0 and lets a second question through
+    if (isResponding || isStreaming) return;
 
     const message = (typeof explicitMessage === 'string' ? explicitMessage : draft).trim();
     if (!message) return;
@@ -602,6 +618,17 @@ export default function App() {
         timestamp: new Date(),
         mode: inferenceMode
       };
+
+      // GUEST LIMIT: Increment counter IMMEDIATELY before streaming starts.
+      // Previously this was done after the stream completed — but between first chunk and completion
+      // isResponding=false while isStreaming=true, so a 2nd submit could sneak through with count still 0.
+      if (activeUser.uid === 'devotee_local') {
+        setGuestMessageCount(prev => {
+          const next = prev + 1;
+          try { sessionStorage.setItem('samvaad_guest_q_count', String(next)); } catch {}
+          return next;
+        });
+      }
 
       let receivedAnyChunk = false;
       setIsStreaming(true);
@@ -665,13 +692,8 @@ export default function App() {
       }
 
 
-      // Guest users: no persistence — session only, increment their question counter
+      // Guest users: no persistence (counter already incremented above before streaming)
       if (activeUser.uid === 'devotee_local') {
-        setGuestMessageCount(prev => {
-          const next = prev + 1;
-          try { sessionStorage.setItem('samvaad_guest_q_count', String(next)); } catch {}
-          return next;
-        });
         // Don't save to localStorage or Firestore for guests
       } else {
         const conversationData = {
@@ -1171,6 +1193,7 @@ export default function App() {
           value={draft}
           onChange={setDraft}
           onSubmit={submitMessage}
+          isDisabled={isResponding || isStreaming}
           guestLimitReached={user?.uid === 'devotee_local' && guestMessageCount >= 1}
           onGuestLimitClick={() => setShowGuestLoginModal(true)}
         />
