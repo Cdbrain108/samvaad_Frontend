@@ -321,10 +321,25 @@ export function isSentenceSemanticDuplicate(candidate, existingList = []) {
 export function deduplicateRepetitionLoops(text, isEnglish = false) {
   if (!text || text.length < 50) return text;
 
-  const rawSentences = text.split(/(?<=[।!?.\n])\s+/);
+  // 1. Check for exact substring phrase loop of >= 25 chars
+  let processedText = text;
+  const minBlockLen = 25;
+  for (let len = 60; len >= minBlockLen; len -= 5) {
+    for (let i = 0; i <= processedText.length - len * 2; i += 3) {
+      const block = processedText.slice(i, i + len);
+      if (block.replace(/[\s\p{P}]+/gu, '').length < 15) continue;
+      const nextOccur = processedText.indexOf(block, i + len);
+      if (nextOccur !== -1) {
+        // Repeated phrase loop detected! Cut off right before the repeated block
+        processedText = processedText.slice(0, nextOccur).trim();
+        break;
+      }
+    }
+  }
+
+  const rawSentences = processedText.split(/(?<=[।!?.\n])\s+/);
   const cleanSentences = [];
   const seenSignatures = [];
-  const rhetoricalCounts = new Map();
 
   const getSignificantWords = (str) => {
     return new Set(
@@ -359,38 +374,23 @@ export function deduplicateRepetitionLoops(text, isEnglish = false) {
 
     const words = getSignificantWords(trimmed);
 
-    // 1. Check against sliding window of recent sentences (last 8 sentences)
+    // Check against sliding window of recent sentences
     let isSemanticDuplicate = false;
-    for (const prev of seenSignatures.slice(-8)) {
+    for (const prev of seenSignatures) {
       if (norm === prev.norm) {
         isSemanticDuplicate = true;
         break;
       }
       const overlap = getWordOverlap(words, prev.words);
-      if (overlap >= 0.62 && words.size >= 6) {
+      if (overlap >= 0.55 && words.size >= 5) {
         isSemanticDuplicate = true;
         break;
       }
     }
 
     if (isSemanticDuplicate) {
-      continue;
-    }
-
-    // 2. Detect and clamp repeating rhetorical loop triggers
-    const rhetoricalMatch = trimmed.match(
-      isEnglish
-        ? /(so\s+what\s+have\s+you\s+done|so\s+what\s+are\s+you\s+doing|what\s+have\s+you\s+done|the\s+body-?self'?s?\s+original\s+function|body'?s?\s+original\s+function)/i
-        : /(तो\s+क्या\s+किया\s+तुमने|क्या\s+किया\s+तुमने|अब\s+क्या\s+कर\s+रहे\s+हो|इस\s+शरीर\s+का\s+मूल\s+उद्देश्य|शरीर\s+का\s+कर्तव्य)/
-    );
-
-    if (rhetoricalMatch) {
-      const triggerKey = rhetoricalMatch[0].toLowerCase();
-      const currentCount = rhetoricalCounts.get(triggerKey) || 0;
-      if (currentCount >= 2) {
-        continue;
-      }
-      rhetoricalCounts.set(triggerKey, currentCount + 1);
+      // Loop detected! Truncate generation at this clean point
+      break;
     }
 
     cleanSentences.push(trimmed);
@@ -398,7 +398,7 @@ export function deduplicateRepetitionLoops(text, isEnglish = false) {
   }
 
   const combined = cleanSentences.join(' ').trim();
-  return ensureCompleteFinalSentence(combined || text, isEnglish);
+  return ensureCompleteFinalSentence(combined || processedText, isEnglish);
 }
 
 /**
@@ -899,13 +899,23 @@ function getSpiritualDeliberationText(userMessage, isEnglish = false, elapsedMs 
 function createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture = null) {
   let accumulatedRaw = '';
   const startTime = Date.now();
-  const CONTEMPLATION_PAUSE_MS = 600; // 0.6s gentle contemplative reflection
+  let lastReleaseTime = startTime;
+  let releasedCount = 0;
+  let isLoopingHalted = false;
+
+  // Extracts completed sentences ending cleanly in । ! ? or .
+  function getCompletedSentences(text) {
+    if (!text) return [];
+    const matches = text.match(/[^।!?.\n]+[।!?.]+/g);
+    if (!matches) return [];
+    return matches.map((s) => s.trim()).filter((s) => s.length >= 10);
+  }
 
   function emitCurrentState() {
     const elapsed = Date.now() - startTime;
     const thoughtText = getSpiritualDeliberationText(userMessage, isEnglish, elapsed, scripture);
 
-    if (elapsed < CONTEMPLATION_PAUSE_MS || !accumulatedRaw.trim()) {
+    if (!accumulatedRaw.trim()) {
       onChunk({
         content: '',
         thought: thoughtText,
@@ -916,9 +926,30 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture 
       return;
     }
 
-    // Live tokens stream directly for smooth, continuous character-by-character typing animation
+    // Clean accumulated text and guard against repetition loops
+    const cleanedText = deduplicateRepetitionLoops(accumulatedRaw.trim(), isEnglish);
+    const sentences = getCompletedSentences(cleanedText);
+
+    // Phase 1: Output first complete sentence (after 20+ chars ending in '।')
+    if (releasedCount === 0 && sentences.length >= 1 && sentences[0].length >= 20) {
+      releasedCount = 1;
+      lastReleaseTime = Date.now();
+    }
+
+    // Phase 2: Every ~8-10 seconds during thinking mode, release subsequent sentences sequentially
+    const timeSinceLastRelease = Date.now() - lastReleaseTime;
+    if (releasedCount > 0 && timeSinceLastRelease >= 8500 && sentences.length > releasedCount) {
+      releasedCount++;
+      lastReleaseTime = Date.now();
+    }
+
+    let currentContent = '';
+    if (releasedCount > 0) {
+      currentContent = sentences.slice(0, releasedCount).join(' ');
+    }
+
     onChunk({
-      content: accumulatedRaw.trim(),
+      content: currentContent,
       thought: thoughtText,
       isThinking: true,
       thinkingDuration: Math.max(0.1, Number((elapsed / 1000).toFixed(1))),
@@ -926,12 +957,13 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture 
     });
   }
 
-  // Ticker to ensure smooth deliberation updates even between token pauses
   const intervalId = setInterval(() => {
     emitCurrentState();
-  }, 250);
+  }, 200);
 
   const handleToken = (tokenOrDelta, maybeAccumulated) => {
+    if (isLoopingHalted) return;
+
     let token = '';
     if (typeof maybeAccumulated === 'string') {
       token = tokenOrDelta || '';
@@ -943,12 +975,35 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture 
       }
     }
     if (!token) return;
+
     accumulatedRaw += token;
+
+    // Real-time live loop detection:
+    // Check if the latest sentence has already appeared earlier
+    const sentences = getCompletedSentences(accumulatedRaw);
+    if (sentences.length >= 3) {
+      const lastSentence = sentences[sentences.length - 1];
+      const lastNorm = lastSentence.replace(/[\s\p{P}\d]+/gu, '').toLowerCase();
+      if (lastNorm.length > 15) {
+        for (let i = 0; i < sentences.length - 1; i++) {
+          const prevNorm = sentences[i].replace(/[\s\p{P}\d]+/gu, '').toLowerCase();
+          if (lastNorm === prevNorm) {
+            isLoopingHalted = true;
+            accumulatedRaw = sentences.slice(0, -1).join(' ');
+            break;
+          }
+        }
+      }
+    }
+
     emitCurrentState();
   };
 
   const resetAccumulated = () => {
     accumulatedRaw = '';
+    releasedCount = 0;
+    lastReleaseTime = Date.now();
+    isLoopingHalted = false;
   };
 
   const finalize = async (finalRaw) => {
@@ -965,11 +1020,8 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture 
       };
     }
 
-    // Instant, native segmentation - zero delay, no 3.5s blocking freeze, preserves real-time stream
     const finalFramedDiscourse = segmentAndFormatDiscourseNative(raw, isEnglish);
-
     const totalElapsed = (Date.now() - startTime) / 1000;
-    const thinkingTime = Math.max(1.2, Math.min(totalElapsed, 4.0));
 
     let finalThoughtSummary = getSpiritualDeliberationText(userMessage, isEnglish, Date.now() - startTime, scripture);
     finalThoughtSummary += isEnglish
@@ -980,7 +1032,7 @@ function createDeepModeStreamTracker(onChunk, userMessage, isEnglish, scripture 
       content: finalFramedDiscourse || ensureCompleteFinalSentence(raw, isEnglish),
       thought: finalThoughtSummary,
       isThinking: false,
-      thinkingDuration: Number(thinkingTime.toFixed(1)),
+      thinkingDuration: Number(totalElapsed.toFixed(1)),
       scripture: scripture || null
     };
 

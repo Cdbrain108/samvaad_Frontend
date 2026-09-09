@@ -545,10 +545,14 @@ async function queryOracleVectorRAG(query) {
   let scriptureFilter = 'all';
   if (/(गीता|gita|भगवद्गीता)/i.test(query)) {
     scriptureFilter = 'gita';
-  } else if (/(रामायण|ramayan|रामचरित|ramcharitmanas|मानस)/i.test(query)) {
-    scriptureFilter = 'ramcharitmanas';
-  } else if (/(भागवत|bhagavatam|पुराण)/i.test(query)) {
-    scriptureFilter = 'bhagavata';
+  } else if (/(रामायण|ramayan|रामचरित|ramcharitmanas|मानस|वाल्मीकि)/i.test(query)) {
+    scriptureFilter = 'ramayana';
+  } else if (/(वेद|veda|vedas|ऋग्वेद|सामवेद|यजुर्वेद|अथर्ववेद)/i.test(query)) {
+    scriptureFilter = 'veda';
+  } else if (/(पुराण|puran|purana|भागवत|bhagavatam|देवी|शिव|विष्णु|अग्नि|गरुड़|वामन|कूर्म|मत्स्य|स्कन्द|नारद)/i.test(query)) {
+    scriptureFilter = 'purana';
+  } else if (/(महाभारत|mahabharata)/i.test(query)) {
+    scriptureFilter = 'mahabharata';
   }
 
   try {

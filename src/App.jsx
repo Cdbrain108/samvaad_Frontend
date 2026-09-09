@@ -40,9 +40,42 @@ function renderInline(text, keyPrefix) {
   return nodes;
 }
 
-/* Light markdown: paragraphs, bullet & numbered lines, bold, inline code */
+/* Light markdown with smooth sequential typewriter stream */
 function RichText({ content, streaming = false }) {
-  const lines = (content || '').split('\n');
+  const [displayedText, setDisplayedText] = useState(content || '');
+
+  useEffect(() => {
+    if (!streaming) {
+      setDisplayedText(content || '');
+      return;
+    }
+
+    if (!content) {
+      setDisplayedText('');
+      return;
+    }
+
+    if (displayedText === content) return;
+
+    const diff = content.length - displayedText.length;
+    if (diff < 0) {
+      setDisplayedText(content);
+      return;
+    }
+
+    // Steady, readable typing pace so newly released sentences visibly type out
+    const step = diff > 80 ? 3 : diff > 30 ? 2 : 1;
+    const speed = diff > 80 ? 12 : diff > 30 ? 18 : 24;
+
+    const timer = setTimeout(() => {
+      setDisplayedText(content.slice(0, displayedText.length + step));
+    }, speed);
+
+    return () => clearTimeout(timer);
+  }, [content, displayedText, streaming]);
+
+  const activeText = streaming ? displayedText : content;
+  const lines = (activeText || '').split('\n');
   return (
     <>
       {lines.map((line, index) => {

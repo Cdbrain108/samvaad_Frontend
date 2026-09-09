@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * Modern AI Reasoning Window (चिंतन व आत्म-मंथन)
+ * Claude-Inspired Spiritual Deliberation & RAG Showcase Window
  * - Positioned cleanly at the top of the assistant message.
- * - Visible for only 3-4 lines during active thinking to prevent taking over the screen.
- * - Auto-scrolls to the latest generated thoughts.
- * - Continuation toggle allows the user to expand and inspect the full deliberation.
- * - Auto-collapses upon completion into a sleek badge: '✓ चिंतन संपन्न (Thought) [timer]s ▼'.
+ * - Shimmering RAG status pill: '✨ Searching 24 Scriptures...' -> '📜 RAG Verified · {Reference}'.
+ * - Character-by-character typewriter stream for internal deliberation steps.
+ * - Sleek left-border accent (#8b5cf6 / amber), glowing timer badge ('Thinking (12.4s)...').
+ * - Expandable full deliberation and scripture preview drawer.
  */
 export default function ReasoningBlock({
   thought = '',
@@ -17,6 +17,7 @@ export default function ReasoningBlock({
 }) {
   const [isOpen, setIsOpen] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isScriptureOpen, setIsScriptureOpen] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const streamRef = useRef(null);
 
@@ -40,7 +41,7 @@ export default function ReasoningBlock({
     };
   }, [isThinking, duration]);
 
-  // Smooth, continuous progressive typewriter effect for thought stream
+  // Progressive typewriter effect for thought stream
   useEffect(() => {
     if (!thought) {
       setDisplayedThought('');
@@ -56,8 +57,8 @@ export default function ReasoningBlock({
     }
 
     // Steady, readable typing pace so the deliberation visibly animates character-by-character
-    const step = diff > 70 ? 2 : 1;
-    const speed = diff > 70 ? 16 : diff > 25 ? 22 : 28;
+    const step = diff > 80 ? 3 : diff > 30 ? 2 : 1;
+    const speed = diff > 80 ? 12 : diff > 30 ? 18 : 25;
 
     const timer = setTimeout(() => {
       setDisplayedThought(thought.slice(0, displayedThought.length + step));
@@ -66,7 +67,7 @@ export default function ReasoningBlock({
     return () => clearTimeout(timer);
   }, [thought, displayedThought]);
 
-  // Auto-scroll stream to bottom as thoughts are typed (when in compact mode)
+  // Auto-scroll stream to bottom as thoughts are typed
   useEffect(() => {
     if (streamRef.current && isThinking && !isExpanded) {
       streamRef.current.scrollTop = streamRef.current.scrollHeight;
@@ -75,47 +76,98 @@ export default function ReasoningBlock({
 
   const displayTime = duration > 0 ? duration.toFixed(1) : elapsed.toFixed(1);
 
-  if (!thought && !isThinking) return null;
+  if (!thought && !isThinking && !scripture) return null;
 
   const hasLongThought = (thought || '').length > 130;
 
   return (
-    <div className={`reasoning-container ${isThinking ? 'thinking-active' : 'thinking-done'}`}>
-      <button
-        type="button"
-        className="reasoning-header-btn"
-        onClick={() => setIsOpen((prev) => !prev)}
-        aria-expanded={isOpen}
-        aria-label="Toggle spiritual deliberation thoughts"
-      >
-        <div className="reasoning-status-row">
-          <span className="reasoning-indicator">
-            {isThinking ? (
-              <span className="reasoning-sparkle-pulse" aria-hidden="true">✨</span>
-            ) : (
-              <span className="reasoning-check-mark" aria-hidden="true">✓</span>
-            )}
-          </span>
-          <span className="reasoning-title-text">
-            {isThinking ? 'चिंतन प्रक्रिया (Spiritual Deliberation) · विचार-मंथन जारी...' : 'चिंतन संपन्न (Thought)'}
-          </span>
-          {scripture && (
-            <span className="reasoning-rag-pill" title={`RAG Grounding: ${scripture.reference}`}>
-              📜 RAG Grounded
+    <div className={`reasoning-container claude-reasoning-container ${isThinking ? 'thinking-active' : 'thinking-done'}`}>
+      {/* Header Bar */}
+      <div className="reasoning-header-bar">
+        <button
+          type="button"
+          className="reasoning-header-btn"
+          onClick={() => setIsOpen((prev) => !prev)}
+          aria-expanded={isOpen}
+          aria-label="Toggle spiritual deliberation thoughts"
+        >
+          <div className="reasoning-status-row">
+            <span className="reasoning-indicator">
+              {isThinking ? (
+                <span className="claude-sparkle-glow" aria-hidden="true">✨</span>
+              ) : (
+                <span className="claude-check-mark" aria-hidden="true">✓</span>
+              )}
             </span>
-          )}
-          <span className="reasoning-timer-badge">
-            {isThinking ? `${displayTime}s...` : `${displayTime}s`}
-          </span>
-        </div>
 
-        <div className="reasoning-toggle-icon">
-          <span className={`reasoning-chevron ${isOpen ? 'open' : ''}`}>
-            ▼
-          </span>
-        </div>
-      </button>
+            <span className="reasoning-title-text">
+              {isThinking ? 'चिंतन प्रक्रिया (Spiritual Deliberation)' : 'चिंतन संपन्न (Thought Process)'}
+            </span>
 
+            <span className="claude-timer-badge">
+              {isThinking ? `${displayTime}s...` : `${displayTime}s`}
+            </span>
+          </div>
+
+          <div className="reasoning-toggle-icon">
+            <span className={`reasoning-chevron ${isOpen ? 'open' : ''}`}>▼</span>
+          </div>
+        </button>
+
+        {/* Claude-Style RAG Pill */}
+        {scripture ? (
+          <button
+            type="button"
+            className="claude-rag-pill-btn"
+            onClick={() => setIsScriptureOpen((prev) => !prev)}
+            title="Click to view scripture citation and score"
+          >
+            <span className="claude-rag-pill-icon">📜</span>
+            <span className="claude-rag-pill-text">{scripture.reference}</span>
+            {scripture.score && (
+              <span className="claude-rag-pill-score">{(scripture.score * 100).toFixed(0)}%</span>
+            )}
+            <span className={`claude-rag-pill-chevron ${isScriptureOpen ? 'open' : ''}`}>▾</span>
+          </button>
+        ) : isThinking ? (
+          <div className="claude-rag-searching-pill">
+            <span className="claude-shimmer-dot" />
+            <span className="claude-shimmer-text">Searching 24 Scriptures on AWS...</span>
+          </div>
+        ) : null}
+      </div>
+
+      {/* Expandable Scripture Detail Drawer */}
+      <AnimatePresence>
+        {isScriptureOpen && scripture && (
+          <motion.div
+            className="claude-scripture-drawer"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22 }}
+          >
+            <div className="claude-scripture-box">
+              <div className="claude-scripture-header">
+                <span className="claude-scripture-meta-title">शास्त्र प्रमाण (Sacred Citation)</span>
+                <span className="claude-scripture-ref">{scripture.reference}</span>
+              </div>
+              {scripture.original_text && (
+                <div className="claude-scripture-shlok">
+                  « {scripture.original_text} »
+                </div>
+              )}
+              {(scripture.hindi_meaning || scripture.english_translation) && (
+                <div className="claude-scripture-meaning">
+                  <strong>अर्थ:</strong> {scripture.hindi_meaning || scripture.english_translation}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Thinking Deliberation Body */}
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
@@ -125,18 +177,17 @@ export default function ReasoningBlock({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="reasoning-content-box">
+            <div className="reasoning-content-box claude-thinking-box">
               <div
-                className={`reasoning-text-stream ${isExpanded ? 'stream-expanded' : 'stream-compact'}`}
+                className={`reasoning-text-stream claude-thought-stream ${isExpanded ? 'stream-expanded' : 'stream-compact'}`}
                 ref={streamRef}
               >
                 {displayedThought}
                 {(isThinking || displayedThought.length < (thought || '').length) && (
-                  <span className="reasoning-blinking-cursor" aria-hidden="true" />
+                  <span className="claude-block-cursor" aria-hidden="true">▋</span>
                 )}
               </div>
 
-              {/* Continuation toggle: visible for 3-4 lines only unless devotee expands */}
               {hasLongThought && (
                 <div className="reasoning-expand-bar">
                   <button

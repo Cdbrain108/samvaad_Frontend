@@ -1331,30 +1331,44 @@ html, body { max-width: 100%; overflow-x: hidden; }
 /* ============================================================
    Reasoning Window (चिंतन प्रक्रिया / Spiritual Deliberation)
    ============================================================ */
+/* ============================================================
+   Claude-Inspired Reasoning Window (चिंतन प्रक्रिया / Spiritual Deliberation)
+   ============================================================ */
 .reasoning-container {
   margin-bottom: 12px;
   border-radius: 12px;
-  background: rgba(18, 14, 28, 0.72);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(18, 14, 28, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(139, 92, 246, 0.22);
+  border-left: 3px solid #8b5cf6;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .reasoning-container.thinking-active {
   border-color: rgba(167, 139, 250, 0.45);
-  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.15), inset 0 0 12px rgba(167, 139, 250, 0.08);
+  border-left-color: #f59e0b;
+  box-shadow: 0 4px 24px rgba(124, 58, 237, 0.16), inset 0 0 16px rgba(167, 139, 250, 0.06);
 }
 
 .reasoning-container.thinking-done {
   border-color: rgba(255, 255, 255, 0.08);
+  border-left-color: #10b981;
   background: rgba(14, 11, 22, 0.55);
 }
 
+.reasoning-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px 4px 0;
+  gap: 8px;
+}
+
 .reasoning-header-btn {
-  width: 100%;
-  padding: 8px 14px;
+  flex: 1;
+  padding: 8px 12px;
   background: transparent;
   border: none;
   display: flex;
@@ -1386,18 +1400,18 @@ html, body { max-width: 100%; overflow-x: hidden; }
   height: 18px;
 }
 
-.reasoning-sparkle-pulse {
+.claude-sparkle-glow {
   display: inline-block;
   font-size: 0.95rem;
-  animation: reasoningPulse 1.4s ease-in-out infinite alternate;
+  animation: claudeSparklePulse 1.4s ease-in-out infinite alternate;
 }
 
-@keyframes reasoningPulse {
-  0% { transform: scale(0.9); opacity: 0.7; filter: drop-shadow(0 0 2px rgba(167, 139, 250, 0.4)); }
-  100% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8)); }
+@keyframes claudeSparklePulse {
+  0% { transform: scale(0.92); opacity: 0.75; filter: drop-shadow(0 0 2px rgba(167, 139, 250, 0.4)); }
+  100% { transform: scale(1.18); opacity: 1; filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.9)); }
 }
 
-.reasoning-check-mark {
+.claude-check-mark {
   color: #10b981;
   font-weight: bold;
   font-size: 0.85rem;
@@ -1414,7 +1428,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
   font-weight: 600;
 }
 
-.reasoning-timer-badge {
+.claude-timer-badge {
   font-size: 0.72rem;
   padding: 1px 7px;
   border-radius: 10px;
@@ -1423,9 +1437,141 @@ html, body { max-width: 100%; overflow-x: hidden; }
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-.thinking-done .reasoning-timer-badge {
+.thinking-done .claude-timer-badge {
   background: rgba(255, 255, 255, 0.06);
   color: #9ca3af;
+}
+
+/* Claude-Style Shimmering RAG Pills */
+.claude-rag-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(16, 185, 129, 0.1));
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  border-radius: 16px;
+  padding: 2px 9px;
+  color: #fef08a;
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.claude-rag-pill-btn:hover {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.25), rgba(16, 185, 129, 0.18));
+  border-color: rgba(245, 158, 11, 0.6);
+  transform: translateY(-1px);
+}
+
+.claude-rag-pill-score {
+  font-size: 0.66rem;
+  background: rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+  padding: 0 5px;
+  border-radius: 8px;
+  font-family: ui-monospace, monospace;
+}
+
+.claude-rag-pill-chevron {
+  font-size: 0.65rem;
+  color: #fbbf24;
+  transition: transform 0.2s ease;
+}
+
+.claude-rag-pill-chevron.open {
+  transform: rotate(180deg);
+}
+
+.claude-rag-searching-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  border-radius: 16px;
+  padding: 2px 9px;
+  color: #c4b5fd;
+  font-size: 0.71rem;
+  white-space: nowrap;
+}
+
+.claude-shimmer-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a78bfa;
+  box-shadow: 0 0 6px #a78bfa;
+  animation: claudeDotPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes claudeDotPulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+
+.claude-shimmer-text {
+  background: linear-gradient(90deg, #c4b5fd 0%, #fef08a 50%, #c4b5fd 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: claudeTextShimmer 2.2s infinite linear;
+}
+
+@keyframes claudeTextShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Expandable Scripture Detail Drawer */
+.claude-scripture-drawer {
+  overflow: hidden;
+  border-top: 1px solid rgba(217, 119, 6, 0.25);
+  background: rgba(28, 20, 14, 0.65);
+}
+
+.claude-scripture-box {
+  padding: 10px 14px;
+}
+
+.claude-scripture-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.claude-scripture-meta-title {
+  font-size: 0.7rem;
+  color: #f59e0b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.claude-scripture-ref {
+  font-size: 0.72rem;
+  color: #fef08a;
+  font-weight: bold;
+}
+
+.claude-scripture-shlok {
+  font-size: 0.85rem;
+  color: #fed7aa;
+  font-family: 'Martel', serif;
+  line-height: 1.6;
+  margin-bottom: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 6px 10px;
+  border-radius: 6px;
+  border-left: 2px solid #f59e0b;
+}
+
+.claude-scripture-meaning {
+  font-size: 0.78rem;
+  color: #d1d5db;
+  line-height: 1.5;
 }
 
 .reasoning-chevron {
@@ -1443,22 +1589,23 @@ html, body { max-width: 100%; overflow-x: hidden; }
   overflow: hidden;
 }
 
-.reasoning-content-box {
+.reasoning-content-box.claude-thinking-box {
   padding: 10px 14px 14px 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(10, 8, 16, 0.4);
 }
 
-.reasoning-text-stream {
+.reasoning-text-stream.claude-thought-stream {
   font-size: 0.81rem;
   line-height: 1.55;
-  color: #9ca3af;
+  color: #a1a1aa;
   white-space: pre-wrap;
   word-break: break-word;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Compact view: limited to 3-4 lines during active thinking to keep screen clean */
+/* Compact view */
 .reasoning-text-stream.stream-compact {
   max-height: 78px;
   overflow-y: hidden;
@@ -1467,7 +1614,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
   -webkit-mask-image: linear-gradient(to bottom, black 65%, rgba(0, 0, 0, 0.4) 88%, transparent 100%);
 }
 
-/* Expanded view: shows full deliberation on devotee demand */
+/* Expanded view */
 .reasoning-text-stream.stream-expanded {
   max-height: 320px;
   overflow-y: auto;
@@ -1503,19 +1650,17 @@ html, body { max-width: 100%; overflow-x: hidden; }
   color: #ede9fe;
 }
 
-.reasoning-blinking-cursor {
+.claude-block-cursor {
   display: inline-block;
-  width: 2px;
-  height: 14px;
-  background: #a78bfa;
-  margin-left: 4px;
-  vertical-align: middle;
-  animation: reasoningCursorBlink 0.8s infinite;
+  color: #a78bfa;
+  margin-left: 3px;
+  font-size: 0.82rem;
+  animation: claudeCursorPulse 0.75s infinite ease-in-out;
 }
 
-@keyframes reasoningCursorBlink {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 1; }
+@keyframes claudeCursorPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 .assistant-message-body {
