@@ -59,15 +59,15 @@ function RichText({ content, streaming = false }) {
       return;
     }
 
-    // If not streaming and large jump (> 300 chars, e.g. switching chats), snap immediately
-    if (!streaming && diff > 300) {
+    // If not streaming and large jump (> 100 chars, e.g. switching chats), snap immediately
+    if (!streaming && diff > 100) {
       setDisplayedText(content);
       return;
     }
 
-    // Steady, readable typing pace so newly released sentences visibly type out
-    const step = diff > 80 ? 3 : diff > 30 ? 2 : 1;
-    const speed = diff > 80 ? 10 : diff > 30 ? 15 : 20;
+    // Steady, readable typing pace so newly released sentences visibly type out sequentially
+    const step = diff > 120 ? 3 : diff > 40 ? 2 : 1;
+    const speed = diff > 120 ? 12 : diff > 40 ? 16 : 20;
 
     const timer = setTimeout(() => {
       setDisplayedText(content.slice(0, displayedText.length + step));
@@ -78,7 +78,7 @@ function RichText({ content, streaming = false }) {
 
   const activeText = streaming || displayedText.length < (content || '').length ? displayedText : content;
   const lines = (activeText || '').split('\n');
-  const isActivelyTyping = streaming || displayedText.length < (content || '').length;
+  const isActivelyTyping = streaming && displayedText.length < (content || '').length;
 
   return (
     <>

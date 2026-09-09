@@ -15,7 +15,7 @@ export default function ReasoningBlock({
   duration = 0,
   scripture = null,
 }) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(Boolean(isThinking));
   const [isExpanded, setIsExpanded] = useState(false);
   const [isScriptureOpen, setIsScriptureOpen] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -35,6 +35,7 @@ export default function ReasoningBlock({
       if (duration > 0) {
         setElapsed(duration);
       }
+      setIsOpen(false);
     }
     return () => {
       if (interval) clearInterval(interval);

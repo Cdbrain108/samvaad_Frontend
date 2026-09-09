@@ -1037,9 +1037,14 @@ Provide deep, authentic, profound spiritual guidance (Ekantik Vartalap) answerin
 - अनुच्छेद ४: पूज्य महाराज जी की व्यावहारिक सीख, 'राधा-राधा' नाम जप का आश्रय और कल्याणकारी आशीर्वाद (।)।
 - किसी भी वाक्य या वाक्यांश का यांत्रिक दोहराव सख्त वर्जित है।`;
 
+  let effectiveSystemPrompt = framingSystemPrompt;
+  if (scripture) {
+    effectiveSystemPrompt = injectScripturePrompt(effectiveSystemPrompt, scripture, isEnglish);
+  }
+
   const condensedHistory = summarizeHistoryForContext(conversationHistory, isEnglish);
   const messages = [
-    { role: 'system', content: framingSystemPrompt },
+    { role: 'system', content: effectiveSystemPrompt },
     ...condensedHistory,
     { role: 'user', content: userMessage }
   ];
