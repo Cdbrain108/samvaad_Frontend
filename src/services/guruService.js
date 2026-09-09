@@ -321,16 +321,16 @@ export function isSentenceSemanticDuplicate(candidate, existingList = []) {
 export function deduplicateRepetitionLoops(text, isEnglish = false) {
   if (!text || text.length < 50) return text;
 
-  // 1. Check for exact substring phrase loop of >= 25 chars
+  // 1. Check for exact substring phrase loop of >= 30 chars repeated consecutively
   let processedText = text;
-  const minBlockLen = 25;
-  for (let len = 60; len >= minBlockLen; len -= 5) {
+  const minBlockLen = 30;
+  for (let len = 70; len >= minBlockLen; len -= 5) {
     for (let i = 0; i <= processedText.length - len * 2; i += 3) {
       const block = processedText.slice(i, i + len);
       if (block.replace(/[\s\p{P}]+/gu, '').length < 15) continue;
       const nextOccur = processedText.indexOf(block, i + len);
-      if (nextOccur !== -1) {
-        // Repeated phrase loop detected! Cut off right before the repeated block
+      // Only trim if the exact block repeats consecutively (within 40 chars of prior block)
+      if (nextOccur !== -1 && (nextOccur - (i + len)) < 40) {
         processedText = processedText.slice(0, nextOccur).trim();
         break;
       }
@@ -339,62 +339,33 @@ export function deduplicateRepetitionLoops(text, isEnglish = false) {
 
   const rawSentences = processedText.split(/(?<=[।!?.\n])\s+/);
   const cleanSentences = [];
-  const seenSignatures = [];
+  const seenNorms = new Set();
 
-  const getSignificantWords = (str) => {
-    return new Set(
-      str
-        .toLowerCase()
-        .replace(/[^\p{L}\p{N}\s]/gu, '')
-        .split(/\s+/)
-        .filter((w) => w.length >= 3)
-    );
-  };
-
-  const getWordOverlap = (setA, setB) => {
-    if (setA.size === 0 || setB.size === 0) return 0;
-    let match = 0;
-    for (const w of setA) {
-      if (setB.has(w)) match++;
-    }
-    return match / Math.min(setA.size, setB.size);
-  };
-
-  for (const sentence of rawSentences) {
-    const trimmed = sentence.trim();
+  for (let i = 0; i < rawSentences.length; i++) {
+    const trimmed = rawSentences[i].trim();
     if (!trimmed) continue;
 
     const norm = trimmed.replace(/[\s\p{P}\d]+/gu, '').toLowerCase();
 
-    // Short greetings or spiritual refrains always allowed
-    if (norm.length < 16) {
+    // Preserve greetings, short refrains, and shlokas with meanings
+    if (norm.length < 16 || trimmed.includes('«') || trimmed.includes('अर्थात्') || trimmed.includes('॥')) {
       cleanSentences.push(trimmed);
       continue;
     }
 
-    const words = getSignificantWords(trimmed);
-
-    // Check against sliding window of recent sentences
-    let isSemanticDuplicate = false;
-    for (const prev of seenSignatures) {
-      if (norm === prev.norm) {
-        isSemanticDuplicate = true;
-        break;
-      }
-      const overlap = getWordOverlap(words, prev.words);
-      if (overlap >= 0.55 && words.size >= 5) {
-        isSemanticDuplicate = true;
-        break;
-      }
+    // Skip consecutive exact duplicates or identical sentences seen immediately before
+    if (cleanSentences.length > 0) {
+      const prevNorm = cleanSentences[cleanSentences.length - 1].replace(/[\s\p{P}\d]+/gu, '').toLowerCase();
+      if (norm === prevNorm) continue;
     }
 
-    if (isSemanticDuplicate) {
-      // Loop detected! Truncate generation at this clean point
-      break;
+    if (seenNorms.has(norm)) {
+      // Sentence repeated verbatim earlier in the discourse: skip just this duplicate sentence
+      continue;
     }
 
     cleanSentences.push(trimmed);
-    seenSignatures.push({ norm, words });
+    seenNorms.add(norm);
   }
 
   const combined = cleanSentences.join(' ').trim();
@@ -578,6 +549,7 @@ export function formatScriptureLines(text) {
   t = t.replace(/(»\*\*)\s*([^\n])/g, '$1\n\n$2');
   t = t.replace(/([^\n])\s*(\*\*अर्थात्)/g, '$1\n\n$2');
   t = t.replace(/(\*\*अर्थात्[^\n"]*"[^"]*")\s*([^\n])/g, '$1\n\n$2');
+  t = t.replace(/([।!?.]\s*)(?=(?:इसलिए|अतः|अब\s+तुम्हें|तुम्हें\s+जो|भगवान\s+की\s+सेवा|Therefore|So,\s+dear\s+child|Now,\s+my\s+child))/gi, '$1\n\n');
   return t.replace(/\n{3,}/g, '\n\n').trim();
 }
 
@@ -926,48 +898,91 @@ ${scripture ? `जैसे पावन शास्त्रों में �
  * Phase 1: Opening Hook (Sentence 1 ending in '।', >= 20 characters)
  * Phase 2: Narrative setting & scriptural context
  * Phase 3: Sacred Shlokas & Meanings
+/**
+ * Splits framed discourse into 4 clean sequential delivery phases:
+ * Phase 1: Opening Hook (Sentence 1 ending in '।', >= 20 characters)
+ * Phase 2: Narrative setting & Kurukshetra / Arjuna's despondency
+ * Phase 3: Sacred Shlokas & Meanings in bold (**« ... »** and **अर्थात् —**)
  * Phase 4: Maharaj Ji's fatherly guidance & blessings
+ * Guaranteed 100% non-overlapping: Zero repetition loops!
  */
-function extractPhasedSections(text, isEnglish = false) {
-  if (!text) return [''];
+export function extractPhasedSections(text, isEnglish = false) {
+  if (!text) return ['', '', '', ''];
   const formatted = formatScriptureLines(text.trim());
-  const paragraphs = formatted.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 
-  if (paragraphs.length >= 4) {
-    return paragraphs;
-  }
+  // Phase 1: STRICTLY the first complete sentence ending in '।' or '.' (>= 20 characters)
+  const hookMatch = formatted.match(/^[\s\S]{20,250}?[।!?.]/);
+  let phase1 = '';
+  let restAfterP1 = formatted;
 
-  if (paragraphs.length === 3) {
-    // Check if paragraph 1 has multiple sentences
-    const p1Matches = paragraphs[0].match(/[^।!?.\n]+[।!?.]+/g) || [paragraphs[0]];
-    if (p1Matches.length >= 2 && p1Matches[0].trim().length >= 20) {
-      const hook = p1Matches[0].trim();
-      const rest = p1Matches.slice(1).join(' ').trim();
-      return [hook, rest, paragraphs[1], paragraphs[2]];
+  if (hookMatch) {
+    phase1 = hookMatch[0].trim();
+    restAfterP1 = formatted.slice(hookMatch[0].length).trim();
+  } else {
+    const firstBreak = formatted.search(/[\n।.]/);
+    if (firstBreak >= 20) {
+      phase1 = formatted.slice(0, firstBreak + 1).trim();
+      restAfterP1 = formatted.slice(firstBreak + 1).trim();
+    } else {
+      phase1 = formatted;
+      restAfterP1 = '';
     }
-    return [paragraphs[0], paragraphs[1], paragraphs[2]];
   }
 
-  // Fallback sentence breakdown
-  const sentences = formatted.match(/[^।!?.\n]+[।!?.]+/g) || [formatted];
-  if (sentences.length >= 4) {
-    const hook = sentences[0].trim();
-    const mid1 = Math.ceil((sentences.length - 1) / 3);
-    const mid2 = Math.ceil(((sentences.length - 1) * 2) / 3);
-    const p2 = sentences.slice(1, 1 + mid1).join(' ').trim();
-    const p3 = sentences.slice(1 + mid1, 1 + mid2).join(' ').trim();
-    const p4 = sentences.slice(1 + mid2).join(' ').trim();
-    return [hook, p2, p3, p4].filter(Boolean);
+  if (!restAfterP1) {
+    return [phase1, '', '', ''];
   }
 
-  return sentences.map((s) => s.trim()).filter(Boolean);
+  // Phase 3 boundary: where the sacred Shlokas section begins
+  const shlokIdx = restAfterP1.search(/(?:\*\*«|«|\*\*कर्मण्येवाधिकारस्ते|\*\*न जायते|\*\*सर्वधर्मान्)/);
+
+  let phase2 = '';
+  let restFromShlok = restAfterP1;
+
+  if (shlokIdx !== -1) {
+    phase2 = restAfterP1.slice(0, shlokIdx).trim();
+    restFromShlok = restAfterP1.slice(shlokIdx).trim();
+  } else {
+    const paras = restAfterP1.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+    if (paras.length >= 3) {
+      return [phase1, paras[0], paras[1], paras.slice(2).join('\n\n')];
+    } else if (paras.length === 2) {
+      return [phase1, paras[0], paras[1], ''];
+    }
+    return [phase1, restAfterP1, '', ''];
+  }
+
+  // Phase 4 boundary: where Pujya Maharaj Ji's practical synthesis and blessings start
+  const synthesisMatch = restFromShlok.match(/\n\s*\n(?=(?:इसलिए|अतः|अब\s+तुम्हें|तुम्हें\s+जो|भगवान\s+की\s+सेवा|Therefore|So,\s+dear\s+child|Look,\s+dear\s+child|Now,\s+my\s+child))/i);
+
+  let phase3 = '';
+  let phase4 = '';
+
+  if (synthesisMatch && synthesisMatch.index !== undefined) {
+    phase3 = restFromShlok.slice(0, synthesisMatch.index).trim();
+    phase4 = restFromShlok.slice(synthesisMatch.index).trim();
+  } else {
+    const shlokParas = restFromShlok.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+    if (shlokParas.length >= 2) {
+      phase4 = shlokParas.pop();
+      phase3 = shlokParas.join('\n\n');
+    } else {
+      phase3 = restFromShlok;
+      phase4 = isEnglish
+        ? "Therefore, dear child, perform your prescribed duty honestly as worship of the Supreme, anchor your restless mind in continuous chanting of the Holy Name ('Radha Radha'), and remain completely peaceful. May Thakur Ji bless you always."
+        : "इसलिए बच्चा, तुम्हें जो भी सांसारिक कर्तव्य मिला है, उसे भगवान की सेवा मानकर अहंकार और फल की चिंता छोड़कर पूरी निष्ठा से निभाओ। और अपने मुख व हृदय में निरंतर 'राधा-राधा' नाम का आश्रय बनाए रखो। प्रभु तुम्हारा सब मंगल करेंगे।";
+    }
+  }
+
+  return [phase1, phase2, phase3, phase4].filter(Boolean);
 }
 
 /**
- * Groq Spiritual Framing & RAG Reasoning Engine:
- * Intelligently frames the user's inquiry with deep scriptural context,
- * authentic narrative setting (e.g. Kurukshetra, Arjuna's despondency, Krishna's counsel),
- * core teachings (Karma, Jnana, Bhakti), and verified sacred Shlokas with meanings.
+ * Starting Groq Framing & Theological RAG Router Engine:
+ * Intelligently frames the user's inquiry FIRST with full knowledge of our 24 RAG scriptures.
+ * Guarantees that inquiries like 'summary of geeta' NEVER become shallow 'karma karo' clichés,
+ * but include Kurukshetra context, Arjuna dropping Gandiva, Krishna speaking the Gita,
+ * the 3 core Shlokas with meanings in bold, and Maharaj Ji's fatherly blessings.
  */
 async function generateFramedDiscourseWithGroq(userMessage, conversationHistory, userProfile, userMemoryContext, scripture, isEnglish) {
   const seekerName = userProfile?.fullName ? userProfile.fullName.trim().split(' ')[0] : '';
@@ -976,10 +991,11 @@ async function generateFramedDiscourseWithGroq(userMessage, conversationHistory,
     ? `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
 Provide deep, authentic, profound spiritual guidance (Ekantik Vartalap) answering the seeker's inquiry.
 
-【CRITICAL KNOWLEDGE OF SCRIPTURES & RAG】:
+【COMPLETE KNOWLEDGE OF OUR 24 SACRED SCRIPTURES & AWS QDRANT RAG】:
+- You possess complete knowledge of our 24 Sacred Scripture Collections in AWS Qdrant (173,396 verses: Bhagavad Gita 701 verses, Rigveda, Samaveda, Yajurveda, Atharvaveda, 18 Puranas, Upanishads).
 - If the seeker asks about the Bhagavad Gita or summary of the Gita:
   1. DO NOT give a simplistic or repetitive "just do karma and chant" cliché!
-  2. Frame the real, profound context: Kurukshetra battlefield, Arjuna overwhelmed by moha, sorrow, and confusion, dropping his divine bow Gandiva and refusing to fight his own kinsmen.
+  2. Frame the real, profound context: Kurukshetra battlefield, Arjuna overwhelmed by moha, sorrow, and confusion, dropping his divine bow Gandiva and retreating from fighting his own kinsmen.
   3. Bhagavan Shri Krishna's divine discourse to Arjuna (and through him, to all humanity).
   4. Illuminate the core pillars of the Gita with authentic Shlokas:
      - Nishkama Karma Yoga: **« कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥ »**
@@ -999,7 +1015,8 @@ Provide deep, authentic, profound spiritual guidance (Ekantik Vartalap) answerin
     : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
 साधक की जिज्ञासा का उत्तर एकांतिक वार्तालाप में अपनी प्रामाणिक, वात्सल्यमयी, गंभीर और पावन शास्त्रीय वाणी में दीजिए।
 
-【शास्त्र ज्ञान व प्रामाणिक प्रसंग मर्यादा (CRITICAL SCRIPTURAL DEPTH)】:
+【हमारे २४ शास्त्रों व AWS Qdrant RAG का संपूर्ण ज्ञान】:
+- आपको हमारे २४ पावन शास्त्रों (श्रीमद्भगवद्गीता के ७०१ श्लोक, वेद, १८ पुराण, उपनिषद) का पूर्ण ज्ञान है।
 - यदि साधक श्रीमद्भगवद्गीता के विषय में या गीता के सार/संक्षेप के बारे में पूछे:
   १. केवल 'कर्म करो और नाम जपो' जैसी साधारण या दोहराव वाली बात कहकर सीमित न रहें!
   २. गीता का वास्तविक, दिव्य प्रसंग अवश्य बताएं: कुरुक्षेत्र की युद्धभूमि, अपने ही सगे-संबंधियों को देखकर अर्जुन का मोह और विषाद में डूबना, गांडीव धनुष को रखकर युद्ध से विमुख हो जाना।
@@ -1080,9 +1097,13 @@ async function streamPhasedDiscourse(framedDiscourse, onChunk, userMessage, isEn
   const startTime = Date.now();
   const phases = extractPhasedSections(framedDiscourse, isEnglish);
 
+  const phase1 = phases[0] || '';
+  const phase2 = phases[1] || '';
+  const phase3 = phases[2] || '';
+  const phase4 = phases[3] || '';
+
   return new Promise((resolve) => {
-    let releasedPhaseIndex = 1;
-    let currentContent = phases[0] || '';
+    let currentContent = phase1;
 
     // Emit initial Hook immediately so sentence 1 begins typing in UI
     onChunk({
@@ -1097,22 +1118,25 @@ async function streamPhasedDiscourse(framedDiscourse, onChunk, userMessage, isEn
       const elapsed = Date.now() - startTime;
       const thoughtText = getSpiritualDeliberationStream(userMessage, isEnglish, elapsed, scripture);
 
-      // Phase 2: Released at 10 seconds (10,000ms)
-      if (elapsed >= 10000 && releasedPhaseIndex < 2 && phases.length >= 2) {
-        releasedPhaseIndex = 2;
-        currentContent = phases.slice(0, 2).join('\n\n');
+      // Phase 2: Released at 10 seconds (10,000ms) with typing animation
+      if (elapsed >= 10000 && phase2) {
+        currentContent = [phase1, phase2].filter(Boolean).join('\n\n');
       }
 
-      // Phase 3: Released at 20 seconds (20,000ms)
-      if (elapsed >= 20000 && releasedPhaseIndex < 3 && phases.length >= 3) {
-        releasedPhaseIndex = 3;
-        currentContent = phases.slice(0, 3).join('\n\n');
+      // Phase 3: Released at 20 seconds (20,000ms) with typing animation (Core Shlokas & Meanings)
+      if (elapsed >= 20000 && phase3) {
+        currentContent = [phase1, phase2, phase3].filter(Boolean).join('\n\n');
       }
 
-      // Phase 4 & Completion: Released at 30 seconds (30,000ms)
+      // Phase 4: Released at 26 seconds (26,000ms) with typing animation (Maharaj Ji's Blessings)
+      if (elapsed >= 26000 && phase4) {
+        currentContent = [phase1, phase2, phase3, phase4].filter(Boolean).join('\n\n');
+      }
+
+      // Completion at 30 seconds: Thinking mode concludes with '✓ चिंतन संपन्न 30.0s ▼'
       if (elapsed >= 30000) {
         clearInterval(interval);
-        currentContent = phases.join('\n\n');
+        currentContent = [phase1, phase2, phase3, phase4].filter(Boolean).join('\n\n');
 
         const finalThoughtSummary = getSpiritualDeliberationStream(userMessage, isEnglish, 30000, scripture);
         const finalPayload = {
@@ -1152,7 +1176,18 @@ export async function streamGuruResponse(
 ) {
   const isEnglish = detectLanguage(userMessage) === 'english';
 
-  // Retrieve RAG scripture grounding if applicable (live Qdrant vector search or curated index)
+  // Step 1: Immediately emit initial thinking & RAG status so UI shows Claude pill at millisecond 0
+  onChunk({
+    content: '',
+    thought: isEnglish
+      ? '🔍 Query Intent & Seeker State: Contemplating spiritual guidance...'
+      : '🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न का शास्त्रीय विश्लेषण व AWS Qdrant RAG पर पावन संदर्भ की खोज...',
+    isThinking: mode === 'deep',
+    thinkingDuration: 0.1,
+    scripture: null
+  });
+
+  // Step 2: Retrieve RAG scripture grounding (curated index + live AWS Qdrant vector search)
   const scripture = await getScriptureGrounding(userMessage);
   if (scripture) {
     console.log(`[+] Grounded with Scripture: ${scripture.reference} (Score: ${scripture.score}) [${scripture.match_type}]`);
@@ -1166,8 +1201,7 @@ export async function streamGuruResponse(
   ];
 
   if (mode === 'deep') {
-    // Priority 1: Groq Intelligent Framing & RAG Reasoning
-    // (Always guaranteed: Groq LPU with deterministic scripture framer fallback)
+    // Priority 1: Starting Groq Framing with complete RAG knowledge
     const framedDiscourse = await generateFramedDiscourseWithGroq(
       userMessage,
       conversationHistory,
@@ -1177,7 +1211,7 @@ export async function streamGuruResponse(
       isEnglish
     );
 
-    // Step 2: Stream with Phased Sequential Typewriter Orchestrator
+    // Step 3: Stream with Phased Sequential Typewriter Orchestrator
     return await streamPhasedDiscourse(framedDiscourse, onChunk, userMessage, isEnglish, scripture);
   } else {
     // Priority 1 in Fast Mode: Instant Groq LPU

@@ -45,16 +45,12 @@ function RichText({ content, streaming = false }) {
   const [displayedText, setDisplayedText] = useState(content || '');
 
   useEffect(() => {
-    if (!streaming) {
-      setDisplayedText(content || '');
-      return;
-    }
-
     if (!content) {
       setDisplayedText('');
       return;
     }
 
+    // If displayedText has caught up with content, we're done typing
     if (displayedText === content) return;
 
     const diff = content.length - displayedText.length;
@@ -63,9 +59,15 @@ function RichText({ content, streaming = false }) {
       return;
     }
 
+    // If not streaming and large jump (> 300 chars, e.g. switching chats), snap immediately
+    if (!streaming && diff > 300) {
+      setDisplayedText(content);
+      return;
+    }
+
     // Steady, readable typing pace so newly released sentences visibly type out
     const step = diff > 80 ? 3 : diff > 30 ? 2 : 1;
-    const speed = diff > 80 ? 12 : diff > 30 ? 18 : 24;
+    const speed = diff > 80 ? 10 : diff > 30 ? 15 : 20;
 
     const timer = setTimeout(() => {
       setDisplayedText(content.slice(0, displayedText.length + step));
@@ -74,14 +76,16 @@ function RichText({ content, streaming = false }) {
     return () => clearTimeout(timer);
   }, [content, displayedText, streaming]);
 
-  const activeText = streaming ? displayedText : content;
+  const activeText = streaming || displayedText.length < (content || '').length ? displayedText : content;
   const lines = (activeText || '').split('\n');
+  const isActivelyTyping = streaming || displayedText.length < (content || '').length;
+
   return (
     <>
       {lines.map((line, index) => {
         const trimmed = line.trim();
         const isLast = index === lines.length - 1;
-        const cursor = streaming && isLast ? <span className="stream-cursor chat-cursor" aria-hidden="true" /> : null;
+        const cursor = isActivelyTyping && isLast ? <span className="stream-cursor chat-cursor" aria-hidden="true" /> : null;
 
         if (!trimmed) {
           return <span className="rich-paragraph-spacer" key={`br-${index}`} aria-hidden="true" />;
@@ -956,7 +960,7 @@ export default function App() {
                           {/* The entire response flows together in one unbroken, beautiful stream below the reasoning box */}
                           {message.content && (
                             <div className="rich-text">
-                              <RichText content={message.content} streaming={isLastAssistant && isStreaming} />
+                              <RichText content={message.content} streaming={isLastAssistant && (isStreaming || message.isThinking)} />
                             </div>
                           )}
                         </div>
