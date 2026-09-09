@@ -1803,7 +1803,8 @@ export async function callTunedOracleStream(prompt, onToken, maxTokens = 350) {
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 65000);
+    // Fast failover: 4.0s connection timeout ensures seeker never hangs when remote Oracle tunnel is cold/offline
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
 
     try {
       const response = await fetch(targetUrl, {

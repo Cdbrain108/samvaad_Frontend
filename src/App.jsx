@@ -1194,7 +1194,7 @@ export default function App() {
           onChange={setDraft}
           onSubmit={submitMessage}
           isDisabled={isResponding || isStreaming}
-          guestLimitReached={user?.uid === 'devotee_local' && guestMessageCount >= 1}
+          guestLimitReached={user?.uid === 'devotee_local' && guestMessageCount >= 1 && !isResponding && !isStreaming}
           onGuestLimitClick={() => setShowGuestLoginModal(true)}
         />
       </main>
