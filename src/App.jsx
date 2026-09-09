@@ -934,29 +934,6 @@ export default function App() {
                             />
                           )}
 
-                          {/* Sacred Scripture Grounding Card (Showcases authentic RAG retrieval) */}
-                          {message.scripture && (
-                            <div className="scripture-grounding-card">
-                              <div className="scripture-card-header">
-                                <div className="scripture-card-header-left">
-                                  <span className="scripture-card-icon">📜</span>
-                                  <span className="scripture-card-title">शास्त्र प्रमाण (Sacred Scripture RAG)</span>
-                                </div>
-                                <span className="scripture-card-ref">{message.scripture.reference}</span>
-                              </div>
-                              {message.scripture.original_text && (
-                                <div className="scripture-card-verse">
-                                  « {message.scripture.original_text} »
-                                </div>
-                              )}
-                              {(message.scripture.hindi_meaning || message.scripture.english_translation) && (
-                                <div className="scripture-card-meaning">
-                                  <span className="scripture-meaning-label">अर्थ:</span> {message.scripture.hindi_meaning || message.scripture.english_translation}
-                                </div>
-                              )}
-                            </div>
-                          )}
-
                           {/* The entire response flows together in one unbroken, beautiful stream below the reasoning box */}
                           {message.content && (
                             <div className="rich-text">
