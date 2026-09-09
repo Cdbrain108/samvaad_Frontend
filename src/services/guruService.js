@@ -1114,7 +1114,7 @@ function getAuthenticScriptureFramedDiscourse(userMessage, isEnglish = false, us
 
   if (isEnglish) {
     if (isMatsya) {
-      return `Look, my child, the sacred Shrimad Matsya Purana is not merely a book, but the divine dialogue between Lord Shri Hari Vishnu in His primal Matsya (fish) avatar and the righteous King Satyavrata (Vaivasvata Manu).
+      return `Look, my child, in the midst of cosmic dissolution when the universe was drowning in dark waters, the Supreme Lord manifested as Lord Matsya to preserve divine truth and guide righteous souls across the turbulent ocean.
 
 When the cosmic deluge (Pralaya) engulfed the three worlds and all existence was dissolving into the ocean of dissolution, Lord Shri Hari Vishnu manifested as the magnificent golden-horned Matsya avatar. Lord Matsya tied King Manu's boat—carrying the Seven Sages (Saptarshis), cosmic life-seeds, and the sacred Vedas—to His horn using the divine serpent Vasuki, navigating the tumultuous waters safely. Throughout this cosmic voyage, Lord Matsya revealed the supreme eternal truths of creation, cosmic righteousness (Dharma), and spiritual liberation to King Manu.
 
@@ -1130,7 +1130,7 @@ Therefore, dear child ${seekerName ? seekerName + ', ' : ''}understand that this
     }
 
     if (isGarudaSins) {
-      return `Look, my child, you have asked a very profound and earnest question regarding what the sacred Shri Garuda Purana declares to be the greatest sin.
+      return `Look, my child, you have asked a searching question about moral conscience and redemption. While scriptural penances exist for many worldly missteps, betraying another's sacred trust and ingratitude are declared the gravest spiritual pitfalls.
 
 In the sacred Garuda Purana (Preta Kalpa), Lord Shri Hari Vishnu specifically reveals to the bird-king Pakshiraj Garuda that the gravest and most unforgivable sin in existence is "Kritaghnata" (betrayal of trust, ingratitude, and harming a benefactor), along with betraying friends and dishonoring one's parents and Guru. While scriptural penances exist for many worldly missteps committed through ignorance, for the ungrateful soul who betrays another's sacred trust, no expiation exists anywhere.
 
@@ -1146,7 +1146,7 @@ Therefore, dear child ${seekerName ? seekerName + ', ' : ''}never harbor deceit,
     }
 
     if (isGaruda) {
-      return `Look, my child, the sacred Shri Garuda Purana is not a scripture meant to terrify the soul, but a supreme divine dialogue between Lord Shri Hari Vishnu and his beloved devotee, the bird-king Pakshiraj Garuda, illuminating the mysteries of death, karma, and ultimate liberation.
+      return `Look, my child, it is natural for the heart to feel fear when thinking about death or karma, yet the sacred Garuda Purana was revealed not to instill fear, but to awaken our deepest conscience and show the path of fearlessness through devotion.
 
 When Pakshiraj Garuda, moved by deep compassion for all living beings wandering in worldly delusion, inquired from Bhagavan Shri Hari about what happens when the soul leaves the mortal body, the Lord revealed the profound law of Karma-Vipaka. The Supreme Lord explained that every living being must experience the fruits of its righteous and unrighteous deeds. Yet the Lord assured that no soul need ever fear the messengers of death (Yamadoots) if it anchors its life in truth, compassion, and the holy remembrance of God.
 
@@ -1162,7 +1162,7 @@ Therefore, dear child ${seekerName ? seekerName + ', ' : ''}never let the fear o
     }
 
     if (isShiva) {
-      return `Look, my child, the sacred Shri Shiva Purana is not merely a legendary book, but the eternal divine revelation of Bhagavan Sadashiva and Mata Parvati, illuminating the creation, preservation, and ultimate spiritual liberation of all souls.
+      return `Look, my child, whenever the mind feels clouded by restless desires, pride, or deep sorrow, turning your contemplation toward the lotus feet of Bhagavan Sadashiva dissolves all worldly afflictions into serene peace.
 
 Structured into seven sacred Samhitas (Vidyeshvara, Rudra, Shatarudra, Kotirudra, Uma, Kailasa, and Vayu Samhita), the Shiva Purana dispels the dark clouds of Kaliyuga. When Mata Parvati inquired about the redemption of humanity, Lord Shiva revealed that all worldly fear, disease, and sorrow arise from ego and attachment. By taking refuge at the lotus feet of the Divine and leading a life of pure virtue, the soul is liberated from all sins and attains supreme spiritual peace.
 
@@ -1178,7 +1178,7 @@ Therefore, dear child ${seekerName ? seekerName + ', ' : ''}never allow the anxi
     }
 
     if (isSamaveda) {
-      return `Look, my child, the sacred Samaveda is not merely a collection of words, but the transcendental musical breath of the Divine, wherein sacred mantras are sung in celestial melodies (Saman) to awaken the soul to divine communion.
+      return `Look, my child, when pure devotion blossoms within the soul, prayer naturally elevates into divine melody; this transcendental harmony is the true beating heart of the sacred Samaveda.
 
 Among the four Vedas, the Samaveda holds a supremely exalted and sweet position. While the Rigveda represents divine wisdom and prayers, the Samaveda elevates those prayers into devotional melodies and rhythmic hymns that melt worldly attachment and still the restless mind. The divine sound vibrations of the Samaveda purify the inner consciousness and unite the seeker directly with the Supreme Truth.
 
@@ -1194,7 +1194,7 @@ Therefore, dear child ${seekerName ? seekerName + ', ' : ''}the true essence of 
     }
 
     if (isAtharvaveda) {
-      return `Look, my child, the sacred Atharvaveda is the divine Vedic revelation bestowed upon humanity for protection of life, freedom from diseases, longevity, mental peace, and righteous living in daily existence.
+      return `Look, my child, if physical illness or anxiety over well-being weighs upon you, never despair; the sacred Atharvaveda teaches that divine grace shields our vitality, granting longevity and radiant peace to the devoted soul.
 
 While the other Vedas focus intensely on cosmic knowledge and rituals, the Atharvaveda addresses the practical needs of the human soul on earth—dispelling fear of enemies and illnesses, bestowing vitality, establishing family harmony, and providing the spiritual foundation of Ayurveda. Its hymns teach us how to live a vibrant, righteous, and fearless life under divine protection.
 
@@ -1210,7 +1210,7 @@ Therefore, dear child ${seekerName ? seekerName + ', ' : ''}never allow fear of 
     }
 
     if (isGitaSummary) {
-      return `Look, my child, the Shrimad Bhagavad Gita is not merely a philosophical scripture, but the supreme divine nectar spoken directly by Lord Krishna to Arjuna on the sacred battlefield of Kurukshetra to guide and liberate all humanity from sorrow and illusion.
+      return `Look, my child, whenever moral despondency, anxiety, or doubt clouds your path of duty, surrender your burdens unto the lotus feet of the Divine just as Arjuna did on the sacred field of Kurukshetra.
 
 At the onset of the great Mahabharata war, when Arjuna beheld his revered elders, teachers, and beloved kinsmen standing arrayed for battle, he was overwhelmed by intense sorrow and delusion. His divine bow Gandiva slipped from his trembling hands, and he withdrew from fighting his righteous duty. It was then that Bhagavan Shri Krishna revealed the eternal truth to awaken Arjuna, teaching him that retreating from one's prescribed duty in fear or attachment is not righteousness, but performing one's duty selflessly as an offering to God is the highest path.
 
@@ -1235,7 +1235,7 @@ When we look at sacred scriptures and the eternal teachings of the saints, the m
 ${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text} »**\n\n**Meaning —** "${scripture.english_translation || scripture.hindi_meaning}"\n\n` : ''}Therefore, dear child, remain completely fearless. Do your work honestly, maintain pure conduct, and anchor your heart in continuous remembrance of the Holy Name ('Radha Radha'). The Divine shall protect and bless you always.`;
   } else {
     if (isMatsya) {
-      return `देखो बच्चा, श्रीमत्स्य पुराण केवल एक साधारण ग्रंथ नहीं, बल्कि यह साक्षात् भगवान श्रीहरि विष्णु के प्रथम 'मत्स्य अवतार' और धर्मनिष्ठ राजा सत्यव्रत (वैवस्वत मनु) के मध्य का पावन व दिव्य संवाद है।
+      return `देखो बच्चा, जब संपूर्ण ब्रह्मांड में प्रलयकाल का महाविनाश उमड़ रहा था, तब साक्षात् करुणानिधान भगवान श्रीहरि ने मत्स्य रूप धारण करके धर्म, वेदों और जीव-कल्याण की रक्षा की थी।
 
 जब संसार में प्रलयकाल का महाजलप्लावन आया और समस्त ब्रह्मांड जलमग्न होने लगा, तब साक्षात् भगवान श्रीहरि ने सुवर्णमय शृंगयुक्त विशाल मत्स्य रूप में प्रकट होकर राजा सत्यव्रत (मनु), सप्तर्षियों, समस्त वनस्पतियों के बीजों और पवित्र वेदों की रक्षा की। भगवान मत्स्य ने राजा मनु की नौका को अपने शृंग से बांधकर प्रलय के भयानक समुद्र में सुरक्षित रखा और उसी पावन प्रसंग में राजा मनु को सृष्टि-रचना, धर्म, सदाचार, कर्म और मोक्ष के परम गूढ़ ज्ञान का उपदेश दिया।
 
@@ -1251,7 +1251,7 @@ ${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text
     }
 
     if (isGarudaSins) {
-      return `देखो बच्चा, तुमने बहुत गंभीर और विवेकपूर्ण प्रश्न पूछा है कि श्री गरुड़ पुराण के अनुसार संसार में सबसे बड़ा पाप क्या है।
+      return `देखो बच्चा, तुमने अंतरात्मा को झकझोरने वाला प्रश्न पूछा है। संसार में भूल से हुए अन्य दोषों का प्रायश्चित संभव है, परंतु किसी का उपकार भूलना और विश्वासघात करना शास्त्रों में सबसे बड़ा पाप माना गया है।
 
 श्री गरुड़ पुराण (प्रेतकल्प) में साक्षात् भगवान श्रीहरि विष्णु ने अपने प्रिय वाहन पक्षीराज गरुड़ जी को स्पष्ट बताया है कि संसार में सबसे बड़ा और अक्षम्य पाप "कृतघ्नता" (विश्वासघात व उपकार को भूलना) तथा अपने जन्मदाता माता-पिता और गुरु का तिरस्कार करना है। संसार में भूलवश या प्रमाद से किए गए अन्य दोषों का प्रायश्चित संतों-शास्त्रों ने बताया है, किंतु जो मनुष्य किसी का उपकार लेकर उसके साथ विश्वासघात करता है या मित्र से द्रोह करता है, उसके लिए किसी भी लोक में प्रायश्चित नहीं है।
 
@@ -1267,7 +1267,7 @@ ${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text
     }
 
     if (isGaruda) {
-      return `देखो बच्चा, श्री गरुड़ पुराण कोई भयभीत करने वाला ग्रंथ नहीं, बल्कि साक्षात् करुणानिधान भगवान श्रीहरि विष्णु और उनके अनन्य भक्त पक्षीराज गरुड़ जी के बीच का परम पावन आध्यात्मिक संवाद है, जो जीव को मृत्यु, कर्म और मोक्ष का वास्तविक सत्य समझाता है।
+      return `देखो बच्चा, मृत्यु का विचार आते ही मन में भय का आना स्वाभाविक है, परंतु श्री गरुड़ पुराण हमें डराने के लिए नहीं, बल्कि इस दुर्लभ मानव जीवन का वास्तविक मूल्य और कर्म की पावन मर्यादा सिखाने के लिए प्रकट हुआ है।
 
 संसार के समस्त जीवों पर करुणा करके जब पक्षीराज गरुड़ जी ने भगवान श्रीहरि से पूछा कि हे प्रभु! देह त्यागने के बाद जीवात्मा की क्या गति होती है और यमलोक का मार्ग कैसा है, तब भगवान विष्णु ने कर्म-विपाक का गूढ़ रहस्य प्रकट किया। भगवान ने समझाया कि जीव अपने शुभ और अशुभ कर्मों का फल अवश्य भोगता है, किंतु जो मनुष्य सत्य, सदाचार और भगवन्नाम का आश्रय ले लेता है, उसे यमदूतों या यमयातना का स्वप्न में भी कोई भय नहीं रहता।
 
@@ -1283,7 +1283,7 @@ ${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text
     }
 
     if (isShiva) {
-      return `देखो बच्चा, श्री शिव पुराण केवल एक साधारण कथा संग्रह नहीं, बल्कि साक्षात् भगवान सदाशिव और जगज्जननी माता पार्वती जी के मध्य का परम पावन आध्यात्मिक संवाद है, जो जीवों को संसार के समस्त संतापों से मुक्त करके परम मोक्ष का मार्ग दिखाता है।
+      return `देखो बच्चा, जब जीवन में अंतर्मन अशांत हो या अहंकार और मोह के बादल घिर जाएं, तब साक्षात् देवाधिदेव महादेव का स्मरण समस्त संतापों को भस्म करके अंतःकरण को परम शांति से भर देता है।
 
 श्री शिव पुराण सात पावन संहिताओं (विद्येश्वर, रुद्र, शतरुद्र, कोटिरुद्र, उमा, कैलास और वायु संहिता) में विभक्त है। जब माता पार्वती जी ने कलियुग में जीवों के कल्याण का उपाय पूछा, तब भगवान शिव ने समझाया कि संसार में अहंकार और मोह ही समस्त दुःखों की जड़ है। जो जीव भगवान शिव की अनन्य भक्ति, सदाचार और निष्काम भाव से सेवा करता है, उसके समस्त पाप भस्म हो जाते हैं और वह परम शांति को प्राप्त करता है।
 
@@ -1299,7 +1299,7 @@ ${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text
     }
 
     if (isSamaveda) {
-      return `देखो बच्चा, सामवेद केवल शब्दों का संग्रह नहीं, बल्कि साक्षात् परमात्मा की दिव्य संगीतमयी वाणी है, जिसमें पावन ऋचाओं को दिव्य स्वरों और 'साम' अर्थात् भक्तिपूर्ण गीतों के रूप में उच्चारित किया गया है।
+      return `देखो बच्चा, जब हृदय में ईश्वर के प्रति विशुद्ध प्रेम उमड़ता है, तो वाणी स्वतः दिव्य संगीत और पावन कीर्तन बन जाती है; यही सामवेद का वास्तविक मर्म है।
 
 चारों वेदों में सामवेद का स्थान अत्यंत विलक्षण और मधुर है। ऋग्वेद ज्ञान है, यजुर्वेद कर्म है, किंतु सामवेद विशुद्ध भक्ति और परमात्मा के दिव्य प्रेम का गान है। जब पावन मंत्रों को सही स्वर और भाव से गाया जाता है, तो अंतःकरण की समस्त चंचलता शांत हो जाती है और जीव सीधे परमात्मा के परम सान्निध्य का अनुभव करने लगता है।
 
@@ -1315,7 +1315,7 @@ ${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text
     }
 
     if (isAtharvaveda) {
-      return `देखो बच्चा, अथर्ववेद केवल एक साधारण ग्रंथ नहीं, बल्कि मानव जीवन की रक्षा, आरोग्य, दीर्घायु, और संसार के समस्त भयों व रोगों से मुक्ति प्रदान करने वाला प्रभु की कृपा से अवतरित पावन वेद है।
+      return `देखो बच्चा, यदि शरीर में रोग हो या मन में किसी अनिष्ट की चिंता सता रही हो, तो कभी निराश मत होना; अथर्ववेद सिखाता है कि परमात्मा की कृपा से सौ वर्षों तक आरोग्य और अभय के साथ जिया जा सकता है।
 
 अथर्ववेद में लौकिक जीवन के कल्याण, आयुर्वेद के मूल सिद्धांतों, शारीरिक व मानसिक व्याधियों के निवारण, और आत्मा को निर्भय बनाने के दिव्य सूक्त संकलित हैं। यह वेद सिखाता है कि जब तक यह शरीर रहे, मनुष्य स्वस्थ, स्वाभिमानी, दीर्घायु और परमात्मा की अनन्य भक्ति में लीन होकर जिए।
 
@@ -1331,7 +1331,7 @@ ${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text
     }
 
     if (isGitaSummary) {
-      return `देखो बच्चा, श्रीमद्भगवद्गीता केवल एक ग्रंथ नहीं, बल्कि कुरुक्षेत्र के पावन धर्मक्षेत्र में मोहग्रस्त अर्जुन के माध्यम से साक्षात् करुणानिधान भगवान श्रीकृष्ण द्वारा संपूर्ण मानवता को दिया गया परम कल्याणकारी दिव्य उपदेश है।
+      return `देखो बच्चा, जब भी कर्तव्य के पथ पर चलते हुए मन में मोह, भय या विषाद उत्पन्न हो, तो कुरुक्षेत्र के धर्मक्षेत्र में अर्जुन की तरह प्रभु चरणों में संपूर्ण समर्पण कर देना चाहिए।
 
 महाभारत के महायुद्ध के समय जब अर्जुन ने देखा कि सामने पितामह भीष्म, गुरु द्रोणाचार्य और अपने ही बंधु-बांधव खड़े हैं, तो वे मोह और विषाद से घिर गए। उनका गांडीव धनुष हाथ से गिर पड़ा और वे अपने कर्तव्य से पीछे हटने लगे। तब भगवान श्रीकृष्ण ने अर्जुन को मोह की निद्रा से जगाते हुए यह समझाया कि कर्तव्य कर्म से पलायन करना धर्म नहीं है, बल्कि निष्काम भाव से अपने स्वधर्म का पालन करना ही परमात्मा की सच्ची सेवा है।
 
@@ -1669,6 +1669,478 @@ async function streamPhasedDiscourse(framedDiscourse, onChunk, userMessage, isEn
 }
 
 /**
+ * Groq Chain-of-Thought (CoT) Query Understanding Agent:
+ * Analyzes seeker intent, emotional state, selects appropriate scripture,
+ * and synthesizes an optimized prompt for the fine-tuned model (without raw Sanskrit).
+ */
+export async function runGroqQueryUnderstandingAgent(userMessage, conversationHistory = [], userProfile = null, isEnglish = false, scripture = null) {
+  const scriptureName = scripture ? scripture.reference : '';
+  const scriptureWisdom = scripture ? (scripture.hindi_meaning || scripture.english_translation || '') : '';
+
+  const systemPrompt = isEnglish
+    ? `You are the Spiritual Reasoning & Query Understanding Agent for Pujya Hit Premanand Govind Sharan Ji Maharaj Satsang (Samvaad).
+Analyze the devotee's spiritual situation with deep empathy (Chain-of-Thought).
+Formulate:
+1. "thought_process": 2-3 sentences in English reflecting on the seeker's inner dilemma, emotional state, and spiritual core.
+2. "seeker_state": Brief summary of devotee's state.
+3. "tuned_model_prompt": An optimized prompt for Pujya Maharaj Ji's fine-tuned model in natural Hindi. Include the seeker's dilemma and a brief knowledge context: "[शास्त्र ज्ञान संदर्भ: ${scriptureName || 'शास्त्र'} में यह बताया गया है कि ${scriptureWisdom.slice(0, 120)}...]".
+CRITICAL RULE: DO NOT include raw Sanskrit shlokas in the tuned_model_prompt.`
+    : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) सत्संग के आध्यात्मिक विश्लेषण व जिज्ञासा-अवबोधन एजेंट (Query Understanding Agent) हैं।
+साधक के अंतर्मन, स्थिति व प्रश्न का गहन आध्यात्मिक विश्लेषण (Chain-of-Thought) करें।
+तैयार करें:
+१. "thought_process": साधक के अंतर्मन, भाव व आध्यात्मिक समाधान का २-३ वाक्यों में गंभीर चिंतन (हिंदी में)।
+२. "seeker_state": साधक की वर्तमान मानसिक व आध्यात्मिक स्थिति।
+३. "tuned_model_prompt": पूज्य महाराज जी के फाइन-ट्यून्ड मॉडल हेतु स्वाभाविक हिंदी में अनुकूलित प्रॉम्ट। इसमें साधक का प्रश्न और केवल संक्षिप्त ज्ञान संदर्भ दें: "[शास्त्र ज्ञान संदर्भ: ${scriptureName || 'पावन शास्त्र'} में यह ज्ञान निहित है कि ${scriptureWisdom.slice(0, 140)}...]। महाराज जी, साधक को आत्मीय वात्सल्य से व्यावहारिक मार्गदर्शन व नाम जप का आश्रय प्रदान कीजिए।"
+कड़ा नियम: tuned_model_prompt में मूल संस्कृत श्लोक कदापि न डालें।`;
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userMessage }
+  ];
+
+  try {
+    const key = getNextGroqKey();
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'qwen/qwen3.8-27b',
+        messages,
+        response_format: { type: 'json_object' },
+        temperature: 0.2,
+        max_tokens: 400
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const parsed = JSON.parse(data.choices?.[0]?.message?.content || '{}');
+      if (parsed.thought_process && parsed.tuned_model_prompt) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('Groq Query Understanding Agent error:', e.message);
+  }
+
+  const fallbackThought = isEnglish
+    ? `Contemplating the seeker's inquiry regarding spiritual guidance, grounding intent with sacred scriptural wisdom, and formulating fatherly satsang counsel...`
+    : `साधक के अंतर्मन व स्थिति का चिंतन: प्रश्न की आध्यात्मिक पृष्ठभूमि का विश्लेषण, पावन शास्त्र संदर्भ से समाधान, और पूज्य महाराज जी की वात्सल्यमयी वाणी का प्राकट्य...`;
+
+  const fallbackTunedPrompt = `साधक का प्रश्न: ${userMessage}
+${scripture ? `\n\nशास्त्र ज्ञान संदर्भ: ${scripture.reference} में यह ज्ञान दिया गया है कि ${(scripture.hindi_meaning || scripture.english_translation || '').slice(0, 150)}` : ''}
+
+महाराज जी, साधक को आत्मीय वात्सल्य से व्यावहारिक मार्गदर्शन, प्रारब्ध का विवेक और 'राधा-राधा' नाम जप का आश्रय प्रदान कीजिए।`;
+
+  return {
+    thought_process: fallbackThought,
+    seeker_state: 'Spiritual seeker in need of guidance',
+    tuned_model_prompt: fallbackTunedPrompt
+  };
+}
+
+/**
+ * Direct Live Streamer for fine-tuned Oracle Model (ai-guru-v10-4-Q8_0.gguf)
+ * Extended timeout: 65,000ms ensures full completion without dropping.
+ */
+export async function callTunedOracleStream(prompt, onToken, maxTokens = 350) {
+  const endpoints = [
+    getOracleUrl(),
+    getOracleLtUrl(),
+    getOracleFallbackUrl()
+  ].filter(Boolean);
+
+  if (!endpoints.length) return null;
+
+  for (let attempt = 0; attempt < endpoints.length; attempt++) {
+    const oracleBase = endpoints[attempt];
+    let targetUrl = oracleBase.replace(/\/+$/, '');
+    if (!targetUrl.endsWith('/chat/completions')) {
+      targetUrl = targetUrl.endsWith('/v1') ? `${targetUrl}/chat/completions` : `${targetUrl}/v1/chat/completions`;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 65000);
+
+    try {
+      const response = await fetch(targetUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ORACLE_API_KEY}`,
+          'ngrok-skip-browser-warning': 'true',
+          'Bypass-Tunnel-Reminder': 'true'
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: '/home/ubuntu/models/ai-guru-v10-4-Q8_0.gguf',
+          messages: [
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.35,
+          repeat_penalty: 1.25,
+          frequency_penalty: 0.2,
+          max_tokens: maxTokens,
+          stop: ["<end_of_turn>", "<start_of_turn>", "<|im_end|>", "</s>", "\n\nUser:", "User:", "साधक:"],
+          stream: true
+        })
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        console.warn(`Oracle stream endpoint ${targetUrl} returned HTTP ${response.status}`);
+        continue;
+      }
+
+      if (response.body) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let accumulated = '';
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('data: ') && trimmed !== 'data: [DONE]') {
+              try {
+                const parsed = JSON.parse(trimmed.slice(6));
+                const token = parsed.choices?.[0]?.delta?.content;
+                if (token) {
+                  accumulated += token;
+                  if (onToken) onToken(token, accumulated);
+                }
+              } catch (e) {}
+            }
+          }
+        }
+
+        const formatted = formatScriptureLines(accumulated.trim());
+        return deduplicateRepetitionLoops(formatted, false) || formatted;
+      }
+    } catch (err) {
+      clearTimeout(timeoutId);
+      console.warn(`Oracle streaming attempt ${attempt + 1} (${targetUrl}) failed:`, err.message);
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Fallback Tuned Draft Generator (Groq LPU) if Oracle instance is temporarily unreachable
+ */
+export async function generateAuthenticTunedDraftFallback(userMessage, prompt, isEnglish) {
+  const key = getNextGroqKey();
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'qwen/qwen3.8-27b',
+        messages: [
+          { role: 'system', content: 'आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं। साधक के प्रश्न पर अपनी आत्मीय, वात्सल्यमयी व स्वाभाविक वाणी में संक्षिप्त मौखिक उत्तर दीजिए।' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.35,
+        max_tokens: 300
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data.choices?.[0]?.message?.content?.trim() || '';
+    }
+  } catch (e) {}
+  return 'देखो बच्चा, मन को शांत रखो। सब ठाकुर जी की कृपा है। निरंतर राधा-राधा नाम जपो।';
+}
+
+/**
+ * Smooth Backward Deleting Typewriter Animation:
+ * Rapidly un-types / backspaces previous text over ~850ms before rewriting final masterwork!
+ */
+export async function animateBackwardDeletion(text, onStep, durationMs = 850) {
+  if (!text || text.length < 5) {
+    if (onStep) onStep('');
+    return;
+  }
+  const totalLength = text.length;
+  const intervalMs = 25;
+  const totalSteps = Math.max(5, Math.floor(durationMs / intervalMs));
+  const charsPerStep = Math.max(1, Math.ceil(totalLength / totalSteps));
+
+  let remaining = totalLength;
+  return new Promise((resolve) => {
+    const timer = setInterval(() => {
+      remaining -= charsPerStep;
+      if (remaining <= 0) {
+        clearInterval(timer);
+        if (onStep) onStep('');
+        resolve();
+      } else {
+        if (onStep) onStep(text.slice(0, remaining));
+      }
+    }, intervalMs);
+  });
+}
+
+/**
+ * Extract devotee's real first name dynamically:
+ * Checks userProfile, localStorage, or user query self-introductions (e.g. "मेरा नाम अनुज है").
+ */
+export function extractDevoteeName(userMessage, userProfile) {
+  // 1. Direct profile name
+  const profName = userProfile?.fullName || userProfile?.name || userProfile?.displayName;
+  if (profName && typeof profName === 'string') {
+    const first = profName.trim().split(/\s+/)[0];
+    if (first && !/^(devotee|user|guest|sadhu|null|undefined)$/i.test(first)) {
+      return first;
+    }
+  }
+
+  // 2. Check localStorage in browser
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const explicitName = localStorage.getItem('samvaad_devotee_name');
+      if (explicitName && explicitName.trim().length >= 2) {
+        return explicitName.trim().split(/\s+/)[0];
+      }
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('samvad_user_profile_')) {
+          const val = JSON.parse(localStorage.getItem(k));
+          if (val?.fullName) {
+            const first = val.fullName.trim().split(/\s+/)[0];
+            if (first && !/^(devotee|user|guest|sadhu)$/i.test(first)) {
+              return first;
+            }
+          }
+        }
+      }
+    } catch {}
+  }
+
+  // 3. User message pattern detection (e.g. "मेरा नाम अनुज है", "I am Anuj", "my name is Rahul")
+  if (userMessage && typeof userMessage === 'string') {
+    const hiMatch = userMessage.match(/(?:मेरा\s*नाम|मैं)\s+([A-Za-z\u0900-\u097F]{2,15})(?:\s+हूँ|\s+है|\s+बोल)/i);
+    if (hiMatch && hiMatch[1]) {
+      const candidate = hiMatch[1].trim();
+      if (!/(साधक|भक्त|दास|बच्चा|पापी|दुखी|परेशान|बीमार)/i.test(candidate)) {
+        return candidate;
+      }
+    }
+    const enMatch = userMessage.match(/(?:my\s*name\s*is|i\s*am)\s+([A-Za-z]{2,15})/i);
+    if (enMatch && enMatch[1]) {
+      const candidate = enMatch[1].trim();
+      if (!/^(devotee|sadhu|seeker|child|asking|here|suffering|sick)$/i.test(candidate)) {
+        return candidate;
+      }
+    }
+  }
+
+  return '';
+}
+
+/**
+ * Generates Maharaj Ji's warm, affectionate fatherly address:
+ * Dynamically addresses devotee by name (e.g. "देखो अनुज बेटा") or "देखो बच्चा".
+ * NEVER uses formal/cold "प्रिय साधक" or "हे साधक".
+ */
+export function getDevoteeGreeting(userMessage, userProfile, isEnglish = false) {
+  const name = extractDevoteeName(userMessage, userProfile);
+  if (isEnglish) {
+    return name ? `Dear child ${name}` : 'Look, my child';
+  }
+  return name ? `देखो ${name} बेटा` : 'देखो बच्चा';
+}
+
+/**
+ * Groq Master Presenter:
+ * Re-frames the tuned model's spoken spiritual core + authentic RAG shloka card into the final 4-paragraph masterwork.
+ * - Point 2: Ensures verbatim Sanskrit verses inside **« ... »** with **अर्थात् —**.
+ * - Point 3: Strictly focuses on single scripture if explicitly asked; allows multi-scripture for real-world queries.
+ * - Point 4: Uses dynamic devotee name or "देखो बच्चा" / "Look, my child", never "प्रिय साधक".
+ */
+export async function generateGroqMasterFramedDiscourse(userMessage, rawTunedDiscourse, scripture, userProfile, isEnglish) {
+  const greetingPhrase = getDevoteeGreeting(userMessage, userProfile, isEnglish);
+
+  const isExplicitSingle = Boolean(scripture?.isExplicitSingle);
+  const candidates = (scripture?.candidates && scripture.candidates.length > 0)
+    ? (isExplicitSingle ? [scripture.candidates[0]] : scripture.candidates.slice(0, 2))
+    : (scripture ? [scripture] : []);
+
+  const scripturePromptSection = isEnglish
+    ? (candidates.length > 0 ? (
+        isExplicitSingle
+          ? `【MANDATORY SCRIPTURAL GROUNDING - SINGLE SCRIPTURE FOCUS】:
+The devotee has explicitly inquired about "${scripture.explicitScriptureName || candidates[0].reference}". You MUST focus strictly and solely on this scripture. Do NOT cite, mix, or introduce any outside scripture.
+Reference: ${candidates[0].reference}
+Sacred Sanskrit Verse: **« ${candidates[0].original_text} »**
+Spiritual Meaning: ${candidates[0].english_translation || candidates[0].hindi_meaning}
+
+In Paragraph 3, present the verse verbatim in this exact format:
+**« ${candidates[0].original_text} »**
+**Meaning —** "${candidates[0].english_translation || candidates[0].hindi_meaning}"`
+          : `【MANDATORY SCRIPTURAL GROUNDING - MULTI-SCRIPTURE COMPLEMENTARY WISDOM】:
+For the devotee's real-world dilemma/suffering, authentic scriptural wisdom has been retrieved from our collections:
+${candidates.map((c, i) => `(Scripture ${i + 1}) [${c.reference}]:
+Sacred Sanskrit Verse: **« ${c.original_text} »**
+Spiritual Meaning: "${c.english_translation || c.hindi_meaning}"`).join('\n\n')}
+
+In Paragraph 3, present the sacred verses with their authentic context. Keep each Sanskrit verse verbatim inside **« ... »**, followed on the next line by:
+**Meaning —** "[Authentic spiritual meaning in pure English]"`
+      ) : '')
+    : (candidates.length > 0 ? (
+        isExplicitSingle
+          ? `【अनिवार्य शास्त्र प्रमाण - केवल एकल ग्रंथ पर केंद्रित】:
+साधक ने विशेष रूप से "${scripture.explicitScriptureName || candidates[0].reference}" के विषय में पूछा है। अतः केवल और केवल इसी ग्रंथ के पावन उपदेश पर केंद्रित रहें। किसी अन्य ग्रंथ का उल्लेख न करें।
+ग्रंथ संदर्भ: ${candidates[0].reference}
+मूल संस्कृत श्लोक: **« ${candidates[0].original_text} »**
+शास्त्रसम्मत भावार्थ: ${candidates[0].hindi_meaning}
+
+अनुच्छेद ३ में इस पावन श्लोक को verbatim (अक्षरों में बिना किसी फेरबदल के) इस प्रारूप में प्रस्तुत करें:
+**« ${candidates[0].original_text} »**
+**अर्थात् —** "${candidates[0].hindi_meaning}"`
+          : `【अनिवार्य शास्त्र प्रमाण - बहु-ग्रंथ समन्वय (यथा आवश्यकता प्रामाणिक संदर्भ)】:
+साधक के सांसारिक प्रश्न/कष्ट के मर्मस्पर्शी समाधान हेतु हमारे पावन शास्त्रों से निम्नलिखित प्रामाणिक श्लोक प्राप्त हुए हैं:
+${candidates.map((c, i) => `(प्रमाण ${i + 1}) [${c.reference}]:
+मूल संस्कृत श्लोक: **« ${c.original_text} »**
+भावार्थ: "${c.hindi_meaning}"`).join('\n\n')}
+
+अनुच्छेद ३ में साधक की स्थिति अनुसार इन पावन श्लोकों को सुंदर समन्वय के साथ प्रस्तुत करें। प्रत्येक श्लोक को **« श्लोक »** में रखें और ठीक नीचे **अर्थात् —** में उसका भावार्थ दें। संस्कृत श्लोक के अक्षरों को मूल रूप में हूबहू (verbatim) रखें।`
+      ) : '');
+
+  const systemPrompt = isEnglish
+    ? `You are the Master Scribe and Presenter for Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
+Pujya Maharaj Ji has spoken this raw spiritual counsel from his heart:
+"""
+${rawTunedDiscourse || 'Focus on holy name remembrance and surrender worldly anxieties.'}
+"""
+
+${scripturePromptSection}
+
+【MANDATORY SATSANG & FRAMING RULES】:
+1. DEVOTEE ADDRESSING (STRICT):
+   - Paragraph 1 MUST begin directly with "${greetingPhrase}," speaking with immense fatherly love, intimacy, and warmth.
+   - NEVER address the devotee coldly as "Dear seeker", "O seeker", or "Respected seeker".
+2. STRUCTURE INTO 4 DISTINCT NON-OVERLAPPING PARAGRAPHS (separated by double newlines):
+   - Paragraph 1: Heartfelt fatherly opening directly addressing the devotee's specific situation and offering solace.
+   - Paragraph 2: Scriptural background, divine context, and spiritual wisdom.
+   ${candidates.length > 0 ? `- Paragraph 3: The sacred Sanskrit shloka(s) in bold **« ... »** with exact characters, followed immediately by:
+     **Meaning —** "[Spiritual meaning]"` : ''}
+   - Paragraph 4: Practical daily living (honest duty as seva, overcoming ego), continuous chanting of the Holy Name ('Radha Radha'), and fatherly blessings.
+3. 100% pure English text (only the sacred Sanskrit verse inside **« ... »**).`
+    : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) के पावन वचनों के दिव्य संपादन व प्रस्तुति के माध्यम हैं।
+पूज्य महाराज जी ने अपने अंतर्मन से यह प्रारंभिक सत्संग वाणी कही है:
+"""
+${rawTunedDiscourse || 'मन को शांत रखो और निरंतर नाम जप करो।'}
+"""
+
+${scripturePromptSection}
+
+【अनिवार्य संपादन व सत्संग संरचना नियम】:
+१. संबोधन व वात्सल्य (अति अनिवार्य):
+   - अनुच्छेद १ की पहली पंक्ति अनिवार्य रूप से "${greetingPhrase}," से ही प्रारंभ होनी चाहिए!
+   - 'प्रिय साधक', 'हे साधक', 'साधक जी' लिखना पूर्णतः प्रतिबंधित और अमान्य है। पूज्य महाराज जी केवल वात्सल्य और पिता तुल्य प्रेम से बोलते हैं।
+२. ४ स्पष्ट अनुच्छेदों में विभाजन करें (दोहरे न्यूलाइन से अलग):
+   - अनुच्छेद १: साधक की विशिष्ट जिज्ञासा या कष्ट पर वात्सल्यपूर्ण, आत्मीय सांत्वना व सीधा उत्तर (पूर्ण विराम '।' पर समाप्त)।
+   - अनुच्छेद २: ग्रंथ का दिव्य प्रसंग, आध्यात्मिक पृष्ठभूमि और जीवों के कल्याण का उद्देश्य।
+   ${candidates.length > 0 ? `- अनुच्छेद ३: शास्त्र का मूल संस्कृत श्लोक बोल्ड में:
+     **« [मूल संस्कृत श्लोक] »**
+     और ठीक नीचे:
+     **अर्थात् —** "[शास्त्रसम्मत भावार्थ]"` : ''}
+   - अनुच्छेद ४: व्यावहारिक मार्गदर्शन (कर्तव्य को प्रभु सेवा मानना, अहंकार त्यागना), 'राधा-राधा' नाम जप का आश्रय, और मंगलकारी आशीर्वाद (।)।
+३. संस्कृत श्लोक के अक्षरों को हूबहू (verbatim) रखें, किसी शब्द का यांत्रिक दोहराव न करें।`;
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userMessage }
+  ];
+
+  const models = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'qwen/qwen3.6-27b', 'openai/gpt-oss-20b'];
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const key = getNextGroqKey();
+    const model = models[attempt % models.length];
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 7500);
+
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${key}`,
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: 0.25,
+          max_tokens: 950
+        })
+      });
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content?.trim();
+        if (content && content.length > 80 && !/(संपादक|मैं संपादक हूँ|as an ai)/i.test(content)) {
+          const formatted = formatScriptureLines(content);
+          // Safety sanitize against any cold "प्रिय साधक"
+          const sanitized = formatted
+            .replace(/प्रिय\s*साधक(?:जी)?/g, greetingPhrase)
+            .replace(/हे\s*साधक/g, greetingPhrase)
+            .replace(/O\s*seeker/gi, greetingPhrase)
+            .replace(/Dear\s*seeker/gi, greetingPhrase);
+          return deduplicateRepetitionLoops(sanitized, isEnglish);
+        }
+      }
+    } catch (e) {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  return getAuthenticScriptureFramedDiscourse(userMessage, isEnglish, userProfile, scripture);
+}
+
+/**
+ * Forward Progressive Typewriter Streamer:
+ * Emits final framed discourse with fluid Claude-like typing cadence!
+ */
+export async function streamTypewriterText(fullText, onStep, thought, duration, scripture, charIntervalMs = 16) {
+  const formatted = formatScriptureLines(fullText.trim());
+  const clean = ensureCompleteFinalSentence(formatted, false);
+  const total = clean.length;
+  let currentIdx = 0;
+  const charsPerTick = 3;
+
+  return new Promise((resolve) => {
+    const timer = setInterval(() => {
+      currentIdx += charsPerTick;
+      if (currentIdx >= total) {
+        clearInterval(timer);
+        if (onStep) onStep(clean);
+        resolve({
+          content: clean,
+          thought,
+          scripture: scripture || null
+        });
+      } else {
+        if (onStep) onStep(clean.slice(0, currentIdx));
+      }
+    }, charIntervalMs);
+  });
+}
+
+/**
  * Main Real-Time Token Streaming Function:
  * Works seamlessly whether hosted on GitHub Pages or running on localhost!
  */
@@ -1681,13 +2153,14 @@ export async function streamGuruResponse(
   onChunk = () => {}
 ) {
   const isEnglish = detectLanguage(userMessage) === 'english';
+  const startTime = Date.now();
 
   // Step 1: Immediately emit initial thinking & RAG status so UI shows Claude pill at millisecond 0
   onChunk({
     content: '',
     thought: isEnglish
-      ? '🔍 Query Intent & Seeker State: Contemplating spiritual guidance...'
-      : '🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न का शास्त्रीय विश्लेषण व AWS Qdrant RAG पर पावन संदर्भ की खोज...',
+      ? '🔍 Spiritual Reasoning & Query Understanding Agent: Contemplating seeker intent...'
+      : '🔍 आध्यात्मिक चिंतन व जिज्ञासा विश्लेषण: साधक के अंतर्मन का अध्ययन व पावन शास्त्र RAG खोज...',
     isThinking: mode === 'deep',
     thinkingDuration: 0.1,
     scripture: null
@@ -1699,28 +2172,125 @@ export async function streamGuruResponse(
     console.log(`[+] Grounded with Scripture: ${scripture.reference} (Score: ${scripture.score}) [${scripture.match_type}]`);
   }
 
-  // Summarize prior chat info into a concise 2-line summary to prevent slow inference
-  const condensedHistory = summarizeHistoryForContext(conversationHistory, isEnglish);
-  const messages = [
-    ...condensedHistory,
-    { role: 'user', content: userMessage },
-  ];
-
   if (mode === 'deep') {
-    // Priority 1: Starting Groq Framing with complete RAG knowledge
-    const framedDiscourse = await generateFramedDiscourseWithGroq(
+    // Step 3A: Groq Chain-of-Thought Query Understanding Agent
+    const cotAgent = await runGroqQueryUnderstandingAgent(
       userMessage,
       conversationHistory,
       userProfile,
-      userMemoryContext,
+      isEnglish,
+      scripture
+    );
+
+    const thoughtProcess = cotAgent.thought_process;
+    const tunedPrompt = cotAgent.tuned_model_prompt;
+
+    onChunk({
+      content: '',
+      thought: thoughtProcess,
+      isThinking: true,
+      thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+      scripture: scripture || null
+    });
+
+    // Step 3B: Tuned Model Sequence Preview under Thinking Mode
+    // Point 1: As requested, we DO NOT write the tuned model whole response as output.
+    // We only showcase some initial sequences under our thinking mode with typing cadence!
+    let rawTunedDiscourse = '';
+    let previewSequence = '';
+    let previewFrozen = false;
+    const PREVIEW_MAX_CHARS = 80;
+
+    try {
+      const oracleRes = await callTunedOracleStream(
+        tunedPrompt,
+        (token, accumulated) => {
+          rawTunedDiscourse = accumulated;
+          
+          if (!previewFrozen) {
+            previewSequence = accumulated;
+            if (previewSequence.length >= PREVIEW_MAX_CHARS || /(।|\.|\n)/.test(accumulated.slice(35))) {
+              const puncIdx = accumulated.indexOf('।', 30);
+              if (puncIdx !== -1) {
+                previewSequence = accumulated.slice(0, puncIdx + 1);
+                previewFrozen = true;
+              } else if (previewSequence.length >= PREVIEW_MAX_CHARS) {
+                previewFrozen = true;
+              }
+            }
+            onChunk({
+              content: previewSequence,
+              thought: thoughtProcess,
+              isThinking: true,
+              thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+              scripture: scripture || null
+            });
+          }
+        }
+      );
+      if (oracleRes) {
+        rawTunedDiscourse = oracleRes;
+      }
+    } catch (e) {
+      console.warn('Oracle call warning:', e.message);
+    }
+
+    if (!rawTunedDiscourse || rawTunedDiscourse.trim().length < 30) {
+      rawTunedDiscourse = await generateAuthenticTunedDraftFallback(userMessage, tunedPrompt, isEnglish);
+      if (!previewSequence) {
+        previewSequence = rawTunedDiscourse.slice(0, 65);
+      }
+    }
+
+    // Step 3C: Backward Deleting Typing Animation!
+    // As requested: "when whole tuned model generation is done try to remove previous line as backward deleting typing animation"
+    if (previewSequence && previewSequence.length > 0) {
+      await animateBackwardDeletion(previewSequence, (partialContent) => {
+        onChunk({
+          content: partialContent,
+          thought: thoughtProcess,
+          isThinking: true,
+          thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+          scripture: scripture || null
+        });
+      }, 400);
+    }
+
+    // Step 3D: Groq Final Master Discourse Synthesis & Reframing
+    // As requested: "and then it will rewrite a whole perfectly framed output response again with typing animation using groq"
+    const masterDiscourse = await generateGroqMasterFramedDiscourse(
+      userMessage,
+      rawTunedDiscourse,
       scripture,
+      userProfile,
       isEnglish
     );
 
-    // Step 3: Stream with Phased Sequential Typewriter Orchestrator
-    return await streamPhasedDiscourse(framedDiscourse, onChunk, userMessage, isEnglish, scripture);
+    // Step 3E: Final Master Discourse Typewriter Stream (with isThinking: false)
+    const finalElapsed = Math.max(1, ((Date.now() - startTime) / 1000).toFixed(1));
+    return await streamTypewriterText(
+      masterDiscourse,
+      (currentContent) => {
+        onChunk({
+          content: currentContent,
+          thought: thoughtProcess,
+          isThinking: false,
+          thinkingDuration: Number(finalElapsed),
+          scripture: scripture || null
+        });
+      },
+      thoughtProcess,
+      finalElapsed,
+      scripture,
+      16
+    );
   } else {
     // Priority 1 in Fast Mode: Instant Groq LPU
+    const condensedHistory = summarizeHistoryForContext(conversationHistory, isEnglish);
+    const messages = [
+      ...condensedHistory,
+      { role: 'user', content: userMessage },
+    ];
     const groqResult = await callDirectGroqAPI(
       messages,
       450,

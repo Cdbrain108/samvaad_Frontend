@@ -45,7 +45,9 @@ export const SCRIPTURE_DATABASE = [
       'गरुड़ पुराण क्या है', 'गरुण पुराण क्या है', 'गरुड़ पुराण के बारे में बताओ', 'गरुड़ पुराण कथा',
       'what is garuda purana', 'what is in garun puran', 'tell me about garun puran', 'tell me about garuda puran',
       'garun puran ki katha', 'garuda puran katha', 'garun puran sankshep', 'garun puran updesh', 'yamlok', 'yamdoot',
-      'मृत्यु के बाद क्या होता है', 'मृत्यु के बाद जीव की गति', 'यमलोक क्या है'
+      'मृत्यु के बाद क्या होता है', 'मृत्यु के बाद जीव की गति', 'यमलोक क्या है',
+      'fear of death', 'mrityu ka darr', 'mrityu se darr', 'marne se darr', 'marne ke baad kya hota hai',
+      'yamraj', 'afterlife', 'soul after death', 'death anxiety', 'loss of loved one', 'mrityu', 'death fear'
     ]
   },
 
@@ -102,7 +104,9 @@ export const SCRIPTURE_DATABASE = [
       'shiv puran', 'shiva puran', 'shiv purana', 'shiva purana', 'shiv puran me kya hai', 'shiva puran me kya hai',
       'shiv purana me kya hai', 'shiva purana me kya hai', 'what is in shiva purana', 'what is shiva purana',
       'tell me about shiv puran', 'tell me about shiva puran', 'shiv puran ka saransh', 'shiva purana summary',
-      'शिव पुराण', 'शिव पुराण में क्या है', 'शिव पुराण क्या है', 'शिवपुराण का सार', 'शिवपुराण कथा', 'शिव पुराण उपदेश'
+      'शिव पुराण', 'शिव पुराण में क्या है', 'शिव पुराण क्या है', 'शिवपुराण का सार', 'शिवपुराण कथा', 'शिव पुराण उपदेश',
+      'anger', 'krodh', 'ahankar', 'ego', 'destroying ego', 'inner peace', 'peace of mind', 'man ki shanti',
+      'bholenath', 'har har mahadev', 'anxiety relief', 'shiva grace', 'मन शांत कैसे करें', 'क्रोध कैसे शांत करें'
     ]
   },
 
@@ -120,7 +124,9 @@ export const SCRIPTURE_DATABASE = [
       'saamved', 'samved', 'samaveda', 'saamveda', 'saamved ka sarash kya hai', 'saamved ka saransh', 'samved ka saransh',
       'samved me kya hai', 'saamved me kya hai', 'samaveda summary', 'what is in samaveda', 'what is samaveda',
       'tell me about samaveda', 'tell me about saamved', 'essence of samaveda', 'samaveda teachings',
-      'सामवेद', 'सामवेद में क्या है', 'सामवेद का सार', 'सामवेद का सारांश', 'सामवेद क्या है', 'सामवेद की कथा'
+      'सामवेद', 'सामवेद में क्या है', 'सामवेद का सार', 'सामवेद का सारांश', 'सामवेद क्या है', 'सामवेद की कथा',
+      'soothing mind', 'musical devotion', 'kirtan', 'sangeet bhakti', 'nada brahma', 'distracted mind soothing',
+      'restless heart music', 'melodic prayer', 'संगीत भक्ति', 'कीर्तन महिमा'
     ]
   },
 
@@ -137,7 +143,9 @@ export const SCRIPTURE_DATABASE = [
     keywords: [
       'atharvaved', 'atharva veda', 'atharvaveda', 'atharvaved me kya hai', 'atharva veda me kya hai', 'atharvaved kya hai',
       'what is in atharvaveda', 'what is atharvaveda', 'atharvaveda summary', 'tell me about atharvaveda', 'essence of atharvaveda',
-      'अथर्ववेद', 'अथर्ववेद में क्या है', 'अथर्ववेद क्या है', 'अथर्ववेद का सार', 'अथर्ववेद का सारांश', 'अथर्ववेद के उपदेश'
+      'अथर्ववेद', 'अथर्ववेद में क्या है', 'अथर्ववेद क्या है', 'अथर्ववेद का सार', 'अथर्ववेद का सारांश', 'अथर्ववेद के उपदेश',
+      'health', 'illness', 'disease', 'bimari', 'rog', 'sehat', 'swasthya', 'healing', 'body pain', 'fear of sickness',
+      'longevity', 'deerghayu', 'ayurveda', 'protection from disease', 'immunity', 'sharir me rog', 'बीमारी', 'रोग', 'आरोग्य', 'स्वास्थ्य', 'दीर्घायु'
     ]
   },
 
@@ -176,7 +184,7 @@ export const SCRIPTURE_DATABASE = [
     id: 'gita_3_8',
     scripture_id: 'bhagavad_gita',
     reference: 'श्रीमद्भगवद्गीता ३.८ (Bhagavad Gita 3.8)',
-    original_text: 'नियतं कुरु कर्म त्वं कर्म ज्यायो ह्यकर्मणः। शरीरयात्रापि च ते न प्रसिद्धaddress ह्यकर्मणः॥',
+    original_text: 'नियतं कुरु कर्म त्वं कर्म ज्यायो ह्यकर्मणः। शरीरयात्रापि च ते न प्रसिद्ध्येदकर्मणः॥',
     hindi_meaning: 'तुम अपने शास्त्रविहित कर्तव्य कर्म करो, क्योंकि कर्म न करने (आलस्य या अकर्मण्यता) की अपेक्षा कर्म करना श्रेष्ठ है। कर्म न करने से तो तुम्हारा शरीर-निर्वाह भी सिद्ध नहीं हो सकता।',
     english_translation: 'Perform your prescribed duties, for action is far superior to inaction. Without work, even the basic maintenance of your physical body is not possible.',
     context_intro_hi: 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण अकर्मण्यता व आलस्य का निवारण करते हुए कहते हैं कि —',
@@ -229,7 +237,7 @@ export const SCRIPTURE_DATABASE = [
     id: 'gita_6_26_35',
     scripture_id: 'bhagavad_gita',
     reference: 'श्रीमद्भगवद्गीता ६.२६ व ६.३५ (Bhagavad Gita 6.26 & 6.35)',
-    original_text: 'यतो यतो निश्चरति मनश्चञ्चलमस्थिरम्। ततस्ततो नियम्यैतदात्मन्येव वशं नयेत्॥ असं opensयं महाबाहो मनो दुर्निग्रहं चलम्। अभ्यासेन तु कौन्तेय वैराग्येण च गृह्यते॥',
+    original_text: 'यतो यतो निश्चरति मनश्चञ्चलमस्थिरम्। ततस्ततो नियम्यैतदात्मन्येव वशं नयेत्॥ असंशयं महाबाहो मनो दुर्निग्रहं चलम्। अभ्यासेन तु कौन्तेय वैराग्येण च गृह्यते॥',
     hindi_meaning: 'यह चंचल और अस्थिर मन जहाँ-जहाँ भटके, वहाँ-वहाँ से इसे रोककर बार-बार परमात्मा में ही स्थिर करना चाहिए। हे कौन्तेय! मन को वश में करना कठिन अवश्य है, किंतु निरंतर अभ्यास और वैराग्य से यह निश्चित ही वश में आ जाता है।',
     english_translation: 'From wherever the restless and unsteady mind wanders away, one should restrain it and bring it back under the control of the Self. Without doubt, the mind is restless and difficult to curb, but by persistent spiritual practice and detachment, it is subdued.',
     context_intro_hi: 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण चंचल मन को वश में करने की विधि बताते हुए कहते हैं कि —',
@@ -239,6 +247,23 @@ export const SCRIPTURE_DATABASE = [
       'restless mind', 'mind wandering', 'wandering mind', 'lack of concentration', 'focus', 'distracted mind', 'control mind', 'mind control', 'meditation', 'overthinking',
       'చంచలమైన మనస్సు', 'మనస్సు ప్రశాంతత', 'ధ్యానం',
       'man chanchal hai', 'man bhatakta hai', 'man shant kaise kare', 'dhyan'
+    ]
+  },
+
+  // 4B. Endurance of Bodily Pain & Fleeting Distress (मात्रास्पर्शास्तु कौन्तेय)
+  {
+    id: 'gita_2_14',
+    scripture_id: 'bhagavad_gita',
+    reference: 'श्रीमद्भगवद्गीता २.१४ (Bhagavad Gita 2.14 · शारीरिक कष्ट व सुख-दुःख सहनशीलता)',
+    original_text: 'मात्रास्पर्शास्तु कौन्तेय शीतोष्णसुखदुःखदाः। आगमापायिनोऽनित्यास्तांस्तितिक्षस्व भारत॥',
+    hindi_meaning: 'हे कुन्तीपुत्र! इन्द्रियों और उनके विषयों का संयोग ही शीत-उष्ण और सुख-दुःख को देने वाला है। ये सब आने-जाने वाले और अनित्य हैं; इसलिए हे भारत! तुम इन्हें धैर्यपूर्वक सहन करो।',
+    english_translation: 'O son of Kunti, the contact of the senses with their objects gives rise to fleeting experiences of cold and heat, pleasure and pain. They are transient and impermanent; therefore, endure them patiently, O Bharata.',
+    context_intro_hi: 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण शारीरिक कष्टों और सांसारिक द्वंद्वों को धैर्यपूर्वक सहने का उपदेश देते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Bhagavan Shri Krishna guides on enduring physical pain and transient suffering with fortitude in the Bhagavad Gita —',
+    keywords: [
+      'pain', 'physical pain', 'suffering', 'body pain', 'sickness', 'illness', 'bimari', 'kashth', 'dard', 'titiksha', 'endurance',
+      'tolerance', 'sharir me dard', 'dard kaise sahe', 'kashth dur kare', 'shuk dukh', 'sukha dukkha', 'dheeraj', 'sharirik kasht',
+      'कष्ट', 'शारीरिक कष्ट', 'दर्द', 'बीमारी और कष्ट', 'दुःख', 'सहनशीलता', 'तितिक्षा', 'धैर्य', 'शारीरिक पीड़ा', 'रोग कष्ट'
     ]
   },
 
@@ -704,7 +729,8 @@ async function queryOracleVectorRAG(query) {
   if (typeof fetch === 'undefined') return [];
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 2400);
+  // Extended timeout: 8000ms ensures AWS Qdrant multilingual-e5 search never aborts prematurely
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
 
   let scriptureFilter = 'all';
   if (/(गीता|gita|geeta|भगवद्गीता)/i.test(query)) {
@@ -952,6 +978,43 @@ export function getLocalScriptureMatches(query) {
   return scoredMatches.sort((a, b) => b.score - a.score);
 }
 
+/**
+ * Explicit Scripture Detection:
+ * Identifies if the devotee explicitly requested a single specific scripture (e.g. Garuda Purana, Gita, Shiva Purana).
+ * If explicitly asked, we strictly isolate and focus on that single scripture.
+ */
+export function detectExplicitScriptureInQuery(query) {
+  if (!query || typeof query !== 'string') return null;
+  const q = query.toLowerCase();
+
+  const scriptures = [
+    { key: 'garuda', name: 'श्री गरुड़ पुराण (Garuda Purana)', regex: /(गरुड़|गरुण|garud|garun)/i },
+    { key: 'matsya', name: 'श्री मत्स्य पुराण (Matsya Purana)', regex: /(मत्स्य|matsya)/i },
+    { key: 'kurma', name: 'श्री कूर्म पुराण (Kurma Purana)', regex: /(कूर्म|kurma)/i },
+    { key: 'agni', name: 'श्री अग्नि पुराण (Agni Purana)', regex: /(अग्नि\s*पुराण|agni\s*puran)/i },
+    { key: 'vishnu', name: 'श्री विष्णु पुराण (Vishnu Purana)', regex: /(विष्णु\s*पुराण|vishnu\s*puran)/i },
+    { key: 'shiva', name: 'श्री शिव पुराण (Shiva Purana)', regex: /(शिव\s*पुराण|shiva?\s*puran|रुद्र\s*संहिता)/i },
+    { key: 'bhagavata', name: 'श्रीमद्भागवत महापुराण (Shrimad Bhagavata)', regex: /(भागवत|bhagavat|शुकदेव)/i },
+    { key: 'markandeya', name: 'श्री मार्कण्डेय पुराण (Markandeya Purana)', regex: /(मार्कण्डेय|मार्कंडेय|markandeya)/i },
+    { key: 'atharvaveda', name: 'अथर्ववेद (Atharvaveda)', regex: /(अथर्ववेद|atharv?a?\s*ved)/i },
+    { key: 'samaveda', name: 'सामवेद (Samaveda)', regex: /(सामवेद|samaveda|saam\s*ved)/i },
+    { key: 'rigveda', name: 'ऋग्वेद (Rigveda)', regex: /(ऋग्वेद|rigved|rgveda)/i },
+    { key: 'yajurveda', name: 'यजुर्वेद (Yajurveda)', regex: /(यजुर्वेद|yajurved)/i },
+    { key: 'ramcharitmanas', name: 'श्रीरामचरितमानस (Ramcharitmanas)', regex: /(रामचरितमानस|ramcharitmanas)/i },
+    { key: 'ramayana', name: 'श्री रामायण (Ramayana)', regex: /(रामायण|वाल्मीकि|ramayan)/i },
+    { key: 'katha_upanishad', name: 'कठोपनिषद् (Katha Upanishad)', regex: /(कठोपनिषद|कठोपनिषद्|katha\s*upanishad|नचिकेता)/i },
+    { key: 'isha_upanishad', name: 'ईशावास्योपनिषद (Isha Upanishad)', regex: /(ईशावास्य|isha\s*upanishad)/i },
+    { key: 'gita', name: 'श्रीमद्भगवद्गीता (Bhagavad Gita)', regex: /(गीता|geeta|gita|कुरुक्षेत्र|अर्जुन|गांडीव)/i }
+  ];
+
+  for (const s of scriptures) {
+    if (s.regex.test(q)) {
+      return s;
+    }
+  }
+  return null;
+}
+
 export function getLocalScriptureGrounding(query) {
   const matches = getLocalScriptureMatches(query);
   return matches.length ? matches[0] : null;
@@ -961,11 +1024,14 @@ export function getLocalScriptureGrounding(query) {
  * Unified Scripture RAG retrieval:
  * 1. Priority 1: High-confidence hand-verified curated catalog matches (score >= 4.0).
  * 2. Priority 2: Live Qdrant Vector Search across 9,558 passages on AWS (score >= 0.55).
- * 3. Gathers candidate pool (up to 4 authentic candidates) for Groq evaluation.
+ * 3. Supports multi-scripture complementary grounding for real-world queries (Point 3).
+ * 4. Strictly focuses on a single scripture if explicitly requested (Point 3).
  */
 export async function getScriptureGrounding(query) {
   if (!query || typeof query !== 'string') return null;
   if (isCasualConversational(query)) return null;
+
+  const explicitTarget = detectExplicitScriptureInQuery(query);
 
   // 1. Gather all matching curated entries that pass topic gates
   const curatedMatches = getLocalScriptureMatches(query);
@@ -981,6 +1047,14 @@ export async function getScriptureGrounding(query) {
   const seenVerses = new Set();
 
   for (const c of [...curatedMatches, ...vectorCandidates]) {
+    // If explicitly requested a single scripture, reject any outside candidates!
+    if (explicitTarget) {
+      const isMatch = (c.scripture_id && c.scripture_id.toLowerCase().includes(explicitTarget.key)) ||
+                      (c.reference && c.reference.toLowerCase().includes(explicitTarget.key)) ||
+                      (c.reference && explicitTarget.regex.test(c.reference));
+      if (!isMatch) continue;
+    }
+
     const key = (c.original_text || c.reference || '').slice(0, 30);
     if (!seenVerses.has(key)) {
       seenVerses.add(key);
@@ -990,9 +1064,12 @@ export async function getScriptureGrounding(query) {
 
   if (!candidatePool.length) return null;
 
-  // The primary scripture object is candidatePool[0], and we attach candidatePool.slice(0, 4)
   const primary = { ...candidatePool[0] };
-  primary.candidates = candidatePool.slice(0, 4);
+  primary.isExplicitSingle = Boolean(explicitTarget);
+  primary.explicitScriptureName = explicitTarget ? explicitTarget.name : null;
+  // If explicit single requested, restrict to candidates from that exact scripture;
+  // If real-world query, allow up to 3 complementary candidates across sources!
+  primary.candidates = candidatePool.slice(0, explicitTarget ? 2 : 3);
   return primary;
 }
 

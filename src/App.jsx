@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { onAuthStateChange, saveConversation, getUserConversations, getConversation, updateConversation, getUserMemory, saveUserMemory, getUserProfileInfo, saveUserProfileInfo } from './services/firebase';
+import { onAuthStateChange, saveConversation, getUserConversations, getConversation, updateConversation, getUserMemory, saveUserMemory, getUserProfileInfo, saveUserProfileInfo, signInWithGoogle } from './services/firebase';
 import { generateGuruResponse, streamGuruResponse, generateChatTitle } from './services/guruService';
 import Composer from './components/Composer';
 import Icon from './components/Icon';
@@ -187,6 +187,78 @@ function RespondingIndicator({ isDeep = false }) {
 
 // QA Landing wrapper removed to allow full live chat interaction
 
+// ─── Guest Login Modal ──────────────────────────────────────────────────────
+function GuestLoginModal({ onLogin, onClose }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const result = await signInWithGoogle();
+      if (result.error) {
+        setError(result.error);
+      } else {
+        onLogin(result.user);
+      }
+    } catch {
+      setError('Google sign in failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="guest-login-overlay" role="dialog" aria-modal="true" aria-label="Sign in required">
+      <motion.div
+        className="guest-login-modal"
+        initial={{ opacity: 0, scale: 0.92, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: 20 }}
+        transition={{ type: 'spring', stiffness: 280, damping: 26 }}
+      >
+        <div className="guest-login-icon" aria-hidden="true">ॐ</div>
+        <h2 className="guest-login-title">Continue Your Journey</h2>
+        <p className="guest-login-desc">
+          You've experienced a glimpse of Samvaad. Sign in with Google to unlock unlimited conversations, persistent memory, and your full spiritual journey.
+        </p>
+
+        {error && (
+          <div className="guest-login-error" role="alert">{error}</div>
+        )}
+
+        <motion.button
+          type="button"
+          className="guest-google-btn"
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style={{ flexShrink: 0 }}>
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span>{loading ? 'Signing in…' : 'Continue with Google'}</span>
+        </motion.button>
+
+        <div className="guest-login-features">
+          <span>✨ Unlimited questions</span>
+          <span>🧠 Persistent memory</span>
+          <span>📜 Chat history</span>
+        </div>
+
+        <button className="guest-login-dismiss" onClick={onClose} type="button" aria-label="Continue as guest">
+          Maybe later
+        </button>
+      </motion.div>
+    </div>
+  );
+}
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
@@ -202,6 +274,9 @@ export default function App() {
   const [isResponding, setIsResponding] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [userMemory, setUserMemory] = useState(null);
+  // Guest user: track how many questions they've asked (limit = 1)
+  const [guestMessageCount, setGuestMessageCount] = useState(0);
+  const [showGuestLoginModal, setShowGuestLoginModal] = useState(false);
   const [inferenceMode, setInferenceMode] = useState(() => {
     try {
       const explicit = localStorage.getItem('samvaad_user_mode_explicit');
@@ -344,23 +419,14 @@ export default function App() {
           email: 'devotee@samvaad.local'
         };
         setUser(guestUser);
+        // Clear any accumulated guest history — guests get session-only, no persistence
         try {
-          const localData = localStorage.getItem('samvad_chats_devotee_local');
-          if (localData) {
-            const parsed = JSON.parse(localData);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setConversations(parsed);
-            } else {
-              setConversations([]);
-            }
-          } else {
-            setConversations([]);
-          }
-        } catch (e) {
-          setConversations([]);
-        }
+          localStorage.removeItem('samvad_chats_devotee_local');
+        } catch (e) { }
+        setConversations([]);
         setMessages([]);
         setCurrentConversationId(null);
+        setGuestMessageCount(0);
         setUserMemory(null);
         setUserProfile(null);
         setShowOnboarding(false);
@@ -471,6 +537,12 @@ export default function App() {
     const message = (typeof explicitMessage === 'string' ? explicitMessage : draft).trim();
     if (!message) return;
 
+    // Guest users get exactly 1 free question — on the 2nd attempt, show the login modal
+    if (activeUser.uid === 'devotee_local' && guestMessageCount >= 1) {
+      setShowGuestLoginModal(true);
+      return;
+    }
+
     userScrolledUpRef.current = false;
     if (contentAreaRef.current) {
       contentAreaRef.current.scrollTop = contentAreaRef.current.scrollHeight;
@@ -571,36 +643,42 @@ export default function App() {
       }
 
 
-      const conversationData = {
-        title: messages.length === 0 ? (message.length > 30 ? message.slice(0, 30) + '...' : message) : (conversations.find(c => c.id === currentConversationId)?.title || 'Spiritual Satsang'),
-        messages: [...updatedMessagesWithUser, finalizedAssistantMsg],
-        updatedAt: new Date()
-      };
-
-      setConversations(prev => {
-        const existingIndex = prev.findIndex(c => c.id === currentConversationId);
-        let updated;
-        if (existingIndex >= 0) {
-          updated = [...prev];
-          updated[existingIndex] = { ...updated[existingIndex], ...conversationData };
-        } else {
-          updated = [{ id: currentConversationId || `local_${Date.now()}`, ...conversationData }, ...prev];
-        }
-        try {
-          localStorage.setItem(`samvad_chats_${activeUser.uid}`, JSON.stringify(updated));
-        } catch (e) { }
-        return updated;
-      });
-
-      if (currentConversationId) {
-        await updateConversation(activeUser.uid, currentConversationId, conversationData);
+      // Guest users: no persistence — session only, increment their question counter
+      if (activeUser.uid === 'devotee_local') {
+        setGuestMessageCount(prev => prev + 1);
+        // Don't save to localStorage or Firestore for guests
       } else {
-        const result = await saveConversation(activeUser.uid, {
-          ...conversationData,
-          createdAt: new Date()
+        const conversationData = {
+          title: messages.length === 0 ? (message.length > 30 ? message.slice(0, 30) + '...' : message) : (conversations.find(c => c.id === currentConversationId)?.title || 'Spiritual Satsang'),
+          messages: [...updatedMessagesWithUser, finalizedAssistantMsg],
+          updatedAt: new Date()
+        };
+
+        setConversations(prev => {
+          const existingIndex = prev.findIndex(c => c.id === currentConversationId);
+          let updated;
+          if (existingIndex >= 0) {
+            updated = [...prev];
+            updated[existingIndex] = { ...updated[existingIndex], ...conversationData };
+          } else {
+            updated = [{ id: currentConversationId || `local_${Date.now()}`, ...conversationData }, ...prev];
+          }
+          try {
+            localStorage.setItem(`samvad_chats_${activeUser.uid}`, JSON.stringify(updated));
+          } catch (e) { }
+          return updated;
         });
-        if (!result.error && result.id) {
-          setCurrentConversationId(result.id);
+
+        if (currentConversationId) {
+          await updateConversation(activeUser.uid, currentConversationId, conversationData);
+        } else {
+          const result = await saveConversation(activeUser.uid, {
+            ...conversationData,
+            createdAt: new Date()
+          });
+          if (!result.error && result.id) {
+            setCurrentConversationId(result.id);
+          }
         }
       }
     } catch (err) {
@@ -625,8 +703,37 @@ export default function App() {
     setMessages([]);
     setCurrentConversationId(null);
     setUserMemory(null);
+    setGuestMessageCount(0);
+    setShowGuestLoginModal(false);
     setShowOnboarding(false);
     setView('landing');
+  };
+
+  // Handle successful sign-in from the guest modal — stay on chat page
+  const handleGuestLoginSuccess = async (signedInUser) => {
+    setShowGuestLoginModal(false);
+    setUser(signedInUser);
+    setGuestMessageCount(0);
+    // Load their Firestore conversations
+    try {
+      const result = await getUserConversations(signedInUser.uid, 50);
+      if (!result.error && result.conversations.length > 0) {
+        setConversations(result.conversations);
+        try {
+          localStorage.setItem(`samvad_chats_${signedInUser.uid}`, JSON.stringify(result.conversations));
+        } catch (e) { }
+      }
+      const memResult = await getUserMemory(signedInUser.uid);
+      if (!memResult.error) setUserMemory(memResult.memory);
+      const profileRes = await getUserProfileInfo(signedInUser.uid);
+      if (profileRes.profile && profileRes.profile.fullName) {
+        setUserProfile(profileRes.profile);
+      } else {
+        setShowOnboarding(true);
+      }
+    } catch (e) {
+      console.error('Error loading user data after guest login:', e);
+    }
   };
 
   // QA bypass param guard — skip if QALandingWrapper is not defined
@@ -699,6 +806,7 @@ export default function App() {
         onSelectConversation={selectConversation}
         onDeleteConversation={deleteConversationHandler}
         onLogout={handleLogout}
+        onGuestSignIn={() => { setSidebarOpen(false); setShowGuestLoginModal(true); }}
       />
 
       <main className="main-panel">
@@ -1034,6 +1142,16 @@ export default function App() {
 
       <OnboardingModal isOpen={showOnboarding} onSubmit={handleOnboardingSubmit} />
       <VoiceCloneModal isOpen={voiceCloneModalOpen} onClose={() => setVoiceCloneModalOpen(false)} />
+
+      {/* Guest login modal — overlays the chat page, no navigation */}
+      <AnimatePresence>
+        {showGuestLoginModal && (
+          <GuestLoginModal
+            onLogin={handleGuestLoginSuccess}
+            onClose={() => setShowGuestLoginModal(false)}
+          />
+        )}
+      </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>

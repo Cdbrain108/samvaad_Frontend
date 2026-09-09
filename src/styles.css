@@ -2114,3 +2114,311 @@ html, body { max-width: 100%; overflow-x: hidden; }
   background: rgba(255, 255, 255, 0.02);
 }
 
+/* ──────────────────────────────────────────────────────────────
+   Guest Login Modal
+────────────────────────────────────────────────────────────── */
+.guest-login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(10, 8, 18, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.guest-login-modal {
+  width: 100%;
+  max-width: 400px;
+  background: linear-gradient(160deg, #1a1430 0%, #12101e 100%);
+  border: 1px solid rgba(167, 139, 250, 0.22);
+  border-radius: 24px;
+  padding: 36px 32px 28px;
+  text-align: center;
+  box-shadow:
+    0 32px 64px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.guest-login-icon {
+  font-family: 'Noto Serif Devanagari', 'Martel', Georgia, serif;
+  font-size: 3rem;
+  line-height: 1;
+  color: #FBBF24;
+  text-shadow: 0 0 28px rgba(251, 191, 36, 0.5), 0 0 60px rgba(251, 191, 36, 0.2);
+  margin-bottom: 16px;
+  animation: om-breathe 2.2s ease-in-out infinite;
+}
+
+.guest-login-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #f5f0ff;
+  margin: 0 0 10px;
+  letter-spacing: -0.01em;
+}
+
+.guest-login-desc {
+  font-size: 0.88rem;
+  color: #9ca3af;
+  line-height: 1.65;
+  margin: 0 0 22px;
+}
+
+.guest-login-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  color: #f87171;
+  margin-bottom: 14px;
+}
+
+.guest-google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 20px;
+  background: #ffffff;
+  border: none;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  cursor: pointer;
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  margin-bottom: 20px;
+}
+
+.guest-google-btn:hover {
+  background: #f0f0f0;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.4);
+}
+
+.guest-google-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.guest-login-features {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 0.77rem;
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.guest-login-dismiss {
+  background: none;
+  border: none;
+  color: #4b5563;
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s ease;
+}
+
+.guest-login-dismiss:hover {
+  color: #9ca3af;
+}
+
+@media (max-width: 420px) {
+  .guest-login-modal {
+    padding: 28px 20px 22px;
+    border-radius: 20px;
+  }
+  .guest-login-title { font-size: 1.15rem; }
+  .guest-login-desc { font-size: 0.82rem; }
+  .guest-login-features { gap: 10px; font-size: 0.72rem; }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Sidebar: Guest sign-in CTA
+────────────────────────────────────────────────────────────── */
+.sidebar-guest-cta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 28px 20px;
+  gap: 10px;
+}
+
+.guest-cta-icon {
+  font-family: 'Noto Serif Devanagari', 'Martel', Georgia, serif;
+  font-size: 2.4rem;
+  color: #FBBF24;
+  text-shadow: 0 0 18px rgba(251, 191, 36, 0.4);
+  line-height: 1;
+  margin-bottom: 4px;
+  animation: om-breathe 2.5s ease-in-out infinite;
+}
+
+.guest-cta-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.guest-cta-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0 0 6px;
+}
+
+.guest-cta-google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  background: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.guest-cta-google-btn:hover {
+  background: #f0f0f0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Mobile: Sanskrit Shlok + Chat UI Fixes
+────────────────────────────────────────────────────────────── */
+
+/* Shlok lines: must never overflow on phones */
+.rich-shlok-line {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  /* Shlok (Sanskrit verse) responsive adjustments */
+  .rich-shlok-line {
+    font-size: 14px;
+    padding: 10px 13px;
+    line-height: 1.75;
+    border-left-width: 3px;
+    margin: 10px 0 6px;
+  }
+
+  .rich-arthat-line {
+    font-size: 13px;
+    padding: 8px 12px;
+    line-height: 1.6;
+  }
+
+  /* Message bubbles: tighter on phones */
+  .message {
+    gap: 10px;
+    padding: 14px 12px 10px;
+  }
+
+  .message-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .message > div {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* Engine tags: wrap on very small phones */
+  .engine-tags-wrapper {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .engine-tag,
+  .rag-verified-badge {
+    font-size: 0.67rem;
+    padding: 2px 6px;
+  }
+
+  /* Rich text: ensure no horizontal overflow */
+  .rich-text {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+  }
+
+  .rich-line,
+  .rich-bullet {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  /* Message sender row: tighter spacing */
+  .message-sender-row {
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+
+  /* Make assistant message body not overflow */
+  .assistant-message-body {
+    max-width: 100%;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 420px) {
+  .rich-shlok-line {
+    font-size: 13px;
+    padding: 8px 10px;
+    letter-spacing: 0.01em;
+  }
+
+  .rich-arthat-line {
+    font-size: 12.5px;
+    padding: 7px 10px;
+  }
+
+  .message {
+    padding: 12px 10px 8px;
+    gap: 8px;
+  }
+
+  .message-avatar {
+    width: 26px;
+    height: 26px;
+    font-size: 9px;
+  }
+}
+
+/* Dark mode mobile shlok color overrides are already inherited from .rich-shlok-line dark rules.
+   Ensure text-shadow doesn’t look odd on very small screens */
+@media (max-width: 420px) {
+  :root[data-theme='dark'] .rich-shlok-line {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  }
+}
