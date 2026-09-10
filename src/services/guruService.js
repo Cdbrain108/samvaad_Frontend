@@ -1931,7 +1931,10 @@ export async function generateAuthenticTunedDraftFallback(userMessage, prompt, i
       body: JSON.stringify({
         model: 'qwen/qwen3.8-27b',
         messages: [
-          { role: 'system', content: 'आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं। साधक के प्रश्न पर अपनी आत्मीय, वात्सल्यमयी व स्वाभाविक वाणी में संक्षिप्त मौखिक उत्तर दीजिए।' },
+          {
+            role: 'system',
+            content: 'आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं। आप किसी भी साधक को कभी पापी या अपराधी नहीं मानते; केवल अहैतुक वात्सल्य, सांत्वना और नाम-जप का आश्रय देते हैं। ठाकुर जी शरीर नहीं, अंतःकरण का प्रेम देखते हैं ("पुरुष नपुंसक नारि वा जीव चराचर कोइ")। साधक के प्रश्न पर अपनी करुणामयी, वात्सल्यमयी वाणी में संक्षिप्त मौखिक उत्तर दीजिए।'
+          },
           { role: 'user', content: prompt }
         ],
         temperature: 0.35,
@@ -2124,7 +2127,10 @@ ${scripturePromptSection}
      **Meaning —** "[Spiritual meaning in pure English]"
      CRITICAL: NEVER write Devanagari 'अर्थात्' or 'भावार्थ' in English responses. Always use '**Meaning —**'.` : ''}
    - Paragraph ${candidates.length > 0 ? '4' : '3'}: Practical daily living (honest duty as seva, overcoming ego), continuous chanting of the Holy Name ('Radha Radha'), and fatherly blessings.
-3. 100% pure English text (only the sacred Sanskrit verse inside **« ... »**).`
+3. 100% pure English text (only the sacred Sanskrit verse inside **« ... »**).
+4. COMPASSION & UNIVERSAL LOVE (CRITICAL):
+   - Pujya Maharaj Ji NEVER labels any seeker as a "sinner", "criminal", "impure", or "guilty". Divine love transcends bodily identity ("पुरुष नपुंसक नारि वा जीव चराचर कोइ").
+   - If the raw draft contains any harsh, judgmental, or prejudiced words, completely discard them and formulate fatherly warmth, solace, universal divine love, and shelter in the Holy Name.`
     : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) के पावन वचनों के दिव्य संपादन व प्रस्तुति के माध्यम हैं।
 पूज्य महाराज जी ने अपने अंतर्मन से यह प्रारंभिक सत्संग वाणी कही है:
 """
@@ -2145,7 +2151,10 @@ ${scripturePromptSection}
      और ठीक नीचे:
      **अर्थात् —** "[शास्त्रसम्मत भावार्थ]"` : ''}
    - अनुच्छेद ४: व्यावहारिक मार्गदर्शन (कर्तव्य को प्रभु सेवा मानना, अहंकार त्यागना), 'राधा-राधा' नाम जप का आश्रय, और मंगलकारी आशीर्वाद (।)।
-३. संस्कृत श्लोक के अक्षरों को हूबहू (verbatim) रखें, किसी शब्द का यांत्रिक दोहराव न करें।`;
+३. संस्कृत श्लोक के अक्षरों को हूबहू (verbatim) रखें, किसी शब्द का यांत्रिक दोहराव न करें।
+४. वात्सल्य, समदृष्टि व शुद्धि (अति अनिवार्य):
+   - पूज्य महाराज जी कभी किसी साधक को 'गंदे विचार वाला', 'अपराधी', 'पापी', या 'दोषी' नहीं कहते। ईश्वर का प्रेम अहैतुक और सर्वसमावेशी है ("पुरुष नपुंसक नारि वा जीव चराचर कोइ")।
+   - यदि प्रारंभिक प्रारूप में कोई भी कठोर, संकीर्ण या पूर्वाग्रहयुक्त शब्द हो, तो उसे पूर्णतः त्यागकर केवल प्रेम, सांत्वना, समदृष्टि और 'राधा-राधा' नाम जप का मार्ग प्रशस्त करें।`;
 
   const messages = [
     { role: 'system', content: systemPrompt },
@@ -2186,7 +2195,8 @@ ${scripturePromptSection}
             .replace(/प्रिय\s*साधक(?:जी)?/g, greetingPhrase)
             .replace(/हे\s*साधक/g, greetingPhrase)
             .replace(/O\s*seeker/gi, greetingPhrase)
-            .replace(/Dear\s*seeker/gi, greetingPhrase);
+            .replace(/Dear\s*seeker/gi, greetingPhrase)
+            .replace(/(?:गंदे\s*विचार\s*वाले\s*पुरुष|अपराध\s*करने\s*वाला\s*चाहे\s*स्त्री|पाप\s*का\s*बोझ\s*लेकर)[^।?!]*[।?!]/g, '');
           if (isEnglish) {
             sanitized = sanitized.replace(/(?:\*\*|\*|\b)(?:अर्थात्|भावार्थ)\s*[:—\-]\s*(?:\*\*)?/gi, '**Meaning —** ');
           }
