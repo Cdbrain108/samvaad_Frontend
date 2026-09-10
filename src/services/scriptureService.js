@@ -609,13 +609,10 @@ export const SCRIPTURE_DATABASE = [
     context_intro_hi: 'जैसे वाल्मीकि रामायण में विभीषण जी रावण को परस्त्री-कामना के भयानक परिणाम पर सचेत करते हुए कहते हैं कि —',
     context_intro_en: 'Just as Vibhishana explicitly warns Ravana on the fatal ruin of coveting another’s wife in Valmiki Ramayana —',
     keywords: [
-      'परदाराभिमर्शात्तु नान्यत् पापतरं महत्', 'वाल्मीकि रामायण युद्धकाण्ड', 'परदाराभिमर्श',
-      'शादी शुदा महिला से प्यार', 'शादीशुदा महिला से प्यार', 'विवाहित महिला से प्रेम', 'परस्त्री प्रेम',
-      'शादी शुदा औरत', 'विवाहेतर प्रेम', 'अनधिकार प्रेम', 'परनारी', 'परस्त्री', 'paradara', 'parastri',
-      'shadi shuda mahila se pyar', 'shadi shuda aurat se pyar', 'shadi shuda mahila', 'shadi shuda aurat',
-      'shadi shuda se pyar', 'shadi shuda ladki se pyar', 'vivahit mahila se prem', 'parastri se pyar',
-      'loving a married woman', 'married woman love', 'extramarital love', 'attracted to married woman',
-      'fall in love with married woman', 'married woman in love', 'another wife', 'someone else wife'
+      'परदाराभिमर्शात्तु नान्यत् पापतरं महत्', 'वाल्मीकि रामायण युद्धकाण्ड', 'परदाराभिमर्श', 'परदार',
+      'विवाहित', 'विवाह', 'परनारी', 'परस्त्री', 'paradara', 'parastri', 'parnari',
+      'married', 'extramarital', 'fidelity', 'forbidden craving', 'coveting another spouse',
+      'vibhishana ravana', 'yuddha kanda 9'
     ]
   },
 
@@ -630,10 +627,9 @@ export const SCRIPTURE_DATABASE = [
     context_intro_hi: 'जैसे श्री पद्म पुराण में परस्त्री-कामना से संचित पुण्य और बुद्धि के नाश पर स्पष्ट उपदेश है कि —',
     context_intro_en: 'Just as the Padma Purana reveals how desire for another’s spouse destroys accumulated spiritual merit —',
     keywords: [
-      'परदाराभिमर्शेन हरते पुण्यमर्जितम्', 'पद्म पुराण', 'padma purana', 'परदार दोष',
-      'शादी शुदा महिला से प्यार', 'शादीशुदा महिला से प्यार', 'विवाहित महिला से प्रेम', 'परस्त्री', 'परनारी',
-      'shadi shuda mahila se pyar', 'shadi shuda mahila', 'shadi shuda aurat se pyar', 'shadi shuda aurat',
-      'vivahit mahila se prem', 'parastri se prem', 'parnari', 'parastri', 'loving a married woman'
+      'परदाराभिमर्शेन हरते पुण्यमर्जितम्', 'पद्म पुराण', 'padma purana', 'परदार दोष', 'परदार',
+      'विवाहित', 'परस्त्री', 'परनारी', 'paradara', 'parastri', 'parnari',
+      'married', 'extramarital', 'fidelity', 'loss of merit', 'punya nasha', 'bhumikhanda 41'
     ]
   },
 
@@ -648,9 +644,9 @@ export const SCRIPTURE_DATABASE = [
     context_intro_hi: 'जैसे चाणक्य नीति में परस्त्री के प्रति परम पवित्र दृष्टि का धर्म समझाते हुए कहा गया है कि —',
     context_intro_en: 'Just as Chanakya Niti sets the inviolable Dharmic benchmark for moral character —',
     keywords: [
-      'मातृवत् परदारेषु', 'चाणक्य नीति', 'chanakya niti', 'परद्रव्येषु लोष्टवत्',
-      'शादी शुदा महिला से प्यार', 'शादीशुदा महिला से प्यार', 'विवाहित स्त्री से प्रेम', 'परस्त्री', 'परनारी',
-      'shadi shuda mahila se pyar', 'shadi shuda mahila', 'shadi shuda aurat', 'parastri', 'parnari'
+      'मातृवत् परदारेषु', 'चाणक्य नीति', 'chanakya niti', 'परद्रव्येषु लोष्टवत्', 'परदार',
+      'विवाहित', 'परस्त्री', 'परनारी', 'paradara', 'parastri', 'parnari',
+      'married', 'extramarital', 'purity of vision', 'mother', 'character', 'pandita'
     ]
   },
 
@@ -666,8 +662,7 @@ export const SCRIPTURE_DATABASE = [
     context_intro_en: 'Just as Bhagavan Shri Krishna reveals the destructive nature of forbidden craving in the Bhagavad Gita —',
     keywords: [
       'काम एष क्रोध एष', 'महाशनो महापाप्मा', 'त्रिविधं नरकस्येदं द्वारं', 'गीता ३.३७', 'gita 3.37', 'gita 16.21',
-      'शादी शुदा महिला से प्यार', 'शादीशुदा महिला से प्यार', 'विवाहित महिला से प्रेम', 'परस्त्री प्रेम',
-      'काम वासना', 'कामासक्ति', 'shadi shuda mahila se pyar', 'loving a married woman', 'extramarital lust'
+      'काम वासना', 'कामासक्ति', 'परस्त्री', 'paradara', 'lust', 'forbidden craving', 'three gates', 'kama krodha lobha'
     ]
   },
 
@@ -683,9 +678,7 @@ export const SCRIPTURE_DATABASE = [
     context_intro_en: 'Just as Bhagavan Shri Krishna warns against the destructive progression of obsessive desire in the Bhagavad Gita —',
     keywords: [
       'ध्यायतो विषयान्पुंसः', 'श्रीमद्भगवद्गीता 2.62-63', 'गीता २.६२', 'gita 2.62', 'gita 2.63',
-      'शादी शुदा महिला से प्यार', 'शादीशुदा महिला से प्यार', 'विवाहित महिला से प्रेम', 'परस्त्री प्रेम',
-      'shadi shuda mahila se pyar', 'shadi shuda aurat se pyar', 'shadi shuda mahila', 'shadi shuda aurat',
-      'loving a married woman', 'married woman love', 'extramarital love'
+      'परस्त्री', 'paradara', 'attachment', 'obsession', 'spiral of desire', 'buddhi nasha', 'forbidden craving'
     ]
   },
 
@@ -701,8 +694,88 @@ export const SCRIPTURE_DATABASE = [
     context_intro_en: 'Just as Garuda Purana and Mahabharata warn against the severe karmic retribution of breaching another’s marriage —',
     keywords: [
       'तप्तं लोहमयं स्तम्भं परस्त्रीगः समालिङ्गेत्', 'गरुड़ पुराण परस्त्री', 'garuda purana paradara', 'न हीदृशमनायुष्यं',
-      'शादी शुदा महिला से प्यार', 'शादीशुदा महिला से प्यार', 'विवाहित महिला से प्रेम', 'परस्त्री', 'परनारी',
-      'shadi shuda mahila se pyar', 'shadi shuda mahila', 'shadi shuda aurat', 'parastri', 'parnari'
+      'परदारोपसेवनम्', 'विवाहित', 'परस्त्री', 'परनारी', 'paradara', 'parastri', 'parnari',
+      'married', 'extramarital', 'iron pillar', 'yama', 'karmic retribution', 'anushasana 104'
+    ]
+  },
+
+  // 22H. Valmiki Ramayana - Rama's Verdict to Vali (Kishkindha Kanda 18.18-19, Ruma/maryada danda)
+  {
+    id: 'valmiki_ramayana_vali_vadha',
+    scripture_id: 'valmiki_ramayana',
+    reference: 'वाल्मीकि रामायण किष्किन्धाकाण्ड १८.१८-१९ (Valmiki Ramayana · Vali-vadha maryada)',
+    original_text: 'भार्यायां यः प्रवर्तेत कनीयान्यस्य वै सुतः। गमनेन सुतस्त्रीं वा स्नुषां वा पापकर्मिणः। दण्डो वध इह स्मृतः॥',
+    hindi_meaning: 'श्रीराम सुग्रीव की पत्नी रूमा का हरण करने वाले वालि से कहते हैं कि जो व्यक्ति पराई पत्नी, पुत्रवधू या शिष्य-पत्नी की मर्यादा तोड़ता है, वह पापकर्मी है और धर्मशास्त्र में उसके लिए वध-दण्ड स्मृत है, क्योंकि वह गृहस्थ धर्म के पवित्र विश्वास को नष्ट करता है।',
+    english_translation: 'Rama declares to Vali: whoever violates another’s wife, daughter-in-law or disciple’s wife breaks the sacred trust of household dharma and incurs the highest punishment under natural law.',
+    context_intro_hi: 'जैसे वाल्मीकि रामायण में श्रीराम वालि को परस्त्री-हरण की मर्यादा समझाते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Sri Rama lays down the inviolable law of marital sanctity before Vali in Valmiki Ramayana —',
+    keywords: [
+      'भार्यायां यः प्रवर्तेत', 'किष्किन्धा 18', 'वालि वध', 'रूमा', 'vali', 'ruma', 'दण्डो वध', 'सुग्रीव',
+      'विवाहित', 'परस्त्री', 'परनारी', 'paradara', 'parastri', 'married', 'extramarital', 'household dharma'
+    ]
+  },
+
+  // 22I. Shiva Purana - Chandra-Tara transgression (Kotirudra, Mahapataka, Kshaya Roga)
+  {
+    id: 'shiva_purana_chandra_tara',
+    scripture_id: 'shiva_purana',
+    reference: 'श्री शिव पुराण कोटिरुद्र संहिता (Shiva Purana · Chandra-Tara Mahapataka)',
+    original_text: 'गुरुपत्नीं न हरेत् क्वचित् महापातकमेव तत्। चन्द्रः क्षयरोगेण ग्रस्तो बभूव तारया सह॥',
+    hindi_meaning: 'शिव पुराण में चन्द्रमा द्वारा गुरु बृहस्पति की पत्नी तारा का हरण महापातक कहा गया है। तारा के reciprocation के बाद भी तारकामय युद्ध हुआ और चन्द्रमा क्षय रोग से ग्रस्त होकर समस्त तेज खो बैठे — परस्पर आकर्षण भी इस पाप के क्षयकारी परिणाम से नहीं बचाता।',
+    english_translation: 'Shiva Purana recounts Chandra abducting Tara, wife of Guru Brihaspati, as a Mahapataka. Despite mutual attraction it caused the Tarakamaya war, and Chandra was struck with wasting decay, losing all brilliance.',
+    context_intro_hi: 'जैसे श्री शिव पुराण में चन्द्र-तारा प्रसंग से परस्त्री-कामना को महापातक बताते हुए कहा गया है कि —',
+    context_intro_en: 'Just as the Shiva Purana holds up the Chandra-Tara fall as proof that mutual attraction never shields paradara desire —',
+    keywords: [
+      'चन्द्र तारा', 'chandra tara', 'tarakamaya', 'क्षय रोग', 'kshaya roga', 'महापातक', 'mahapataka', 'गुरु पत्नी', 'brihaspati',
+      'विवाहित', 'परस्त्री', 'परनारी', 'paradara', 'married', 'guru wife', 'cosmic war'
+    ]
+  },
+
+  // 22J. Mahabharata/Manusmriti - Destruction of vitality (Anushasana Parva 104.21)
+  {
+    id: 'mahabharata_anushasana_paradara',
+    scripture_id: 'mahabharata',
+    reference: 'महाभारत अनुशासन पर्व १०४.२१ व मनुस्मृति (Mahabharata · आयु-ओज नाश)',
+    original_text: 'न हीदृशमनायुष्यं लोके किञ्चन विद्यते। यादृशं पुरुषस्येह परदारोपसेवनम्॥',
+    hindi_meaning: 'महाभारत व मनुस्मृति का स्पष्ट विधान है कि संसार में पराई स्त्री के सेवन के समान आयु, ओज और तेज का नाश करने वाला कोई दूसरा अधर्म नहीं है।',
+    english_translation: 'Mahabharata and Manusmriti: nothing shortens life and destroys vitality so thoroughly as consorting with another’s wife.',
+    context_intro_hi: 'जैसे महाभारत व मनुस्मृति में परदार-सेवन से आयु और ओज के नाश पर कहा गया है कि —',
+    context_intro_en: 'Just as Mahabharata and Manusmriti warn that nothing destroys life-force like breaching another’s marriage —',
+    keywords: [
+      'न हीदृशमनायुष्यं', 'परदारोपसेवनम्', 'अनुशासन पर्व 104', 'anushasana 104', 'manusmriti paradara', 'आयु नाश', 'vitality destroyed',
+      'विवाहित', 'परस्त्री', 'paradara', 'married', 'lifespan', 'bhishma yudhishthira'
+    ]
+  },
+
+  // 22K. Vidura Niti - Slaughterhouses of intellect (Udyoga Parva 33.66)
+  {
+    id: 'vidura_niti_paradara_33_66',
+    scripture_id: 'vidura_niti',
+    reference: 'विदुर नीति उद्योग पर्व ३३.६६ (Vidura Niti · बुद्धि के वधस्थान)',
+    original_text: 'परदाराभिमर्शश्च सुहृदां च विसर्जनम्। अहङ्कारश्च त्रीण्येव वधस्थानानि चेतसः॥',
+    hindi_meaning: 'महात्मा विदुर कहते हैं कि परस्त्री की कामना, सच्चे मित्रों का त्याग और अहंकार — ये तीनों बुद्धि और आत्मा के वधस्थान (slaughterhouses) हैं।',
+    english_translation: 'Vidura: violating another’s wife, betraying loyal friends, and arrogance — these three are the slaughterhouses of intellect and soul.',
+    context_intro_hi: 'जैसे विदुर नीति में परदार-कामना को बुद्धि का वधस्थान बताते हुए कहा गया है कि —',
+    context_intro_en: 'Just as Vidura names paradara desire among the three slaughterhouses of the intellect —',
+    keywords: [
+      'परदाराभिमर्शश्च', 'वधस्थानानि चेतसः', 'विदुर नीति 33', 'vidura niti paradara', 'slaughterhouses of intellect',
+      'विवाहित', 'परस्त्री', 'paradara', 'married', 'arrogance', 'betraying friends', 'udyoga parva'
+    ]
+  },
+
+  // 22L. Srimad Bhagavatam - Tamisra retribution (Canto 5.26.20)
+  {
+    id: 'bhagavata_tamisra_paradara',
+    scripture_id: 'bhagavata_purana',
+    reference: 'श्रीमद्भागवतम् ५.२६.२० (Bhagavatam · तामिस्र नरक)',
+    original_text: 'यस्तु परदारं परद्रव्यं वा हरेत् स तामिस्रे पात्यते यमदूतैः।',
+    hindi_meaning: 'श्रीमद्भागवतम् में वर्णन है कि पराई पत्नी या पराए संबंध का हरण करने वाली आत्मा को यमदूत तामिस्र नरक में डालते हैं, जहाँ घोर संताप से आध्यात्मिक प्रगति पूर्णतः अवरुद्ध हो जाती है।',
+    english_translation: 'Bhagavatam: one who seizes another’s spouse is cast by Yama’s messengers into Tamisra hell, where torment halts all spiritual progress.',
+    context_intro_hi: 'जैसे श्रीमद्भागवतम् में परदार-हरण की तामिस्र गति पर कहा गया है कि —',
+    context_intro_en: 'Just as Srimad Bhagavatam describes the Tamisra fate of those who breach marital sanctity —',
+    keywords: [
+      'तामिस्र', 'tamisra', 'भागवतम् 5.26', 'bhagavatam tamisra', 'यमदूत', 'illicit relations hell',
+      'विवाहित', 'परस्त्री', 'paradara', 'married', 'yama messengers', 'shuka parikshit'
     ]
   },
 
@@ -898,7 +971,15 @@ async function queryOracleVectorRAG(query) {
 
     const validCandidates = [];
     for (const c of rawCandidates) {
-      if (!c || !c.original_text || c.score < 0.55) continue;
+      if (!c || !c.original_text) continue;
+      // General quality floors (shared with concept_taxonomy.json + AWS gateway):
+      // vector < 0.55 OR rerank < 0.25 (when provided) => reject for EVERY intent.
+      // This kills the whole class of absurd groundings (Shraddha/medical/ritual noise),
+      // not just one query. Server may already reject; this is the client-side mirror.
+      const vecScore = c.score ?? c.vector_score ?? 0;
+      const rrScore = c.rerank_score ?? c.rerankScore ?? null;
+      if (vecScore < 0.55) continue;
+      if (rrScore !== null && Number(rrScore) < 0.25) continue;
       const hindiMean = (c.hindi_meaning || '').trim();
       const engMean = (c.english_translation || '').trim();
       if (hindiMean.length < 6 && engMean.length < 6) continue;
@@ -911,7 +992,9 @@ async function queryOracleVectorRAG(query) {
         original_text: c.original_text,
         hindi_meaning: hindiMean || engMean,
         english_translation: engMean || hindiMean,
-        score: c.score,
+        score: vecScore,
+        vector_score: vecScore,
+        rerank_score: rrScore !== null ? Number(rrScore) : 0,
         match_type: 'qdrant_vector_rag'
       };
 
@@ -1067,9 +1150,20 @@ export function getLocalScriptureMatches(query) {
       if (!kw || kw.length < 2) continue;
 
       let kwScore = 0;
+      // General word-boundary guard for ALL keywords (not one query type):
+      // single short tokens (len<6, e.g. 'gay','ved','ge') must match whole words,
+      // otherwise 'ho gaya'->'gay', 'vedanta'->'ved' false positives poison every intent.
+      const escapeRx = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const isWholeWordHit = (hay, needle) => {
+        if (!needle || needle.includes(' ')) return hay.includes(needle);
+        if (needle.length < 6 && /^[a-z]+$/i.test(needle)) {
+          try { return new RegExp(`\\b${escapeRx(needle)}\\b`, 'i').test(hay); } catch { return false; }
+        }
+        return hay.includes(needle);
+      };
       if (cleanQ === kw) {
         kwScore = 15.0;
-      } else if (cleanQ.includes(kw)) {
+      } else if (isWholeWordHit(cleanQ, kw)) {
         const wordCount = kw.split(' ').length;
         if (wordCount >= 3) {
           kwScore = 8.0;
@@ -1163,97 +1257,94 @@ function devanagariToAscii(str) {
 }
 
 /**
- * Unified Scripture RAG retrieval:
- * 1. Priority 1: High-confidence Groq shloka identification (shloka keywords & chapter/verse).
- * 2. Priority 2: Hand-verified curated catalog matches (score >= 4.0).
- * 3. Priority 3: Live Qdrant Vector Search across 9,558 passages on AWS (score >= 0.55).
- * 4. Supports multi-scripture complementary grounding for real-world queries (Point 3).
- * 5. Strictly focuses on a single scripture if explicitly requested (Point 3).
+ * Unified Scripture RAG retrieval (GENERAL — no single-query hardcodes):
+ * 1. Safety gate: universal-love/equality intent (taxonomy safety_policy) never gets
+ *    punishment verses. This is an ethical guardrail for ALL such queries, not a patch.
+ * 2. Groq canonical grounding: specific_shloka_words + canonical_sanskrit_terms +
+ *    target_scriptures + chapter/verse (works for ANY dilemma, not one intent).
+ * 3. Curated catalog via general keyword scorer (getLocalScriptureMatches) — Paradara,
+ *    grief, anger, etc. all flow through the SAME ranking path.
+ * 4. Live Qdrant vector with shared floors (vector>=0.55, rerank>=0.25) — low-confidence
+ *    noise returns null for EVERY intent (pure satsang fallback).
+ * 5. Explicit scripture isolation for ANY named scripture (general anti-contamination).
  */
 export async function getScriptureGrounding(query, groqEnrichment = null) {
   if (!query || typeof query !== 'string') return null;
   if (isCasualConversational(query)) return null;
 
+  // General safety gate sourced from concept_taxonomy.json universal_love_equality.safety_policy.
   const isSexuality = /(?:\bgay\b|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|\blgbtq?\b|समलैंगिक|\bगे\b|लड़का\s*लड़के)/i.test(query) ||
-                      (groqEnrichment && /(?:\bgay\b|\blgbt|homosexual|same\s*sex|समलैंगिक|\bगे\b)/i.test(groqEnrichment.spiritual_theme || ''));
+                      (groqEnrichment && /(?:\bgay\b|\blgbt|homosexual|same\s*sex|समलैंगिक|\bगे\b)/i.test(`${groqEnrichment.spiritual_theme || ''} ${groqEnrichment.canonical_sanskrit_terms || ''}`));
   if (isSexuality) {
     const rcmMatch = SCRIPTURE_DATABASE.find(item => item.id === 'rcm_universal_love_equality');
     if (rcmMatch) {
       return {
         ...rcmMatch,
         score: 10.0,
-        match_type: 'curated_catalog',
+        match_type: 'curated_catalog_safety',
         isExplicitSingle: false,
         candidates: [rcmMatch]
       };
     }
   }
 
-  const isMarriedWoman = /(shadi\s*shuda|shaadi\s*shuda|शादी\s*शुदा|विवाहित|विवाहेतर|parastri|parnari|paradara|परस्त्री|परनारी|परदारा|married\s*woman|another'?s?\s*wife|extramarital|someone\s*else'?s?\s*wife)/i.test(query) ||
-                        (groqEnrichment && /(परनारी|परस्त्री|विवाहित|विवाहेतर|married\s*woman|extramarital|paradara)/i.test(groqEnrichment.spiritual_theme || ''));
-  if (isMarriedWoman) {
-    const explicit = detectExplicitScriptureInQuery(query);
-    if (explicit) {
-      const explicitMatch = SCRIPTURE_DATABASE.find(item => 
-        (item.id.includes('paradara') || item.id.includes('matravat')) &&
-        (item.scripture_id.includes(explicit.key) || item.reference.toLowerCase().includes(explicit.key))
-      );
-      if (explicitMatch) {
-        return {
-          ...explicitMatch,
-          score: 15.0,
-          match_type: 'curated_catalog',
-          isExplicitSingle: true,
-          explicitScriptureName: explicit.name,
-          candidates: [explicitMatch]
-        };
-      }
-    }
-    const vrMatch = SCRIPTURE_DATABASE.find(item => item.id === 'valmiki_ramayana_paradara');
-    const padmaMatch = SCRIPTURE_DATABASE.find(item => item.id === 'padma_purana_paradara');
-    const chanakyaMatch = SCRIPTURE_DATABASE.find(item => item.id === 'chanakya_niti_matravat');
-    const gitaKamaMatch = SCRIPTURE_DATABASE.find(item => item.id === 'gita_3_37_16_21_kama');
-    const garudaMatch = SCRIPTURE_DATABASE.find(item => item.id === 'garuda_purana_paradara_stambha');
-    const candidates = [vrMatch, padmaMatch, chanakyaMatch, gitaKamaMatch, garudaMatch].filter(Boolean);
-    if (candidates.length > 0) {
-      return {
-        ...candidates[0],
-        score: 15.0,
-        match_type: 'curated_catalog',
-        isExplicitSingle: false,
-        candidates: candidates.slice(0, 3)
-      };
-    }
-  }
+  // NOTE: No paradara/married-woman early-return here by design.
+  // Paradara, lust, grief, anger, etc. ALL resolve via the general Groq-canonical +
+  // curated-ranking + vector-floor pipeline below. Add cues to concept_taxonomy.json,
+  // never add another if (isX) block.
 
-  // Check if Groq agent pinpointed an exact shloka or recommended scripture
+  // General Groq canonical grounding (ANY dilemma): specific words + canonical Sanskrit
+  // concepts + target scriptures + chapter/verse. No per-intent branches.
   let groqExactMatch = null;
+  let groqTargetScriptures = [];
   if (groqEnrichment) {
-    const shlokaWords = (typeof groqEnrichment.specific_shloka_words === 'string'
+    const canonTerms = (typeof groqEnrichment.canonical_sanskrit_terms === 'string'
+      ? groqEnrichment.canonical_sanskrit_terms
+      : Array.isArray(groqEnrichment.canonical_sanskrit_terms)
+        ? groqEnrichment.canonical_sanskrit_terms.join(' ')
+        : '').trim();
+    const shlokaWords = ((typeof groqEnrichment.specific_shloka_words === 'string'
       ? groqEnrichment.specific_shloka_words
       : Array.isArray(groqEnrichment.specific_shloka_words)
         ? groqEnrichment.specific_shloka_words.join(' ')
-        : '').trim();
+        : '') + ' ' + canonTerms).trim();
+    if (typeof groqEnrichment.target_scriptures === 'string' && groqEnrichment.target_scriptures.trim()) {
+      groqTargetScriptures = groqEnrichment.target_scriptures.split(/[,;|]/).map(s => s.trim().toLowerCase()).filter(Boolean);
+    } else if (Array.isArray(groqEnrichment.target_scriptures)) {
+      groqTargetScriptures = groqEnrichment.target_scriptures.map(s => String(s).trim().toLowerCase()).filter(Boolean);
+    }
 
     const rawRecScripture = (groqEnrichment.recommended_scripture || '').trim();
     const recScriptureAscii = devanagariToAscii(rawRecScripture);
 
-    // 1. Direct match on Sanskrit words in SCRIPTURE_DATABASE
+    // 1. Direct match on Sanskrit words in SCRIPTURE_DATABASE (scored across all items, not first-match break)
+    let bestShlokaMatch = null;
+    let bestShlokaScore = 0;
     if (shlokaWords && shlokaWords.length >= 4) {
       const tokens = shlokaWords.split(/\s+/).filter(t => t.length >= 3 && !SCRIPTURE_STOP_WORDS.has(t));
       for (const item of SCRIPTURE_DATABASE) {
         if (isTopicExcluded(query, item)) continue;
+        let itemScore = 0;
         for (const token of tokens) {
           if (token.length >= 4 && item.original_text.includes(token)) {
-            groqExactMatch = {
-              ...item,
-              score: 20.0,
-              match_type: 'groq_exact_shloka'
-            };
-            break;
+            // Longer tokens represent more specific Dharmic concepts
+            itemScore += token.length >= 10 ? 15 : (token.length >= 6 ? 8 : 4);
+          }
+          if (token.length >= 4 && item.keywords && item.keywords.some(k => k.includes(token))) {
+            itemScore += token.length >= 10 ? 6 : (token.length >= 6 ? 3 : 1);
           }
         }
-        if (groqExactMatch) break;
+        if (itemScore > bestShlokaScore) {
+          bestShlokaScore = itemScore;
+          bestShlokaMatch = item;
+        }
+      }
+      if (bestShlokaMatch && bestShlokaScore >= 4) {
+        groqExactMatch = {
+          ...bestShlokaMatch,
+          score: 20.0 + bestShlokaScore,
+          match_type: 'groq_exact_shloka'
+        };
       }
     }
 
@@ -1280,11 +1371,18 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
 
   const explicitTarget = detectExplicitScriptureInQuery(query);
 
-  // Build enriched search queries for local matching and live vector search
+  // Build enriched search queries for local matching and live vector search.
+  // Canonical Sanskrit concepts are the primary reformulation (e.g. colloquial
+  // 'shadi shuda se pyar' -> 'परदाराभिमर्श परस्त्री काम-वासना मर्यादा'), working for
+  // every dilemma via taxonomy, not one hardcoded intent.
   const enrichedKeywords = (groqEnrichment?.optimized_rag_keywords || []).join(' ');
   const enrichedTheme = groqEnrichment?.spiritual_theme || '';
+  const canonStr = (typeof groqEnrichment?.canonical_sanskrit_terms === 'string'
+    ? groqEnrichment.canonical_sanskrit_terms
+    : Array.isArray(groqEnrichment?.canonical_sanskrit_terms) ? groqEnrichment.canonical_sanskrit_terms.join(' ') : '');
   const searchQueries = [
     query,
+    canonStr ? `${query} ${canonStr}` : null,
     enrichedKeywords ? `${query} ${enrichedKeywords}` : null,
     enrichedTheme ? `${query} ${enrichedTheme}` : null
   ].filter(Boolean);
@@ -1304,11 +1402,17 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
   }
   const curatedMatches = Array.from(curatedMatchesMap.values()).sort((a, b) => b.score - a.score);
 
-  // 2. High-speed Live Vector Search from Oracle Cloud Qdrant database (5 candidates)
+  // 2. Live Vector Search using the CANONICAL concept query first (general reformulation).
   let vectorCandidates = [];
   try {
-    const vectorQuery = enrichedKeywords ? `${query} ${enrichedKeywords}` : query;
-    vectorCandidates = await queryOracleVectorRAG(vectorQuery);
+    const canonicalQuery = canonStr ? `${canonStr}` : null;
+    const vectorQuery = canonicalQuery || (enrichedKeywords ? `${query} ${enrichedKeywords}` : query);
+    // Prefer Groq target_scriptures routing when provided (general, any intent).
+    let routed = await queryOracleVectorRAG(vectorQuery);
+    if (groqTargetScriptures.length && routed.length) {
+      routed = routed.filter(c => groqTargetScriptures.some(t => (c.scripture_id || '').toLowerCase().includes(t) || (c.reference || '').toLowerCase().includes(t)));
+    }
+    vectorCandidates = routed;
   } catch (e) {}
 
   // 3. Assemble unified candidate pool, deduplicated by original_text or reference
@@ -1336,9 +1440,25 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
   const primary = { ...candidatePool[0] };
   primary.isExplicitSingle = Boolean(explicitTarget);
   primary.explicitScriptureName = explicitTarget ? explicitTarget.name : null;
-  // If explicit single requested, restrict to candidates from that exact scripture;
-  // If real-world query, allow up to 3 complementary candidates across sources!
-  primary.candidates = candidatePool.slice(0, explicitTarget ? 2 : 3);
+  // General diverse selection (EVERY intent): when several high-confidence curated
+  // matches exist, prefer one verse per scripture so Puranas/Ramayana/Gita/Niti all
+  // illuminate the dilemma instead of 3 verses from one source. No per-query lists.
+  const topScore = candidatePool[0]?.score ?? 0;
+  const wantDiverse = !explicitTarget && topScore >= 5.5;
+  let chosen = candidatePool;
+  if (wantDiverse) {
+    const seenS = new Set();
+    const diverse = [];
+    const rest = [];
+    for (const c of candidatePool) {
+      const sid = (c.scripture_id || 'unknown').toLowerCase();
+      if (!seenS.has(sid)) { seenS.add(sid); diverse.push(c); }
+      else rest.push(c);
+    }
+    chosen = [...diverse, ...rest];
+  }
+  const limit = explicitTarget ? 2 : (topScore >= 8 ? 7 : (wantDiverse ? 5 : 3));
+  primary.candidates = chosen.slice(0, limit);
   return primary;
 }
 

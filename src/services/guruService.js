@@ -1,5 +1,6 @@
 import { getScriptureGrounding, injectScripturePrompt, isCasualConversational } from './scriptureService.js';
-export { isCasualConversational };
+import { runNvidiaDharmicReasoning, verifyShlokaRelevanceWithNvidia, isNvidiaAvailable, setNvidiaApiKey, getNvidiaApiKey } from './nvidiaAgentService.js';
+export { isCasualConversational, setNvidiaApiKey, getNvidiaApiKey, isNvidiaAvailable };
 
 const API_BASE_URL = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
 
@@ -566,7 +567,7 @@ export function formatScriptureLines(text, isEnglish = false) {
     const cleanInner = inner.replace(/\r?\n\s*/g, ' ').trim();
     return `${prefix} "${cleanInner}"`;
   });
-  t = t.replace(/([।!?.]\s*)(?=(?:इसलिए|अतः|अब\s+तुम्हें|तुम्हें\s+जो|भगवान\s+की\s+सेवा|इस\s+श्लोक|इस\s+प्रसंग|Therefore|So,\s+dear\s+child|Now,\s+my\s+child|Through\s+this\s+verse|Hold\s+the\s+Holy\s+Name))/gi, '$1\n\n');
+  t = t.replace(/([।!?."”]\s*)(?=(?:इसलिए|अतः|अब\s+तुम्हें|तुम्हें\s+जो|भगवान\s+की\s+सेवा|इस\s+श्लोक|इस\s+प्रसंग|Therefore|So,\s+dear\s+child|Now,\s+my\s+child|Through\s+this\s+verse|Hold\s+the\s+Holy\s+Name))/gi, '$1\n\n');
   return t.replace(/\n{3,}/g, '\n\n').trim();
 }
 
@@ -1759,29 +1760,32 @@ export async function runGroqQueryUnderstandingAgent(userMessage, conversationHi
   const sysPrompt = isEnglish
     ? `You are the Spiritual Reasoning & Grounding Agent for Pujya Hit Premanand Govind Sharan Ji Maharaj Satsang (Samvaad).
 Analyze the seeker's question deeply with compassionate Chain-of-Thought deliberation.
+GENERAL RULE (applies to EVERY dilemma, never one query type): map colloquial Hinglish/Hindi emotion words to canonical Dharmic concepts in Sanskrit (e.g. extramarital attraction->paradarabhimarsha/parastri/kama-vasana/maryada; grief->atman-impermanence; anger->krodha-moha; restless mind->chanchala-abhyasa-vairagya; despair->atma-uddhara-sharanagati). Distinguish PREM (selfless divine love) from KAMA (forbidden craving). Ocean/drowning metaphors are emotional, NOT Matsya-deluge, unless Matsya/Manu/avatar is named.
 You MUST output a valid JSON object (json) with these exact keys:
 1. "thought_process": 2-3 sentences reflecting deeply in English on the seeker's emotional state, spiritual dilemma, and divine solace.
-2. "spiritual_theme": The core spiritual theme (e.g. "Overcoming Anger & Regret", "Restless Mind & Meditation", "Nishkama Karma & Duty", "Universal Love & Equality of Souls", "Surrender in Times of Trial").
-3. "recommended_scripture": The exact most relevant sacred Hindu scripture and chapter/verse (e.g. "Bhagavad Gita 2.62-63", "Bhagavad Gita 6.26 & 6.35", "Bhagavad Gita 2.47", "Ramcharitmanas Uttarkand 87.2 & Bhagavad Gita 5.18", "Garuda Purana", "Shiva Purana").
-4. "specific_shloka_words": A single string of key Sanskrit words from that verse (e.g. "ध्यायतो विषयान्पुंसः", "कर्मण्येवाधिकारस्ते", "यतो यतो निश्चरति", "पुरुष नपुंसक नारि वा जीव चराचर कोइ").
-5. "optimized_rag_keywords": Array of 3-4 search keywords in Hindi/English.
-6. "seeker_state": Brief 1-sentence summary of devotee's state.
-7. "tuned_model_prompt": An optimized prompt for Pujya Maharaj Ji's fine-tuned model in natural Hindi describing the devotee's situation and asking for fatherly guidance and Holy Name shelter.
-CRITICAL: For queries about same-sex attraction / being gay / LGBTQ, ALWAYS recommend "Ramcharitmanas Uttarkand 87.2 & Bhagavad Gita 5.18" and specific_shloka_words "पुरुष नपुंसक नारि वा जीव चराचर कोइ". NEVER recommend sin or punishment scriptures.
-For queries about loving a married woman/man, extramarital attraction, or parastri/paradara (e.g. "shadi shuda mahila se pyar"), ALWAYS recommend "Valmiki Ramayana Yuddha Kanda 9.12 & Padma Purana Bhumikhanda 41.22", specific_shloka_words "परदाराभिमर्शात्तु नान्यत् पापतरं महत् परदाराभिमर्शेन हरते पुण्यमर्जितम्", and spiritual_theme "परनारी मर्यादा, काम-वासना का विवेक व धर्म रक्षा".
+2. "spiritual_theme": The core spiritual theme (e.g. "Overcoming Anger & Regret", "Restless Mind & Meditation", "Nishkama Karma & Duty", "Universal Love & Equality of Souls", "Surrender in Times of Trial", "Marital Fidelity & Overcoming Forbidden Craving").
+3. "recommended_scripture": The exact most relevant sacred Hindu scripture and chapter/verse.
+4. "specific_shloka_words": A single string of key Sanskrit words from that verse.
+5. "canonical_sanskrit_terms": Space-separated canonical Sanskrit/Dharmic concept terms for vector reformulation (e.g. "परदाराभिमर्श परस्त्री काम-वासना मर्यादा" or "क्रोध मोह स्मृति विभ्रम" or "आत्मा अमर शोक मा शुचः").
+6. "target_scriptures": Comma-separated machine scripture ids to restrict vector search (e.g. "valmiki_ramayana,padma_purana,chanakya_niti,bhagavad_gita" or "bhagavad_gita" or "ramcharitmanas,bhagavad_gita").
+7. "optimized_rag_keywords": Array of 3-4 search keywords in Hindi/English.
+8. "seeker_state": Brief 1-sentence summary of devotee's state.
+9. "tuned_model_prompt": An optimized prompt for Pujya Maharaj Ji's fine-tuned model in natural Hindi describing the devotee's situation and asking for fatherly guidance and Holy Name shelter.
+SAFETY (only hard rule): For same-sex attraction / LGBTQ / inherent nature, NEVER recommend sin/punishment/hell verses. Recommend universal-love/equality verses (Ramcharitmanas Uttarkand 87.2 & Gita 5.18).
 Return strictly a JSON object.`
-    : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) सत्संग के आध्यात्मिक विश्लेषण व शास्त्र अनुसंधान एजेंट (Spiritual Grounding Agent) हैं।
-साधक के अंतर्मन व प्रश्न का गहन आध्यात्मिक विश्लेषण (Chain-of-Thought) करें।
+    : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) सत्संग के आध्यात्मिक विश्लेषण व शास्त्र अनुसंधान एजेंट हैं।
+सामान्य नियम (हर जिज्ञासा हेतु, किसी एक प्रश्न-प्रकार हेतु नहीं): बोलचाल के हिंदी/हिंग्लिश भाव-शब्दों को शास्त्रीय संस्कृत धार्मिक संकल्पनाओं में बदलें (जैसे विवाहेतर आकर्षण->परदाराभिमर्श/परस्त्री/काम-वासना/मर्यादा; शोक->आत्मा-अमरता; क्रोध->क्रोध-मोह; चंचल मन->अभ्यास-वैराग्य; निराशा->आत्मोद्धार-शरणागति)। प्रेम (निःस्वार्थ दिव्य) व काम (निषिद्ध वासना) का विवेक करें। सागर/डूबने के रूपक भावनात्मक हैं, मत्स्य-प्रलय नहीं, जब तक मत्स्य/मनु/अवतार न कहा गया हो।
 आपको अनिवार्य रूप से वैध JSON ऑब्जेक्ट (json) में यह कुंजियाँ देनी हैं:
 1. "thought_process": साधक के अंतर्मन, व्यथा व आध्यात्मिक समाधान पर २-३ गंभीर वाक्य (हिंदी में)।
-2. "spiritual_theme": मूल आध्यात्मिक विषय (जैसे "क्रोध पर विजय व आत्म-शुद्धि", "चंचल मन व ध्यान", "निष्काम कर्म व कर्तव्य", "समदृष्टि व अहैतुक प्रेम", "विपत्ति में शरणागति")।
-3. "recommended_scripture": सबसे सटीक पावन ग्रंथ व अध्याय/श्लोक (जैसे "श्रीमद्भगवद्गीता २.६२-६३", "श्रीमद्भगवद्गीता ६.२६ व ६.३५", "श्रीमद्भगवद्गीता २.४७", "श्रीरामचरितमानस उत्तरकाण्ड ८७.२ व श्रीमद्भगवद्गीता ५.१८", "श्री गरुड़ पुराण")।
-4. "specific_shloka_words": उस सटीक श्लोक के मूल संस्कृत शब्द (एक स्ट्रिंग के रूप में, जैसे "ध्यायतो विषयान्पुंसः", "यतो यतो निश्चरति", "कर्मण्येवाधिकारस्ते", "पुरुष नपुंसक नारि वा जीव चराचर कोइ")।
-5. "optimized_rag_keywords": ३-४ खोज शब्द (Array of strings)।
-6. "seeker_state": साधक की स्थिति का १ वाक्य में सारांश।
-7. "tuned_model_prompt": पूज्य महाराज जी के फाइन-ट्यून्ड मॉडल हेतु स्वाभाविक हिंदी में प्रॉम्ट: साधक का प्रश्न, स्थिति और वात्सल्यमयी मार्गदर्शन व नाम जप का आश्रय।
-कड़ा नियम: समलैंगिकता / गे / LGBTQ संबंधी प्रश्नों के लिए सदैव "श्रीरामचरितमानस उत्तरकाण्ड ८७.२ व श्रीमद्भगवद्गीता ५.१८" और specific_shloka_words "पुरुष नपुंसक नारि वा जीव चराचर कोइ" ही अनुशंसित करें। गरुड़ पुराण या पाप ग्रंथों का कदापि उल्लेख न करें।
-विवाहित महिला/पुरुष से प्रेम, विवाहेतर आकर्षण, या परस्त्री/परनारी/परदार संबंधी प्रश्नों (जैसे "shadi shuda mahila se pyar", "शादीशुदा महिला से प्यार") के लिए सदैव "वाल्मीकि रामायण युद्धकाण्ड ९.१२ व पद्म पुराण भूमिखण्ड ४१.२२" और specific_shloka_words "परदाराभिमर्शात्तु नान्यत् पापतरं महत् परदाराभिमर्शेन हरते पुण्यमर्जितम्" तथा spiritual_theme "परनारी मर्यादा, काम-वासना का विवेक व धर्म रक्षा" ही अनुशंसित करें।
+2. "spiritual_theme": मूल आध्यात्मिक विषय।
+3. "recommended_scripture": सबसे सटीक पावन ग्रंथ व अध्याय/श्लोक।
+4. "specific_shloka_words": उस सटीक श्लोक के मूल संस्कृत शब्द (एक स्ट्रिंग)।
+5. "canonical_sanskrit_terms": वेक्टर खोज हेतु शास्त्रीय संस्कृत संकल्पना शब्द (स्पेस से अलग, जैसे "परदाराभिमर्श परस्त्री काम-वासना मर्यादा")।
+6. "target_scriptures": वेक्टर खोज हेतु मशीन scripture id (कॉमा से अलग, जैसे "valmiki_ramayana,padma_purana,bhagavad_gita")।
+7. "optimized_rag_keywords": ३-४ खोज शब्द (Array of strings)।
+8. "seeker_state": साधक की स्थिति का १ वाक्य में सारांश।
+9. "tuned_model_prompt": पूज्य महाराज जी के फाइन-ट्यून्ड मॉडल हेतु स्वाभाविक हिंदी में प्रॉम्ट।
+सुरक्षा (एकमात्र कठोर नियम): समलैंगिकता / inherent nature हेतु पाप/नरक/दंड श्लोक कदापि न दें। केवल समदृष्टि/अहैतुक प्रेम (रामचरितमानस उत्तरकाण्ड ८७.२ व गीता ५.१८) दें।
 केवल JSON ऑब्जेक्ट लौटाएं।`;
 
   const messages = [
@@ -1820,11 +1824,19 @@ Return strictly a JSON object.`
         if (content) {
           const parsed = JSON.parse(content);
           if (parsed.spiritual_theme || parsed.thought_process) {
+            const canon = typeof parsed.canonical_sanskrit_terms === 'string'
+              ? parsed.canonical_sanskrit_terms
+              : Array.isArray(parsed.canonical_sanskrit_terms) ? parsed.canonical_sanskrit_terms.join(' ') : '';
+            const targets = typeof parsed.target_scriptures === 'string'
+              ? parsed.target_scriptures
+              : Array.isArray(parsed.target_scriptures) ? parsed.target_scriptures.join(',') : '';
             return {
               thought_process: parsed.thought_process || '',
               spiritual_theme: parsed.spiritual_theme || '',
               recommended_scripture: parsed.recommended_scripture || '',
               specific_shloka_words: parsed.specific_shloka_words || '',
+              canonical_sanskrit_terms: canon || '',
+              target_scriptures: targets || '',
               optimized_rag_keywords: Array.isArray(parsed.optimized_rag_keywords) ? parsed.optimized_rag_keywords : [],
               seeker_state: parsed.seeker_state || 'Spiritual seeker in need of guidance',
               tuned_model_prompt: parsed.tuned_model_prompt || `साधक का प्रश्न: ${userMessage}\nमहाराज जी, साधक को आत्मीय वात्सल्य से व्यावहारिक मार्गदर्शन और 'राधा-राधा' नाम जप का आश्रय प्रदान कीजिए।`
@@ -1849,6 +1861,8 @@ Return strictly a JSON object.`
     spiritual_theme: '',
     recommended_scripture: '',
     specific_shloka_words: '',
+    canonical_sanskrit_terms: '',
+    target_scriptures: '',
     optimized_rag_keywords: [],
     seeker_state: 'Spiritual seeker in need of guidance',
     tuned_model_prompt: fallbackTunedPrompt
@@ -2367,20 +2381,46 @@ export async function streamGuruResponse(
   });
 
   if (mode === 'deep') {
-    // Step 2: Groq Chain-of-Thought Query Understanding Agent FIRST!
-    // Creates perfect spiritual themes, recommended scripture, specific shloka keywords & search tags
-    const cotAgent = await runGroqQueryUnderstandingAgent(
-      userMessage,
-      conversationHistory,
-      userProfile,
-      isEnglish
-    );
+    // Step 2: High-Reasoning Dharmic Agent (NVIDIA Developer Models DeepSeek/Kimi if available, or Groq CoT)
+    let cotAgent = null;
+    if (isNvidiaAvailable()) {
+      try {
+        cotAgent = await runNvidiaDharmicReasoning(userMessage, conversationHistory, isEnglish);
+        if (cotAgent) {
+          console.log(`[+] Reasoning generated via NVIDIA Developer Model (${cotAgent.agent_source})`);
+        }
+      } catch (e) {
+        console.warn('NVIDIA reasoning fallback to Groq:', e.message);
+      }
+    }
+    if (!cotAgent) {
+      cotAgent = await runGroqQueryUnderstandingAgent(
+        userMessage,
+        conversationHistory,
+        userProfile,
+        isEnglish
+      );
+    }
 
     const thoughtProcess = cotAgent.thought_process;
     const tunedPrompt = cotAgent.tuned_model_prompt || `साधक का प्रश्न: ${userMessage}\nमहाराज जी, साधक को आत्मीय वात्सल्य से व्यावहारिक मार्गदर्शन और 'राधा-राधा' नाम जप का आश्रय प्रदान कीजिए।`;
 
-    // Step 3: Retrieve RAG scripture grounding with Groq intelligence (curated index + live AWS Qdrant vector search)
-    const scripture = await getScriptureGrounding(userMessage, cotAgent);
+    // Step 3: Retrieve RAG scripture grounding with intelligence (curated index + live AWS Qdrant vector search)
+    let scripture = await getScriptureGrounding(userMessage, cotAgent);
+
+    // If NVIDIA Developer Agent is available and we have multiple candidates, run the self-reflective Shloka Critic!
+    if (scripture && scripture.candidates && scripture.candidates.length > 1 && isNvidiaAvailable()) {
+      try {
+        const verifiedCandidates = await verifyShlokaRelevanceWithNvidia(userMessage, scripture.candidates, isEnglish);
+        if (verifiedCandidates && verifiedCandidates.length > 0) {
+          scripture.candidates = verifiedCandidates;
+          Object.assign(scripture, verifiedCandidates[0]);
+        }
+      } catch (e) {
+        console.warn('NVIDIA critic error:', e.message);
+      }
+    }
+
     if (scripture) {
       console.log(`[+] Grounded with Scripture: ${scripture.reference} (Score: ${scripture.score}) [${scripture.match_type}]`);
     }
