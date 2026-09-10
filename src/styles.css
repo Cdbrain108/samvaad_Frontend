@@ -1658,6 +1658,184 @@ html, body { max-width: 100%; overflow-x: hidden; }
   animation: claudeCursorPulse 0.75s infinite ease-in-out;
 }
 
+/* ============================================================
+   Divine Thinking Animations: Energy Ribbon, Equalizer, Stepper & Pearls
+   ============================================================ */
+
+.deliberation-energy-ribbon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: linear-gradient(90deg, #f59e0b, #ec4899, #8b5cf6, #3b82f6, #10b981, #f59e0b);
+  background-size: 300% 100%;
+  animation: energyRibbonFlow 3s linear infinite;
+  z-index: 5;
+}
+
+@keyframes energyRibbonFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+.claude-equalizer {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+  padding: 0 3px;
+}
+
+.claude-equalizer .eq-bar {
+  width: 2.5px;
+  background: #f59e0b;
+  border-radius: 2px;
+  animation: eqBounce 1.1s ease-in-out infinite alternate;
+}
+
+.claude-equalizer .eq-1 { height: 35%; animation-delay: 0s; background: #fbbf24; }
+.claude-equalizer .eq-2 { height: 95%; animation-delay: 0.25s; background: #f59e0b; }
+.claude-equalizer .eq-3 { height: 55%; animation-delay: 0.15s; background: #c084fc; }
+.claude-equalizer .eq-4 { height: 100%; animation-delay: 0.35s; background: #a855f7; }
+
+@keyframes eqBounce {
+  0% { height: 25%; opacity: 0.55; }
+  100% { height: 100%; opacity: 1; }
+}
+
+/* Live 4-Stage Spiritual Stepper */
+.deliberation-stepper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 6px;
+  padding: 8px 12px 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.stepper-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  color: #71717a;
+  transition: all 0.3s ease;
+}
+
+.stepper-step.step-active {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(245, 158, 11, 0.12));
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fef08a;
+  font-weight: 500;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.12);
+  animation: activeStepPulse 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes activeStepPulse {
+  0% { border-color: rgba(245, 158, 11, 0.25); }
+  100% { border-color: rgba(168, 85, 247, 0.65); box-shadow: 0 0 16px rgba(168, 85, 247, 0.22); }
+}
+
+.stepper-step.step-completed {
+  color: #a1a1aa;
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.stepper-icon-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+}
+
+.stepper-check {
+  color: #10b981;
+  font-weight: bold;
+  font-size: 0.75rem;
+}
+
+.stepper-current-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+  animation: dotPulse 1s infinite alternate;
+}
+
+.stepper-pending-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #52525b;
+}
+
+.stepper-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stepper-emoji {
+  font-size: 0.75rem;
+}
+
+/* Contemplative Wisdom Pearl Card */
+.deliberation-pearl-card {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(139, 92, 246, 0.08));
+  border: 1px solid rgba(245, 158, 11, 0.24);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.pearl-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.pearl-lotus {
+  font-size: 0.85rem;
+  filter: drop-shadow(0 0 4px rgba(244, 114, 182, 0.6));
+  animation: lotusBreathe 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes lotusBreathe {
+  0% { transform: scale(0.95); }
+  100% { transform: scale(1.15); }
+}
+
+.pearl-title {
+  font-size: 0.68rem;
+  color: #fbbf24;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pearl-text {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #fef08a;
+  font-style: italic;
+  margin: 0;
+  font-family: 'Martel', serif;
+}
+
 @keyframes claudeCursorPulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }

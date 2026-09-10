@@ -1,13 +1,44 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const STAGES_HI = [
+  { id: 'intent', label: 'साधक भाव व अंतर्मन अध्ययन', icon: '🔍' },
+  { id: 'rag', label: '२४ पावन शास्त्रों व गीता में अनुसंधान', icon: '📜' },
+  { id: 'deliberation', label: 'पूज्य महाराज जी की सत्संग वाणी अनुशीलन', icon: '🧘' },
+  { id: 'synthesis', label: 'प्रामाणिक श्लोक व वात्सल्य समन्वय', icon: '🌸' }
+];
+
+const STAGES_EN = [
+  { id: 'intent', label: 'Analyzing Seeker Intent & Dilemma', icon: '🔍' },
+  { id: 'rag', label: 'Searching 24 Scriptures on AWS Qdrant', icon: '📜' },
+  { id: 'deliberation', label: 'Deliberating Maharaj Ji’s Satsang Counsel', icon: '🧘' },
+  { id: 'synthesis', label: 'Harmonizing Sacred Verses & Divine Solace', icon: '🌸' }
+];
+
+const WISDOM_PEARLS_HI = [
+  "ठाकुर जी शरीर की बनावट या लौकिक रूप नहीं, केवल अंतःकरण का निष्काम प्रेम देखते हैं।",
+  "हर श्वास में 'राधा-राधा' नाम का सुमिरन ही चित्त के समस्त संशयों को शांत करता है।",
+  "संसार का कोई भी भय या तिरस्कार प्रभु के अहैतुक वात्सल्य से बड़ा नहीं हो सकता।",
+  "अपने दैनिक कर्तव्य को प्रभु की पूजा मानकर, अहंकार त्यागकर प्रेम से जीवन बिताएं।",
+  "पुरुष नपुंसक नारि वा जीव चराचर कोइ — जो कपट त्यागकर भजता है, वह प्रभु को परम प्रिय है।"
+];
+
+const WISDOM_PEARLS_EN = [
+  "The Divine does not judge physical form or labels, but cherishes only sincere purity of heart.",
+  "Every breath anchored in the Holy Name 'Radha Radha' brings unshakeable inner peace.",
+  "No worldly judgment or anxiety can ever overcome Thakur Ji's unconditional shelter.",
+  "Perform your daily duties honestly as sacred seva, surrendering all fruits to God.",
+  "Whoever surrenders deceit and loves with an open heart is eternally dear to the Supreme."
+];
+
 /**
  * Claude-Inspired Spiritual Deliberation & RAG Showcase Window
  * - Positioned cleanly at the top of the assistant message.
  * - Shimmering RAG status pill: '✨ Searching 24 Scriptures...' -> '📜 RAG Verified · {Reference}'.
  * - Character-by-character typewriter stream for internal deliberation steps.
- * - Sleek left-border accent (#8b5cf6 / amber), glowing timer badge ('Thinking (12.4s)...').
- * - Expandable full deliberation and scripture preview drawer.
+ * - Dynamic 4-Stage Spiritual Stepper showing live progress.
+ * - Contemplative Wisdom Pearls carousel during active thinking.
+ * - Animated Audio Wave Equalizer & Glowing Energy Ribbon.
  */
 export default function ReasoningBlock({
   thought = '',
@@ -20,13 +51,27 @@ export default function ReasoningBlock({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isScriptureOpen, setIsScriptureOpen] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [pearlIndex, setPearlIndex] = useState(0);
   const streamRef = useRef(null);
+  const startTimeRef = useRef(null);
 
   const isEnglishView = Boolean(isEnglish) || (thought && /^(?:🔍\s*Query Intent|Contemplating|Searching|Analyzing)/i.test(thought));
   const [displayedThought, setDisplayedThought] = useState(thought || '');
 
-  const startTimeRef = useRef(null);
+  const stages = isEnglishView ? STAGES_EN : STAGES_HI;
+  const pearls = isEnglishView ? WISDOM_PEARLS_EN : WISDOM_PEARLS_HI;
+  const currentPearl = pearls[pearlIndex % pearls.length];
 
+  // Rotate wisdom pearls every 4 seconds during active thinking
+  useEffect(() => {
+    if (!isThinking) return;
+    const interval = setInterval(() => {
+      setPearlIndex((prev) => (prev + 1) % pearls.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [isThinking, pearls.length]);
+
+  // Live ticking timer
   useEffect(() => {
     let interval = null;
     if (isThinking) {
@@ -66,7 +111,6 @@ export default function ReasoningBlock({
       return;
     }
 
-    // Steady, readable typing pace so the deliberation visibly animates character-by-character
     const step = diff > 80 ? 3 : diff > 30 ? 2 : 1;
     const speed = diff > 80 ? 12 : diff > 30 ? 18 : 25;
 
@@ -92,8 +136,22 @@ export default function ReasoningBlock({
 
   const hasLongThought = (thought || '').length > 130;
 
+  // Active step index based on elapsed time
+  const currentStageIdx = !isThinking
+    ? 4
+    : elapsed < 2.5
+      ? 0
+      : elapsed < 6.5
+        ? 1
+        : elapsed < 13.0
+          ? 2
+          : 3;
+
   return (
     <div className={`reasoning-container claude-reasoning-container ${isThinking ? 'thinking-active' : 'thinking-done'}`}>
+      {/* Divine Shimmering Energy Ribbon during active thinking */}
+      {isThinking && <div className="deliberation-energy-ribbon" aria-hidden="true" />}
+
       {/* Header Bar */}
       <div className="reasoning-header-bar">
         <button
@@ -115,6 +173,16 @@ export default function ReasoningBlock({
             <span className="reasoning-title-text">
               {isThinking ? 'चिंतन प्रक्रिया (Spiritual Deliberation)' : 'चिंतन संपन्न (Thought Process)'}
             </span>
+
+            {/* Equalizer animation while thinking */}
+            {isThinking && (
+              <div className="claude-equalizer" title="Deliberating in deep mode" aria-hidden="true">
+                <span className="eq-bar eq-1" />
+                <span className="eq-bar eq-2" />
+                <span className="eq-bar eq-3" />
+                <span className="eq-bar eq-4" />
+              </div>
+            )}
 
             <span className="claude-timer-badge">
               {isThinking ? `${displayTime}s...` : `${displayTime}s`}
@@ -194,6 +262,33 @@ export default function ReasoningBlock({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           >
+            {/* Dynamic Spiritual Deliberation Stepper */}
+            <div className="deliberation-stepper">
+              {stages.map((st, idx) => {
+                const isPast = !isThinking || idx < currentStageIdx;
+                const isCurrent = isThinking && idx === currentStageIdx;
+                return (
+                  <div
+                    key={st.id}
+                    className={`stepper-step ${isPast ? 'step-completed' : ''} ${isCurrent ? 'step-active' : ''}`}
+                  >
+                    <span className="stepper-icon-pill">
+                      {isPast ? (
+                        <span className="stepper-check">✓</span>
+                      ) : isCurrent ? (
+                        <span className="stepper-current-dot" />
+                      ) : (
+                        <span className="stepper-pending-dot" />
+                      )}
+                    </span>
+                    <span className="stepper-label">
+                      <span className="stepper-emoji">{st.icon}</span> {st.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
             <div className="reasoning-content-box claude-thinking-box">
               <div
                 className={`reasoning-text-stream claude-thought-stream ${isExpanded ? 'stream-expanded' : 'stream-compact'}`}
@@ -219,6 +314,26 @@ export default function ReasoningBlock({
                     )}
                   </button>
                 </div>
+              )}
+
+              {/* Contemplative Wisdom Pearl Card (Rotates during thinking) */}
+              {isThinking && elapsed >= 2.0 && (
+                <motion.div
+                  className="deliberation-pearl-card"
+                  key={pearlIndex}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.45 }}
+                >
+                  <div className="pearl-header">
+                    <span className="pearl-lotus">🪷</span>
+                    <span className="pearl-title">
+                      {isEnglishView ? 'Contemplative Wisdom · Pujya Maharaj Ji' : 'चिंतन का पावन सूत्र · पूज्य महाराज जी'}
+                    </span>
+                  </div>
+                  <p className="pearl-text">"{currentPearl}"</p>
+                </motion.div>
               )}
             </div>
           </motion.div>
