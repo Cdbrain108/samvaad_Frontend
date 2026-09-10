@@ -598,43 +598,111 @@ export const SCRIPTURE_DATABASE = [
     ]
   },
 
-  // 22B. Controlling Attachment & Overcoming Forbidden Desires (ध्यायतो विषयान्पुंसः - श्रीमद्भगवद्गीता २.६२-६३)
+  // 22B. Valmiki Ramayana - Absolute Destruction of Coveting Another's Wife (विभीषण उपदेश - परदाराभिमर्शात्तु नान्यत् पापतरं महत्)
+  {
+    id: 'valmiki_ramayana_paradara',
+    scripture_id: 'valmiki_ramayana',
+    reference: 'वाल्मीकि रामायण युद्धकाण्ड ९.१२ (Valmiki Ramayana · परदाराभिमर्श महापाप निर्णय)',
+    original_text: 'परदाराभिमर्शात्तु नान्यत् पापतरं महत्। प्रवृत्तं चेह तत्सर्वं तव पापकर्मिणः॥',
+    hindi_meaning: 'वाल्मीकि रामायण में महात्मा विभीषण रावण को स्पष्ट चेतावनी देते हैं कि पराई विवाहित स्त्री की कामना करने या उस पर कुदृष्टि डालने से बढ़कर संसार में कोई दूसरा घोर व विनाशकारी पाप नहीं है। यह पाप व्यक्ति के संपूर्ण कुल, धर्म, यश और जीवन का समूल विनाश कर देता है।',
+    english_translation: 'In Valmiki Ramayana (Yuddha Kanda 9.12), Vibhishana warns Ravana: "There is no sin in existence greater or more destructive than laying an eye or desire upon another\'s wife. This single transgression is the root of all ruin and total annihilation."',
+    context_intro_hi: 'जैसे वाल्मीकि रामायण में विभीषण जी रावण को परस्त्री-कामना के भयानक परिणाम पर सचेत करते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Vibhishana explicitly warns Ravana on the fatal ruin of coveting another’s wife in Valmiki Ramayana —',
+    keywords: [
+      'परदाराभिमर्शात्तु नान्यत् पापतरं महत्', 'वाल्मीकि रामायण युद्धकाण्ड', 'परदाराभिमर्श',
+      'शादी शुदा महिला से प्यार', 'शादीशुदा महिला से प्यार', 'विवाहित महिला से प्रेम', 'परस्त्री प्रेम',
+      'शादी शुदा औरत', 'विवाहेतर प्रेम', 'अनधिकार प्रेम', 'परनारी', 'परस्त्री', 'paradara', 'parastri',
+      'shadi shuda mahila se pyar', 'shadi shuda aurat se pyar', 'shadi shuda mahila', 'shadi shuda aurat',
+      'shadi shuda se pyar', 'shadi shuda ladki se pyar', 'vivahit mahila se prem', 'parastri se pyar',
+      'loving a married woman', 'married woman love', 'extramarital love', 'attracted to married woman',
+      'fall in love with married woman', 'married woman in love', 'another wife', 'someone else wife'
+    ]
+  },
+
+  // 22C. Padma Purana - Destruction of Accumulated Punya, Lifespan & Intellect (पद्म पुराण भूमिखण्ड ४१.२२)
+  {
+    id: 'padma_purana_paradara',
+    scripture_id: 'padma_purana',
+    reference: 'श्री पद्म पुराण भूमिखण्ड ४१.२२ (Padma Purana · परदार दोष व पुण्य-नाश)',
+    original_text: 'परदाराभिमर्शेन हरते पुण्यमर्जितम्। आयुर्लक्ष्मीं यशः कीर्तिं प्रज्ञां चैव विनाशयेत्॥',
+    hindi_meaning: 'पद्म पुराण में स्पष्ट विधान है कि पराई विवाहित स्त्री की कामना और संसर्ग मनुष्य के जन्म-जन्मांतर के संचित पुण्यों को हर लेता है। यह मनुष्य की आयु, लक्ष्मी (समृद्धि), यश, कीर्ति और बुद्धि (प्रज्ञा) का पूर्ण विनाश कर देता है।',
+    english_translation: 'In Padma Purana (Bhumikhanda 41.22), it is proclaimed: "Entertaining desire for another’s wife robs a person of all accumulated Punya (merits across lifetimes), actively destroying longevity, prosperity (Lakshmi), social honor, reputation, and intellect (Prajna)."',
+    context_intro_hi: 'जैसे श्री पद्म पुराण में परस्त्री-कामना से संचित पुण्य और बुद्धि के नाश पर स्पष्ट उपदेश है कि —',
+    context_intro_en: 'Just as the Padma Purana reveals how desire for another’s spouse destroys accumulated spiritual merit —',
+    keywords: [
+      'परदाराभिमर्शेन हरते पुण्यमर्जितम्', 'पद्म पुराण', 'padma purana', 'परदार दोष',
+      'शादी शुदा महिला से प्यार', 'शादीशुदा महिला से प्यार', 'विवाहित महिला से प्रेम', 'परस्त्री', 'परनारी',
+      'shadi shuda mahila se pyar', 'shadi shuda mahila', 'shadi shuda aurat se pyar', 'shadi shuda aurat',
+      'vivahit mahila se prem', 'parastri se prem', 'parnari', 'parastri', 'loving a married woman'
+    ]
+  },
+
+  // 22D. Chanakya Niti - The True Dharmic Benchmark (मातृवत् परदारेषु - चाणक्य नीति १२.१४)
+  {
+    id: 'chanakya_niti_matravat',
+    scripture_id: 'chanakya_niti',
+    reference: 'चाणक्य नीति १२.१४ (Chanakya Niti · मातृवत् परदारेषु)',
+    original_text: 'मातृवत् परदारेषु परद्रव्येषु लोष्टवत्। आत्मवत् सर्वभूतेषु यः पश्यति स पण्डितः॥',
+    hindi_meaning: 'जो मनुष्य पराई विवाहित स्त्री को अपनी माता के समान पवित्र दृष्टि से देखता है, दूसरे के धन को मिट्टी के ढेले के समान समझता है और सभी प्राणियों में अपनी ही आत्मा को देखता है—वही वास्तव में सच्चा ज्ञानी, पण्डित और धर्मात्मा है।',
+    english_translation: 'In Chanakya Niti (12.14), the foundational Dharmic code is established: "He who looks upon another man\'s wife as his own mother, another\'s wealth as a clod of dirt, and treats all living beings as his own self—he alone is truly wise (Pandita)."',
+    context_intro_hi: 'जैसे चाणक्य नीति में परस्त्री के प्रति परम पवित्र दृष्टि का धर्म समझाते हुए कहा गया है कि —',
+    context_intro_en: 'Just as Chanakya Niti sets the inviolable Dharmic benchmark for moral character —',
+    keywords: [
+      'मातृवत् परदारेषु', 'चाणक्य नीति', 'chanakya niti', 'परद्रव्येषु लोष्टवत्',
+      'शादी शुदा महिला से प्यार', 'शादीशुदा महिला से प्यार', 'विवाहित स्त्री से प्रेम', 'परस्त्री', 'परनारी',
+      'shadi shuda mahila se pyar', 'shadi shuda mahila', 'shadi shuda aurat', 'parastri', 'parnari'
+    ]
+  },
+
+  // 22E. Bhagavad Gita - Lust as the Ultimate All-Devouring Enemy & Gate to Ruin (काम एष क्रोध एष - ३.३७ व १६.२१)
+  {
+    id: 'gita_3_37_16_21_kama',
+    scripture_id: 'bhagavad_gita',
+    reference: 'श्रीमद्भगवद्गीता ३.३७ व १६.२१ (Bhagavad Gita · काम वैरी व नरक के तीन द्वार)',
+    original_text: 'काम एष क्रोध एष रजोगुणसमुद्भवः। महाशनो महापाप्मा विद्ध्येनमिह वैरिणम्॥ त्रिविधं नरकस्येदं द्वारं नाशनमात्मनः। कामः क्रोधस्तथा लोभस्तस्मादेतत्त्रयं त्यजेत्॥',
+    hindi_meaning: 'भगवान श्रीकृष्ण कहते हैं कि यह अनियंत्रित काम (अंधा आकर्षण व वासना) ही महापापी और सर्वभक्षी शत्रु है। काम, क्रोध और लोभ—ये आत्मा का नाश करने वाले नरक के तीन मुख्य द्वार हैं। अतः इस अनधिकार आकर्षण को वासना का जाल समझकर तुरंत त्याग देना चाहिए।',
+    english_translation: 'In Bhagavad Gita (3.37 & 16.21), Lord Krishna warns: "This lust/craving (Kama), born of the mode of passion, is all-devouring and greatly sinful; know it to be the ultimate enemy in this world. Lust, anger, and greed are the three gates to self-destruction; therefore, one must abandon them."',
+    context_intro_hi: 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण काम-वासना को आत्मा का परम शत्रु बताते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Bhagavan Shri Krishna reveals the destructive nature of forbidden craving in the Bhagavad Gita —',
+    keywords: [
+      'काम एष क्रोध एष', 'महाशनो महापाप्मा', 'त्रिविधं नरकस्येदं द्वारं', 'गीता ३.३७', 'gita 3.37', 'gita 16.21',
+      'शादी शुदा महिला से प्यार', 'शादीशुदा महिला से प्यार', 'विवाहित महिला से प्रेम', 'परस्त्री प्रेम',
+      'काम वासना', 'कामासक्ति', 'shadi shuda mahila se pyar', 'loving a married woman', 'extramarital lust'
+    ]
+  },
+
+  // 22F. Controlling Attachment & Overcoming Forbidden Desires (ध्यायतो विषयान्पुंसः - श्रीमद्भगवद्गीता २.६२-६३)
   {
     id: 'gita_2_62_63',
     scripture_id: 'bhagavad_gita',
     reference: 'श्रीमद्भगवद्गीता २.६२-६३ (Bhagavad Gita 2.62-63 · आसक्ति, काम व मर्यादा)',
     original_text: 'ध्यायतो विषयान्पुंसः सङ्गस्तेषूपजायते। सङ्गात्सञ्जायते कामः कामात्क्रोधोऽभिजायते॥ क्रोधाद्भवति संमोहः संमोहात्स्मृतिविभ्रमः। स्मृतिभ्रंशाद् बुद्धिनाशो बुद्धिनाशात्प्रणश्यति॥',
     hindi_meaning: 'विषयों व अनधिकार संबंधों का निरंतर चिंतन करने से आसक्ति उत्पन्न होती है। आसक्ति से तीव्र कामना और कामना में बाधा आने पर विक्षोभ व अशांति उत्पन्न होती है। इससे विवेक और मर्यादा का नाश हो जाता है। अतः मन को मर्यादा में बांधकर प्रभु-आश्रय लेना ही कल्याण का मार्ग है।',
-    english_translation: 'By constantly contemplating on forbidden desires, deep attachment arises. From attachment springs craving, and when obstructed, inner agitation and loss of discernment follow, leading to spiritual downfall. True peace lies in self-mastery and Maryada.',
+    english_translation: 'In Bhagavad Gita (2.62–63), Lord Krishna explains: "By constantly contemplating on forbidden desire, deep attachment arises. From attachment springs burning passion (Kama). When desire is blocked, frustration arises; from delusion comes loss of discernment, and finally total ruin. True peace lies in self-mastery."',
     context_intro_hi: 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण आसक्ति और कामना के पतनकारी वेग को समझाते हुए कहते हैं कि —',
     context_intro_en: 'Just as Bhagavan Shri Krishna warns against the destructive progression of obsessive desire in the Bhagavad Gita —',
     keywords: [
       'ध्यायतो विषयान्पुंसः', 'श्रीमद्भगवद्गीता 2.62-63', 'गीता २.६२', 'gita 2.62', 'gita 2.63',
       'शादी शुदा महिला से प्यार', 'शादीशुदा महिला से प्यार', 'विवाहित महिला से प्रेम', 'परस्त्री प्रेम',
-      'शादी शुदा औरत', 'विवाहेतर प्रेम', 'अनधिकार प्रेम', 'आसक्ति पर नियंत्रण', 'काम वासना', 'कामासक्ति',
       'shadi shuda mahila se pyar', 'shadi shuda aurat se pyar', 'shadi shuda mahila', 'shadi shuda aurat',
-      'shadi shuda se pyar', 'shadi shuda ladki se pyar', 'vivahit mahila se prem', 'parastri se pyar',
-      'loving a married woman', 'married woman love', 'extramarital love', 'attracted to married woman',
-      'fall in love with married woman', 'married woman in love'
+      'loving a married woman', 'married woman love', 'extramarital love'
     ]
   },
 
-  // 22C. Sanctity of Dharma & Maryada regarding Others (जननी सम जानहिं परनारी - श्रीरामचरितमानस)
+  // 22G. Garuda Purana & Mahabharata - Karmic Retribution & Loss of Life Force (तप्तं लोहमयं स्तम्भं व अनुशासन पर्व)
   {
-    id: 'rcm_maryada_parastri',
-    scripture_id: 'ramcharitmanas',
-    reference: 'श्रीरामचरितमानस (Ramcharitmanas · परनारी मर्यादा व धर्म रक्षा)',
-    original_text: 'जननी सम जानहिं परनारी। तिनके मन मंदिर बसु मुरारी॥ काम कोह मद मान न मोहा। लोभ न छोभ न राग न द्रोहा॥',
-    hindi_meaning: 'श्रीरामचरितमानस में साक्षात् भगवान का पावन विधान है कि जो मनुष्य पराई स्त्री को माता के समान पवित्र दृष्टि से देखता है, उसके हृदय में साक्षात् भगवान वास करते हैं। किसी अन्य के वैवाहिक जीवन व मर्यादा को तोड़ना धर्म का ह्रास है। सच्चा प्रेम मर्यादा का पालन कर त्याग में प्रतिष्ठित होना है।',
-    english_translation: 'In Shri Ramcharitmanas, it is proclaimed that the Divine eternally resides in the heart of one who regards another’s wife with the sacred purity of a mother. Violating sacred marital boundaries brings spiritual harm; true devotion lies in sacrifice and Maryada.',
-    context_intro_hi: 'जैसे श्रीरामचरितमानस में मर्यादा पुरुषोत्तम भगवान श्री राम के पावन आदर्श का वर्णन करते हुए कहा गया है कि —',
-    context_intro_en: 'Just as Shri Ramcharitmanas reveals the supreme sanctity of Maryada and sacred boundaries —',
+    id: 'garuda_purana_paradara_stambha',
+    scripture_id: 'garuda_purana',
+    reference: 'श्री गरुड़ पुराण व महाभारत (Garuda Purana & Mahabharata · परदार कर्म विपाक)',
+    original_text: 'तप्तं लोहमयं स्तम्भं परस्त्रीगः समालिङ्गेत्। न हीदृशमनायुष्यं लोके किञ्चन विद्यते यादृशं पुरुषस्येह परदारोपसेवनम्॥',
+    hindi_meaning: 'गरुड़ पुराण व महाभारत (अनुशासन पर्व १०४.२१) में स्पष्ट चेतावनी है कि पराई विवाहित स्त्री की कामना करने वाले की आत्मा को तीव्र संताप और पश्चाताप भोगना पड़ता है। संसार में पराई स्त्री के संसर्ग के समान आयु, ओज और तेज का नाश करने वाला कोई दूसरा अधर्म नहीं है।',
+    english_translation: 'In Garuda Purana (Preta Kalpa) and Mahabharata (Anushasana Parva 104.21): "The soul that pursues another’s spouse is made to embrace a burning iron pillar in Yama\'s realm. In all the worlds, there is nothing that shortens life-span and destroys vitality so thoroughly as consorting with another\'s wife."',
+    context_intro_hi: 'जैसे श्री गरुड़ पुराण व महाभारत में परस्त्री-कामना के घोर कर्म-विपाक पर सचेत करते हुए कहा गया है कि —',
+    context_intro_en: 'Just as Garuda Purana and Mahabharata warn against the severe karmic retribution of breaching another’s marriage —',
     keywords: [
-      'परनारी', 'परस्त्री', 'शादीशुदा महिला से प्यार', 'विवाहित स्त्री से प्रेम', 'विवाहित महिला',
-      'शादी शुदा महिला', 'मर्यादा', 'धर्म संकट', 'जननी सम जानहिं परनारी', 'विवाहेतर संबंध',
-      'shadi shuda mahila se pyar', 'shadi shuda mahila', 'shadi shuda aurat se pyar', 'shadi shuda aurat',
-      'shadi shuda ladki se pyar', 'vivahit mahila se prem', 'parastri se prem', 'parnari', 'parastri',
-      'married woman', 'loving married woman', 'parastri', 'parnari'
+      'तप्तं लोहमयं स्तम्भं परस्त्रीगः समालिङ्गेत्', 'गरुड़ पुराण परस्त्री', 'garuda purana paradara', 'न हीदृशमनायुष्यं',
+      'शादी शुदा महिला से प्यार', 'शादीशुदा महिला से प्यार', 'विवाहित महिला से प्रेम', 'परस्त्री', 'परनारी',
+      'shadi shuda mahila se pyar', 'shadi shuda mahila', 'shadi shuda aurat', 'parastri', 'parnari'
     ]
   },
 
@@ -942,7 +1010,7 @@ export function isTopicExcluded(cleanQ, item) {
   const ref = (item.reference || '').toLowerCase();
 
   // Exclude criminal sin verses and other puranas for sexuality questions - ONLY allow rcm_universal_love_equality
-  const isSexuality = /(gay|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|lgbt|समलैंगिक|गे|लड़का\s*लड़के)/i.test(cleanQ);
+  const isSexuality = /(?:\bgay\b|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|\blgbtq?\b|समलैंगिक|\bगे\b|लड़का\s*लड़के)/i.test(cleanQ);
   if (isSexuality) {
     return item.id !== 'rcm_universal_love_equality';
   }
@@ -1053,7 +1121,7 @@ export function detectExplicitScriptureInQuery(query) {
   const q = query.toLowerCase();
 
   // If query is asking about sexuality/homosexuality, do NOT isolate to punitive texts like Garuda Purana
-  if (/(gay|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|lgbt|समलैंगिक|गे)/i.test(q)) {
+  if (/(?:\bgay\b|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|\blgbtq?\b|समलैंगिक|\bगे\b)/i.test(q)) {
     return null;
   }
 
@@ -1106,8 +1174,8 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
   if (!query || typeof query !== 'string') return null;
   if (isCasualConversational(query)) return null;
 
-  const isSexuality = /(gay|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|lgbt|समलैंगिक|गे|लड़का\s*लड़के)/i.test(query) ||
-                      (groqEnrichment && /(gay|lgbt|homosexual|same\s*sex|समलैंगिक)/i.test(groqEnrichment.spiritual_theme || ''));
+  const isSexuality = /(?:\bgay\b|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|\blgbtq?\b|समलैंगिक|\bगे\b|लड़का\s*लड़के)/i.test(query) ||
+                      (groqEnrichment && /(?:\bgay\b|\blgbt|homosexual|same\s*sex|समलैंगिक|\bगे\b)/i.test(groqEnrichment.spiritual_theme || ''));
   if (isSexuality) {
     const rcmMatch = SCRIPTURE_DATABASE.find(item => item.id === 'rcm_universal_love_equality');
     if (rcmMatch) {
@@ -1117,6 +1185,43 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
         match_type: 'curated_catalog',
         isExplicitSingle: false,
         candidates: [rcmMatch]
+      };
+    }
+  }
+
+  const isMarriedWoman = /(shadi\s*shuda|shaadi\s*shuda|शादी\s*शुदा|विवाहित|विवाहेतर|parastri|parnari|paradara|परस्त्री|परनारी|परदारा|married\s*woman|another'?s?\s*wife|extramarital|someone\s*else'?s?\s*wife)/i.test(query) ||
+                        (groqEnrichment && /(परनारी|परस्त्री|विवाहित|विवाहेतर|married\s*woman|extramarital|paradara)/i.test(groqEnrichment.spiritual_theme || ''));
+  if (isMarriedWoman) {
+    const explicit = detectExplicitScriptureInQuery(query);
+    if (explicit) {
+      const explicitMatch = SCRIPTURE_DATABASE.find(item => 
+        (item.id.includes('paradara') || item.id.includes('matravat')) &&
+        (item.scripture_id.includes(explicit.key) || item.reference.toLowerCase().includes(explicit.key))
+      );
+      if (explicitMatch) {
+        return {
+          ...explicitMatch,
+          score: 15.0,
+          match_type: 'curated_catalog',
+          isExplicitSingle: true,
+          explicitScriptureName: explicit.name,
+          candidates: [explicitMatch]
+        };
+      }
+    }
+    const vrMatch = SCRIPTURE_DATABASE.find(item => item.id === 'valmiki_ramayana_paradara');
+    const padmaMatch = SCRIPTURE_DATABASE.find(item => item.id === 'padma_purana_paradara');
+    const chanakyaMatch = SCRIPTURE_DATABASE.find(item => item.id === 'chanakya_niti_matravat');
+    const gitaKamaMatch = SCRIPTURE_DATABASE.find(item => item.id === 'gita_3_37_16_21_kama');
+    const garudaMatch = SCRIPTURE_DATABASE.find(item => item.id === 'garuda_purana_paradara_stambha');
+    const candidates = [vrMatch, padmaMatch, chanakyaMatch, gitaKamaMatch, garudaMatch].filter(Boolean);
+    if (candidates.length > 0) {
+      return {
+        ...candidates[0],
+        score: 15.0,
+        match_type: 'curated_catalog',
+        isExplicitSingle: false,
+        candidates: candidates.slice(0, 3)
       };
     }
   }

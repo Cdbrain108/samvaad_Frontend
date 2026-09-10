@@ -1094,35 +1094,38 @@ function getAuthenticScriptureFramedDiscourse(userMessage, isEnglish = false, us
   const scriptId = (scripture?.id || '').toLowerCase();
   const scriptRef = (scripture?.reference || '').toLowerCase();
 
-  const isSexuality = /(gay|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|lgbt|समलैंगिक|गे|लड़का\s*लड़के)/i.test(q) ||
+  const isSexuality = /(?:\bgay\b|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|\blgbtq?\b|समलैंगिक|\bगे\b|लड़का\s*लड़के)/i.test(q) ||
                       scriptId === 'rcm_universal_love_equality' || scriptRef.includes('समदृष्टि');
 
-  const isMatsya = !isSexuality && (/(मत्स्य|matsya)/i.test(q) ||
+  const isMarriedWoman = !isSexuality && (/(shadi\s*shuda|shaadi\s*shuda|शादी\s*शुदा|विवाहित|विवाहेतर|parastri|parnari|paradara|परस्त्री|परनारी|परदारा|married\s*woman|another'?s?\s*wife|extramarital|someone\s*else'?s?\s*wife)/i.test(q) ||
+                         scriptId.includes('paradara') || scriptRef.includes('परदारा') || scriptRef.includes('परस्त्री') || scriptRef.includes('परनारी') || scriptRef.includes('मातृवत्'));
+
+  const isMatsya = !isSexuality && !isMarriedWoman && (/(मत्स्य|matsya)/i.test(q) ||
                    scriptId.includes('matsya') || scriptRef.includes('मत्स्य') || scriptRef.includes('matsya'));
 
-  const isGarudaSins = !isSexuality && ((/(सबसे\s*बड़ा\s*पाप|महापाप|greatest\s*sin|worst\s*sin|paap|पाप)/i.test(q) &&
+  const isGarudaSins = !isSexuality && !isMarriedWoman && ((/(सबसे\s*बड़ा\s*पाप|महापाप|greatest\s*sin|worst\s*sin|paap|पाप)/i.test(q) &&
                         /(गरुड़|गरुण|garud|garun)/i.test(q)) ||
                        scriptId === 'garuda_purana_sins' || scriptRef.includes('महापाप'));
 
-  const isGaruda = !isSexuality && !isMatsya && (/(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
+  const isGaruda = !isSexuality && !isMatsya && !isMarriedWoman && (/(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
                    scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda'));
 
-  const isShiva = !isSexuality && !isMatsya && !isGaruda && !isGarudaSins && (
+  const isShiva = !isSexuality && !isMatsya && !isGaruda && !isGarudaSins && !isMarriedWoman && (
     /(शिव\s*पुराण|shiva?\s*puran|रुद्र\s*संहिता|विद्येश्वर|सदाशिव|पार्वती)/i.test(q) ||
     scriptId.includes('shiva') || scriptRef.includes('शिव') || scriptRef.includes('shiva')
   );
 
-  const isSamaveda = !isSexuality && !isMatsya && !isGaruda && !isGarudaSins && (
+  const isSamaveda = !isSexuality && !isMatsya && !isGaruda && !isGarudaSins && !isMarriedWoman && (
     /(सामवेद|sa+m\s*ved|samaveda)/i.test(q) ||
     scriptId.includes('samaveda') || scriptRef.includes('सामवेद')
   );
 
-  const isAtharvaveda = !isSexuality && !isMatsya && !isGaruda && !isGarudaSins && (
+  const isAtharvaveda = !isSexuality && !isMatsya && !isGaruda && !isGarudaSins && !isMarriedWoman && (
     /(अथर्ववेद|atharv?a?\s*ved)/i.test(q) ||
     scriptId.includes('atharvaveda') || scriptRef.includes('अथर्ववेद')
   );
 
-  const isGitaSummary = !isSexuality && ((/(गीता|geeta|gita|कुरुक्षेत्र|अर्जुन|गांडीव|सार|summary|essence|teachings)/i.test(q) ||
+  const isGitaSummary = !isSexuality && !isMarriedWoman && ((/(गीता|geeta|gita|कुरुक्षेत्र|अर्जुन|गांडीव|सार|summary|essence|teachings)/i.test(q) ||
                         scriptId.includes('gita')));
 
   if (isEnglish) {
@@ -1138,6 +1141,25 @@ In our sacred Sanatana scriptures, the soul (Atman) is eternal, divine, and beyo
 **Meaning —** The spiritually enlightened see with an equal eye, perceiving the same Divine Soul within all living beings, without any distinction of mortal form.
 
 Therefore, dear child ${seekerName ? seekerName + ', ' : ''}remove all fear, anxiety, and guilt from your mind. There is no curse, sin, or punishment in our scriptures for who you love or how God fashioned your feelings. What truly matters to Thakur Ji is purity of character: do not deceive anyone, do not hurt anyone's heart, fulfill your duties selflessly, and anchor your mind in the continuous chanting of 'Radha Radha'. Walk with confidence and dignity. Thakur Ji loves you unconditionally and is always protecting you.`;
+    }
+
+    if (isMarriedWoman) {
+      return `Look, my child, you have shared an intense dilemma of your heart with complete honesty. Listen closely with deep attention: what you are feeling is NOT genuine spiritual love; it is Kama (infatuation and forbidden desire) disguised in an intoxicating illusion. Longing for another person's married spouse is known in our sacred scriptures as Paradāra-gamana (violating another's marriage), which natural and cosmic law declares to be a path of absolute moral and spiritual ruin.
+
+In the Valmiki Ramayana, Mahatma Vibhishana repeatedly warned Ravana that despite being a master of the Vedas and a supreme devotee of Shiva, his lust for another man's wife (Mata Sita) completely obliterated his empire, his golden Lanka, his family, and his life. Vibhishana declared that there is no sin greater in all existence than desiring another's wife. Furthermore, the Padma Purana (Bhumikhanda 41.22) reveals that coveting another’s spouse incinerates all accumulated merits (Punya) earned across countless lifetimes, destroying one's lifespan, prosperity, honor, and intellect. Chanakya Niti (12.14) establishes the supreme benchmark of moral character: a truly wise and righteous person looks upon another man’s wife as their own mother.
+
+Our sacred Shastras establish this inviolable eternal truth:
+
+**« परदाराभिमर्शात्तु नान्यत् पापतरं महत्। प्रवृत्तं चेह तत्सर्वं तव पापकर्मिणः॥ »**
+**Meaning —** In Valmiki Ramayana (Yuddha Kanda 9.12), Vibhishana explicitly warns: "There is no sin in existence greater or more destructive than laying desire or an eye upon another's wife. This single transgression is the root of total ruin."
+
+**« परदाराभिमर्शेन हरते पुण्यमर्जितम्। आयुर्लक्ष्मीं यशः कीर्तिं प्रज्ञां चैव विनाशयेत्॥ »**
+**Meaning —** In Padma Purana (Bhumikhanda 41.22), it is proclaimed: "Entertaining desire for another’s wife robs a soul of all accumulated spiritual merits (Punya), actively destroying longevity, prosperity, social honor, reputation, and intellect."
+
+**« मातृवत् परदारेषु परद्रव्येषु लोष्टवत्। आत्मवत् सर्वभूतेषु यः पश्यति स पण्डितः॥ »**
+**Meaning —** In Chanakya Niti (12.14), the core Dharmic benchmark is given: "He who looks upon another man's wife as his own mother, another's wealth as a clod of dirt, and treats all living beings as his own self—he alone is truly wise (Pandita)."
+
+Therefore, dear child ${seekerName ? seekerName + ', ' : ''}do not blame society; this sacred boundary is not an arbitrary social rule, but the divine cosmic law of Grihastha Dharma that protects human civilization from destruction. That woman has taken sacred vows around the holy fire with her husband; destabilizing another's marriage opens the gates to spiritual degradation and immense remorse for both of you. Step back immediately, sever all romantic communication, and look upon her with the pure reverence of a mother or sister. Channel all this emotional turmoil into ceaseless chanting of the Holy Name ('Radha Radha'). When you seek shelter in the Divine Name, Thakur Ji will purify your heart, grant you detachment, and liberate your soul from this illusion. May Thakur Ji bless and protect you always.`;
     }
 
     if (isMatsya) {
@@ -1273,6 +1295,25 @@ ${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text
 **अर्थात् —** ज्ञानी और समदर्शी महात्मा समस्त प्राणियों में केवल एक ही आत्म-तत्त्व और परमात्मा के दर्शन करते हैं, वे देह के रंग-रूप या प्रकृति का भेद नहीं करते।
 
 इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}मन से सारे भय और अपराध-बोध को निकाल दो। शास्त्रों में तुम्हारे लिए कोई सजा नहीं है। भगवान केवल तुम्हारे हृदय का विशुद्ध प्रेम और पवित्रता देखते हैं। किसी के साथ छल मत करना, किसी का दिल मत दुखाना, अपने माता-पिता की सेवा करना और निरंतर मुख से 'राधा-राधा' नाम का सुमिरन करते रहना। जब तुम नाम जपोगे और सात्विक रहोगे, तो ठाकुर जी की असीम कृपा सदा तुम्हारे साथ रहेगी। निश्चिंत रहो, प्रभु तुम्हारी रक्षा करेंगे।`;
+    }
+
+    if (isMarriedWoman) {
+      return `देखो बच्चा, तुमने अपने मन की बड़ी विकट व्यथा और आंतरिक द्वंद्व को हमसे कहा है। ध्यान से सुनो, जिसे तुम प्रेम समझ रहे हो, वह वास्तव में प्रेम नहीं है; वह काम (आसक्ति व वासना) का एक अत्यंत मोहक और विनाशकारी भ्रम है। किसी दूसरे की विवाहित स्त्री पर दृष्टि डालना या उससे संबंध की चाह रखना हमारे सनातन धर्म और शास्त्रों में "परदारा-गमन" (परस्त्री-गमन) कहलाता है, जो घोर अधर्म और आत्म-विनाश का मार्ग है।
+
+वाल्मीकि रामायण में महात्मा विभीषण ने रावण को बार-बार समझाया था कि रावण प्रकांड विद्वान और शिव-भक्त होते हुए भी केवल परस्त्री (माता सीता) की कुदृष्टि के कारण अपने पूरे वंश और लंका का विनाश कर बैठा। विभीषण जी ने स्पष्ट कहा था कि संसार में पराई स्त्री की चाह रखने से बढ़कर कोई दूसरा महापाप नहीं है। पद्म पुराण (भूमिखण्ड ४१.२२) में स्पष्ट विधान है कि पराई विवाहित स्त्री की कामना मनुष्य के जन्म-जन्मांतर के संचित पुण्यों, आयु, लक्ष्मी, यश और बुद्धि का समूल नाश कर देती है। और चाणक्य नीति (१२.१४) में सच्चा विद्वान और धर्मात्मा उसी को कहा गया है जो पराई स्त्री को अपनी पूजनीया माता के समान देखता है।
+
+हमारे पावन शास्त्रों का यह अटल व शाश्वत निर्णय है:
+
+**« परदाराभिमर्शात्तु नान्यत् पापतरं महत्। प्रवृत्तं चेह तत्सर्वं तव पापकर्मिणः॥ »**
+**अर्थात् —** वाल्मीकि रामायण (युद्धकाण्ड ९.१२) में विभीषण जी रावण को सचेत करते हैं कि पराई विवाहित स्त्री की कामना करने या उस पर कुदृष्टि डालने से बढ़कर संसार में कोई दूसरा घोर व विनाशकारी पाप नहीं है। यह पाप मनुष्य के धर्म, यश और जीवन को भस्म कर देता है।
+
+**« परदाराभिमर्शेन हरते पुण्यमर्जितम्। आयुर्लक्ष्मीं यशः कीर्तिं प्रज्ञां चैव विनाशयेत्॥ »**
+**अर्थात् —** श्री पद्म पुराण (भूमिखण्ड ४१.२२) में स्पष्ट उद्घोष है कि पराई विवाहित स्त्री की कामना मनुष्य के पूर्वजन्मों के संचित समस्त पुण्यों को हर लेती है और उसकी आयु, श्री (समृद्धि), कीर्ति, यश तथा विवेक-बुद्धि का सर्वनाश कर देती है।
+
+**« मातृवत् परदारेषु परद्रव्येषु लोष्टवत्। आत्मवत् सर्वभूतेषु यः पश्यति स पण्डितः॥ »**
+**अर्थात् —** चाणक्य नीति (१२.१४) सिखाती है कि जो मनुष्य पराई स्त्री को अपनी माता के समान पवित्र दृष्टि से देखता है, दूसरे के धन को मिट्टी का ढेला समझता है और सभी जीवों में अपनी ही आत्मा देखता है—वही वास्तव में बुद्धिमान और धर्मात्मा है।
+
+इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}समाज को दोष मत दो; यह मर्यादा केवल समाज की बनाई हुई नहीं, साक्षात् प्रभु और धर्म की बनाई हुई पावन रक्षा-दीवार है। वह स्त्री किसी अन्य के साथ सात फेरे लेकर पवित्र गृहस्थ धर्म के बंधन में बंधी है; उसके परिवार व धर्म को खंडित करना दोनों के लिए घोर अशांति, पश्चात्ताप और पतन का द्वार खोलना है। तुरंत अपने कदम पीछे खींच लो, उससे संपर्क पूर्णतः समाप्त कर दो, और उसे अपनी माता या बहन के समान पवित्र भाव से देखो। अपने मन में जो यह वासना का ज्वार उठा है, उसे शांत करने के लिए मुख से निरंतर 'राधा-राधा' नाम का सुमिरन करो। जब तुम नाम का आश्रय लोगे, तो भगवान तुम्हारे मन को इस मोह-जाल से निकालकर परम शांति और विवेक प्रदान करेंगे। प्रभु तुम्हारा कल्याण करें।`;
     }
 
     if (isMatsya) {
@@ -1727,6 +1768,7 @@ You MUST output a valid JSON object (json) with these exact keys:
 6. "seeker_state": Brief 1-sentence summary of devotee's state.
 7. "tuned_model_prompt": An optimized prompt for Pujya Maharaj Ji's fine-tuned model in natural Hindi describing the devotee's situation and asking for fatherly guidance and Holy Name shelter.
 CRITICAL: For queries about same-sex attraction / being gay / LGBTQ, ALWAYS recommend "Ramcharitmanas Uttarkand 87.2 & Bhagavad Gita 5.18" and specific_shloka_words "पुरुष नपुंसक नारि वा जीव चराचर कोइ". NEVER recommend sin or punishment scriptures.
+For queries about loving a married woman/man, extramarital attraction, or parastri/paradara (e.g. "shadi shuda mahila se pyar"), ALWAYS recommend "Valmiki Ramayana Yuddha Kanda 9.12 & Padma Purana Bhumikhanda 41.22", specific_shloka_words "परदाराभिमर्शात्तु नान्यत् पापतरं महत् परदाराभिमर्शेन हरते पुण्यमर्जितम्", and spiritual_theme "परनारी मर्यादा, काम-वासना का विवेक व धर्म रक्षा".
 Return strictly a JSON object.`
     : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) सत्संग के आध्यात्मिक विश्लेषण व शास्त्र अनुसंधान एजेंट (Spiritual Grounding Agent) हैं।
 साधक के अंतर्मन व प्रश्न का गहन आध्यात्मिक विश्लेषण (Chain-of-Thought) करें।
@@ -1739,6 +1781,7 @@ Return strictly a JSON object.`
 6. "seeker_state": साधक की स्थिति का १ वाक्य में सारांश।
 7. "tuned_model_prompt": पूज्य महाराज जी के फाइन-ट्यून्ड मॉडल हेतु स्वाभाविक हिंदी में प्रॉम्ट: साधक का प्रश्न, स्थिति और वात्सल्यमयी मार्गदर्शन व नाम जप का आश्रय।
 कड़ा नियम: समलैंगिकता / गे / LGBTQ संबंधी प्रश्नों के लिए सदैव "श्रीरामचरितमानस उत्तरकाण्ड ८७.२ व श्रीमद्भगवद्गीता ५.१८" और specific_shloka_words "पुरुष नपुंसक नारि वा जीव चराचर कोइ" ही अनुशंसित करें। गरुड़ पुराण या पाप ग्रंथों का कदापि उल्लेख न करें।
+विवाहित महिला/पुरुष से प्रेम, विवाहेतर आकर्षण, या परस्त्री/परनारी/परदार संबंधी प्रश्नों (जैसे "shadi shuda mahila se pyar", "शादीशुदा महिला से प्यार") के लिए सदैव "वाल्मीकि रामायण युद्धकाण्ड ९.१२ व पद्म पुराण भूमिखण्ड ४१.२२" और specific_shloka_words "परदाराभिमर्शात्तु नान्यत् पापतरं महत् परदाराभिमर्शेन हरते पुण्यमर्जितम्" तथा spiritual_theme "परनारी मर्यादा, काम-वासना का विवेक व धर्म रक्षा" ही अनुशंसित करें।
 केवल JSON ऑब्जेक्ट लौटाएं।`;
 
   const messages = [
@@ -2128,8 +2171,9 @@ ${scripturePromptSection}
      CRITICAL: NEVER write Devanagari 'अर्थात्' or 'भावार्थ' in English responses. Always use '**Meaning —**'.` : ''}
    - Paragraph ${candidates.length > 0 ? '4' : '3'}: Practical daily living (honest duty as seva, overcoming ego), continuous chanting of the Holy Name ('Radha Radha'), and fatherly blessings.
 3. 100% pure English text (only the sacred Sanskrit verse inside **« ... »**).
-4. COMPASSION & UNIVERSAL LOVE (CRITICAL):
+4. COMPASSION, PURITY & SCRIPTURAL MARYADA (CRITICAL):
    - Pujya Maharaj Ji NEVER labels any seeker as a "sinner", "criminal", "impure", or "guilty". Divine love transcends bodily identity ("पुरुष नपुंसक नारि वा जीव चराचर कोइ").
+   - FOR QUERIES REGARDING LOVING A MARRIED PERSON (परस्त्री / परनारी): Pujya Maharaj Ji with fatherly urgency clarifies that this is not divine love, but Kama (infatuation and forbidden desire) that brings spiritual and worldly ruin (as happened to Ravana). Guide the seeker with deep affection to immediately step back, respect marital boundaries, look upon another's wife as mother/sister ('मातृवत् परदारेषु'), and channel all emotional longing into chanting 'Radha Radha'.
    - If the raw draft contains any harsh, judgmental, or prejudiced words, completely discard them and formulate fatherly warmth, solace, universal divine love, and shelter in the Holy Name.`
     : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) के पावन वचनों के दिव्य संपादन व प्रस्तुति के माध्यम हैं।
 पूज्य महाराज जी ने अपने अंतर्मन से यह प्रारंभिक सत्संग वाणी कही है:
@@ -2152,8 +2196,9 @@ ${scripturePromptSection}
      **अर्थात् —** "[शास्त्रसम्मत भावार्थ]"` : ''}
    - अनुच्छेद ४: व्यावहारिक मार्गदर्शन (कर्तव्य को प्रभु सेवा मानना, अहंकार त्यागना), 'राधा-राधा' नाम जप का आश्रय, और मंगलकारी आशीर्वाद (।)।
 ३. संस्कृत श्लोक के अक्षरों को हूबहू (verbatim) रखें, किसी शब्द का यांत्रिक दोहराव न करें।
-४. वात्सल्य, समदृष्टि व शुद्धि (अति अनिवार्य):
+४. वात्सल्य, समदृष्टि व शास्त्र मर्यादा (अति अनिवार्य):
    - पूज्य महाराज जी कभी किसी साधक को 'गंदे विचार वाला', 'अपराधी', 'पापी', या 'दोषी' नहीं कहते। ईश्वर का प्रेम अहैतुक और सर्वसमावेशी है ("पुरुष नपुंसक नारि वा जीव चराचर कोइ")।
+   - पराई विवाहित स्त्री/पुरुष से प्रेम (परस्त्री / परनारी) के प्रश्नों पर: पूज्य महाराज जी वात्सल्यमयी दृढ़ता से समझाते हैं कि यह कोई सच्चा प्रेम नहीं, बल्कि काम (वासना) का मोहक भ्रम है जो संचित पुण्यों और कुल-मर्यादा का नाश करता है। साधक को तुरंत इस संबंध से पीछे हटने, पराई स्त्री को माता/बहन के समान पवित्र दृष्टि से देखने ('मातृवत् परदारेषु') और 'राधा-राधा' नाम जप का आश्रय लेने का स्पष्ट उपदेश दें।
    - यदि प्रारंभिक प्रारूप में कोई भी कठोर, संकीर्ण या पूर्वाग्रहयुक्त शब्द हो, तो उसे पूर्णतः त्यागकर केवल प्रेम, सांत्वना, समदृष्टि और 'राधा-राधा' नाम जप का मार्ग प्रशस्त करें।`;
 
   const messages = [
