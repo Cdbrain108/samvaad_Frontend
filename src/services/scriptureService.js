@@ -598,6 +598,46 @@ export const SCRIPTURE_DATABASE = [
     ]
   },
 
+  // 22B. Controlling Attachment & Overcoming Forbidden Desires (ध्यायतो विषयान्पुंसः - श्रीमद्भगवद्गीता २.६२-६३)
+  {
+    id: 'gita_2_62_63',
+    scripture_id: 'bhagavad_gita',
+    reference: 'श्रीमद्भगवद्गीता २.६२-६३ (Bhagavad Gita 2.62-63 · आसक्ति, काम व मर्यादा)',
+    original_text: 'ध्यायतो विषयान्पुंसः सङ्गस्तेषूपजायते। सङ्गात्सञ्जायते कामः कामात्क्रोधोऽभिजायते॥ क्रोधाद्भवति संमोहः संमोहात्स्मृतिविभ्रमः। स्मृतिभ्रंशाद् बुद्धिनाशो बुद्धिनाशात्प्रणश्यति॥',
+    hindi_meaning: 'विषयों व अनधिकार संबंधों का निरंतर चिंतन करने से आसक्ति उत्पन्न होती है। आसक्ति से तीव्र कामना और कामना में बाधा आने पर विक्षोभ व अशांति उत्पन्न होती है। इससे विवेक और मर्यादा का नाश हो जाता है। अतः मन को मर्यादा में बांधकर प्रभु-आश्रय लेना ही कल्याण का मार्ग है।',
+    english_translation: 'By constantly contemplating on forbidden desires, deep attachment arises. From attachment springs craving, and when obstructed, inner agitation and loss of discernment follow, leading to spiritual downfall. True peace lies in self-mastery and Maryada.',
+    context_intro_hi: 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण आसक्ति और कामना के पतनकारी वेग को समझाते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Bhagavan Shri Krishna warns against the destructive progression of obsessive desire in the Bhagavad Gita —',
+    keywords: [
+      'ध्यायतो विषयान्पुंसः', 'श्रीमद्भगवद्गीता 2.62-63', 'गीता २.६२', 'gita 2.62', 'gita 2.63',
+      'शादी शुदा महिला से प्यार', 'शादीशुदा महिला से प्यार', 'विवाहित महिला से प्रेम', 'परस्त्री प्रेम',
+      'शादी शुदा औरत', 'विवाहेतर प्रेम', 'अनधिकार प्रेम', 'आसक्ति पर नियंत्रण', 'काम वासना', 'कामासक्ति',
+      'shadi shuda mahila se pyar', 'shadi shuda aurat se pyar', 'shadi shuda mahila', 'shadi shuda aurat',
+      'shadi shuda se pyar', 'shadi shuda ladki se pyar', 'vivahit mahila se prem', 'parastri se pyar',
+      'loving a married woman', 'married woman love', 'extramarital love', 'attracted to married woman',
+      'fall in love with married woman', 'married woman in love'
+    ]
+  },
+
+  // 22C. Sanctity of Dharma & Maryada regarding Others (जननी सम जानहिं परनारी - श्रीरामचरितमानस)
+  {
+    id: 'rcm_maryada_parastri',
+    scripture_id: 'ramcharitmanas',
+    reference: 'श्रीरामचरितमानस (Ramcharitmanas · परनारी मर्यादा व धर्म रक्षा)',
+    original_text: 'जननी सम जानहिं परनारी। तिनके मन मंदिर बसु मुरारी॥ काम कोह मद मान न मोहा। लोभ न छोभ न राग न द्रोहा॥',
+    hindi_meaning: 'श्रीरामचरितमानस में साक्षात् भगवान का पावन विधान है कि जो मनुष्य पराई स्त्री को माता के समान पवित्र दृष्टि से देखता है, उसके हृदय में साक्षात् भगवान वास करते हैं। किसी अन्य के वैवाहिक जीवन व मर्यादा को तोड़ना धर्म का ह्रास है। सच्चा प्रेम मर्यादा का पालन कर त्याग में प्रतिष्ठित होना है।',
+    english_translation: 'In Shri Ramcharitmanas, it is proclaimed that the Divine eternally resides in the heart of one who regards another’s wife with the sacred purity of a mother. Violating sacred marital boundaries brings spiritual harm; true devotion lies in sacrifice and Maryada.',
+    context_intro_hi: 'जैसे श्रीरामचरितमानस में मर्यादा पुरुषोत्तम भगवान श्री राम के पावन आदर्श का वर्णन करते हुए कहा गया है कि —',
+    context_intro_en: 'Just as Shri Ramcharitmanas reveals the supreme sanctity of Maryada and sacred boundaries —',
+    keywords: [
+      'परनारी', 'परस्त्री', 'शादीशुदा महिला से प्यार', 'विवाहित स्त्री से प्रेम', 'विवाहित महिला',
+      'शादी शुदा महिला', 'मर्यादा', 'धर्म संकट', 'जननी सम जानहिं परनारी', 'विवाहेतर संबंध',
+      'shadi shuda mahila se pyar', 'shadi shuda mahila', 'shadi shuda aurat se pyar', 'shadi shuda aurat',
+      'shadi shuda ladki se pyar', 'vivahit mahila se prem', 'parastri se prem', 'parnari', 'parastri',
+      'married woman', 'loving married woman', 'parastri', 'parnari'
+    ]
+  },
+
   // 23. Destiny & Past Karma (गहना कर्मणो गतिः)
   {
     id: 'gita_4_17',
