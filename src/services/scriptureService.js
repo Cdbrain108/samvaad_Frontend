@@ -1050,18 +1050,24 @@ export function getLocalScriptureGrounding(query) {
   return matches.length ? matches[0] : null;
 }
 
+function devanagariToAscii(str) {
+  return (str || '').replace(/[०-९]/g, d => '०१२३४५६७८९'.indexOf(d));
+}
+
 /**
  * Unified Scripture RAG retrieval:
- * 1. Priority 1: High-confidence hand-verified curated catalog matches (score >= 4.0).
- * 2. Priority 2: Live Qdrant Vector Search across 9,558 passages on AWS (score >= 0.55).
- * 3. Supports multi-scripture complementary grounding for real-world queries (Point 3).
- * 4. Strictly focuses on a single scripture if explicitly requested (Point 3).
+ * 1. Priority 1: High-confidence Groq shloka identification (shloka keywords & chapter/verse).
+ * 2. Priority 2: Hand-verified curated catalog matches (score >= 4.0).
+ * 3. Priority 3: Live Qdrant Vector Search across 9,558 passages on AWS (score >= 0.55).
+ * 4. Supports multi-scripture complementary grounding for real-world queries (Point 3).
+ * 5. Strictly focuses on a single scripture if explicitly requested (Point 3).
  */
-export async function getScriptureGrounding(query) {
+export async function getScriptureGrounding(query, groqEnrichment = null) {
   if (!query || typeof query !== 'string') return null;
   if (isCasualConversational(query)) return null;
 
-  const isSexuality = /(gay|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|lgbt|समलैंगिक|गे|लड़का\s*लड़के)/i.test(query);
+  const isSexuality = /(gay|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|lgbt|समलैंगिक|गे|लड़का\s*लड़के)/i.test(query) ||
+                      (groqEnrichment && /(gay|lgbt|homosexual|same\s*sex|समलैंगिक)/i.test(groqEnrichment.spiritual_theme || ''));
   if (isSexuality) {
     const rcmMatch = SCRIPTURE_DATABASE.find(item => item.id === 'rcm_universal_love_equality');
     if (rcmMatch) {
@@ -1075,15 +1081,89 @@ export async function getScriptureGrounding(query) {
     }
   }
 
+  // Check if Groq agent pinpointed an exact shloka or recommended scripture
+  let groqExactMatch = null;
+  if (groqEnrichment) {
+    const shlokaWords = (typeof groqEnrichment.specific_shloka_words === 'string'
+      ? groqEnrichment.specific_shloka_words
+      : Array.isArray(groqEnrichment.specific_shloka_words)
+        ? groqEnrichment.specific_shloka_words.join(' ')
+        : '').trim();
+
+    const rawRecScripture = (groqEnrichment.recommended_scripture || '').trim();
+    const recScriptureAscii = devanagariToAscii(rawRecScripture);
+
+    // 1. Direct match on Sanskrit words in SCRIPTURE_DATABASE
+    if (shlokaWords && shlokaWords.length >= 4) {
+      const tokens = shlokaWords.split(/\s+/).filter(t => t.length >= 3 && !SCRIPTURE_STOP_WORDS.has(t));
+      for (const item of SCRIPTURE_DATABASE) {
+        if (isTopicExcluded(query, item)) continue;
+        for (const token of tokens) {
+          if (token.length >= 4 && item.original_text.includes(token)) {
+            groqExactMatch = {
+              ...item,
+              score: 20.0,
+              match_type: 'groq_exact_shloka'
+            };
+            break;
+          }
+        }
+        if (groqExactMatch) break;
+      }
+    }
+
+    // 2. Direct match on chapter.verse (e.g. "2.47", "6.26", "2.62", "18.66", "87.2")
+    if (!groqExactMatch && recScriptureAscii) {
+      const verseMatch = recScriptureAscii.match(/(\d+)\.(\d+)/);
+      if (verseMatch) {
+        const vDot = `${verseMatch[1]}.${verseMatch[2]}`;
+        const vUnder = `${verseMatch[1]}_${verseMatch[2]}`;
+        for (const item of SCRIPTURE_DATABASE) {
+          if (isTopicExcluded(query, item)) continue;
+          if (item.reference.includes(vDot) || item.id.includes(vUnder)) {
+            groqExactMatch = {
+              ...item,
+              score: 18.0,
+              match_type: 'groq_exact_reference'
+            };
+            break;
+          }
+        }
+      }
+    }
+  }
+
   const explicitTarget = detectExplicitScriptureInQuery(query);
 
+  // Build enriched search queries for local matching and live vector search
+  const enrichedKeywords = (groqEnrichment?.optimized_rag_keywords || []).join(' ');
+  const enrichedTheme = groqEnrichment?.spiritual_theme || '';
+  const searchQueries = [
+    query,
+    enrichedKeywords ? `${query} ${enrichedKeywords}` : null,
+    enrichedTheme ? `${query} ${enrichedTheme}` : null
+  ].filter(Boolean);
+
   // 1. Gather all matching curated entries that pass topic gates
-  const curatedMatches = getLocalScriptureMatches(query);
+  const curatedMatchesMap = new Map();
+  if (groqExactMatch) {
+    curatedMatchesMap.set(groqExactMatch.id, groqExactMatch);
+  }
+  for (const sq of searchQueries) {
+    const matches = getLocalScriptureMatches(sq);
+    for (const m of matches) {
+      if (!curatedMatchesMap.has(m.id) || curatedMatchesMap.get(m.id).score < m.score) {
+        curatedMatchesMap.set(m.id, m);
+      }
+    }
+  }
+  const curatedMatches = Array.from(curatedMatchesMap.values()).sort((a, b) => b.score - a.score);
 
   // 2. High-speed Live Vector Search from Oracle Cloud Qdrant database (5 candidates)
   let vectorCandidates = [];
   try {
-    vectorCandidates = await queryOracleVectorRAG(query);
+    const vectorQuery = enrichedKeywords ? `${query} ${enrichedKeywords}` : query;
+    vectorCandidates = await queryOracleVectorRAG(vectorQuery);
   } catch (e) {}
 
   // 3. Assemble unified candidate pool, deduplicated by original_text or reference

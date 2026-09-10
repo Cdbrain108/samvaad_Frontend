@@ -25,24 +25,31 @@ export default function ReasoningBlock({
   const isEnglishView = Boolean(isEnglish) || (thought && /^(?:🔍\s*Query Intent|Contemplating|Searching|Analyzing)/i.test(thought));
   const [displayedThought, setDisplayedThought] = useState(thought || '');
 
+  const startTimeRef = useRef(null);
+
   useEffect(() => {
     let interval = null;
     if (isThinking) {
       setIsOpen(true);
-      const startTime = Date.now();
+      if (!startTimeRef.current) {
+        startTimeRef.current = Date.now();
+      }
       interval = setInterval(() => {
-        setElapsed(Math.max(0.1, (Date.now() - startTime) / 1000));
+        if (startTimeRef.current) {
+          setElapsed(Math.max(0.1, (Date.now() - startTimeRef.current) / 1000));
+        }
       }, 100);
     } else {
       if (duration > 0) {
         setElapsed(duration);
       }
+      startTimeRef.current = null;
       setIsOpen(false);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isThinking, duration]);
+  }, [isThinking]);
 
   // Progressive typewriter effect for thought stream
   useEffect(() => {
@@ -77,7 +84,9 @@ export default function ReasoningBlock({
     }
   }, [displayedThought, isThinking, isExpanded]);
 
-  const displayTime = duration > 0 ? duration.toFixed(1) : elapsed.toFixed(1);
+  const displayTime = isThinking
+    ? elapsed.toFixed(1)
+    : (duration > 0 ? duration : elapsed).toFixed(1);
 
   if (!thought && !isThinking && !scripture) return null;
 

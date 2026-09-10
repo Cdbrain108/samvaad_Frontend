@@ -1711,59 +1711,87 @@ async function streamPhasedDiscourse(framedDiscourse, onChunk, userMessage, isEn
 
 /**
  * Groq Chain-of-Thought (CoT) Query Understanding Agent:
- * Analyzes seeker intent, emotional state, selects appropriate scripture,
+ * Analyzes seeker intent, emotional state, identifies ideal scripture themes & shlokas,
  * and synthesizes an optimized prompt for the fine-tuned model (without raw Sanskrit).
  */
-export async function runGroqQueryUnderstandingAgent(userMessage, conversationHistory = [], userProfile = null, isEnglish = false, scripture = null) {
-  const scriptureName = scripture ? scripture.reference : '';
-  const scriptureWisdom = scripture ? (scripture.hindi_meaning || scripture.english_translation || '') : '';
-
-  const systemPrompt = isEnglish
-    ? `You are the Spiritual Reasoning & Query Understanding Agent for Pujya Hit Premanand Govind Sharan Ji Maharaj Satsang (Samvaad).
-Analyze the devotee's spiritual situation with deep empathy (Chain-of-Thought).
-Formulate:
-1. "thought_process": 2-3 sentences in English reflecting on the seeker's inner dilemma, emotional state, and spiritual core.
-2. "seeker_state": Brief summary of devotee's state.
-3. "tuned_model_prompt": An optimized prompt for Pujya Maharaj Ji's fine-tuned model in natural Hindi. Include the seeker's dilemma and a brief knowledge context: "[शास्त्र ज्ञान संदर्भ: ${scriptureName || 'शास्त्र'} में यह बताया गया है कि ${scriptureWisdom.slice(0, 120)}...]".
-CRITICAL RULE: DO NOT include raw Sanskrit shlokas in the tuned_model_prompt.`
-    : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) सत्संग के आध्यात्मिक विश्लेषण व जिज्ञासा-अवबोधन एजेंट (Query Understanding Agent) हैं।
-साधक के अंतर्मन, स्थिति व प्रश्न का गहन आध्यात्मिक विश्लेषण (Chain-of-Thought) करें।
-तैयार करें:
-१. "thought_process": साधक के अंतर्मन, भाव व आध्यात्मिक समाधान का २-३ वाक्यों में गंभीर चिंतन (हिंदी में)।
-२. "seeker_state": साधक की वर्तमान मानसिक व आध्यात्मिक स्थिति।
-३. "tuned_model_prompt": पूज्य महाराज जी के फाइन-ट्यून्ड मॉडल हेतु स्वाभाविक हिंदी में अनुकूलित प्रॉम्ट। इसमें साधक का प्रश्न और केवल संक्षिप्त ज्ञान संदर्भ दें: "[शास्त्र ज्ञान संदर्भ: ${scriptureName || 'पावन शास्त्र'} में यह ज्ञान निहित है कि ${scriptureWisdom.slice(0, 140)}...]। महाराज जी, साधक को आत्मीय वात्सल्य से व्यावहारिक मार्गदर्शन व नाम जप का आश्रय प्रदान कीजिए।"
-कड़ा नियम: tuned_model_prompt में मूल संस्कृत श्लोक कदापि न डालें।`;
+export async function runGroqQueryUnderstandingAgent(userMessage, conversationHistory = [], userProfile = null, isEnglish = false) {
+  const sysPrompt = isEnglish
+    ? `You are the Spiritual Reasoning & Grounding Agent for Pujya Hit Premanand Govind Sharan Ji Maharaj Satsang (Samvaad).
+Analyze the seeker's question deeply with compassionate Chain-of-Thought deliberation.
+You MUST output a valid JSON object (json) with these exact keys:
+1. "thought_process": 2-3 sentences reflecting deeply in English on the seeker's emotional state, spiritual dilemma, and divine solace.
+2. "spiritual_theme": The core spiritual theme (e.g. "Overcoming Anger & Regret", "Restless Mind & Meditation", "Nishkama Karma & Duty", "Universal Love & Equality of Souls", "Surrender in Times of Trial").
+3. "recommended_scripture": The exact most relevant sacred Hindu scripture and chapter/verse (e.g. "Bhagavad Gita 2.62-63", "Bhagavad Gita 6.26 & 6.35", "Bhagavad Gita 2.47", "Ramcharitmanas Uttarkand 87.2 & Bhagavad Gita 5.18", "Garuda Purana", "Shiva Purana").
+4. "specific_shloka_words": A single string of key Sanskrit words from that verse (e.g. "ध्यायतो विषयान्पुंसः", "कर्मण्येवाधिकारस्ते", "यतो यतो निश्चरति", "पुरुष नपुंसक नारि वा जीव चराचर कोइ").
+5. "optimized_rag_keywords": Array of 3-4 search keywords in Hindi/English.
+6. "seeker_state": Brief 1-sentence summary of devotee's state.
+7. "tuned_model_prompt": An optimized prompt for Pujya Maharaj Ji's fine-tuned model in natural Hindi describing the devotee's situation and asking for fatherly guidance and Holy Name shelter.
+CRITICAL: For queries about same-sex attraction / being gay / LGBTQ, ALWAYS recommend "Ramcharitmanas Uttarkand 87.2 & Bhagavad Gita 5.18" and specific_shloka_words "पुरुष नपुंसक नारि वा जीव चराचर कोइ". NEVER recommend sin or punishment scriptures.
+Return strictly a JSON object.`
+    : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) सत्संग के आध्यात्मिक विश्लेषण व शास्त्र अनुसंधान एजेंट (Spiritual Grounding Agent) हैं।
+साधक के अंतर्मन व प्रश्न का गहन आध्यात्मिक विश्लेषण (Chain-of-Thought) करें।
+आपको अनिवार्य रूप से वैध JSON ऑब्जेक्ट (json) में यह कुंजियाँ देनी हैं:
+1. "thought_process": साधक के अंतर्मन, व्यथा व आध्यात्मिक समाधान पर २-३ गंभीर वाक्य (हिंदी में)।
+2. "spiritual_theme": मूल आध्यात्मिक विषय (जैसे "क्रोध पर विजय व आत्म-शुद्धि", "चंचल मन व ध्यान", "निष्काम कर्म व कर्तव्य", "समदृष्टि व अहैतुक प्रेम", "विपत्ति में शरणागति")।
+3. "recommended_scripture": सबसे सटीक पावन ग्रंथ व अध्याय/श्लोक (जैसे "श्रीमद्भगवद्गीता २.६२-६३", "श्रीमद्भगवद्गीता ६.२६ व ६.३५", "श्रीमद्भगवद्गीता २.४७", "श्रीरामचरितमानस उत्तरकाण्ड ८७.२ व श्रीमद्भगवद्गीता ५.१८", "श्री गरुड़ पुराण")।
+4. "specific_shloka_words": उस सटीक श्लोक के मूल संस्कृत शब्द (एक स्ट्रिंग के रूप में, जैसे "ध्यायतो विषयान्पुंसः", "यतो यतो निश्चरति", "कर्मण्येवाधिकारस्ते", "पुरुष नपुंसक नारि वा जीव चराचर कोइ")।
+5. "optimized_rag_keywords": ३-४ खोज शब्द (Array of strings)।
+6. "seeker_state": साधक की स्थिति का १ वाक्य में सारांश।
+7. "tuned_model_prompt": पूज्य महाराज जी के फाइन-ट्यून्ड मॉडल हेतु स्वाभाविक हिंदी में प्रॉम्ट: साधक का प्रश्न, स्थिति और वात्सल्यमयी मार्गदर्शन व नाम जप का आश्रय।
+कड़ा नियम: समलैंगिकता / गे / LGBTQ संबंधी प्रश्नों के लिए सदैव "श्रीरामचरितमानस उत्तरकाण्ड ८७.२ व श्रीमद्भगवद्गीता ५.१८" और specific_shloka_words "पुरुष नपुंसक नारि वा जीव चराचर कोइ" ही अनुशंसित करें। गरुड़ पुराण या पाप ग्रंथों का कदापि उल्लेख न करें।
+केवल JSON ऑब्जेक्ट लौटाएं।`;
 
   const messages = [
-    { role: 'system', content: systemPrompt },
+    { role: 'system', content: sysPrompt },
     { role: 'user', content: userMessage }
   ];
 
-  try {
+  const models = ['qwen/qwen3.8-27b', 'qwen/qwen3.6-27b', 'groq/compound-mini', 'openai/gpt-oss-120b'];
+  for (let attempt = 0; attempt < 4; attempt++) {
     const key = getNextGroqKey();
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${key}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'qwen/qwen3.8-27b',
-        messages,
-        response_format: { type: 'json_object' },
-        temperature: 0.2,
-        max_tokens: 400
-      })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const parsed = JSON.parse(data.choices?.[0]?.message?.content || '{}');
-      if (parsed.thought_process && parsed.tuned_model_prompt) {
-        return parsed;
+    const model = models[attempt % models.length];
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6500);
+
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${key}`,
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model,
+          messages,
+          response_format: { type: 'json_object' },
+          temperature: 0.1,
+          max_tokens: 420
+        })
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content) {
+          const parsed = JSON.parse(content);
+          if (parsed.spiritual_theme || parsed.thought_process) {
+            return {
+              thought_process: parsed.thought_process || '',
+              spiritual_theme: parsed.spiritual_theme || '',
+              recommended_scripture: parsed.recommended_scripture || '',
+              specific_shloka_words: parsed.specific_shloka_words || '',
+              optimized_rag_keywords: Array.isArray(parsed.optimized_rag_keywords) ? parsed.optimized_rag_keywords : [],
+              seeker_state: parsed.seeker_state || 'Spiritual seeker in need of guidance',
+              tuned_model_prompt: parsed.tuned_model_prompt || `साधक का प्रश्न: ${userMessage}\nमहाराज जी, साधक को आत्मीय वात्सल्य से व्यावहारिक मार्गदर्शन और 'राधा-राधा' नाम जप का आश्रय प्रदान कीजिए।`
+            };
+          }
+        }
       }
+    } catch (e) {
+      clearTimeout(timeoutId);
     }
-  } catch (e) {
-    console.warn('Groq Query Understanding Agent error:', e.message);
   }
 
   const fallbackThought = isEnglish
@@ -1771,12 +1799,14 @@ CRITICAL RULE: DO NOT include raw Sanskrit shlokas in the tuned_model_prompt.`
     : `साधक के अंतर्मन व स्थिति का चिंतन: प्रश्न की आध्यात्मिक पृष्ठभूमि का विश्लेषण, पावन शास्त्र संदर्भ से समाधान, और पूज्य महाराज जी की वात्सल्यमयी वाणी का प्राकट्य...`;
 
   const fallbackTunedPrompt = `साधक का प्रश्न: ${userMessage}
-${scripture ? `\n\nशास्त्र ज्ञान संदर्भ: ${scripture.reference} में यह ज्ञान दिया गया है कि ${(scripture.hindi_meaning || scripture.english_translation || '').slice(0, 150)}` : ''}
-
 महाराज जी, साधक को आत्मीय वात्सल्य से व्यावहारिक मार्गदर्शन, प्रारब्ध का विवेक और 'राधा-राधा' नाम जप का आश्रय प्रदान कीजिए।`;
 
   return {
     thought_process: fallbackThought,
+    spiritual_theme: '',
+    recommended_scripture: '',
+    specific_shloka_words: '',
+    optimized_rag_keywords: [],
     seeker_state: 'Spiritual seeker in need of guidance',
     tuned_model_prompt: fallbackTunedPrompt
   };
@@ -1786,7 +1816,7 @@ ${scripture ? `\n\nशास्त्र ज्ञान संदर्भ: ${s
  * Direct Live Streamer for fine-tuned Oracle Model (ai-guru-v10-4-Q8_0.gguf)
  * Extended timeout: 65,000ms ensures full completion without dropping.
  */
-export async function callTunedOracleStream(prompt, onToken, maxTokens = 350) {
+export async function callTunedOracleStream(prompt, onToken, maxTokens = 180) {
   const endpoints = [
     getOracleUrl(),
     getOracleLtUrl(),
@@ -1803,8 +1833,8 @@ export async function callTunedOracleStream(prompt, onToken, maxTokens = 350) {
     }
 
     const controller = new AbortController();
-    // Fast failover: 4.0s connection timeout ensures seeker never hangs when remote Oracle tunnel is cold/offline
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    // Overall hard cap: 12.0s ensures seeker never hangs waiting for slow or congested remote GPU tunnels
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
 
     try {
       const response = await fetch(targetUrl, {
@@ -1829,9 +1859,9 @@ export async function callTunedOracleStream(prompt, onToken, maxTokens = 350) {
           stream: true
         })
       });
-      clearTimeout(timeoutId);
 
       if (!response.ok) {
+        clearTimeout(timeoutId);
         console.warn(`Oracle stream endpoint ${targetUrl} returned HTTP ${response.status}`);
         continue;
       }
@@ -1842,6 +1872,7 @@ export async function callTunedOracleStream(prompt, onToken, maxTokens = 350) {
         let accumulated = '';
         let buffer = '';
 
+        let isDone = false;
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -1850,7 +1881,12 @@ export async function callTunedOracleStream(prompt, onToken, maxTokens = 350) {
           buffer = lines.pop() || '';
           for (const line of lines) {
             const trimmed = line.trim();
-            if (trimmed.startsWith('data: ') && trimmed !== 'data: [DONE]') {
+            if (trimmed === 'data: [DONE]') {
+              isDone = true;
+              try { reader.cancel(); } catch (e) {}
+              break;
+            }
+            if (trimmed.startsWith('data: ')) {
               try {
                 const parsed = JSON.parse(trimmed.slice(6));
                 const token = parsed.choices?.[0]?.delta?.content;
@@ -1861,14 +1897,19 @@ export async function callTunedOracleStream(prompt, onToken, maxTokens = 350) {
               } catch (e) {}
             }
           }
+          if (isDone) break;
         }
 
+        clearTimeout(timeoutId);
         const formatted = formatScriptureLines(accumulated.trim());
         return deduplicateRepetitionLoops(formatted, false) || formatted;
       }
     } catch (err) {
       clearTimeout(timeoutId);
       console.warn(`Oracle streaming attempt ${attempt + 1} (${targetUrl}) failed:`, err.message);
+      if (err.name === 'AbortError') {
+        break;
+      }
     }
   }
 
@@ -2263,31 +2304,31 @@ export async function streamGuruResponse(
   onChunk({
     content: '',
     thought: isEnglish
-      ? '🔍 Spiritual Reasoning & Query Understanding Agent: Contemplating seeker intent...'
-      : '🔍 आध्यात्मिक चिंतन व जिज्ञासा विश्लेषण: साधक के अंतर्मन का अध्ययन व पावन शास्त्र RAG खोज...',
+      ? '🔍 Spiritual Reasoning & Query Understanding Agent: Analyzing seeker intent...'
+      : '🔍 आध्यात्मिक चिंतन व जिज्ञासा विश्लेषण: साधक के अंतर्मन का अध्ययन व पावन शास्त्र अनुसंधान...',
     isThinking: mode === 'deep',
     thinkingDuration: 0.1,
     scripture: null
   });
 
-  // Step 2: Retrieve RAG scripture grounding (curated index + live AWS Qdrant vector search)
-  const scripture = await getScriptureGrounding(userMessage);
-  if (scripture) {
-    console.log(`[+] Grounded with Scripture: ${scripture.reference} (Score: ${scripture.score}) [${scripture.match_type}]`);
-  }
-
   if (mode === 'deep') {
-    // Step 3A: Groq Chain-of-Thought Query Understanding Agent
+    // Step 2: Groq Chain-of-Thought Query Understanding Agent FIRST!
+    // Creates perfect spiritual themes, recommended scripture, specific shloka keywords & search tags
     const cotAgent = await runGroqQueryUnderstandingAgent(
       userMessage,
       conversationHistory,
       userProfile,
-      isEnglish,
-      scripture
+      isEnglish
     );
 
     const thoughtProcess = cotAgent.thought_process;
-    const tunedPrompt = cotAgent.tuned_model_prompt;
+    const tunedPrompt = cotAgent.tuned_model_prompt || `साधक का प्रश्न: ${userMessage}\nमहाराज जी, साधक को आत्मीय वात्सल्य से व्यावहारिक मार्गदर्शन और 'राधा-राधा' नाम जप का आश्रय प्रदान कीजिए।`;
+
+    // Step 3: Retrieve RAG scripture grounding with Groq intelligence (curated index + live AWS Qdrant vector search)
+    const scripture = await getScriptureGrounding(userMessage, cotAgent);
+    if (scripture) {
+      console.log(`[+] Grounded with Scripture: ${scripture.reference} (Score: ${scripture.score}) [${scripture.match_type}]`);
+    }
 
     onChunk({
       content: '',
@@ -2297,39 +2338,22 @@ export async function streamGuruResponse(
       scripture: scripture || null
     });
 
-    // Step 3B: Tuned Model Sequence Preview under Thinking Mode
-    // Point 1: As requested, we DO NOT write the tuned model whole response as output.
-    // We only showcase some initial sequences under our thinking mode with typing cadence!
+    // Step 4: Tuned Model Satsang Generation in the background
+    // CRITICAL: Keep content: '' throughout thinking mode so main chat bubble NEVER shows frozen/stuck text!
+    // The thinking box stays alive, open, and ticking smoothly with the live timer!
     let rawTunedDiscourse = '';
-    let previewSequence = '';
-    let previewFrozen = false;
-    const PREVIEW_MAX_CHARS = 80;
-
     try {
       const oracleRes = await callTunedOracleStream(
         tunedPrompt,
         (token, accumulated) => {
           rawTunedDiscourse = accumulated;
-          
-          if (!previewFrozen) {
-            previewSequence = accumulated;
-            if (previewSequence.length >= PREVIEW_MAX_CHARS || /(।|\.|\n)/.test(accumulated.slice(35))) {
-              const puncIdx = accumulated.indexOf('।', 30);
-              if (puncIdx !== -1) {
-                previewSequence = accumulated.slice(0, puncIdx + 1);
-                previewFrozen = true;
-              } else if (previewSequence.length >= PREVIEW_MAX_CHARS) {
-                previewFrozen = true;
-              }
-            }
-            onChunk({
-              content: previewSequence,
-              thought: thoughtProcess,
-              isThinking: true,
-              thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
-              scripture: scripture || null
-            });
-          }
+          onChunk({
+            content: '',
+            thought: thoughtProcess,
+            isThinking: true,
+            thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+            scripture: scripture || null
+          });
         }
       );
       if (oracleRes) {
@@ -2341,27 +2365,11 @@ export async function streamGuruResponse(
 
     if (!rawTunedDiscourse || rawTunedDiscourse.trim().length < 30) {
       rawTunedDiscourse = await generateAuthenticTunedDraftFallback(userMessage, tunedPrompt, isEnglish);
-      if (!previewSequence) {
-        previewSequence = rawTunedDiscourse.slice(0, 65);
-      }
     }
 
-    // Step 3C: Backward Deleting Typing Animation!
-    // As requested: "when whole tuned model generation is done try to remove previous line as backward deleting typing animation"
-    if (previewSequence && previewSequence.length > 0) {
-      await animateBackwardDeletion(previewSequence, (partialContent) => {
-        onChunk({
-          content: partialContent,
-          thought: thoughtProcess,
-          isThinking: true,
-          thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
-          scripture: scripture || null
-        });
-      }, 400);
-    }
-
-    // Step 3D: Groq Final Master Discourse Synthesis & Reframing
-    // As requested: "and then it will rewrite a whole perfectly framed output response again with typing animation using groq"
+    // Step 5: Groq Final Master Discourse Synthesis & Reframing
+    // Formats authentic Sanskrit verse in **« ... »**, '**Meaning —**' or '**अर्थात् —**',
+    // devotee greeting ('देखो बच्चा' / dynamic name), and compassionate satsang guidance.
     const masterDiscourse = await generateGroqMasterFramedDiscourse(
       userMessage,
       rawTunedDiscourse,
@@ -2370,8 +2378,10 @@ export async function streamGuruResponse(
       isEnglish
     );
 
-    // Step 3E: Final Master Discourse Typewriter Stream (with isThinking: false)
-    const finalElapsed = Math.max(1, ((Date.now() - startTime) / 1000).toFixed(1));
+    // Step 6: Deliberation 100% Complete!
+    // Switch isThinking: false (collapsing thinking box with final duration badge)
+    // and stream the entire master discourse with smooth typewriter animation!
+    const finalElapsed = Math.max(1, Number(((Date.now() - startTime) / 1000).toFixed(1)));
     return await streamTypewriterText(
       masterDiscourse,
       (currentContent) => {
@@ -2379,7 +2389,7 @@ export async function streamGuruResponse(
           content: currentContent,
           thought: thoughtProcess,
           isThinking: false,
-          thinkingDuration: Number(finalElapsed),
+          thinkingDuration: finalElapsed,
           scripture: scripture || null
         });
       },
@@ -2387,10 +2397,11 @@ export async function streamGuruResponse(
       finalElapsed,
       scripture,
       isEnglish,
-      16
+      14
     );
   } else {
-    // Priority 1 in Fast Mode: Instant Groq LPU
+    // Fast Mode: Fetch scripture if applicable and stream response directly
+    const scripture = await getScriptureGrounding(userMessage);
     const condensedHistory = summarizeHistoryForContext(conversationHistory, isEnglish);
     const messages = [
       ...condensedHistory,
