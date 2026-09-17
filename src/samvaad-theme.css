@@ -4791,6 +4791,21 @@ select:focus-visible,
 
 .sidebar-close-btn {
   display: grid !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--muted, #94a3b8) !important;
+  transition: all 0.18s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.sidebar-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
 .sidebar-empty {
@@ -5005,7 +5020,22 @@ select:focus-visible,
     width: 100% !important;
   }
   .sidebar {
-    width: min(300px, 84vw) !important;
+    width: min(300px, 86vw) !important;
+    height: 100dvh !important;
+    transform: translateX(-100%) !important;
+    transition: transform 220ms ease, box-shadow 220ms ease !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 18px 0 60px rgba(0, 0, 0, 0.55) !important;
+  }
+  .sidebar.is-open {
+    transform: translateX(0) !important;
+  }
+  .sidebar-backdrop {
+    display: block !important;
+  }
+  .sidebar-backdrop.is-visible {
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 }
 
@@ -5569,9 +5599,11 @@ select:focus-visible,
     position: sticky !important;
     bottom: 0 !important;
     z-index: 8 !important;
-    width: calc(100% - 16px) !important;
+    width: calc(100% - 20px) !important;
+    margin-inline: 10px !important;
     padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
     background: linear-gradient(180deg, transparent, var(--panel, #1a1b2e) 24%) !important;
+    box-sizing: border-box !important;
   }
 
   .composer {
@@ -5628,7 +5660,12 @@ select:focus-visible,
   }
 
   /* Topbar center — shrink mode toggle label text on narrow */
-  .topbar-center { gap: 8px !important; }
+  .topbar-center {
+    gap: 8px !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+  }
 
   .mode-pill-btn-label-text {
     display: none !important; /* emoji only — save horizontal space */
@@ -5663,8 +5700,21 @@ select:focus-visible,
 /* ── 8. SIDEBAR: Better touch targets on mobile ── */
 @media (max-width: 640px) {
   .sidebar { width: min(300px, 86vw) !important; }
-  .sidebar-header { padding-bottom: 16px !important; }
+  .sidebar-header {
+    padding-bottom: 16px !important;
+    padding-top: 4px !important;
+  }
   .sidebar-title { font-size: 12px !important; }
+
+  /* Conversation list — add bottom padding so last item doesn't collide with footer */
+  .conversation-list {
+    padding-bottom: 12px !important;
+  }
+
+  /* Conversation item spacing on mobile */
+  .conversation-item-wrapper {
+    margin-bottom: 6px !important;
+  }
 
   .conversation-item {
     padding: 12px 10px !important;
@@ -5674,16 +5724,94 @@ select:focus-visible,
   .conversation-time { font-size: 10.5px !important; }
 
   /* Delete button — always visible on mobile (touch device) */
-  .conversation-delete { opacity: 0.7 !important; }
+  .conversation-delete {
+    opacity: 0.7 !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+  }
+
+  /* Sidebar footer — proper spacing from conversation list */
+  .sidebar-footer {
+    padding-top: 16px !important;
+    margin-top: auto !important;
+    gap: 12px !important;
+  }
 
   .logout-button {
     padding: 11px 14px !important;
     font-size: 13px !important;
   }
 
-  .user-profile { padding: 10px !important; }
-  .user-info strong { font-size: 12px !important; }
+  .user-profile {
+    padding: 10px !important;
+    min-width: 0 !important;
+  }
+  .user-info strong {
+    font-size: 12px !important;
+    max-width: 160px !important;
+  }
   .avatar { width: 32px !important; height: 32px !important; font-size: 12px !important; border-radius: 8px !important; }
+
+   /* Ensure sidebar content doesn't get clipped at the bottom */
+  .sidebar-nav {
+    padding-bottom: 8px !important;
+  }
+}
+
+/* ── 8b. VERY SMALL PHONES (< 375px): Extra tight alignment ── */
+@media (max-width: 374px) {
+  .sidebar {
+    width: 92vw !important;
+  }
+
+  /* Topbar — tighten for ultra-narrow screens */
+  .topbar {
+    padding-inline: 10px !important;
+    gap: 6px !important;
+  }
+
+  .topbar .icon-button,
+  .user-avatar {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .mode-pill-btn {
+    padding: 4px 6px !important;
+    font-size: 0.78rem !important;
+  }
+
+  /* Content area — tighter horizontal padding */
+  .content-area {
+    padding: 24px 10px 16px !important;
+  }
+
+  /* Composer — full width minus minimal margins */
+  .composer-wrap {
+    width: calc(100% - 12px) !important;
+    margin-inline: 6px !important;
+  }
+
+  /* Message avatar — slightly smaller */
+  .message-avatar {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 10px !important;
+  }
+
+  /* Conversation items — tighter padding */
+  .conversation-item {
+    padding: 10px 8px !important;
+  }
+
+  .conversation-title {
+    font-size: 12px !important;
+  }
+
+  .user-info strong {
+    max-width: 140px !important;
+  }
 }
 
 /* ── 9. LANDING PAGE SECTION CARDS: Proper padding on mobile ── */
