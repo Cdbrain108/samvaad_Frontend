@@ -1419,7 +1419,14 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
   const candidatePool = [];
   const seenVerses = new Set();
 
+  const isAdversary = (c) => {
+    const role = (c.discourse_role || (c.dialogue && c.dialogue.form) || '').toLowerCase();
+    return role === 'adversary_perspective';
+  };
+
   for (const c of [...curatedMatches, ...vectorCandidates]) {
+    // General adversary quarantine: delusion/ego verses never ground satsang counsel.
+    if (isAdversary(c)) continue;
     // If explicitly requested a single scripture, reject any outside candidates!
     if (explicitTarget) {
       const isMatch = (c.scripture_id && c.scripture_id.toLowerCase().includes(explicitTarget.key)) ||

@@ -774,6 +774,98 @@ async function callDirectGroqAPI(messages, maxTokens = 950, stream = false, onCh
 }
 
 /**
+ * Direct HTTPS caller for NaraRouter with 7M Token Grant & Multi-Model Redundancy
+ * (agnes-2.5-flash for high-speed turns, laguna-s-2.1 for deep contemplation)
+ */
+const NARA_ROUTER_URL = 'https://router.bynara.id/v1/chat/completions';
+const NARA_API_KEY = 'sk-nry-Q_dbEBzNIiwFM_D94Lf3euoXowC6db3iyWgypwcW_f4';
+
+export async function callDirectNaraAPI(messages, maxTokens = 850, stream = false, onChunk = null, isDeepMode = false, userProfile = null, userMemoryContext = '', scripture = null) {
+  const latestUserMsg = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
+  const lang = detectLanguage(latestUserMsg);
+  const isEnglish = lang === 'english';
+  const systemPrompt = buildSystemPrompt(isDeepMode, lang, userProfile, userMemoryContext, scripture);
+
+  const models = isDeepMode
+    ? ['laguna-s-2.1', 'agnes-2.5-flash', 'tencent-hy3-free']
+    : ['agnes-2.5-flash', 'laguna-s-2.1', 'tencent-hy3-free'];
+
+  for (let i = 0; i < models.length; i++) {
+    const model = models[i];
+    const controller = new AbortController();
+    const timeoutMs = isDeepMode ? 18000 : 12000;
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(NARA_ROUTER_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${NARA_API_KEY}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'Mozilla/5.0'
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model,
+          messages: [{ role: 'system', content: systemPrompt }, ...messages],
+          temperature: isDeepMode ? 0.32 : 0.28,
+          max_tokens: maxTokens,
+          stream: stream
+        })
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        console.warn(`NaraRouter model ${model} returned HTTP ${response.status}, trying fallback...`);
+        continue;
+      }
+
+      if (stream && response.body && onChunk) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let accumulated = '';
+        let buffer = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('data: ') && trimmed !== 'data: [DONE]') {
+              try {
+                const parsed = JSON.parse(trimmed.slice(6));
+                const token = parsed.choices?.[0]?.delta?.content || parsed.choices?.[0]?.delta?.reasoning_content;
+                if (token) {
+                  accumulated += token;
+                  onChunk(token, accumulated);
+                }
+              } catch (e) {}
+            }
+          }
+        }
+        if (accumulated.trim()) {
+          const formatted = formatScriptureLines(accumulated.trim(), isEnglish);
+          return ensureCompleteFinalSentence(formatted, isEnglish);
+        }
+      } else {
+        const data = await response.json();
+        const raw = data.choices?.[0]?.message?.content?.trim() || data.choices?.[0]?.message?.reasoning_content?.trim() || '';
+        if (raw) {
+          const formatted = formatScriptureLines(raw, isEnglish);
+          return ensureCompleteFinalSentence(formatted, isEnglish);
+        }
+      }
+    } catch (err) {
+      clearTimeout(timeoutId);
+      console.warn(`NaraRouter model ${model} skipped:`, err.message);
+    }
+  }
+  return null;
+}
+
+/**
  * Condenses conversational history into a concise 2-line summary
  * to prevent prompt bloat and accelerate inference to under 1 minute.
  */
@@ -2267,6 +2359,47 @@ ${scripturePromptSection}
     }
   }
 
+  // High-Quality NaraRouter Fallback for Master Framing (7M Token Grant)
+  for (const naraModel of ['laguna-s-2.1', 'agnes-2.5-flash']) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const res = await fetch(NARA_ROUTER_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${NARA_API_KEY}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'Mozilla/5.0'
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: naraModel,
+          messages,
+          temperature: 0.25,
+          max_tokens: 950
+        })
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content?.trim() || data.choices?.[0]?.message?.reasoning_content?.trim();
+        if (content && content.length > 80 && !/(संपादक|मैं संपादक हूँ|as an ai)/i.test(content)) {
+          const formatted = formatScriptureLines(content, isEnglish);
+          let sanitized = formatted
+            .replace(/प्रिय\s*साधक(?:जी)?/g, greetingPhrase)
+            .replace(/हे\s*साधक/g, greetingPhrase)
+            .replace(/O\s*seeker/gi, greetingPhrase)
+            .replace(/Dear\s*seeker/gi, greetingPhrase)
+            .replace(/(?:गंदे\s*विचार\s*वाले\s*पुरुष|अपराध\s*करने\s*वाला\s*चाहे\s*स्त्री|पाप\s*का\s*बोझ\s*लेकर)[^।?!]*[।?!]/g, '');
+          if (isEnglish) {
+            sanitized = sanitized.replace(/(?:\*\*|\*|\b)(?:अर्थात्|भावार्थ)\s*[:—\-]\s*(?:\*\*)?/gi, '**Meaning —** ');
+          }
+          return deduplicateRepetitionLoops(sanitized, isEnglish);
+        }
+      }
+    } catch (e) {}
+  }
+
   return getAuthenticScriptureFramedDiscourse(userMessage, isEnglish, userProfile, scripture);
 }
 
@@ -2514,6 +2647,24 @@ export async function streamGuruResponse(
     );
     if (groqResult) {
       const formatted = formatScriptureLines(groqResult, isEnglish);
+      return {
+        content: ensureCompleteFinalSentence(formatted, isEnglish),
+        scripture: scripture || null
+      };
+    }
+    // High-speed fallback: NaraRouter (agnes-2.5-flash with 7M token grant)
+    const naraResult = await callDirectNaraAPI(
+      messages,
+      450,
+      true,
+      (tok, acc) => onChunk({ content: acc || tok, scripture: scripture || null }),
+      false,
+      userProfile,
+      userMemoryContext,
+      scripture
+    );
+    if (naraResult) {
+      const formatted = formatScriptureLines(naraResult, isEnglish);
       return {
         content: ensureCompleteFinalSentence(formatted, isEnglish),
         scripture: scripture || null
