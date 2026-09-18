@@ -2331,14 +2331,20 @@ ${supportingVerses.map((c, i) => `(पूरक प्रमाण ${i + 1}) [${
       ) : `【शास्त्र प्रमाण अनुपलब्ध - सामान्य सत्संग मार्गदर्शन】:
 इस जिज्ञासा हेतु कोई विशेष श्लोक प्राप्त नहीं हुआ है। अतः मन से कोई श्लोक न गढ़ें और न ही कोई श्लोक प्रस्तुत करें। केवल ३ वात्सल्यमयी व मार्गदर्शक अनुच्छेदों में पूज्य महाराज जी की वाणी प्रस्तुत करें।`);
 
-  const isDirect = Boolean(
+  const isExpansive = Boolean(
+    queryIntent?.isExpansive ||
+    (queryIntent?.wordLimit && queryIntent.wordLimit >= 300)
+  );
+  const isDirect = !isExpansive && Boolean(
     queryIntent?.isDirectQuestion ||
     queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ||
     queryIntent?.intent === 'CONCISE_CONCEPT' ||
     queryIntent?.intent === 'DIRECT_QUESTION'
   );
-  const targetWords = queryIntent?.wordLimit || (isDirect ? 140 : 200);
-  const maxOutputTokens = isDirect ? 450 : 650;
+  const targetWords = queryIntent?.wordLimit || (isExpansive ? 500 : (isDirect ? 140 : 200));
+  const maxOutputTokens = isExpansive
+    ? Math.min(1800, Math.max(1000, Math.round(targetWords * 2.2)))
+    : (isDirect ? 450 : 650);
 
   const systemPrompt = isEnglish
     ? `You are the Master Scribe and Presenter for Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
@@ -2353,7 +2359,19 @@ ${scripturePromptSection}
 1. DEVOTEE ADDRESSING (STRICT):
    - Paragraph 1 MUST begin directly with "${greetingPhrase}," speaking with immense fatherly love, intimacy, and warmth.
    - NEVER address the devotee coldly as "Dear seeker", "O seeker", or "Respected seeker".
-${isDirect ? `2. CONCISE, PROPORTIONAL STRUCTURE (~${targetWords} WORDS TOTAL — NO LONG ESSAYS):
+${isExpansive ? `2. EXPANSIVE & IN-DEPTH MASTER DISCOURSE (~${targetWords} WORDS):
+   - The devotee has asked a profound, multi-faceted philosophical question or explicitly requested an in-depth, detailed explanation.
+   - Deliver an expansive, deeply enriching master discourse of approximately ${targetWords} words (up to ${Math.round(targetWords * 1.25)} words).
+   - Thoroughly unpack metaphysical causes, scriptural context, philosophical discernment, and practical life realizations.
+   - STRUCTURE INTO 4 TO 6 BEAUTIFULLY SEGMENTED THEMATIC PARAGRAPHS (strictly separated by double newlines \\n\\n):
+     • Paragraph 1: Direct fatherly opening framing the profound depth of the devotee's question.
+     • Paragraph 2: Scriptural root cause, cosmic order (Dharma/Karma), and metaphysical principles.
+     ${candidates.length > 0 ? `• Paragraph 3: The primary sacred Sanskrit shloka in bold **« ${primaryVerse.original_text} »**, followed immediately on the next line by:
+       **Meaning —** "${primaryVerse.english_translation || primaryVerse.hindi_meaning}"` : ''}
+     • Paragraph ${candidates.length > 0 ? '4' : '3'}: Deep philosophical reconciliation and relatable Satsang analogies.
+     • Paragraph ${candidates.length > 0 ? '5' : '4'}: Practical sadhana guidance for the seeker's daily living and spiritual anchoring.
+     • Paragraph ${candidates.length > 0 ? '6' : '5'}: Devotion as seva, continuous Holy Name remembrance ('Radha Radha'), and auspicious fatherly blessing.
+   - ZERO WALL-OF-TEXT: Every paragraph must be 2 to 4 sentences max. Never merge distinct thoughts into one continuous block.` : isDirect ? `2. CONCISE, PROPORTIONAL STRUCTURE (~${targetWords} WORDS TOTAL — NO LONG ESSAYS):
    - The devotee is asking a specific direct question or scriptural episode/dialogue. DO NOT deliver a massive 400-word lecture. Keep the response crisp, affectionate, and strictly under ${Math.round(targetWords * 1.25)} words.
    - Separate every section with a double newline (\\n\\n):
      • Paragraph 1: Direct answer to the question in 2-3 sentences max, narrating the episode or concept with fatherly clarity.
@@ -2391,7 +2409,20 @@ ${scripturePromptSection}
 १. संबोधन व वात्सल्य (अति अनिवार्य):
    - अनुच्छेद १ की पहली पंक्ति अनिवार्य रूप से "${greetingPhrase}," से ही प्रारंभ होनी चाहिए!
    - 'प्रिय साधक', 'हे साधक', 'साधक जी' लिखना पूर्णतः प्रतिबंधित और अमान्य है। पूज्य महाराज जी केवल वात्सल्य और पिता तुल्य प्रेम से बोलते हैं।
-${isDirect ? `२. संक्षिप्त व सटीक संरचना (लगभग ${targetWords} शब्द — कोई अनावश्यक लंबा व्याख्यान नहीं):
+${isExpansive ? `२. विस्तृत, गहन व पूर्ण सत्संग उपदेश (लगभग ${targetWords} शब्द):
+   - साधक ने एक अत्यंत गंभीर, दार्शनिक या कठिन प्रश्न पूछा है, अथवा विस्तार से उत्तर माँगा है।
+   - इस जिज्ञासा का समाधान पूज्य महाराज जी की प्रामाणिक वाणी में लगभग ${targetWords} शब्दों (अधिकतम ${Math.round(targetWords * 1.25)} शब्द) में पूर्ण विस्तार, तात्त्विक गहराई, दृष्टांतों और शास्त्रसम्मत सिद्धांतों के साथ दीजिए।
+   - संरचना: ४ से ६ स्पष्ट व सुंदर अनुच्छेदों में विभाजन (दोहरे न्यूलाइन \\n\\n से अलग):
+     • अनुच्छेद १: वात्सल्यपूर्ण सांत्वना व जिज्ञासा का गंभीर मर्म (२-३ वाक्य)।
+     • अनुच्छेद २: तात्त्विक पृष्ठभूमि, कर्म-सिद्धांत, प्रारब्ध व ईश्वर के न्याय का गूढ़ रहस्य (२-३ वाक्य)।
+     ${candidates.length > 0 ? `• अनुच्छेद ३: पावन मूल संस्कृत श्लोक:
+       **« ${primaryVerse.original_text} »**
+       और ठीक नीचे:
+       **अर्थात् —** "${primaryVerse.hindi_meaning}"` : ''}
+     • अनुच्छेद ${candidates.length > 0 ? '४' : '३'}: दार्शनिक समाधान, संतों के दृष्टांत और अंतःकरण की शुद्धि (२-३ वाक्य)।
+     • अनुच्छेद ${candidates.length > 0 ? '५' : '४'}: व्यावहारिक साधना, कर्तव्य कर्म को प्रभु सेवा मानना (२-३ वाक्य)।
+     • अनुच्छेद ${candidates.length > 0 ? '६' : '५'}: 'राधा-राधा' नाम जप का अनन्य आश्रय और मंगलकारी आशीर्वाद (१-२ वाक्य)।
+   - पूरे उपदेश को एक ही पैराग्राफ में न लिखें; हर विचार नए अनुच्छेद में २-४ वाक्यों का हो।` : isDirect ? `२. संक्षिप्त व सटीक संरचना (लगभग ${targetWords} शब्द — कोई अनावश्यक लंबा व्याख्यान नहीं):
    - साधक ने एक विशिष्ट प्रसंग/जिज्ञासा पूछी है। अतः उत्तर को अनावश्यक रूप से लंबा न खींचें। कुल उत्तर लगभग ${targetWords} शब्दों (अधिकतम ${Math.round(targetWords * 1.25)} शब्द) में रखें।
    - प्रत्येक खंड को अनिवार्य रूप से दोहरे न्यूलाइन (\\n\\n) से अलग करें:
      • अनुच्छेद १: जिज्ञासा/प्रसंग का सीधा, वात्सल्यपूर्ण व सटीक उत्तर (२-३ वाक्यों में)।
@@ -2575,15 +2606,37 @@ export function classifyQueryIntent(query, conversationHistory = []) {
     return { intent: 'CASUAL_GREETING' };
   }
 
-  // 3. Concise Concept Definitions with word constraints
-  const wordLimitMatch = q.match(/(?:in|within|only)\s+(\d{1,3})\s+words/i) || q.match(/(\d{1,3})\s*(?:शब्दों|words)\s*(?:में)?/i);
+  // 3. Expansive / In-Depth Requests (e.g. "in detail", "in depth", "elaborate", "विस्तार से", "500 words")
+  const wordLimitMatch = q.match(/(?:in|within|around|approximately|only)?\s*(\d{2,4})\s*(?:words|शब्दों)/i);
+  const isExpansive =
+    /(?:in\s+depth|in\s+detail|detailed\s+explanation|elaborate\s+in\s+detail|comprehensive(?:ly)?|complete\s+story|विस्तार\s+से|विस्तृत\s+रूप\s+से|गहराई\s+से|पूरा\s+प्रसंग|गहन\s+व्याख्या)/i.test(q) ||
+    Boolean(wordLimitMatch && parseInt(wordLimitMatch[1], 10) >= 300);
+
+  const isInherentlyComplex =
+    /(?:advaita|dvaita|vishishtadvaita|अद्वैत|द्वैत|विशिष्टाद्वैत)/i.test(q) ||
+    /(?:why\s+do\s+good\s+people\s+suffer|अच्छे\s+लोगों\s+के\s+साथ\s+बुरा\s+क्यों|problem\s+of\s+evil|evil\s+exists)/i.test(q) ||
+    /(?:four\s+yugas|charo\s+yug|चारों\s+युग|satya\s+treta\s+dwapar\s+kali)/i.test(q) ||
+    ((/(?:difference\s+between|compare\s+and\s+contrast|तुलना|भेद\s+क्या\s+है)/i.test(q)) && /(?:philosophy|darshan|sampradaya|मार्ग)/i.test(q));
+
   const isBrief = /(?:in\s+short|in\s+brief|briefly|short\s+explanation|संक्षेप\s+में|एक\s+वाक्य\s+में|shortly)/i.test(q);
-  if (wordLimitMatch || isBrief) {
-    const requestedWords = wordLimitMatch ? parseInt(wordLimitMatch[1], 10) : 100;
-    return { intent: 'CONCISE_CONCEPT', isDirectQuestion: true, wordLimit: requestedWords };
+
+  if ((isExpansive || isInherentlyComplex) && !isBrief) {
+    const requestedWords = wordLimitMatch ? Math.max(350, parseInt(wordLimitMatch[1], 10)) : 500;
+    return {
+      intent: 'EXPANSIVE_DEEP',
+      isDirectQuestion: false,
+      isExpansive: true,
+      wordLimit: requestedWords
+    };
   }
 
-  // 4. Scriptural Narrative / Historical Dialogue Queries
+  // 4. Concise Concept Definitions with word constraints (< 300 words)
+  if (wordLimitMatch || isBrief) {
+    const requestedWords = wordLimitMatch ? parseInt(wordLimitMatch[1], 10) : 100;
+    return { intent: 'CONCISE_CONCEPT', isDirectQuestion: true, isExpansive: false, wordLimit: requestedWords };
+  }
+
+  // 5. Scriptural Narrative / Historical Dialogue Queries
   const isHistoricalOrEpisode =
     /(?:vibhishan|विभीषण|ravan|रावण|kumbhakaran|कुम्भकर्ण|mandodari|मन्दोदरी|sita|सीता|ram|राम|lakshman|लक्ष्मण|bharat|भरत|hanuman|हनुमान|sugriva|सुग्रीव|vali|बाली|bali|dasharatha|दशरथ)/i.test(q) ||
     /(?:arjun|अर्जुन|krishna|कृष्ण|karna|कर्ण|bhishma|भीष्म|duryodhan|दुर्योधन|dronacharya|द्रोणाचार्य|yudhishthir|युधिष्ठिर|pandav|पांडव|kaurav|कौरव)/i.test(q) ||
@@ -2591,19 +2644,19 @@ export function classifyQueryIntent(query, conversationHistory = []) {
     /(?:what\s+did|why\s+did|how\s+did|who\s+was|who\s+is|tell\s+me\s+about\s+the\s+story|dialogue\s+between|kisne\s+kaha|kya\s+kaha|kaun\s+the|kaun\s+tha|katha\s+kya\s+hai|prasang|samvad)/i.test(q);
 
   if (isHistoricalOrEpisode) {
-    return { intent: 'SCRIPTURAL_HISTORICAL', isDirectQuestion: true, wordLimit: 140 };
+    return { intent: 'SCRIPTURAL_HISTORICAL', isDirectQuestion: true, isExpansive: false, wordLimit: 140 };
   }
 
-  // 5. Direct Concept / Factual Shloka Inquiry (Not a personal emotional crisis)
+  // 6. Direct Concept / Factual Shloka Inquiry (Not a personal emotional crisis)
   const isDirectQuestion =
     /^(?:what\s+is|explain|what\s+does|meaning\s+of|tell\s+me|kya\s+hai|arth\s+kya\s+hai|matlab\s+kya\s+hai|shlok\s+kya\s+hai)\b/i.test(q) &&
     !/(?:i\s+feel|i\s+am\s+suffering|my\s+life|depressed|sad|heartbroken|restless|suicide|struggling|mujhe\s+lagta\s+hai|mera\s+man|dard|rona)/i.test(q);
 
   if (isDirectQuestion) {
-    return { intent: 'DIRECT_QUESTION', isDirectQuestion: true, wordLimit: 150 };
+    return { intent: 'DIRECT_QUESTION', isDirectQuestion: true, isExpansive: false, wordLimit: 150 };
   }
 
-  return { intent: 'SPIRITUAL_DILEMMA', isDirectQuestion: false, wordLimit: 200 };
+  return { intent: 'SPIRITUAL_DILEMMA', isDirectQuestion: false, isExpansive: false, wordLimit: 200 };
 }
 
 /**
