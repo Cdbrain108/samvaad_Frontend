@@ -31,15 +31,15 @@ export const promptSuggestions = [
     prompt: 'How does divine love manifest through chanting the Holy Name, and what transformation does it bring to the practitioner?',
   },
   {
-    icon: 'code',
-    eyebrow: 'Learning',
-    title: 'Show how this AI project works',
-    prompt: 'Explain how this Samvaad AI project extracts YouTube videos, makes QA pairs, fine-tunes, applies RAG with scripture knowledge and remembers my context.',
+    icon: 'spark',
+    eyebrow: 'प्रारब्ध और कृपा',
+    title: 'क्या प्रारब्ध को बदला जा सकता है, और इसमें प्रभु कृपा की क्या भूमिका है?',
+    prompt: 'क्या प्रारब्ध को बदला जा सकता है, और जीवन के संकटों में निरंतर नाम जप और प्रभु कृपा से किस प्रकार शांति मिलती है?',
   },
 ]
 
 export const starterConversations = [
   'नाम महिमा reflection',
   'Hindi and English guidance',
-  'How Samvaad AI works',
+  'प्रारब्ध और कृपा चिंतन',
 ]

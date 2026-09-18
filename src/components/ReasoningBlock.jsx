@@ -3,14 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const STAGES_HI = [
   { id: 'intent', label: 'साधक भाव व अंतर्मन अध्ययन', icon: '🔍' },
-  { id: 'rag', label: '२४ पावन शास्त्रों व गीता में अनुसंधान', icon: '📜' },
+  { id: 'rag', label: '२९ पावन शास्त्रों व गीता में अनुसंधान', icon: '📜' },
   { id: 'deliberation', label: 'पूज्य महाराज जी की सत्संग वाणी अनुशीलन', icon: '🧘' },
   { id: 'synthesis', label: 'प्रामाणिक श्लोक व वात्सल्य समन्वय', icon: '🌸' }
 ];
 
 const STAGES_EN = [
   { id: 'intent', label: 'Analyzing Seeker Intent & Dilemma', icon: '🔍' },
-  { id: 'rag', label: 'Searching 24 Scriptures on AWS Qdrant', icon: '📜' },
+  { id: 'rag', label: 'Searching 29 Scriptures on AWS Qdrant', icon: '📜' },
   { id: 'deliberation', label: 'Deliberating Maharaj Ji’s Satsang Counsel', icon: '🧘' },
   { id: 'synthesis', label: 'Harmonizing Sacred Verses & Divine Solace', icon: '🌸' }
 ];
@@ -205,14 +205,16 @@ export default function ReasoningBlock({
             <span className="claude-rag-pill-icon">📜</span>
             <span className="claude-rag-pill-text">{scripture.reference}</span>
             {scripture.score && (
-              <span className="claude-rag-pill-score">{(scripture.score * 100).toFixed(0)}%</span>
+              <span className="claude-rag-pill-score">
+                {Math.min(99, Math.max(50, Math.round(scripture.score <= 1.0 ? scripture.score * 100 : scripture.score)))}%
+              </span>
             )}
             <span className={`claude-rag-pill-chevron ${isScriptureOpen ? 'open' : ''}`}>▾</span>
           </button>
         ) : isThinking ? (
           <div className="claude-rag-searching-pill">
             <span className="claude-shimmer-dot" />
-            <span className="claude-shimmer-text">Searching 24 Scriptures on AWS...</span>
+            <span className="claude-shimmer-text">Searching 29 Scriptures on AWS...</span>
           </div>
         ) : null}
       </div>

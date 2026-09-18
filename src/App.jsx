@@ -14,6 +14,7 @@ import VoiceMode from './components/VoiceMode/VoiceMode';
 import VoiceCloneModal from './components/VoiceMode/VoiceCloneModal';
 import useVoiceMode from './hooks/useVoiceMode';
 import ReasoningBlock from './components/ReasoningBlock';
+import RagVersesDropdown from './components/RagVersesDropdown';
 import { getVoiceCloneUrl } from './services/ttsService';
 
 function formatTimestamp(timestamp) {
@@ -1302,6 +1303,14 @@ export default function App() {
                             <div className="rich-text">
                               <RichText content={message.content} streaming={isLastAssistant && (isStreaming || message.isThinking)} />
                             </div>
+                          )}
+
+                          {/* Top RAG Verses Reference Dropdown Card Section just after chat response */}
+                          {message.scripture && !(isLastAssistant && (isStreaming || message.isThinking)) && (
+                            <RagVersesDropdown
+                              scripture={message.scripture}
+                              isEnglish={index > 0 && messages[index - 1] ? !/[\u0900-\u097F]/.test(messages[index - 1].content || '') : false}
+                            />
                           )}
                         </div>
                       ) : (

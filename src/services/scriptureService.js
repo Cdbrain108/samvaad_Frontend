@@ -929,13 +929,13 @@ async function queryOracleVectorRAG(query) {
   if (typeof fetch === 'undefined') return [];
 
   const controller = new AbortController();
-  // Extended timeout: 8000ms ensures AWS Qdrant multilingual-e5 search never aborts prematurely
-  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  // Extended timeout: 12000ms ensures AWS Qdrant multilingual-e5 search never aborts prematurely
+  const timeoutId = setTimeout(() => controller.abort(), 12000);
 
   let scriptureFilter = 'all';
   if (/(गीता|gita|geeta|भगवद्गीता)/i.test(query)) {
     scriptureFilter = 'gita';
-  } else if (/(रामायण|ramayan|रामचरित|ramcharitmanas|मानस|वाल्मीकि)/i.test(query)) {
+  } else if (/(रामायण|ramayan|रामचरित|ramcharitmanas|मानस|वाल्मीकि|vibhishan|ravana|रावण|विभीषण|लङ्का|लंका|sita|सीता|hanuman|हनुमान)/i.test(query)) {
     scriptureFilter = 'ramayana';
   } else if (/(ऋग्वेद|सामवेद|यजुर्वेद|अथर्ववेद|वेद|veda|vedas|rigved|yajurved|samved|saamved|atharvaved)/i.test(query)) {
     scriptureFilter = 'veda';
@@ -1098,6 +1098,18 @@ export function isTopicExcluded(cleanQ, item) {
     return item.id !== 'rcm_universal_love_equality';
   }
 
+  // Gate 'gita_summary_core': Only match when explicitly asking for a summary/essence of Gita or Gita 2.47/18.66
+  if (item.id === 'gita_summary_core') {
+    const isGitaSummaryQuery = /(summary\s*of\s*(?:geeta|gita)|geeta\s*summary|gita\s*summary|गीता\s*का\s*सार|गीता\s*का\s*सारांश|गीता\s*के\s*बारे\s*में|गीता\s*का\s*उपदेश|tell\s*me\s*about\s*gita|essence\s*of\s*gita|core\s*teachings\s*of\s*gita|2\.47|18\.66)/i.test(cleanQ);
+    if (!isGitaSummaryQuery) return true;
+  }
+
+  // Gate 'garuda_purana_core': Only match when asking about Garuda Purana, death fear, afterlife
+  if (item.id === 'garuda_purana_core') {
+    const isGarudaQuery = /(garu[dn]\s*puran|गरु[ड़ण]\s*पुराण|afterlife|मृत्यु\s*के\s*बाद|यमलोक|यमराज|yamdoot)/i.test(cleanQ);
+    if (!isGarudaQuery) return true;
+  }
+
   // 1. Check predefined topic gates
   for (const gate of SCRIPTURE_TOPIC_GATES) {
     if (gate.patterns.some(p => p.test(cleanQ))) {
@@ -1194,9 +1206,11 @@ export function getLocalScriptureMatches(query) {
 
     const threshold = wantsVerse ? 1.5 : 2.2;
     if (maxKeywordScore >= threshold) {
+      // Normalize curated match score into [0.72, 0.88] on [0.0, 1.0] scale
+      const normalizedScore = Number(Math.min(0.88, 0.72 + (maxKeywordScore - threshold) * 0.02).toFixed(2));
       scoredMatches.push({
         ...item,
-        score: Number(maxKeywordScore.toFixed(2)),
+        score: normalizedScore,
         match_type: 'semantic_rag'
       });
     }
@@ -1280,10 +1294,10 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
     if (rcmMatch) {
       return {
         ...rcmMatch,
-        score: 10.0,
+        score: 0.95,
         match_type: 'curated_catalog_safety',
         isExplicitSingle: false,
-        candidates: [rcmMatch]
+        candidates: [{ ...rcmMatch, score: 0.95, role: 'primary' }]
       };
     }
   }
@@ -1340,9 +1354,11 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
         }
       }
       if (bestShlokaMatch && bestShlokaScore >= 4) {
+        // Normalize Groq exact match score into [0.92, 0.96] on [0.0, 1.0] scale
+        const normalizedGroqScore = Number(Math.min(0.96, 0.92 + Math.min(0.04, bestShlokaScore * 0.002)).toFixed(2));
         groqExactMatch = {
           ...bestShlokaMatch,
-          score: 20.0 + bestShlokaScore,
+          score: normalizedGroqScore,
           match_type: 'groq_exact_shloka'
         };
       }
@@ -1359,7 +1375,7 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
           if (item.reference.includes(vDot) || item.id.includes(vUnder)) {
             groqExactMatch = {
               ...item,
-              score: 18.0,
+              score: 0.94,
               match_type: 'groq_exact_reference'
             };
             break;
@@ -1451,7 +1467,8 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
   // matches exist, prefer one verse per scripture so Puranas/Ramayana/Gita/Niti all
   // illuminate the dilemma instead of 3 verses from one source. No per-query lists.
   const topScore = candidatePool[0]?.score ?? 0;
-  const wantDiverse = !explicitTarget && topScore >= 5.5;
+  // Normalized score threshold (scores are now 0.0 - 1.0)
+  const wantDiverse = !explicitTarget && topScore >= 0.75;
   let chosen = candidatePool;
   if (wantDiverse) {
     const seenS = new Set();
@@ -1464,8 +1481,14 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
     }
     chosen = [...diverse, ...rest];
   }
-  const limit = explicitTarget ? 2 : (topScore >= 8 ? 7 : (wantDiverse ? 5 : 3));
-  primary.candidates = chosen.slice(0, limit);
+  const limit = explicitTarget ? 2 : (topScore >= 0.85 ? 6 : (wantDiverse ? 4 : 3));
+  // Tag each candidate with role and strictly normalized [0.0, 1.0] score
+  primary.candidates = chosen.slice(0, limit).map((c, idx) => ({
+    ...c,
+    role: idx === 0 ? 'primary' : 'supporting',
+    score: Math.min(0.99, Math.max(0.50, Number((c.score <= 1.0 ? c.score : c.score / 100).toFixed(2))))
+  }));
+  primary.score = primary.candidates[0]?.score || primary.score;
   return primary;
 }
 
@@ -1490,42 +1513,47 @@ Meaning: "${trans}"`;
     }).join('\n\n');
 
     const promptExtension = `\n\n【SACRED SCRIPTURE GROUNDING (RAG) - MULTI-VERSE EVALUATION & CITATION】:
-The devotee's spiritual inquiry is grounded in our 24 Sacred Scripture collections in AWS Qdrant. Below are authentic candidate scriptural verses retrieved for this inquiry:
+The devotee's spiritual inquiry is grounded in our 29 Sacred Scripture collections in AWS Qdrant. Below are authentic candidate scriptural verses retrieved for this inquiry:
 
 ${candidateBlocks}
 
-MANDATORY INSTRUCTIONS FOR SELECTION, MEANING & PRESENTATION:
-1. SCRIPTURAL FIDELITY & SELECTION: Review all retrieved candidate verses above against the devotee's specific query. Select the 1 or 2 verses that most authentically, directly, and accurately illuminate the devotee's question. Reject any candidate that is extraneous or not from the scripture asked.
-2. 100% PURE ENGLISH LANGUAGE: Since the devotee asked in English, your entire discourse, narrative context, and shloka meanings MUST be in 100% pure English only. Do NOT use any Hindi or Devanagari text in the explanation (only the sacred Sanskrit verse inside **« ... »**).
-3. MANDATORY FORMATTING FOR SHLOKA & MEANING:
-   - Introduce each selected verse naturally with authentic scriptural context:
-     As revealed in [Scripture Reference]:
-     **« [Sanskrit verse] »**
-   - In the very next line, provide the spiritual essence using the exact English prefix:
-     **Meaning —** "[Explain the heartfelt spiritual meaning and wisdom of this verse in pure, beautiful English]"
-4. COMPASSIONATE SATSANG VOICE: Connect the meaning of the sacred verse directly to the devotee's life in Pujya Maharaj Ji's fatherly, affectionate voice, guiding them to surrender fear and anchor their heart in continuous Holy Name chanting ('Radha Radha').`;
+MANDATORY INSTRUCTIONS FOR CONTINUOUS CHAT WEAVING, SELECTION & END SUMMARY:
+1. PRIMARY VERSE INTEGRATION: Review all retrieved candidate verses above against the devotee's specific query and conversational flow. Dynamically select the single BEST verse (Candidate 1 or the most pertinent candidate) to anchor the body of your response. Introduce it naturally within the conversational flow with authentic scriptural context:
+   As revealed in [Scripture Reference]:
+   **« [Sanskrit verse] »**
+   **Meaning —** "[Explain the heartfelt spiritual meaning and wisdom of this verse in pure, fluent English]"
+2. SUPPORTING VERSES AS A CONCISE END SUMMARY: If there are other strong candidate verses (e.g. Candidate 2 or 3) that provide valuable complementary perspectives, DO NOT crowd the main conversational body with multiple Sanskrit recitations. Instead, at the very end of your response, provide a clean, concise supporting block:
+   ---
+   📖 **Supporting Scriptural References & Insights:**
+   • **[Scripture Reference]**: *«[Short verse excerpt or key phrase]»* — [1-2 sentences on how this sacred verse illuminates the seeker's inquiry].
+3. 100% PURE ENGLISH LANGUAGE: Since the devotee asked in English, your entire discourse, narrative context, and shloka meanings MUST be in 100% pure English only. Do NOT use any Hindi or Devanagari text in the explanation (only the sacred Sanskrit verse inside **« ... »**).
+4. COMPASSIONATE SATSANG VOICE: Connect the sacred verses directly to the devotee's life in Pujya Maharaj Ji's fatherly, affectionate voice, guiding them to surrender fear and anchor their heart in continuous Holy Name chanting ('Radha Radha').`;
 
     return basePrompt + promptExtension;
   } else {
     const candidateBlocks = candidateList.map((c, idx) => {
       const trans = (c.hindi_meaning || c.english_translation || '').trim();
-      return `【पावन शास्त्र प्रमाण संदर्भ ${idx + 1}】:
+      const roleLabel = idx === 0 ? 'मुख्य आधार प्रमाण' : 'पूरक संदर्भ';
+      return `【पावन शास्त्र प्रमाण संदर्भ ${idx + 1} (${roleLabel})】:
 ग्रंथ संदर्भ: ${c.reference}
 मूल संस्कृत श्लोक: **« ${c.original_text} »**
 शास्त्रसम्मत भावार्थ: "${trans}"`;
     }).join('\n\n');
 
     const promptExtension = `\n\n【अनिवार्य शास्त्र प्रमाण व बहु-श्लोक चयन निर्देश (SCRIPTURE GROUNDING)】:
-साधक की आध्यात्मिक जिज्ञासा के समाधान हेतु हमारे २४ पावन शास्त्रों से निम्नलिखित प्रामाणिक श्लोक संदर्भ प्राप्त हुए हैं:
+साधक की आध्यात्मिक जिज्ञासा के समाधान हेतु हमारे २९ पावन शास्त्रों से निम्नलिखित प्रामाणिक श्लोक संदर्भ प्राप्त हुए हैं:
 
 ${candidateBlocks}
 
-अनिवार्य निर्देश (MANDATORY INSTRUCTIONS):
-1. शास्त्र मर्यादा व चयन: उपरोक्त श्लोकों का साधक के प्रश्न के आलोक में मूल्यांकन करें। जो १ या २ श्लोक साधक के प्रश्न का सबसे सटीक, प्रमाणिक और मर्मस्पर्शी समाधान करते हों, उन्हें ही अपने उत्तर में उद्धृत करें।
-2. प्रस्तुति प्रारूप: श्लोक से ठीक पहले उसकी प्रामाणिक प्रसंग भूमिका कहें, फिर मूल श्लोक को **« ... »** में रखें, और ठीक नीचे **अर्थात् —** लिखकर उसका मर्मस्पर्शी भावार्थ स्पष्ट करें:
+अनिवार्य निर्देश (MANDATORY INSTRUCTIONS FOR CONTINUOUS CHAT WEAVING & END SUMMARY):
+1. मुख्य श्लोक समन्वय (संवाद के मध्य): साधक के प्रश्न व वार्तालाप के प्रवाह के अनुसार सबसे प्रमुख व सटीक श्लोक (Candidate 1) को मुख्य सत्संग वार्तालाप के प्रवाह में स्वाभाविक रूप से पिरोएं:
    जैसे [शास्त्र संदर्भ] में पावन उपदेश है कि —
    **« [मूल संस्कृत श्लोक] »**
-   **अर्थात् —** "[सरल व सुंदर भावार्थ]"
+   **अर्थात् —** "[सरल व मर्मस्पर्शी भावार्थ]"
+2. पूरक श्लोक सारांश (उत्तर के अंत में): यदि अन्य candidate श्लोक भी साधक के प्रश्न हेतु महत्वपूर्ण व उपयोगी हैं, तो मुख्य वार्तालाप को भारी न बनाते हुए उत्तर के अंत में एक सरल व सुंदर संदर्भ सारांश दें:
+   ---
+   📖 **पूरक शास्त्र प्रमाण व भावार्थ:**
+   • **[शास्त्र संदर्भ]**: *«[संक्षिप्त श्लोक अंश]»* — [१-२ वाक्यों में सरल व व्यावहारिक सार]।
 3. वात्सल्यमयी सत्संग: श्लोक के भाव को पूज्य महाराज जी की करुणामयी वाणी में साधक की स्थिति से जोड़ें, और निरंतर 'राधा-राधा' नाम के आश्रय से अभय प्रदान करें।`;
 
     return basePrompt + promptExtension;
