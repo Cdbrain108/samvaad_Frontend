@@ -431,6 +431,57 @@ export const SCRIPTURE_DATABASE = [
     ]
   },
 
+  // 12A1. Ramcharitmanas - Awakening Love for the Unseen Lord (जाने बिनु न होइ परतीती)
+  {
+    id: 'rcm_jane_binu_preeti',
+    scripture_id: 'ramcharitmanas',
+    reference: 'श्रीरामचरितमानस उत्तरकाण्ड ८९.३ (Ramcharitmanas · जाने बिनु न होइ परतीती)',
+    original_text: 'जाने बिनु न होइ परतीती। बिनु परतीति होइ नहिं प्रीती॥ प्रीति बिना नहिं भगति दृढ़ाई। जिमि खगपति जल कै चिकनाई॥',
+    hindi_meaning: 'श्रीरामचरितमानस में काकभुशुण्डि जी गरुड़ जी को समझाते हैं कि—परमात्मा के स्वरूप, गुणों, महिमा और लीलाओं को जाने बिना हृदय में सच्चा विश्वास (परतीति) जाग्रत नहीं होता, और विश्वास के बिना वास्तविक प्रेम (प्रीति) उत्पन्न नहीं हो सकता। और बिना प्रीति के भक्ति कभी सुदृढ़ नहीं हो सकती, जैसे जल के ऊपर तेल की चिकनाई कभी ठहरती नहीं। इसलिए भगवान को चर्मचक्षुओं से न देखने पर भी, संतों के मुख से उनकी लीलाओं का श्रवण करने और अनन्य नाम-जप करने से हृदय में साक्षात् भगवत्-प्रेम प्रकट हो जाता है।',
+    english_translation: 'In the Ramcharitmanas (Uttar Kanda 89.3), Kakabhushundi reveals to Garuda: "Without knowing the Lord\'s divine nature and glory, unshakable faith (Paratiti) cannot awaken; and without faith, genuine divine love (Preeti) cannot blossom. Without love, devotion can never become steadfast, just as oiliness cannot adhere to water." Thus, even if physical eyes have not seen the Divine, hearing His glories from saints and taking refuge in His Holy Name directly ignites true divine love within the heart.',
+    context_intro_hi: 'जैसे श्रीरामचरितमानस के उत्तरकाण्ड में बिना देखे ईश्वर से प्रेम व विश्वास जागने का मर्म समझाते हुए कहा गया है कि —',
+    context_intro_en: 'Just as the Ramcharitmanas reveals the secret of cultivating love and faith towards the unseen Divine —',
+    keywords: [
+      'जाने बिनु न होइ परतीती', 'बिनु परतीति होइ नहिं प्रीती', 'भगवान को देखा नहीं', 'भगवान को देखा ही नहीं',
+      'unseen god', 'never seen god', 'love for god without seeing', 'how to love god',
+      'jab hamne bhagwan ko dekha hi nahi', 'bhagwan ko dekha nahi to prem kaise', 'prem kaise ho sakta hai',
+      'ईश्वर को देखा नहीं', 'अदृश्य भगवान', 'प्रेम कैसे हो', 'प्रीति', 'परतीति', 'भगति दृढ़ाई',
+      'kakabhushundi', 'divine love', 'faith in god', 'how to love the divine'
+    ]
+  },
+
+  // 12A2. Bhagavad Gita - Devotion to Unseen vs Loving the Personal Form (क्लेशोऽधिकतरस्तेषाम्)
+  {
+    id: 'gita_12_5_avyakta',
+    scripture_id: 'bhagavad_gita',
+    reference: 'श्रीमद्भगवद्गीता १२.५ (Bhagavad Gita 12.5 · अव्यक्तासक्तचेतसाम्)',
+    original_text: 'क्लेशोऽधिकतरस्तेषामव्यक्तासक्तचेतसाम्। अव्यक्ता हि गतिर्दुःखं देहवद्भिरवाप्यते॥',
+    hindi_meaning: 'जिनका चित्त अव्यक्त (अदृश्य, निराकार) में लगा है, उनके साधन में क्लेश बहुत अधिक है; क्योंकि देहाभिमानियों के लिए अव्यक्त का मार्ग अत्यंत कठिनता से प्राप्त होता है। इसलिए भगवान के नाम, रूप, गुणों और लीलाओं का आश्रय लेकर साकार भाव से उनसे सहज व स्वाभाविक प्रेम किया जा सकता है।',
+    english_translation: 'For those whose minds are attached to the unmanifest and unseen, the path is exceedingly fraught with hardship; for the unmanifest path is sorrowfully difficult for embodied souls to realize. Therefore, embracing the Lord through His sweet Names, attributes, and loving pastimes makes devotion natural and attainable.',
+    context_intro_hi: 'जैसे श्रीमद्भगवद्गीता के १२वें अध्याय में भगवान श्रीकृष्ण अनदेखे निराकार की तुलना में साकार प्रेम-भक्ति का सुगम मार्ग समझाते हुए कहते हैं कि —',
+    context_intro_en: 'As Lord Krishna explains the difficulty of focusing upon the unseen unmanifest versus the loving path of devotion in Bhagavad Gita —',
+    keywords: [
+      'क्लेशोऽधिकतरस्तेषामव्यक्तासक्तचेतसाम्', 'अव्यक्ता हि गतिर्दुःखं', 'gita 12.5', 'avyakta', 'unseen god',
+      'how to meditate on unseen', 'unmanifest', 'sakar prem', 'bhakti yoga'
+    ]
+  },
+
+  // 12A3. Narada Bhakti Sutra - The Ineffable Sweetness of Divine Love (अमृतस्वरूपा च)
+  {
+    id: 'narada_bhakti_sutra_prem',
+    scripture_id: 'narada_purana',
+    reference: 'नारद भक्ति सूत्र २, ५४ (Narada Bhakti Sutra · अनिर्वचनीयं प्रेमस्वरूपम्)',
+    original_text: 'सा त्वस्मिन् परमप्रेमरूपा। अमृतस्वरूपा च॥ अनिर्वचनीयं प्रेमस्वरूपम्। मूकास्वादनवत्॥',
+    hindi_meaning: 'भक्ति वास्तव में परमात्मा के प्रति परम प्रेमरूपा और अमृतस्वरूपा है। यह विशुद्ध प्रेम वाणी से अनिर्वचनीय है, जैसे गूँगा व्यक्ति गुड़ खाकर उसके अद्भुत आनंद का शब्दों में वर्णन नहीं कर सकता। भगवान को आँखों से न देखकर भी जब नाम-जप और आर्त भाव से पुकारा जाता है, तो यह प्रेम स्वयं अंतरात्मा में प्रकट हो जाता है।',
+    english_translation: 'Devotion is in the nature of supreme divine love, and it is sheer nectar. The intrinsic nature of divine love is ineffable, just like the experience of a mute person savoring sweet molasses. Even when the Divine is unseen by physical eyes, sincere chanting and surrender directly unveil His sweetness within the soul.',
+    context_intro_hi: 'जैसे देवर्षि नारद भक्ति सूत्र में ईश्वर के प्रति अनिर्वचनीय प्रेम की पराकाष्ठा समझाते हुए कहते हैं कि —',
+    context_intro_en: 'As Devarshi Narada reveals the ineffable nature of divine love in the Narada Bhakti Sutra —',
+    keywords: [
+      'नारद भक्ति सूत्र', 'परमप्रेमरूपा', 'अमृतस्वरूपा', 'अनिर्वचनीयं प्रेमस्वरूपम्', 'मूकास्वादनवत्',
+      'narada bhakti sutra', 'ineffable love', 'pure devotion', 'anirvachaniya prem'
+    ]
+  },
+
   // 12B. Equality of All Souls, Gender Transcendence & God's Unconditional Love (पुरुष नपुंसक नारि वा जीव चराचर कोइ)
   {
     id: 'rcm_universal_love_equality',
@@ -1264,6 +1315,14 @@ export function isTopicExcluded(cleanQ, item) {
     if (!isGarudaQuery) return true;
   }
 
+  // Gate extramarital / paradara / looking at other women verses:
+  // ONLY match when query specifically concerns women, girls, lust/attraction to others, adultery
+  if (item.id === 'chanakya_niti_matravat' || item.id === 'valmiki_ramayana_paradara' || 
+      item.id === 'padma_purana_paradara' || item.id === 'rcm_ayodhya_parnari') {
+    const isLustOrWomanQuery = /(?:girl|girls|woman|women|parastri|paradara|parnari|wife|adultery|affair|attraction|lust|vasana|drishti\s*dosha|puri\s*nazar|buri\s*nazar|nazar|paraye\s*mard|paraye\s*stree|लड़की|लड़कियों|स्त्री|परस्त्री|परनारी|पत्नी|व्यभिचार|काम-वासना|बुरी\s*नज़र|दृष्टि\s*दोष)/i.test(cleanQ);
+    if (!isLustOrWomanQuery) return true;
+  }
+
   // 1. Check predefined topic gates
   for (const gate of SCRIPTURE_TOPIC_GATES) {
     if (gate.patterns.some(p => p.test(cleanQ))) {
@@ -1507,7 +1566,7 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
           bestShlokaMatch = item;
         }
       }
-      if (bestShlokaMatch && bestShlokaScore >= 4) {
+      if (bestShlokaMatch && bestShlokaScore >= 16) {
         // Normalize Groq exact match score into [0.92, 0.96] on [0.0, 1.0] scale
         const normalizedGroqScore = Number(Math.min(0.96, 0.92 + Math.min(0.04, bestShlokaScore * 0.002)).toFixed(2));
         groqExactMatch = {

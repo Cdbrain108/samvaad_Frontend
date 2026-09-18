@@ -4423,48 +4423,26 @@ select:focus-visible,
   transition: opacity 300ms ease;
 }
 
-.spiritual-header.is-hidden .spiritual-brand-button,
-.spiritual-header.is-hidden .spiritual-nav {
+.spiritual-header.is-hidden {
+  transform: translateY(-130%) !important;
   opacity: 0 !important;
-  transform: translateY(-24px) scale(0.96) !important;
   pointer-events: none !important;
+  transition: transform 340ms cubic-bezier(0.16, 1, 0.3, 1), opacity 280ms ease !important;
 }
 
-/* Day/Night and Chat option: remain visible and shift slightly to right with floating glass pill styling */
-.spiritual-header .spiritual-header-actions {
-  transition: transform 380ms cubic-bezier(0.16, 1, 0.3, 1),
-              background 320ms ease,
-              border-color 320ms ease,
-              box-shadow 320ms ease,
-              padding 320ms ease;
-  pointer-events: auto !important;
-}
-
+.spiritual-header.is-hidden .spiritual-brand-button,
+.spiritual-header.is-hidden .spiritual-nav,
 .spiritual-header.is-hidden .spiritual-header-actions {
-  pointer-events: auto !important;
-  transform: translateX(24px); /* Shifted slightly to the right side */
-  background: rgba(255, 248, 225, 0.92);
-  border: 1px solid rgba(230, 138, 0, 0.32);
-  border-radius: 999px;
-  padding: 5px 8px;
-  box-shadow: 0 10px 30px rgba(120, 70, 10, 0.22), 0 2px 8px rgba(0, 0, 0, 0.06);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(-20px) !important;
 }
 
-.night .spiritual-header.is-hidden .spiritual-header-actions,
-.spiritual-page.night .spiritual-header.is-hidden .spiritual-header-actions {
-  background: rgba(10, 26, 47, 0.92);
-  border-color: rgba(254, 200, 75, 0.35);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55), 0 0 14px rgba(254, 200, 75, 0.12);
-}
-
-@media (max-width: 768px) {
-  .spiritual-header.is-hidden .spiritual-header-actions {
-    transform: translateX(10px);
-    padding: 4px 6px;
-    gap: 8px;
-  }
+.spiritual-header .spiritual-header-actions {
+  transition: transform 340ms cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 280ms ease,
+              background 320ms ease;
+  pointer-events: auto;
 }
 
 

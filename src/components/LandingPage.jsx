@@ -730,10 +730,15 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       showNavTemporarily(2800)
     }
 
-    // 3. Wheel gesture: show taskbar briefly on page transition, then auto-hide for clear view
+    // 3. Wheel gesture: scrolling UP (deltaY < -15) reveals taskbar; scrolling DOWN (deltaY > 15) hides it immediately!
     const onWheelNav = (event) => {
-      if (Math.abs(event.deltaY) > 20) {
-        showNavTemporarily(2400)
+      if (event.deltaY < -15) {
+        // User scrolling UP: show taskbar
+        showNavTemporarily(3000)
+      } else if (event.deltaY > 15) {
+        // User scrolling DOWN: hide taskbar immediately for 100% clean view
+        clearTimeout(navHideTimer.current)
+        setNavHidden(true)
       }
     }
 
@@ -746,20 +751,25 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       const currentY = event.touches[0].clientY
       const deltaY = currentY - touchStartY
       if (deltaY > 18) {
-        // Swiping downwards (revealing top): show taskbar
-        showNavTemporarily(2800)
+        // Swiping downwards (revealing top / scrolling up): show taskbar
+        showNavTemporarily(3000)
       } else if (deltaY < -18) {
-        // Swiping upwards (scrolling down into content): hide taskbar for clear view
+        // Swiping upwards (scrolling down into content): hide taskbar immediately
         clearTimeout(navHideTimer.current)
         setNavHidden(true)
       }
     }
     const onTouchEnd = () => {
-      showNavTemporarily(2500)
+      // Keep state clean on touch end
     }
 
-    // When scrolling or changing pages: show taskbar, then auto-hide after 2.8s
-    showNavTemporarily(2800)
+    // When on the last page (About Us / education), hide taskbar immediately so creator card is 100% clear!
+    if (active === phases.length - 1) {
+      clearTimeout(navHideTimer.current)
+      setNavHidden(true)
+    } else {
+      showNavTemporarily(2400)
+    }
 
     window.addEventListener('mousemove', onMouseMove, { passive: true })
     window.addEventListener('mouseup', onMouseUp, { passive: true })
