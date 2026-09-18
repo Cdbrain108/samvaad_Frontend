@@ -1863,7 +1863,7 @@ You MUST output a valid JSON object (json) with these exact keys:
 3. "recommended_scripture": The exact most relevant sacred Hindu scripture and chapter/verse.
 4. "specific_shloka_words": A single string of key Sanskrit words from that verse.
 5. "canonical_sanskrit_terms": Space-separated canonical Sanskrit/Dharmic concept terms for vector reformulation (e.g. "परदाराभिमर्श परस्त्री काम-वासना मर्यादा" or "क्रोध मोह स्मृति विभ्रम" or "आत्मा अमर शोक मा शुचः").
-6. "target_scriptures": Comma-separated machine scripture ids to restrict vector search (e.g. "valmiki_ramayana,padma_purana,chanakya_niti,bhagavad_gita" or "bhagavad_gita" or "ramcharitmanas,bhagavad_gita").
+6. "target_scriptures": Comma-separated machine scripture ids (e.g. "brahmanda_purana,valmiki_ramayana,narada_purana,bhagavad_gita,purana" or "all"). NOTE: Universal dharmic dilemmas (karma, effort, success, grief, anger, restlessness, devotion) are illuminated across all 29 sacred scriptures (Puranas, Ramayana, Mahabharata, Vedas, Gita). Set "all" or list multiple diverse scriptures. Only specify a single scripture if the seeker explicitly asked for that specific scripture.
 7. "optimized_rag_keywords": Array of 3-4 search keywords in Hindi/English.
 8. "seeker_state": Brief 1-sentence summary of devotee's state.
 9. "tuned_model_prompt": An optimized prompt for Pujya Maharaj Ji's fine-tuned model in natural Hindi describing the devotee's situation and asking for fatherly guidance and Holy Name shelter.
@@ -1877,7 +1877,7 @@ Return strictly a JSON object.`
 3. "recommended_scripture": सबसे सटीक पावन ग्रंथ व अध्याय/श्लोक।
 4. "specific_shloka_words": उस सटीक श्लोक के मूल संस्कृत शब्द (एक स्ट्रिंग)।
 5. "canonical_sanskrit_terms": वेक्टर खोज हेतु शास्त्रीय संस्कृत संकल्पना शब्द (स्पेस से अलग, जैसे "परदाराभिमर्श परस्त्री काम-वासना मर्यादा")।
-6. "target_scriptures": वेक्टर खोज हेतु मशीन scripture id (कॉमा से अलग, जैसे "valmiki_ramayana,padma_purana,bhagavad_gita")।
+6. "target_scriptures": वेक्टर खोज हेतु scripture id ("all" या कॉमा से अलग ग्रंथ जैसे "brahmanda_purana,valmiki_ramayana,narada_purana,bhagavad_gita")। सामान्य जिज्ञासाओं (कर्म, शोक, क्रोध, भक्ति) हेतु "all" या बहु-ग्रंथ दें, ताकि सभी २९ शास्त्रों से समाधान प्राप्त हो सके। केवल तभी एक ग्रंथ दें जब साधक ने स्पष्ट रूप से उसी ग्रंथ का नाम पूछा हो।
 7. "optimized_rag_keywords": ३-४ खोज शब्द (Array of strings)।
 8. "seeker_state": साधक की स्थिति का १ वाक्य में सारांश।
 9. "tuned_model_prompt": पूज्य महाराज जी के फाइन-ट्यून्ड मॉडल हेतु स्वाभाविक हिंदी में प्रॉम्ट।

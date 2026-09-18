@@ -1056,7 +1056,7 @@ async function queryOracleVectorRAG(query) {
       body: JSON.stringify({
         query: query.trim(),
         scripture: scriptureFilter,
-        top_k: 5
+        top_k: 8
       })
     });
     clearTimeout(timeoutId);
@@ -1068,19 +1068,25 @@ async function queryOracleVectorRAG(query) {
     const validCandidates = [];
     for (const c of rawCandidates) {
       if (!c || !c.original_text) continue;
-      // General quality floors (shared with concept_taxonomy.json + AWS gateway):
-      // vector < 0.55 OR rerank < 0.25 (when provided) => reject for EVERY intent.
-      // This kills the whole class of absurd groundings (Shraddha/medical/ritual noise),
-      // not just one query. Server may already reject; this is the client-side mirror.
+      // Calibrated Hybrid Quality Floor:
+      // AWS gateway computes dense vector_score (E5-large), rerank_score (BGE/FlashRank), and blended_score.
+      // 1. If vector similarity is strong (>= 0.76), retain candidate even if cross-encoder had conversational English penalty.
+      // 2. If rerank_score is confident (>= 0.20), retain candidate.
+      // 3. Reject only if BOTH dense vector (< 0.60) and rerank (< 0.20) confirm lack of relevance.
       const vecScore = c.score ?? c.vector_score ?? 0;
       const rrScore = c.rerank_score ?? c.rerankScore ?? null;
-      if (vecScore < 0.55) continue;
-      if (rrScore !== null && Number(rrScore) < 0.25) continue;
+      const blScore = c.blended_score ?? c.blendedScore ?? (rrScore !== null ? (0.65 * Number(rrScore) + 0.35 * Number(vecScore)) : vecScore);
+
+      if (vecScore < 0.60 && (rrScore === null || Number(rrScore) < 0.20)) continue;
+      if (rrScore !== null && Number(rrScore) < 0.10 && Number(vecScore) < 0.78) continue;
+
       const hindiMean = (c.hindi_meaning || '').trim();
       const engMean = (c.english_translation || '').trim();
       if (hindiMean.length < 6 && engMean.length < 6) continue;
 
-      const scriptureId = c.scripture_id || ((c.reference || '').toLowerCase().includes('gita') ? 'bhagavad_gita' : 'sacred_text');
+      const scriptureId = c.scripture_id || ((c.reference || '').toLowerCase().includes('gita') ? 'bhagavad_gita' : (c.collection || 'sacred_text').replace('scripture_', ''));
+      const effectiveScore = Number(Math.max(vecScore, blScore, Number(rrScore || 0)).toFixed(4));
+
       const itemCandidate = {
         id: c.id || `qdrant_${Date.now()}_${Math.random()}`,
         scripture_id: scriptureId,
@@ -1088,9 +1094,10 @@ async function queryOracleVectorRAG(query) {
         original_text: c.original_text,
         hindi_meaning: hindiMean || engMean,
         english_translation: engMean || hindiMean,
-        score: vecScore,
+        score: effectiveScore,
         vector_score: vecScore,
         rerank_score: rrScore !== null ? Number(rrScore) : 0,
+        blended_score: blScore,
         match_type: 'qdrant_vector_rag'
       };
 
@@ -1519,10 +1526,26 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
   try {
     const canonicalQuery = canonStr ? `${canonStr}` : null;
     const vectorQuery = canonicalQuery || (enrichedKeywords ? `${query} ${enrichedKeywords}` : query);
-    // Prefer Groq target_scriptures routing when provided (general, any intent).
+    // Query live AWS 1024-d Qdrant gateway across all 29 scripture collections
     let routed = await queryOracleVectorRAG(vectorQuery);
-    if (groqTargetScriptures.length && routed.length) {
-      routed = routed.filter(c => groqTargetScriptures.some(t => (c.scripture_id || '').toLowerCase().includes(t) || (c.reference || '').toLowerCase().includes(t)));
+
+    if (explicitTarget && routed.length) {
+      // Hard filter ONLY when the user explicitly asked for a specific scripture
+      routed = routed.filter(c =>
+        (c.scripture_id && c.scripture_id.toLowerCase().includes(explicitTarget.key)) ||
+        (c.reference && c.reference.toLowerCase().includes(explicitTarget.key)) ||
+        (c.reference && explicitTarget.regex.test(c.reference))
+      );
+    } else if (groqTargetScriptures.length && !groqTargetScriptures.includes('all') && routed.length) {
+      // For general inquiries: provide a soft relevance boost to LLM-suggested scriptures,
+      // but NEVER purge authentic candidate verses from other scriptures across the 29-scripture corpus!
+      routed = routed.map(c => {
+        const isTarget = groqTargetScriptures.some(t =>
+          (c.scripture_id || '').toLowerCase().includes(t) ||
+          (c.reference || '').toLowerCase().includes(t)
+        );
+        return isTarget ? { ...c, score: Math.min(0.98, Number(((c.score || 0.8) + 0.04).toFixed(4))) } : c;
+      });
     }
     vectorCandidates = routed;
   } catch (e) {}
@@ -1553,6 +1576,10 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
       candidatePool.push(c);
     }
   }
+
+  // Sort candidate pool strictly by effective confidence score so live AWS SOTA vector matches
+  // and curated entries compete on true relevance merit
+  candidatePool.sort((a, b) => (b.score || 0) - (a.score || 0));
 
   if (!candidatePool.length) return null;
 
