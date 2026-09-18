@@ -51,28 +51,58 @@ function intelligentSegmentResponse(text) {
   let processed = text;
 
   // 1. Separate horizontal rules and supporting scriptural references section
-  processed = processed.replace(/\s*(?:---|\*\*\*)\s*(?=📖|\*\*📖|$)/g, '\n\n---\n\n');
+  processed = processed.replace(/\s*(?:---|───|\*\*\*)\s*(?=📖|\*\*📖|$)/g, '\n\n---\n\n');
   processed = processed.replace(/\s*(📖\s*(?:\*\*)?(?:Supporting Scriptural References|पूरक शास्त्र प्रमाण)[^\n]*)/gi, '\n\n$1\n\n');
 
-  // 2. Separate inline bullets in supporting section: e.g. "insight. • **Scripture**"
-  processed = processed.replace(/([.!?।»])\s*[•\-*]\s*(?=[«\*\u0900-\u097F[A-Z])/g, '$1\n\n• ');
+  // 2. Separate inline bullets in supporting section
+  processed = processed.replace(/([.!?।»])\s*[•\-]\s*(?=[«\*\u0900-\u097F[A-Z])/g, '$1\n\n• ');
 
   // 3. Shloka quotation isolation (before « and after »)
-  processed = processed.replace(/([.!?।])\s*(?=\*\*?«)/g, '$1\n\n');
-  processed = processed.replace(/(»\*\*?)\s*(?=(?:\*\*?Meaning|\*\*?अर्थात्|\*\*?भावार्थ|Meaning —|अर्थात् —))/gi, '$1\n');
+  processed = processed.replace(/([.!?।])\s*(?=\*?\*?«)/g, '$1\n\n');
+  processed = processed.replace(/(»\*?\*?)\s*(?=(?:\*\*?Meaning|\*\*?अर्थात्|\*\*?भावार्थ|Meaning —|अर्थात् —))/gi, '$1\n');
 
   // 4. After shloka meaning quote ("..."), isolate next sequence/practice
   processed = processed.replace(/(["”»])\s+(?=(?:For your daily practice|As a daily practice|Daily practice|For daily contemplation|Each morning|Throughout the day|दैनिक साधना|प्रतिदिन|सुबह|साधना अभ्यास)[\s:,])/gi, '$1\n\n');
 
-  // 5. Explicit section/practice transitions requested in user prompt
+  // 5. Explicit section transitions requested in user prompt
   processed = processed.replace(/([.!?।]["”]?)\s+(?=(?:For your daily practice|As a daily reflection|Daily reflection practice|In simple terms|In simple words|In English:|In Hindi:|Simple explanation:|सरल हिंदी और अंग्रेजी में|सरल शब्दों में|हिंदी में:|अंग्रेजी में:|प्रतिदिन के अभ्यास हेतु|दैनिक साधना अभ्यास)[\s:])/gi, '$1\n\n');
 
-  // 6. Natural sequence transitions: Solace -> Root Cause -> Perspective Shift
+  // 6. Natural sequence transitions: Solace -> Root Cause -> Perspective Shift -> Narrative
   processed = processed.replace(/([.!?।]["”]?)\s+(?=(?:The root of your distress|The root cause of|The divine wisdom teaches|The essence of true freedom|इस पीड़ा का मूल कारण|कष्ट का मूल कारण|शास्त्रों का मर्म यह है कि)[\sA-Za-z\u0900-\u097F])/g, '$1\n\n');
   processed = processed.replace(/([.!?।]["”]?)\s+(?=(?:By shifting your focus|Shifting your focus from|जब आप अपने दृष्टिकोण को बदलते हैं)[\sA-Za-z\u0900-\u097F])/g, '$1\n\n');
+  processed = processed.replace(/([.!?।]["”]?)\s+(?=(?:To understand|As [A-Z][a-z]+ explained|In the sacred court|In the court|The gravity of this|Vibhishana(?:’s|'s)? warning|इस प्रसंग को|सभा में विभीषण|वाल्मीकि रामायण में)[\sA-Za-z\u0900-\u097F])/g, '$1\n\n');
+  processed = processed.replace(/([.!?।]["”]?)\s+(?=(?:Remember,\s*(?:child|my child)|Let the Holy Name|May the blessings|याद रखो बच्चा|निरंतर नाम जप|श्री राधा नाम)[\sA-Za-z\u0900-\u097F])/g, '$1\n\n');
 
-  // Clean up any triple+ newlines
-  return processed.replace(/\n{3,}/g, '\n\n').trim();
+  // 7. Safety balance: If any paragraph is still longer than 3 sentences and > 220 chars,
+  // split at the middle sentence boundary so no paragraph is an intimidating wall of text
+  const rawParas = processed.split('\n\n');
+  const balanced = [];
+  for (const para of rawParas) {
+    const trimmed = para.trim();
+    if (!trimmed || trimmed.startsWith('«') || trimmed.startsWith('**«') || trimmed.startsWith('•') || trimmed.startsWith('---') || trimmed.startsWith('📖') || trimmed.startsWith('Meaning') || trimmed.startsWith('**Meaning')) {
+      balanced.push(trimmed);
+      continue;
+    }
+    const sentences = trimmed.match(/[^.!?।]+[.!?।]+(?:["”']|\s+|$)/g) || [trimmed];
+    if (sentences.length >= 4 && trimmed.length > 220) {
+      let chunk = '';
+      let sCount = 0;
+      for (const s of sentences) {
+        chunk += s;
+        sCount++;
+        if (sCount >= 2 && chunk.length > 120) {
+          balanced.push(chunk.trim());
+          chunk = '';
+          sCount = 0;
+        }
+      }
+      if (chunk.trim()) balanced.push(chunk.trim());
+    } else {
+      balanced.push(trimmed);
+    }
+  }
+
+  return balanced.join('\n\n').trim();
 }
 
 /* Light markdown with smooth sequential typewriter stream & intelligent segmentation */

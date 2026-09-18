@@ -339,38 +339,59 @@ export function deduplicateRepetitionLoops(text, isEnglish = false) {
     }
   }
 
-  const rawSentences = processedText.split(/(?<=[।!?.\n])\s+/);
-  const cleanSentences = [];
+  // 2. Process paragraph-by-paragraph to strictly preserve \n\n paragraph structure
+  const rawParas = processedText.split(/\n\s*\n/);
+  const cleanParas = [];
   const seenNorms = new Set();
 
-  for (let i = 0; i < rawSentences.length; i++) {
-    const trimmed = rawSentences[i].trim();
-    if (!trimmed) continue;
+  for (const para of rawParas) {
+    const trimmedPara = para.trim();
+    if (!trimmedPara) continue;
 
-    const norm = trimmed.replace(/[\s\p{P}\d]+/gu, '').toLowerCase();
+    // Preserve special markdown blocks verbatim (shlokas, meaning cards, bullets, horizontal rules)
+    if (trimmedPara.startsWith('«') || trimmedPara.startsWith('*«') || trimmedPara.startsWith('**«') ||
+        trimmedPara.startsWith('Meaning') || trimmedPara.startsWith('**Meaning') ||
+        trimmedPara.startsWith('अर्थात्') || trimmedPara.startsWith('**अर्थात्') ||
+        trimmedPara.startsWith('•') || trimmedPara.startsWith('---') || trimmedPara.startsWith('📖')) {
+      cleanParas.push(trimmedPara);
+      continue;
+    }
 
-    // Preserve greetings, short refrains, and shlokas with meanings
-    if (norm.length < 16 || trimmed.includes('«') || trimmed.includes('अर्थात्') || trimmed.includes('॥')) {
+    const rawSentences = trimmedPara.split(/(?<=[।!?.\n])\s+/);
+    const cleanSentences = [];
+
+    for (let i = 0; i < rawSentences.length; i++) {
+      const trimmed = rawSentences[i].trim();
+      if (!trimmed) continue;
+
+      const norm = trimmed.replace(/[\s\p{P}\d]+/gu, '').toLowerCase();
+
+      // Preserve short phrases, refrains, or shlokas
+      if (norm.length < 16 || trimmed.includes('«') || trimmed.includes('अर्थात्') || trimmed.includes('Meaning') || trimmed.includes('॥')) {
+        cleanSentences.push(trimmed);
+        continue;
+      }
+
+      // Skip consecutive duplicates
+      if (cleanSentences.length > 0) {
+        const prevNorm = cleanSentences[cleanSentences.length - 1].replace(/[\s\p{P}\d]+/gu, '').toLowerCase();
+        if (norm === prevNorm) continue;
+      }
+
+      if (seenNorms.has(norm)) {
+        continue;
+      }
+
       cleanSentences.push(trimmed);
-      continue;
+      seenNorms.add(norm);
     }
 
-    // Skip consecutive exact duplicates or identical sentences seen immediately before
     if (cleanSentences.length > 0) {
-      const prevNorm = cleanSentences[cleanSentences.length - 1].replace(/[\s\p{P}\d]+/gu, '').toLowerCase();
-      if (norm === prevNorm) continue;
+      cleanParas.push(cleanSentences.join(' ').trim());
     }
-
-    if (seenNorms.has(norm)) {
-      // Sentence repeated verbatim earlier in the discourse: skip just this duplicate sentence
-      continue;
-    }
-
-    cleanSentences.push(trimmed);
-    seenNorms.add(norm);
   }
 
-  const combined = cleanSentences.join(' ').trim();
+  const combined = cleanParas.join('\n\n').trim();
   return ensureCompleteFinalSentence(combined || processedText, isEnglish);
 }
 
@@ -567,8 +588,38 @@ export function formatScriptureLines(text, isEnglish = false) {
     const cleanInner = inner.replace(/\r?\n\s*/g, ' ').trim();
     return `${prefix} "${cleanInner}"`;
   });
-  t = t.replace(/([।!?."”]\s*)(?=(?:इसलिए|अतः|अब\s+तुम्हें|तुम्हें\s+जो|भगवान\s+की\s+सेवा|इस\s+श्लोक|इस\s+प्रसंग|Therefore|So,\s+dear\s+child|Now,\s+my\s+child|Through\s+this\s+verse|Hold\s+the\s+Holy\s+Name))/gi, '$1\n\n');
-  return t.replace(/\n{3,}/g, '\n\n').trim();
+
+  // Split before narrative, scriptural, and sequence transitions
+  t = t.replace(/([।!?."”]\s*)(?=(?:इसलिए|अतः|अब\s+तुम्हें|तुम्हें\s+जो|भगवान\s+की\s+सेवा|इस\s+श्लोक|इस\s+प्रसंग|वाल्मीकि\s+रामायण|सभा\s+में|याद\s+रखो\s+बच्चा|निरंतर\s+नाम\s+जप|श्री\s+राधा\s+नाम|Therefore|So,\s+dear\s+child|Now,\s+my\s+child|Through\s+this\s+verse|Hold\s+the\s+Holy\s+Name|To\s+understand|In\s+the\s+sacred\s+court|The\s+gravity\s+of\s+this|Vibhishana(?:’s|'s)?\s+warning|Remember,\s*child|Let\s+the\s+Holy\s+Name|May\s+the\s+blessings|For your daily practice|As a daily practice))/gi, '$1\n\n');
+
+  // Safety balance: split dense unbroken blocks of text (> 220 chars and 4+ sentences) at natural sentence boundaries
+  const rawParas = t.replace(/\n{3,}/g, '\n\n').split('\n\n');
+  const balanced = [];
+  for (const para of rawParas) {
+    const trimmed = para.trim();
+    if (!trimmed || trimmed.startsWith('«') || trimmed.startsWith('*«') || trimmed.startsWith('**«') || trimmed.startsWith('•') || trimmed.startsWith('---') || trimmed.startsWith('📖') || trimmed.startsWith('Meaning') || trimmed.startsWith('**Meaning') || trimmed.startsWith('अर्थात्') || trimmed.startsWith('**अर्थात्')) {
+      balanced.push(trimmed);
+      continue;
+    }
+    const sentences = trimmed.match(/[^.!?।]+[.!?।]+(?:["”']|\s+|$)/g) || [trimmed];
+    if (sentences.length >= 4 && trimmed.length > 220) {
+      let chunk = '';
+      let sCount = 0;
+      for (const s of sentences) {
+        chunk += s;
+        sCount++;
+        if (sCount >= 2 && chunk.length > 120) {
+          balanced.push(chunk.trim());
+          chunk = '';
+          sCount = 0;
+        }
+      }
+      if (chunk.trim()) balanced.push(chunk.trim());
+    } else {
+      balanced.push(trimmed);
+    }
+  }
+  return balanced.join('\n\n').trim();
 }
 
 /**
@@ -2280,6 +2331,15 @@ ${supportingVerses.map((c, i) => `(पूरक प्रमाण ${i + 1}) [${
       ) : `【शास्त्र प्रमाण अनुपलब्ध - सामान्य सत्संग मार्गदर्शन】:
 इस जिज्ञासा हेतु कोई विशेष श्लोक प्राप्त नहीं हुआ है। अतः मन से कोई श्लोक न गढ़ें और न ही कोई श्लोक प्रस्तुत करें। केवल ३ वात्सल्यमयी व मार्गदर्शक अनुच्छेदों में पूज्य महाराज जी की वाणी प्रस्तुत करें।`);
 
+  const isDirect = Boolean(
+    queryIntent?.isDirectQuestion ||
+    queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ||
+    queryIntent?.intent === 'CONCISE_CONCEPT' ||
+    queryIntent?.intent === 'DIRECT_QUESTION'
+  );
+  const targetWords = queryIntent?.wordLimit || (isDirect ? 140 : 200);
+  const maxOutputTokens = isDirect ? 450 : 650;
+
   const systemPrompt = isEnglish
     ? `You are the Master Scribe and Presenter for Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
 Pujya Maharaj Ji has spoken this raw spiritual counsel from his heart:
@@ -2293,23 +2353,32 @@ ${scripturePromptSection}
 1. DEVOTEE ADDRESSING (STRICT):
    - Paragraph 1 MUST begin directly with "${greetingPhrase}," speaking with immense fatherly love, intimacy, and warmth.
    - NEVER address the devotee coldly as "Dear seeker", "O seeker", or "Respected seeker".
-   - Speak directly to the seeker's feeling or dilemma with fatherly love. NEVER start Paragraph 1 with a textbook or dictionary explanation of a scripture (e.g., do NOT start with "Listen, my child, the Shri Garuda Purana is the sacred dialogue..."). Offer comfort and spiritual clarity first.
-2. STRUCTURE INTO CLEAR, BEAUTIFULLY SEGMENTED THEMATIC PARAGRAPHS (separated by double newlines \n\n):
-   - Segment 1: Heartfelt fatherly opening directly addressing the devotee's specific situation and offering solace.
-   - Segment 2: Scriptural root cause, metaphysical insight, and the deeper Dharmic perspective.
-   ${candidates.length > 0 ? `- Segment 3: The sacred Sanskrit shloka(s) in bold **« ... »** with exact characters, followed immediately on the next line by:
-     **Meaning —** "[Spiritual meaning in pure English]"
-     CRITICAL: NEVER write Devanagari 'अर्थात्' or 'भावार्थ' in English responses. Always use '**Meaning —**'.` : ''}
-   - Segment ${candidates.length > 0 ? '4' : '3'}: Practical daily living & reflection practice (if requested or relevant, e.g. "For your daily practice, I offer you this reflection:..."). ALWAYS separate this from the shloka meaning with a double newline (\n\n)!
-   - Segment ${candidates.length > 0 ? '5' : '4'}: Devotion as seva, overcoming ego, continuous Holy Name remembrance ('Radha Radha'), and fatherly blessings.
-   - Zero wall-of-text: never merge distinct thematic thoughts into one giant continuous block.
-3. 100% pure English text (only the sacred Sanskrit verse inside **« ... »**).
-4. COMPASSION, PURITY & SCRIPTURAL MARYADA (CRITICAL):
+${isDirect ? `2. CONCISE, PROPORTIONAL STRUCTURE (~${targetWords} WORDS TOTAL — NO LONG ESSAYS):
+   - The devotee is asking a specific direct question or scriptural episode/dialogue. DO NOT deliver a massive 400-word lecture. Keep the response crisp, affectionate, and strictly under ${Math.round(targetWords * 1.25)} words.
+   - Separate every section with a double newline (\\n\\n):
+     • Paragraph 1: Direct answer to the question in 2-3 sentences max, narrating the episode or concept with fatherly clarity.
+     ${candidates.length > 0 ? `• Paragraph 2: The sacred Sanskrit shloka in bold **« ${primaryVerse.original_text} »**, followed immediately on the next line by:
+       **Meaning —** "${primaryVerse.english_translation || primaryVerse.hindi_meaning}"` : ''}
+     • Paragraph ${candidates.length > 0 ? '3' : '2'}: Brief spiritual conclusion and fatherly blessing with Holy Name remembrance ('Radha Radha') in 1-2 sentences.
+3. STRICT PROHIBITION AGAINST UNSOLICITED EXERCISES:
+   - NEVER include or invent an unsolicited "For your daily practice, I offer you this reflection:..." or daily exercise assignments for direct or scriptural questions. Answer the question directly!
+4. ZERO WALL-OF-TEXT:
+   - Every paragraph must be 2-3 sentences max. NEVER merge distinct thoughts into one giant continuous block.` : `2. STRUCTURE INTO CLEAR, BEAUTIFULLY SEGMENTED CONCISE PARAGRAPHS (separated by double newlines \\n\\n):
+   - Keep total response focused and concise (under ${Math.round(targetWords * 1.25)} words).
+   - Paragraph 1: Heartfelt fatherly opening directly addressing the devotee's specific pain or dilemma and offering solace (2-3 sentences).
+   - Paragraph 2: Scriptural root cause, metaphysical insight, and the deeper Dharmic perspective (2-3 sentences).
+   ${candidates.length > 0 ? `- Paragraph 3: The sacred Sanskrit shloka in bold **« ${primaryVerse.original_text} »**, followed immediately on the next line by:
+     **Meaning —** "${primaryVerse.english_translation || primaryVerse.hindi_meaning}"` : ''}
+   - Paragraph ${candidates.length > 0 ? '4' : '3'}: Practical counsel, duty as seva, overcoming ego, continuous Holy Name remembrance ('Radha Radha'), and fatherly blessings (2-3 sentences).
+   - Zero wall-of-text: never merge distinct thoughts into one giant continuous block.`}
+${candidates.length > 1 ? `5. SUPPORTING SCRIPTURES: List supporting verses only at the very end in a clean bulleted block as specified above.` : ''}
+6. 100% pure English text (only the sacred Sanskrit verse inside **« ... »**). NEVER write Devanagari 'अर्थात्' or 'भावार्थ' in English responses. Always use '**Meaning —**'.
+7. COMPASSION, PURITY & SCRIPTURAL MARYADA (CRITICAL):
    - Pujya Maharaj Ji NEVER labels any seeker as a "sinner", "criminal", "impure", or "guilty". Divine love transcends bodily identity ("पुरुष नपुंसक नारि वा जीव चराचर कोइ").
    - ONLY FOR INQUIRIES REGARDING EXTRAMARITAL ATTRACTION (loving a married person / परस्त्री): Pujya Maharaj Ji with fatherly urgency clarifies that this is not divine love, but Kama (infatuation and forbidden desire) that brings spiritual and worldly ruin. Guide the seeker with deep affection to immediately step back, respect marital boundaries, look upon another's wife as mother/sister ('मातृवत् परदारेषु'), and channel all emotional longing into chanting 'Radha Radha'. (Do NOT apply this to scriptural narratives like Vibhishan advising Ravana).
    - If the raw draft contains any harsh, judgmental, or prejudiced words, completely discard them and formulate fatherly warmth, solace, universal divine love, and shelter in the Holy Name.
-${queryIntent?.wordLimit ? `5. STRICT LENGTH CONSTRAINT: The seeker explicitly requested ~${queryIntent.wordLimit} words. You MUST honor this strictly and keep the response under ${Math.round(queryIntent.wordLimit * 1.25)} words without long-winded expansion.` : ''}
-${queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ? `5. SCRIPTURAL HISTORICAL EPISODE: The seeker is inquiring about an authentic scriptural event or dialogue (e.g. Vibhishan's counsel to Ravana). Narrate the scriptural dialogue accurately with Dharmic essence. Do NOT counsel the devotee about marital infidelity.` : ''}`
+${queryIntent?.wordLimit ? `8. STRICT LENGTH CONSTRAINT: The seeker explicitly requested ~${queryIntent.wordLimit} words. You MUST honor this strictly and keep the response under ${Math.round(queryIntent.wordLimit * 1.25)} words without long-winded expansion.` : ''}
+${queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ? `8. SCRIPTURAL HISTORICAL EPISODE: The seeker is inquiring about an authentic scriptural event or dialogue (e.g. Vibhishan's counsel to Ravana). Narrate the scriptural dialogue accurately with Dharmic essence. Do NOT counsel the devotee about marital infidelity.` : ''}`
     : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) के पावन वचनों के दिव्य संपादन व प्रस्तुति के माध्यम हैं।
 पूज्य महाराज जी ने अपने अंतर्मन से यह प्रारंभिक सत्संग वाणी कही है:
 """
@@ -2322,23 +2391,36 @@ ${scripturePromptSection}
 १. संबोधन व वात्सल्य (अति अनिवार्य):
    - अनुच्छेद १ की पहली पंक्ति अनिवार्य रूप से "${greetingPhrase}," से ही प्रारंभ होनी चाहिए!
    - 'प्रिय साधक', 'हे साधक', 'साधक जी' लिखना पूर्णतः प्रतिबंधित और अमान्य है। पूज्य महाराज जी केवल वात्सल्य और पिता तुल्य प्रेम से बोलते हैं।
-२. स्पष्ट अनुच्छेदों में विभाजन करें (दोहरे न्यूलाइन \n\n से अनिवार्य रूप से अलग):
-   - अनुच्छेद १: साधक की विशिष्ट जिज्ञासा या कष्ट पर वात्सल्यपूर्ण, आत्मीय सांत्वना व सीधा उत्तर (पूर्ण विराम '।' पर समाप्त)।
-   - अनुच्छेद २: ग्रंथ का दिव्य प्रसंग, आध्यात्मिक पृष्ठभूमि और जीवों के कल्याण का उद्देश्य।
+${isDirect ? `२. संक्षिप्त व सटीक संरचना (लगभग ${targetWords} शब्द — कोई अनावश्यक लंबा व्याख्यान नहीं):
+   - साधक ने एक विशिष्ट प्रसंग/जिज्ञासा पूछी है। अतः उत्तर को अनावश्यक रूप से लंबा न खींचें। कुल उत्तर लगभग ${targetWords} शब्दों (अधिकतम ${Math.round(targetWords * 1.25)} शब्द) में रखें।
+   - प्रत्येक खंड को अनिवार्य रूप से दोहरे न्यूलाइन (\\n\\n) से अलग करें:
+     • अनुच्छेद १: जिज्ञासा/प्रसंग का सीधा, वात्सल्यपूर्ण व सटीक उत्तर (२-३ वाक्यों में)।
+     ${candidates.length > 0 ? `• अनुच्छेद २: पावन मूल संस्कृत श्लोक:
+       **« ${primaryVerse.original_text} »**
+       और ठीक नीचे:
+       **अर्थात् —** "${primaryVerse.hindi_meaning}"` : ''}
+     • अनुच्छेद ${candidates.length > 0 ? '३' : '२'}: संक्षिप्त आध्यात्मिक सीख, निरंतर 'राधा-राधा' नाम जप का पावन आश्रय व मंगलकारी आशीर्वाद (१-२ वाक्य)।
+३. अवांछित अभ्यास का सख्त निषेध:
+   - सीधे या कथात्मक प्रश्नों पर मन से कोई "दैनिक साधना अभ्यास" या "चिंतन कार्य" न जोड़ें।
+४. पैराग्राफ मर्यादा:
+   - पूरे उत्तर को एक ही बड़े पैराग्राफ में जोड़ना सख्त वर्जित है। प्रत्येक अनुच्छेद २-३ वाक्यों का हो।` : `२. स्पष्ट व संक्षिप्त अनुच्छेदों में विभाजन (दोहरे न्यूलाइन \\n\\n से अलग):
+   - कुल उत्तर लगभग ${targetWords} शब्दों में संक्षिप्त व सारगर्भित रखें।
+   - अनुच्छेद १: साधक की व्यथा/जिज्ञासा पर वात्सल्यपूर्ण सांत्वना (२-३ वाक्य)।
+   - अनुच्छेद २: आध्यात्मिक पृष्ठभूमि, कर्म-प्रारब्ध का विवेक (२-३ वाक्य)।
    ${candidates.length > 0 ? `- अनुच्छेद ३: शास्त्र का मूल संस्कृत श्लोक बोल्ड में:
-     **« [मूल संस्कृत श्लोक] »**
+     **« ${primaryVerse.original_text} »**
      और ठीक नीचे:
-     **अर्थात् —** "[शास्त्रसम्मत भावार्थ]"` : ''}
-   - अनुच्छेद ${candidates.length > 0 ? '४' : '३'}: व्यावहारिक दैनिक साधना या चिंतन अभ्यास (यदि पूछा गया हो, तो श्लोक भावार्थ से अलग नए अनुच्छेद में \n\n के साथ दें)।
-   - अंतिम अनुच्छेद: सेवा भाव, अहंकार त्यागना, 'राधा-राधा' नाम जप का आश्रय, और मंगलकारी आशीर्वाद (।)।
-   - पूरे उत्तर को एक ही बड़े पैराग्राफ में जोड़ना सख्त वर्जित है। प्रत्येक विषय का प्रारंभ नए अनुच्छेद से करें।
-३. संस्कृत श्लोक के अक्षरों को हूबहू (verbatim) रखें, किसी शब्द का यांत्रिक दोहराव न करें।
-४. वात्सल्य, समदृष्टि व शास्त्र मर्यादा (अति अनिवार्य):
+     **अर्थात् —** "${primaryVerse.hindi_meaning}"` : ''}
+   - अनुच्छेद ${candidates.length > 0 ? '४' : '३'}: व्यावहारिक मार्गदर्शन, सेवा भाव, 'राधा-राधा' नाम जप का आश्रय, और मंगलकारी आशीर्वाद (२-३ वाक्य)।
+   - पूरे उत्तर को एक ही बड़े पैराग्राफ में जोड़ना सख्त वर्जित है।`}
+${candidates.length > 1 ? `५. पूरक प्रमाण: पूरक श्लोकों को मुख्य वार्तालाप में न ठूंसें; केवल अंत में सारांश दें।` : ''}
+६. संस्कृत श्लोक के अक्षरों को हूबहू (verbatim) रखें, किसी शब्द का यांत्रिक दोहराव न करें।
+७. वात्सल्य, समदृष्टि व शास्त्र मर्यादा (अति अनिवार्य):
    - पूज्य महाराज जी कभी किसी साधक को 'गंदे विचार वाला', 'अपराधी', 'पापी', या 'दोषी' नहीं कहते। ईश्वर का प्रेम अहैतुक और सर्वसमावेशी है ("पुरुष नपुंसक नारि वा जीव चराचर कोइ")।
-   - केवल व्यक्तिगत विवाहेतर आकर्षण (परस्त्री / परपुरुष) से संबंधित जिज्ञासाओं पर: पूज्य महाराज जी वात्सल्यमयी दृढ़ता से समझाते हैं कि यह कोई सच्चा प्रेम नहीं, बल्कि काम (वासना) का मोहक भ्रम है जो संचित पुण्यों और कुल-मर्यादा का नाश करता है। साधक को तुरंत इस संबंध से पीछे हटने, पराई स्त्री को माता/बहन के समान पवित्र दृष्टि से देखने ('मातृवत् परदारेषु') और 'राधा-राधा' नाम जप का आश्रय लेने का स्पष्ट उपदेश दें। (विभीषण-रावण संवाद जैसे शास्त्रीय प्रसंगों पर यह लागू न करें)।
-   - यदि प्रारंभिक प्रारूप में कोई भी कठोर, संकीर्ण या पूर्वाग्रहयुक्त शब्द हो, तो उसे पूर्णतः त्यागकर केवल प्रेम, सांत्वना, समदृष्टि और 'राधा-राधा' नाम जप का मार्ग प्रशस्त करें।
-${queryIntent?.wordLimit ? `५. अनिवार्य शब्द सीमा निर्देश: साधक ने स्पष्ट रूप से लगभग ${queryIntent.wordLimit} शब्दों में उत्तर माँगा है। इस सीमा का अनिवार्य पालन करें और संक्षेप में पूर्ण सत्य कहें।` : ''}
-${queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ? `५. पावन शास्त्रीय प्रसंग व संवाद: साधक किसी शास्त्रीय संवाद (जैसे विभीषण-रावण संवाद) के विषय में पूछ रहा है। इस प्रसंग को धर्म-अधर्म के तात्त्विक दृष्टिकोण से समझाएं; साधक पर किसी दोष का आरोप न लगाएं।` : ''}`;
+   - केवल व्यक्तिगत विवाहेतर आकर्षण (परस्त्री / परपुरुष) से संबंधित जिज्ञासाओं पर: पूज्य महाराज जी वात्सल्यमयी दृढ़ता से समझाते हैं कि यह कोई सच्चा प्रेम नहीं, बल्कि काम (वासना) का मोहक भ्रम है। (विभीषण-रावण संवाद जैसे शास्त्रीय प्रसंगों पर यह लागू न करें)।
+   - यदि प्रारंभिक प्रारूप में कोई भी कठोर, संकीर्ण या पूर्वाग्रहयुक्त शब्द हो, तो उसे त्यागकर केवल प्रेम, सांत्वना, और 'राधा-राधा' नाम जप का मार्ग प्रशस्त करें।
+${queryIntent?.wordLimit ? `८. अनिवार्य शब्द सीमा निर्देश: साधक ने स्पष्ट रूप से लगभग ${queryIntent.wordLimit} शब्दों में उत्तर माँगा है। इस सीमा का अनिवार्य पालन करें और संक्षेप में पूर्ण सत्य कहें।` : ''}
+${queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ? `८. पावन शास्त्रीय प्रसंग व संवाद: साधक किसी शास्त्रीय संवाद (जैसे विभीषण-रावण संवाद) के विषय में पूछ रहा है। इस प्रसंग को धर्म-अधर्म के तात्त्विक दृष्टिकोण से समझाएं; साधक पर किसी दोष का आरोप न लगाएं।` : ''}`;
 
   const messages = [
     { role: 'system', content: systemPrompt },
@@ -2364,7 +2446,7 @@ ${queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ? `५. पावन शास
           model,
           messages,
           temperature: 0.25,
-          max_tokens: 1200
+          max_tokens: maxOutputTokens
         })
       });
       clearTimeout(timeoutId);
@@ -2384,7 +2466,8 @@ ${queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ? `५. पावन शास
           if (isEnglish) {
             sanitized = sanitized.replace(/(?:\*\*|\*|\b)(?:अर्थात्|भावार्थ)\s*[:—\-]\s*(?:\*\*)?/gi, '**Meaning —** ');
           }
-          return deduplicateRepetitionLoops(sanitized, isEnglish);
+          const deduplicated = deduplicateRepetitionLoops(sanitized, isEnglish);
+          return formatScriptureLines(deduplicated, isEnglish);
         }
       }
     } catch (e) {
@@ -2409,7 +2492,7 @@ ${queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ? `५. पावन शास
           model: naraModel,
           messages,
           temperature: 0.25,
-          max_tokens: 1200
+          max_tokens: maxOutputTokens
         })
       });
       clearTimeout(timeoutId);
@@ -2427,7 +2510,8 @@ ${queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ? `५. पावन शास
           if (isEnglish) {
             sanitized = sanitized.replace(/(?:\*\*|\*|\b)(?:अर्थात्|भावार्थ)\s*[:—\-]\s*(?:\*\*)?/gi, '**Meaning —** ');
           }
-          return deduplicateRepetitionLoops(sanitized, isEnglish);
+          const deduplicated = deduplicateRepetitionLoops(sanitized, isEnglish);
+          return formatScriptureLines(deduplicated, isEnglish);
         }
       }
     } catch (e) {}
@@ -2496,20 +2580,30 @@ export function classifyQueryIntent(query, conversationHistory = []) {
   const isBrief = /(?:in\s+short|in\s+brief|briefly|short\s+explanation|संक्षेप\s+में|एक\s+वाक्य\s+में|shortly)/i.test(q);
   if (wordLimitMatch || isBrief) {
     const requestedWords = wordLimitMatch ? parseInt(wordLimitMatch[1], 10) : 100;
-    return { intent: 'CONCISE_CONCEPT', wordLimit: requestedWords };
+    return { intent: 'CONCISE_CONCEPT', isDirectQuestion: true, wordLimit: requestedWords };
   }
 
   // 4. Scriptural Narrative / Historical Dialogue Queries
-  if (
-    /(?:vibhishan|विभीषण).*(?:ravan|रावण)/i.test(q) ||
-    /(?:ravan|रावण).*(?:vibhishan|विभीषण)/i.test(q) ||
-    /(?:what\s+did\s+vibhishan\s+say|विभीषण\s+ने\s+रावण\s+को\s+क्या\s+कहा)/i.test(q) ||
-    /(?:harishchandra|हरिश्चंद्र|nachiketa|नचिकेता|dhruva|ध्रुव|prahlad|प्रह्लाद)/i.test(q)
-  ) {
-    return { intent: 'SCRIPTURAL_HISTORICAL' };
+  const isHistoricalOrEpisode =
+    /(?:vibhishan|विभीषण|ravan|रावण|kumbhakaran|कुम्भकर्ण|mandodari|मन्दोदरी|sita|सीता|ram|राम|lakshman|लक्ष्मण|bharat|भरत|hanuman|हनुमान|sugriva|सुग्रीव|vali|बाली|bali|dasharatha|दशरथ)/i.test(q) ||
+    /(?:arjun|अर्जुन|krishna|कृष्ण|karna|कर्ण|bhishma|भीष्म|duryodhan|दुर्योधन|dronacharya|द्रोणाचार्य|yudhishthir|युधिष्ठिर|pandav|पांडव|kaurav|कौरव)/i.test(q) ||
+    /(?:harishchandra|हरिश्चंद्र|nachiketa|नचिकेता|dhruva|ध्रुव|prahlad|प्रह्लाद|shiva|पार्वती|sati|सती|ganesha|गणेश|kartikeya|कार्तिकेय)/i.test(q) ||
+    /(?:what\s+did|why\s+did|how\s+did|who\s+was|who\s+is|tell\s+me\s+about\s+the\s+story|dialogue\s+between|kisne\s+kaha|kya\s+kaha|kaun\s+the|kaun\s+tha|katha\s+kya\s+hai|prasang|samvad)/i.test(q);
+
+  if (isHistoricalOrEpisode) {
+    return { intent: 'SCRIPTURAL_HISTORICAL', isDirectQuestion: true, wordLimit: 140 };
   }
 
-  return { intent: 'SPIRITUAL_DILEMMA' };
+  // 5. Direct Concept / Factual Shloka Inquiry (Not a personal emotional crisis)
+  const isDirectQuestion =
+    /^(?:what\s+is|explain|what\s+does|meaning\s+of|tell\s+me|kya\s+hai|arth\s+kya\s+hai|matlab\s+kya\s+hai|shlok\s+kya\s+hai)\b/i.test(q) &&
+    !/(?:i\s+feel|i\s+am\s+suffering|my\s+life|depressed|sad|heartbroken|restless|suicide|struggling|mujhe\s+lagta\s+hai|mera\s+man|dard|rona)/i.test(q);
+
+  if (isDirectQuestion) {
+    return { intent: 'DIRECT_QUESTION', isDirectQuestion: true, wordLimit: 150 };
+  }
+
+  return { intent: 'SPIRITUAL_DILEMMA', isDirectQuestion: false, wordLimit: 200 };
 }
 
 /**
