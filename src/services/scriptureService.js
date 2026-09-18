@@ -879,6 +879,102 @@ export const SCRIPTURE_DATABASE = [
       'equal vision', 'seeing God in all', 'samadarshana', 'respecting all living beings',
       'సమదృష్టి'
     ]
+  },
+
+  // 29. Ramcharitmanas - Primacy of Righteous Action (कर्म प्रधान विश्व करि राखा)
+  {
+    id: 'rcm_karma_pradhan',
+    scripture_id: 'ramcharitmanas',
+    reference: 'श्रीरामचरितमानस अयोध्याकाण्ड (Ramcharitmanas Ayodhyakand)',
+    original_text: 'कर्म प्रधान विश्व करि राखा। जो जस करइ सो तस फलु चाखा॥',
+    hindi_meaning: 'भगवान ने इस संसार को कर्म-प्रधान बनाया है; जो मनुष्य जैसा निष्काम या सकाम कर्म करता है, उसे वैसा ही फल प्राप्त होता है। अतः निराश न होकर पवित्र भाव से अपना कर्तव्य करें।',
+    english_translation: 'The Supreme Lord has structured this cosmic realm on the sovereign principle of Karma; whatever effort one sows with purity, that is what unfolds in divine justice. Do not be dejected by delays, but persevere with an honest, devoted heart.',
+    context_intro_hi: 'जैसे श्रीरामचरितमानस में गोस्वामी तुलसीदास जी कर्म की सर्वोच्च महिमा स्पष्ट करते हैं —',
+    context_intro_en: 'As Goswami Tulsidas Ji proclaims the foundational truth of Karma in the Shri Ramcharitmanas —',
+    keywords: [
+      'कर्म प्रधान', 'विश्व करि राखा', 'karma pradhan', 'hard work', 'success', 'effort', 'फल की चिंता', 'कामयाबी',
+      'struggle', 'delayed success', 'मेहनत', 'परिश्रम', 'karmic justice', 'sovereign karma'
+    ]
+  },
+
+  // 30. Ramcharitmanas - Transcending Frustration & Blame (काहु न कोउ सुख दुख कर दाता)
+  {
+    id: 'rcm_kahu_na_kou',
+    scripture_id: 'ramcharitmanas',
+    reference: 'श्रीरामचरितमानस अयोध्याकाण्ड (Ramcharitmanas Ayodhyakand)',
+    original_text: 'काहु न कोउ सुख दुख कर दाता। निज कृत करम भोग सबु भ्राता॥',
+    hindi_meaning: 'हे भाई! कोई दूसरा किसी को सुख या दुःख देने वाला नहीं है; सब अपने ही किए हुए कर्मों का फल भोगते हैं। अतः दूसरों को या भाग्य को दोष न देकर प्रभु के भरोसे कर्म करें।',
+    english_translation: 'No external agency is the giver of our joy or sorrow; we experience the fruit of our own past actions. Blame neither fate nor others, but anchor your effort in devotion to Shri Raghunatha.',
+    context_intro_hi: 'जैसे श्रीरामचरितमानस में लक्ष्मण जी निषादराज को कर्म-गति का बोध कराते हुए कहते हैं —',
+    context_intro_en: 'As Shri Lakshmana reveals the deep spiritual science of karma in Ramcharitmanas —',
+    keywords: [
+      'काहु न कोउ सुख दुख कर दाता', 'sukha dukha', 'karma bhoga', 'hard work frustration', 'blaming others',
+      'fate', 'destiny', 'प्रारब्ध', 'पुरुषार्थ', 'disappointment'
+    ]
+  },
+
+  // 31. Chanakya Niti / Hitopadesha - The Power of Relentless Hard Work (उद्यमेन हि सिध्यन्ति)
+  {
+    id: 'chanakya_udyam',
+    scripture_id: 'chanakya_niti',
+    reference: 'चाणक्य नीति व हितोपदेश (Chanakya Niti · Hitopadesha)',
+    original_text: 'उद्यमेन हि सिध्यन्ति कार्याणि न मनोरथैः। न हि सुप्तस्य सिंहस्य प्रविशन्ति मुखे मृगाः॥',
+    hindi_meaning: 'सारे कार्य उद्यम (सच्चे परिश्रम) से ही सिद्ध होते हैं, केवल मन के संकल्पों या इच्छाओं से नहीं। जैसे सोते हुए सिंह के मुख में हिरण स्वयं प्रवेश नहीं करते।',
+    english_translation: 'All noble undertakings reach fulfillment through steadfast hard work (udyoga), never by mere daydreaming or wishful thinking; prey never enters into the mouth of a sleeping lion on its own.',
+    context_intro_hi: 'जैसे चाणक्य नीति और हितोपदेश में पुरुषार्थ व कर्तव्य का उद्घोष किया गया है —',
+    context_intro_en: 'As declared in Chanakya Niti and Hitopadesha regarding the supreme necessity of relentless honest effort —',
+    keywords: [
+      'उद्यमेन हि सिध्यन्ति', 'कार्य', 'मनोरथ', 'udyam', 'hard work', 'success', 'perseverance', 'karya siddhi',
+      'सफलता', 'मेहनत का फल', 'working hard', 'effort', 'achieve goals'
+    ]
+  },
+
+  // 32. Patanjali Yoga Sutras - Cultivating Long-Term Dedicated Practice (स तु दीर्घकालनैरन्तर्य)
+  {
+    id: 'yogasutra_abhyasa',
+    scripture_id: 'patanjali_yoga_sutra',
+    reference: 'पातञ्जल योगसूत्र १.१४ (Patanjali Yoga Sutras 1.14)',
+    original_text: 'स तु दीर्घकालनैरन्तर्यसत्कारासेवितो दृढभूमिः॥',
+    hindi_meaning: 'वह अभ्यास या कर्म जब दीर्घकाल तक, बिना किसी रुकावट के (निरंतर), और पूर्ण श्रद्धा-सत्कार के साथ किया जाता है, तभी वह दृढ़ स्थिति वाला और सफल बनता है।',
+    english_translation: 'Consistent effort and spiritual discipline become firmly rooted and victorious only when cultivated over a prolonged period, without interruption, and with reverent, devoted dedication.',
+    context_intro_hi: 'जैसे महर्षि पतंजलि योगसूत्र में निरंतर और निष्ठावान कर्म की सफलता का रहस्य बताते हैं —',
+    context_intro_en: 'As Maharshi Patanjali explains the true foundation of lasting mastery and success in the Yoga Sutras —',
+    keywords: [
+      'दीर्घकाल', 'नैरन्तर्य', 'सत्कार', 'abhyasa', 'consistency', 'patience', 'hard work not succeeding',
+      'perseverance', 'धैर्य', 'निरंतर अभ्यास', 'continuous effort', 'unbroken discipline'
+    ]
+  },
+
+  // 33. Shrimad Bhagavata Purana - Grace and Surrender in Hardship (तत्तेऽनुकम्पां सुसमीक्षमाणो)
+  {
+    id: 'sb_tatte_anukampam',
+    scripture_id: 'srimad_bhagavatam',
+    reference: 'श्रीमद्भागवत महापुराण १०.१४.८ (Shrimad Bhagavata Purana 10.14.8)',
+    original_text: 'तत्तेऽनुकम्पां सुसमीक्षमाणो भुञ्जान एवात्मकृतं विपाकम्। हृद्वाग्वपुर्भिर्विदधन्नमस्ते जीवेत यो मुक्तिपदे स दायभाक्॥',
+    hindi_meaning: 'जो साधक अपने कर्मों के फल या कठिनाइयों को प्रभु की पावन कृपा मानकर हृदय, वाणी और शरीर से प्रभु को नमन करते हुए जीवन जीता है, वह निश्चय ही मुक्ति और शांति का अधिकारी बन जाता है।',
+    english_translation: 'One who patiently awaits the divine grace, enduring hardships as the purifying fruition of past karmas while bowing with heart, speech, and body, becomes the rightful inheritor of liberation and inner peace.',
+    context_intro_hi: 'जैसे श्रीमद्भागवत महापुराण में ब्रह्मा जी भगवान श्रीकृष्ण की स्तुति करते हुए कहते हैं —',
+    context_intro_en: 'As Lord Brahma praises the Supreme Lord in the Shrimad Bhagavata Purana regarding patient surrender —',
+    keywords: [
+      'तत्तेऽनुकम्पां', 'विपाक', 'bhagavatam', 'grace in hardship', 'delayed success', 'surrender',
+      'अनुकम्पा', 'सहनशीलता', 'प्रभु कृपा', 'patience in struggle'
+    ]
+  },
+
+  // 34. Katha Upanishad - Arise, Awake, Tread the Path of Truth (उत्तिष्ठत जाग्रत)
+  {
+    id: 'katha_uttishthata',
+    scripture_id: 'katha_upanishad',
+    reference: 'कठोपनिषद् १.३.१४ (Katha Upanishad 1.3.14)',
+    original_text: 'उत्तिष्ठत जाग्रत प्राप्य वरान्निबोधत। क्षुरस्य धारा निशिता दुरत्यया दुर्गं पथस्तत्कवयो वदन्ति॥',
+    hindi_meaning: 'उठो! जागो! और श्रेष्ठ महापुरुषों की संगति पाकर आत्मज्ञान और सत्य को जानो। ज्ञानियों का कहना है कि सत्य और कर्तव्य का मार्ग छुरे की तीखी धार के समान अत्यंत दुर्गम है, फिर भी धैर्यवान इसे पार कर लेते हैं।',
+    english_translation: 'Arise! Awake! Seek the counsel of the wise and realize the supreme truth! The path of relentless right action is as sharp as a razor’s edge and difficult to tread, yet the steadfast walk it to glory.',
+    context_intro_hi: 'जैसे कठोपनिषद् में यमराज नचिकेता को परम पुरुषार्थ का उपदेश देते हुए कहते हैं —',
+    context_intro_en: 'As the sacred Katha Upanishad issues the eternal clarion call for fearless determination —',
+    keywords: [
+      'उत्तिष्ठत जाग्रत', 'कठोपनिषद', 'katha upanishad', 'arise awake', 'determination', 'resolve',
+      'hard work', 'कर्तव्य पथ', 'never give up', 'razor edge', 'courage'
+    ]
   }
 ];
 
@@ -1467,21 +1563,66 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
   // matches exist, prefer one verse per scripture so Puranas/Ramayana/Gita/Niti all
   // illuminate the dilemma instead of 3 verses from one source. No per-query lists.
   const topScore = candidatePool[0]?.score ?? 0;
-  // Normalized score threshold (scores are now 0.0 - 1.0)
-  const wantDiverse = !explicitTarget && topScore >= 0.75;
-  let chosen = candidatePool;
-  if (wantDiverse) {
-    const seenS = new Set();
-    const diverse = [];
-    const rest = [];
+  const wantDiverse = !explicitTarget;
+  let chosen = [];
+
+  if (wantDiverse && candidatePool.length > 1) {
+    // True Cross-Scripture Diversity Algorithm:
+    // Cap any single scripture at max 2 candidates, actively ensuring diverse representation
+    // across 29 Sacred Scriptures (Gita, Ramcharitmanas, Puranas, Niti, Upanishads, Vedas)
+    const byScripture = new Map();
     for (const c of candidatePool) {
-      const sid = (c.scripture_id || 'unknown').toLowerCase();
-      if (!seenS.has(sid)) { seenS.add(sid); diverse.push(c); }
-      else rest.push(c);
+      const sid = (c.scripture_id || 'other').toLowerCase();
+      if (!byScripture.has(sid)) byScripture.set(sid, []);
+      byScripture.get(sid).push(c);
     }
-    chosen = [...diverse, ...rest];
+
+    const scriptureCounts = new Map();
+    const addCandidate = (cand) => {
+      const sid = (cand.scripture_id || 'other').toLowerCase();
+      const current = scriptureCounts.get(sid) || 0;
+      if (current < 2) {
+        chosen.push(cand);
+        scriptureCounts.set(sid, current + 1);
+        return true;
+      }
+      return false;
+    };
+
+    // 1. Pick top primary candidate
+    addCandidate(candidatePool[0]);
+
+    // 2. Round-robin: Pick highest-scoring candidate from each OTHER scripture
+    const primarySid = (candidatePool[0]?.scripture_id || '').toLowerCase();
+    for (const [sid, list] of byScripture.entries()) {
+      if (sid === primarySid) continue;
+      if (list.length > 0 && chosen.length < 6) {
+        addCandidate(list[0]);
+      }
+    }
+
+    // 3. Second pass: Fill remaining slots up to 6, still respecting max 2 per scripture
+    for (const c of candidatePool) {
+      if (chosen.length >= 6) break;
+      if (!chosen.some(existing => existing.id === c.id)) {
+        addCandidate(c);
+      }
+    }
+
+    // 4. If still under limit, add any remaining candidate
+    if (chosen.length < 6) {
+      for (const c of candidatePool) {
+        if (chosen.length >= 6) break;
+        if (!chosen.some(existing => existing.id === c.id)) {
+          chosen.push(c);
+        }
+      }
+    }
+  } else {
+    chosen = candidatePool;
   }
-  const limit = explicitTarget ? 2 : (topScore >= 0.85 ? 6 : (wantDiverse ? 4 : 3));
+
+  const limit = explicitTarget ? 2 : (topScore >= 0.85 ? 6 : 4);
   // Tag each candidate with role and strictly normalized [0.0, 1.0] score
   primary.candidates = chosen.slice(0, limit).map((c, idx) => ({
     ...c,

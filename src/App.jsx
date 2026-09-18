@@ -41,7 +41,41 @@ function renderInline(text, keyPrefix) {
   return nodes;
 }
 
-/* Light markdown with smooth sequential typewriter stream */
+/* Intelligent semantic paragraph segmenter:
+   Splits dense AI discourse only at authentic sequence starters / transitions
+   (Solace -> Root Cause -> Perspective Shift -> Verse -> Daily Practice -> Citations)
+   NEVER regressively splits every 2-3 lines. */
+function intelligentSegmentResponse(text) {
+  if (!text || typeof text !== 'string') return text;
+
+  let processed = text;
+
+  // 1. Separate horizontal rules and supporting scriptural references section
+  processed = processed.replace(/\s*(?:---|\*\*\*)\s*(?=📖|\*\*📖|$)/g, '\n\n---\n\n');
+  processed = processed.replace(/\s*(📖\s*(?:\*\*)?(?:Supporting Scriptural References|पूरक शास्त्र प्रमाण)[^\n]*)/gi, '\n\n$1\n\n');
+
+  // 2. Separate inline bullets in supporting section: e.g. "insight. • **Scripture**"
+  processed = processed.replace(/([.!?।»])\s*[•\-*]\s*(?=[«\*\u0900-\u097F[A-Z])/g, '$1\n\n• ');
+
+  // 3. Shloka quotation isolation (before « and after »)
+  processed = processed.replace(/([.!?।])\s*(?=\*\*?«)/g, '$1\n\n');
+  processed = processed.replace(/(»\*\*?)\s*(?=(?:\*\*?Meaning|\*\*?अर्थात्|\*\*?भावार्थ|Meaning —|अर्थात् —))/gi, '$1\n');
+
+  // 4. After shloka meaning quote ("..."), isolate next sequence/practice
+  processed = processed.replace(/(["”»])\s+(?=(?:For your daily practice|As a daily practice|Daily practice|For daily contemplation|Each morning|Throughout the day|दैनिक साधना|प्रतिदिन|सुबह|साधना अभ्यास)[\s:,])/gi, '$1\n\n');
+
+  // 5. Explicit section/practice transitions requested in user prompt
+  processed = processed.replace(/([.!?।]["”]?)\s+(?=(?:For your daily practice|As a daily reflection|Daily reflection practice|In simple terms|In simple words|In English:|In Hindi:|Simple explanation:|सरल हिंदी और अंग्रेजी में|सरल शब्दों में|हिंदी में:|अंग्रेजी में:|प्रतिदिन के अभ्यास हेतु|दैनिक साधना अभ्यास)[\s:])/gi, '$1\n\n');
+
+  // 6. Natural sequence transitions: Solace -> Root Cause -> Perspective Shift
+  processed = processed.replace(/([.!?।]["”]?)\s+(?=(?:The root of your distress|The root cause of|The divine wisdom teaches|The essence of true freedom|इस पीड़ा का मूल कारण|कष्ट का मूल कारण|शास्त्रों का मर्म यह है कि)[\sA-Za-z\u0900-\u097F])/g, '$1\n\n');
+  processed = processed.replace(/([.!?।]["”]?)\s+(?=(?:By shifting your focus|Shifting your focus from|जब आप अपने दृष्टिकोण को बदलते हैं)[\sA-Za-z\u0900-\u097F])/g, '$1\n\n');
+
+  // Clean up any triple+ newlines
+  return processed.replace(/\n{3,}/g, '\n\n').trim();
+}
+
+/* Light markdown with smooth sequential typewriter stream & intelligent segmentation */
 function RichText({ content, streaming = false }) {
   const [displayedText, setDisplayedText] = useState(content || '');
 
@@ -77,8 +111,9 @@ function RichText({ content, streaming = false }) {
     return () => clearTimeout(timer);
   }, [content, displayedText, streaming]);
 
-  const activeText = streaming || displayedText.length < (content || '').length ? displayedText : content;
-  const lines = (activeText || '').split('\n');
+  const activeRaw = streaming || displayedText.length < (content || '').length ? displayedText : content;
+  const segmentedText = intelligentSegmentResponse(activeRaw || '');
+  const lines = (segmentedText || '').split('\n');
   const isActivelyTyping = streaming && displayedText.length < (content || '').length;
 
   return (
@@ -91,21 +126,58 @@ function RichText({ content, streaming = false }) {
         if (!trimmed) {
           return <span className="rich-paragraph-spacer" key={`br-${index}`} aria-hidden="true" />;
         }
+
+        // Horizontal divider (---)
+        if (/^(?:---|───|\*\*\*)$/.test(trimmed)) {
+          return <hr className="rich-divider" key={`hr-${index}`} />;
+        }
+
+        // Supporting Scriptural References Header
+        if (/^📖\s*(?:\*\*)?(?:Supporting Scriptural References|पूरक शास्त्र प्रमाण)/i.test(trimmed)) {
+          const titleText = trimmed.replace(/^[📖*_\s]+/, '').replace(/[*_\s]+$/, '');
+          return (
+            <div className="rich-supporting-header" key={`supp-hdr-${index}`}>
+              <span className="rich-supporting-icon">📖</span>
+              <span className="rich-supporting-title">{titleText}</span>
+              {cursor}
+            </div>
+          );
+        }
+
         if (/^[-•*]\s+/.test(trimmed)) {
+          const rawBullet = trimmed.replace(/^[-•*]\s+/, '');
+          const isSupportingCard = rawBullet.includes('«') || rawBullet.includes('॥') || /^(?:\*\*|\*)[^\*]+(?:\*\*|\*)\s*:\s*\*/.test(rawBullet);
+          if (isSupportingCard) {
+            return (
+              <div className="rich-supporting-card" key={`supp-card-${index}`}>
+                <span className="rich-bullet-content">
+                  {renderInline(rawBullet, `supp${index}`)}{cursor}
+                </span>
+              </div>
+            );
+          }
           return (
             <span className="rich-bullet" key={`li-${index}`}>
-              <i aria-hidden="true" />{renderInline(trimmed.replace(/^[-•*]\s+/, ''), `li${index}`)}{cursor}
+              <i aria-hidden="true" />
+              <span className="rich-bullet-content">
+                {renderInline(rawBullet, `li${index}`)}{cursor}
+              </span>
             </span>
           );
         }
+
         if (/^\d+[.)]\s+/.test(trimmed)) {
           const number = trimmed.match(/^\d+[.)]/)[0];
           return (
             <span className="rich-bullet numbered" key={`nli-${index}`}>
-              <i aria-hidden="true">{number.replace(/[.)]/, '')}</i>{renderInline(trimmed.replace(/^\d+[.)]\s+/, ''), `nli${index}`)}{cursor}
+              <i aria-hidden="true">{number.replace(/[.)]/, '')}</i>
+              <span className="rich-bullet-content">
+                {renderInline(trimmed.replace(/^\d+[.)]\s+/, ''), `nli${index}`)}{cursor}
+              </span>
             </span>
           );
         }
+
         const isArthat = /^(?:\*\*|\*|\b)?(?:अर्थात्|भावार्थ|अर्थ|meaning)\b/i.test(trimmed);
         const isShlok = !isArthat && (
           (trimmed.includes('«') && trimmed.includes('»')) ||
@@ -1188,15 +1260,7 @@ export default function App() {
             >
               <Icon name={autoSpeak ? 'volume' : 'volume-x'} />
             </button>
-            <button
-              className={`icon-button ${getVoiceCloneUrl() ? 'voice-clone-active' : ''}`}
-              aria-label="Pujya Maharaj Ji Voice Clone Setup"
-              title={getVoiceCloneUrl() ? '🟢 Maharaj Ji Cloned Voice Active (Oracle 24/7)' : '⚙️ Connect Maharaj Ji Cloned Voice (Oracle Server)'}
-              onClick={() => setVoiceCloneModalOpen(true)}
-              style={getVoiceCloneUrl() ? { color: '#34d399', borderColor: 'rgba(52, 211, 153, 0.4)' } : {}}
-            >
-              <Icon name="settings" />
-            </button>
+
             <button
               className={`icon-button ${voiceModeOpen ? 'voice-toggle-active' : ''}`}
               aria-label={voiceModeOpen ? 'Close Voice Mode' : 'Open Voice Mode'}

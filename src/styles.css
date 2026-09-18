@@ -1070,7 +1070,14 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 }
 .rich-line { display: block; margin: 0 0 8px; line-height: 1.72; }
 .rich-line:last-child { margin-bottom: 0; }
-.rich-bullet { display: flex; gap: 9px; align-items: flex-start; margin: 0 0 6px; }
+.rich-bullet { display: flex; gap: 9px; align-items: flex-start; margin: 0 0 8px; width: 100%; }
+.rich-bullet-content {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  line-height: 1.72;
+  word-break: break-word;
+}
 .rich-bullet i {
   flex: 0 0 auto;
   display: grid;
@@ -1093,6 +1100,58 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
   background: var(--accent-soft);
   color: var(--accent-dark);
   font-size: 13px;
+}
+
+/* Horizontal divider inside rich text */
+.rich-divider {
+  border: 0;
+  height: 1px;
+  background: var(--line);
+  margin: 18px 0;
+  opacity: 0.6;
+}
+
+/* Supporting Scriptural References & Insights formatting */
+.rich-supporting-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 10px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(230, 138, 0, 0.12), rgba(180, 86, 10, 0.06));
+  border: 1px solid rgba(180, 120, 40, 0.28);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #b45309;
+}
+:root[data-theme='dark'] .rich-supporting-header {
+  background: linear-gradient(135deg, rgba(254, 200, 75, 0.12), rgba(217, 119, 6, 0.08));
+  border-color: rgba(254, 200, 75, 0.25);
+  color: #fef08a;
+}
+.rich-supporting-icon {
+  font-size: 1rem;
+}
+.rich-supporting-title {
+  flex: 1;
+  min-width: 0;
+}
+.rich-supporting-card {
+  margin: 8px 0;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(180, 120, 40, 0.22);
+  line-height: 1.68;
+  font-size: 0.88rem;
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+}
+:root[data-theme='dark'] .rich-supporting-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(254, 200, 75, 0.16);
 }
 
 .rich-shlok-line {
@@ -1707,7 +1766,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 /* Live 4-Stage Spiritual Stepper */
 .deliberation-stepper {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
   gap: 6px;
   padding: 8px 12px 10px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -1718,13 +1777,14 @@ html, body { max-width: 100%; overflow-x: hidden; }
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.72rem;
-  padding: 4px 8px;
+  font-size: 0.73rem;
+  padding: 5px 9px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid transparent;
   color: #71717a;
   transition: all 0.3s ease;
+  min-width: 0;
 }
 
 .stepper-step.step-active {
@@ -1780,9 +1840,10 @@ html, body { max-width: 100%; overflow-x: hidden; }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  line-height: 1.25;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .stepper-emoji {

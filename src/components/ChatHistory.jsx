@@ -79,21 +79,26 @@ export default function ChatHistory({ user, conversations = [], isOpen = false, 
             <span className="sidebar-title-icon">ॐ</span>
             <span>Conversations</span>
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div className="sidebar-header-actions">
             {!isGuest && (
               <motion.button
-                className="icon-button"
+                className="sidebar-header-btn sidebar-add-btn"
                 onClick={onNewChat}
                 aria-label="New conversation"
                 title="New conversation"
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.92 }}
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.94 }}
               >
-                <Icon name="plus" size={18} />
+                <Icon name="plus" size={16} />
               </motion.button>
             )}
-            <button className="icon-button sidebar-close-btn" onClick={onClose} aria-label="Close menu" title="Close">
-              <Icon name="close" size={18} />
+            <button
+              className="sidebar-header-btn sidebar-close-btn"
+              onClick={onClose}
+              aria-label="Close menu"
+              title="Close"
+            >
+              <Icon name="close" size={16} />
             </button>
           </div>
         </div>

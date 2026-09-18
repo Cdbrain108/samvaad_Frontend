@@ -249,6 +249,33 @@ export default function ReasoningBlock({
                     : (scripture.hindi_meaning || scripture.english_translation)}
                 </div>
               )}
+
+              {scripture.candidates && scripture.candidates.length > 1 && (
+                <div className="claude-scripture-candidates-strip" style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px dashed rgba(245, 158, 11, 0.25)' }}>
+                  <div style={{ fontSize: '0.74rem', color: 'var(--muted, #94a3b8)', marginBottom: '6px', fontWeight: 600 }}>
+                    {isEnglishView ? '📜 Multi-Scripture Grounding Candidates Evaluated:' : '📜 अनुसंधित पावन शास्त्र संदर्भ (२९ शास्त्रों से):'}
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {scripture.candidates.map((cand, cIdx) => (
+                      <span
+                        key={`c-${cIdx}`}
+                        style={{
+                          fontSize: '0.72rem',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          background: cIdx === 0 ? 'rgba(245, 158, 11, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                          border: cIdx === 0 ? '1px solid rgba(245, 158, 11, 0.45)' : '1px solid rgba(255, 255, 255, 0.1)',
+                          color: cIdx === 0 ? '#fbbf24' : 'var(--text-muted, #cbd5e1)',
+                          fontWeight: cIdx === 0 ? 700 : 500
+                        }}
+                        title={cand.original_text || ''}
+                      >
+                        {cIdx === 0 ? '✦ ' : '◈ '}{cand.reference} ({Math.round(cand.score * 100)}%)
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
