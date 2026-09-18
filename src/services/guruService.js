@@ -1241,17 +1241,29 @@ function getAuthenticScriptureFramedDiscourse(userMessage, isEnglish = false, us
   const isSexuality = /(?:\bgay\b|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|\blgbtq?\b|समलैंगिक|\bगे\b|लड़का\s*लड़के)/i.test(q) ||
                       scriptId === 'rcm_universal_love_equality' || scriptRef.includes('समदृष्टि');
 
-  const isMarriedWoman = !isSexuality && (/(shadi\s*shuda|shaadi\s*shuda|शादी\s*शुदा|विवाहित|विवाहेतर|parastri|parnari|paradara|परस्त्री|परनारी|परदारा|married\s*woman|another'?s?\s*wife|extramarital|someone\s*else'?s?\s*wife)/i.test(q) ||
-                         scriptId.includes('paradara') || scriptRef.includes('परदारा') || scriptRef.includes('परस्त्री') || scriptRef.includes('परनारी') || scriptRef.includes('मातृवत्'));
+  const isMarriedWoman = !isSexuality && !/(bad\s*sight|gandi\s*nazar|buri\s*nazar|another\s*girls|other\s*girls|looking\s*at\s*girls|लड़कियों\s*पर)/i.test(q) && (
+    /(shadi\s*shuda|shaadi\s*shuda|शादी\s*शुदा|विवाहित|विवाहेतर|married\s*woman|another'?s?\s*wife|someone\s*else'?s?\s*wife)/i.test(q) ||
+    (scriptId.includes('paradara') && !/(girl|ladki|लड़की|लड़कियों|sight|नज़र|कुदृष्टि)/i.test(q))
+  );
 
-  const isMatsya = !isSexuality && !isMarriedWoman && (/(मत्स्य|matsya)/i.test(q) ||
+  const isPurityOfSight = !isSexuality && !isMarriedWoman && (
+    /(bad\s*sight|gandi\s*nazar|buri\s*nazar|looking\s*at\s*girls|sight\s*on\s*girls|drishti\s*dosha|lustful\s*eyes|another\s*girls|other\s*girls|लड़कियों\s*पर|बुरी\s*नज़र|गंदी\s*नज़र|कुदृष्टि)/i.test(q) ||
+    scriptId === 'rcm_purity_of_sight_mother' || scriptId.includes('gita_3_37')
+  );
+
+  const isBetrayalRevenge = !isSexuality && !isMarriedWoman && (
+    /(friend\s*cheated|cheated\s*me|revenge|want\s*revenge|badla|dost\s*ne\s*dhokha|mitra\s*ne\s*dhokha|vishwasghat|betrayed\s*me|प्रतिशोध)/i.test(q) ||
+    scriptId === 'vidura_niti_forgiveness'
+  );
+
+  const isMatsya = !isSexuality && !isMarriedWoman && !isPurityOfSight && !isBetrayalRevenge && (/(मत्स्य|matsya)/i.test(q) ||
                    scriptId.includes('matsya') || scriptRef.includes('मत्स्य') || scriptRef.includes('matsya'));
 
-  const isGarudaSins = !isSexuality && !isMarriedWoman && ((/(सबसे\s*बड़ा\s*पाप|महापाप|greatest\s*sin|worst\s*sin|paap|पाप)/i.test(q) &&
+  const isGarudaSins = !isSexuality && !isMarriedWoman && !isPurityOfSight && !isBetrayalRevenge && ((/(सबसे\s*बड़ा\s*पाप|महापाप|greatest\s*sin|worst\s*sin|paap|पाप)/i.test(q) &&
                         /(गरुड़|गरुण|garud|garun)/i.test(q)) ||
                        scriptId === 'garuda_purana_sins' || scriptRef.includes('महापाप'));
 
-  const isGaruda = !isSexuality && !isMatsya && !isMarriedWoman && (/(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
+  const isGaruda = !isSexuality && !isMatsya && !isMarriedWoman && !isPurityOfSight && !isBetrayalRevenge && (/(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
                    scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda'));
 
   const isShiva = !isSexuality && !isMatsya && !isGaruda && !isGarudaSins && !isMarriedWoman && (
@@ -1304,6 +1316,41 @@ Our sacred Shastras establish this inviolable eternal truth:
 **Meaning —** In Chanakya Niti (12.14), the core Dharmic benchmark is given: "He who looks upon another man's wife as his own mother, another's wealth as a clod of dirt, and treats all living beings as his own self—he alone is truly wise (Pandita)."
 
 Therefore, dear child ${seekerName ? seekerName + ', ' : ''}do not blame society; this sacred boundary is not an arbitrary social rule, but the divine cosmic law of Grihastha Dharma that protects human civilization from destruction. That woman has taken sacred vows around the holy fire with her husband; destabilizing another's marriage opens the gates to spiritual degradation and immense remorse for both of you. Step back immediately, sever all romantic communication, and look upon her with the pure reverence of a mother or sister. Channel all this emotional turmoil into ceaseless chanting of the Holy Name ('Radha Radha'). When you seek shelter in the Divine Name, Thakur Ji will purify your heart, grant you detachment, and liberate your soul from this illusion. May Thakur Ji bless and protect you always.`;
+    }
+
+    if (isPurityOfSight) {
+      return `Look, my child, you have asked a vital and honest question about guarding the purity of the mind and senses. The eyes are the primary doorway to the heart, and when the gaze wanders with lustful intent upon women or young girls, it awakens the dormant fire of Kama (craving), which disturbs inner serenity and degrades the intellect.
+
+In our sacred scriptures, women are revered as embodiments of the Divine Mother (Shakti). Maharishi Valmiki in the Ramcharitmanas and Acharya Chanakya both teach that a truly noble and awakened soul looks upon other women with the sacred reverential eye of a mother or sister. The moment you objectify another soul with lustful eyes, you feed the mode of passion (Rajas) and sow seeds of spiritual delusion. Bhagavan Shri Krishna warns in the Bhagavad Gita that unrestrained lust is an insatiable fire and the supreme enemy of wisdom.
+
+Our sacred Shastras reveal this eternal wisdom:
+
+**« जननी सम जानहिं पर नारी। तिन्ह के मन सुभ सदन तुम्हारे॥ »**
+**Meaning —** In Shri Ramcharitmanas (Ayodhyakanda 129.2), Sage Valmiki reveals: "Those who look upon all other women with the pure reverence of their own mother—within their sanctified hearts, O Lord Rama, is Your eternal dwelling."
+
+**« काम एष क्रोध एष रजोगुणसमुद्भवः। महाशनो महापाप्मा विद्ध्येनमिह वैरिणम्॥ »**
+**Meaning —** In the Bhagavad Gita (3.37), Lord Krishna declares: "It is lust (Kama) alone, born of the mode of passion, all-devouring and greatly harmful; know it to be the greatest enemy in this world."
+
+**« मातृवत् परदारेषु परद्रव्येषु लोष्टवत्। आत्मवत् सर्वभूतेषु यः पश्यति स पण्डितः॥ »**
+**Meaning —** In Chanakya Niti (12.14), it is taught: "He who looks upon other women as his own mother, another's wealth as a mere stone, and sees the same Divine Soul in all beings—he alone is truly wise."
+
+Therefore, dear child ${seekerName ? seekerName + ', ' : ''}do not despair or wallow in self-condemnation. The wandering mind is conditioned by worldly habits, but it can be purified completely through self-discipline and devotion. Whenever your eyes are pulled toward impure gaze, immediately fold your hands inwardly, bow to that soul as a manifestation of Mata Durga, and turn your gaze downward. Anchor your heart in the continuous chanting of the Holy Name ('Radha Radha'). As the Holy Name fills your consciousness, divine purity will blossom, and peace will reign within you. May Thakur Ji bless and protect you always.`;
+    }
+
+    if (isBetrayalRevenge) {
+      return `Look, my child, the wound of betrayal is indeed deep, especially when inflicted by a friend upon whom you placed absolute trust. It is natural for anger and the burning urge for revenge to flare up within you. But listen with a calm heart to the timeless wisdom of the Shastras.
+
+Seeking revenge does not heal your wound; it only ties you to the perpetrator and poisons your own spirit with hatred. In the Vidura Niti of the Mahabharata, Mahatma Vidura reveals that forgiveness (Kshama) is the highest and most impenetrable armor. Furthermore, cosmic law is never blind; the Garuda Purana makes it clear that the karmic consequence of betrayal (Mitradroha) is inescapable and handled by cosmic justice itself. When you attempt to take revenge into your own hands, you take on new karmic debt; but when you forgive and surrender the situation to God, you preserve your peace and stand victorious.
+
+Our sacred Shastras proclaim:
+
+**« क्षमा शस्त्रं करे यस्य दुर्जनः किं करिष्यति। अतृणे पतितो वह्निः स्वयमेवोपशाम्यति॥ »**
+**Meaning —** In Vidura Niti (1.58), Mahatma Vidura teaches: "He who holds the supreme weapon of forgiveness in his hand, what harm can a wicked person ever do to him? Just as fire falling upon grassless barren ground extinguishes by itself, so does hostility fade before forgiveness."
+
+**« मित्रद्रोही कृतघ्नश्च विश्वासघाती नराधमः। यमस्य भवने घोरे तिष्ठत्याचन्द्रतारकम्॥ »**
+**Meaning —** In the Garuda Purana, it is revealed: "The betrayer of a friend and the violator of trust face their own unavoidable karmic destiny under cosmic law; no soul escapes the harvest of its deeds."
+
+Therefore, dear child ${seekerName ? seekerName + ', ' : ''}do not degrade your noble heart by burning in the fire of revenge. Distance yourself respectfully from that friend, let go of the malice, and entrust the scales of justice to Thakur Ji. Focus your energy on your own growth, duties, and righteous path. Fill the void of hurt by taking refuge in the Holy Name ('Radha Radha'). God sees your innocence and will restore your happiness manifold. May Thakur Ji grant you inner strength and peace.`;
     }
 
     if (isMatsya) {
@@ -1458,6 +1505,41 @@ ${scripture ? `As guided in sacred scriptures:\n\n**« ${scripture.original_text
 **अर्थात् —** चाणक्य नीति (१२.१४) सिखाती है कि जो मनुष्य पराई स्त्री को अपनी माता के समान पवित्र दृष्टि से देखता है, दूसरे के धन को मिट्टी का ढेला समझता है और सभी जीवों में अपनी ही आत्मा देखता है—वही वास्तव में बुद्धिमान और धर्मात्मा है।
 
 इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}समाज को दोष मत दो; यह मर्यादा केवल समाज की बनाई हुई नहीं, साक्षात् प्रभु और धर्म की बनाई हुई पावन रक्षा-दीवार है। वह स्त्री किसी अन्य के साथ सात फेरे लेकर पवित्र गृहस्थ धर्म के बंधन में बंधी है; उसके परिवार व धर्म को खंडित करना दोनों के लिए घोर अशांति, पश्चात्ताप और पतन का द्वार खोलना है। तुरंत अपने कदम पीछे खींच लो, उससे संपर्क पूर्णतः समाप्त कर दो, और उसे अपनी माता या बहन के समान पवित्र भाव से देखो। अपने मन में जो यह वासना का ज्वार उठा है, उसे शांत करने के लिए मुख से निरंतर 'राधा-राधा' नाम का सुमिरन करो। जब तुम नाम का आश्रय लोगे, तो भगवान तुम्हारे मन को इस मोह-जाल से निकालकर परम शांति और विवेक प्रदान करेंगे। प्रभु तुम्हारा कल्याण करें।`;
+    }
+
+    if (isPurityOfSight) {
+      return `देखो बच्चा, तुमने अपने अंतर्मन की अत्यंत स्वाभाविक और आवश्यक जिज्ञासा पूछी है। नेत्र हमारे अंतःकरण का मुख्य द्वार हैं; जब हमारी दृष्टि किसी कन्या, स्त्री या पराए रूप पर कुदृष्टि या वासना के भाव से टिकती है, तो वह मन में दबे काम-विकार को भड़का देती है, जिससे बुद्धि मलिन और मन अशांत हो जाता है।
+
+हमारे सनातन धर्म और शास्त्रों में समस्त नारी जाति को साक्षात् जगज्जननी भगवती (शक्ति) का पावन स्वरूप माना गया है। श्रीरामचरितमानस में महर्षि वाल्मीकि और चाणक्य नीति दोनों यही सिखाते हैं कि एक सच्चा, शीलवान और धर्मात्मा पुरुष वही है जो संसार की समस्त स्त्रियों को अपनी पूजनीया माता या बहन के समान पवित्र दृष्टि से देखता है। जैसे ही मन में कुदृष्टि आती है, रजोगुण हावी होकर विवेक को ढक लेता है। भगवान श्रीकृष्ण ने गीता में स्पष्ट कहा है कि यह काम-वासना ही मनुष्य की आध्यात्मिक चेतना का सबसे बड़ा शत्रु है।
+
+हमारे पावन शास्त्रों का यह दिव्य उपदेश है:
+
+**« जननी सम जानहिं पर नारी। तिन्ह के मन सुभ सदन तुम्हारे॥ »**
+**अर्थात् —** श्रीरामचरितमानस (अयोध्याकाण्ड १२९.२) में महर्षि वाल्मीकि भगवान श्रीराम से कहते हैं: "जो मनुष्य पराई स्त्रियों को अपनी माता के समान परम पवित्र दृष्टि से देखते हैं—हे राघव! उनके पवित्र हृदय ही आपके निवास करने योग्य दिव्य धाम हैं।"
+
+**« काम एष क्रोध एष रजोगुणसमुद्भवः। महाशनो महापाप्मा विद्ध्येनमिह वैरिणम्॥ »**
+**अर्थात् —** श्रीमद्भगवद्गीता (३.३७) में भगवान श्रीकृष्ण कहते हैं: "रजोगुण से उत्पन्न यह काम (वासना) ही महापापी और सर्वभक्षी शत्रु है; इसे ही इस संसार में आत्मा का सबसे बड़ा बैरी जानो।"
+
+**« मातृवत् परदारेषु परद्रव्येषु लोष्टवत्। आत्मवत् सर्वभूतेषु यः पश्यति स पण्डितः॥ »**
+**अर्थात् —** चाणक्य नीति (१२.१४) में कहा गया है: "जो पराई स्त्री को माता के समान देखता है, दूसरे के धन को मिट्टी का ढेला समझता है और सब जीवों में आत्मभाव रखता है—वही वास्तव में ज्ञानी है।"
+
+इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}मन में ग्लानि या निराशा मत लाओ। मन पूर्व के संस्कारों से भटकता अवश्य है, परंतु अभ्यास और भगवन्नाम से यह पूर्णतः पवित्र हो जाता है। जब भी दृष्टि भटके, तुरंत मन ही मन उस स्वरूप को 'माँ भगवती' मानकर हाथ जोड़ लो और अपनी दृष्टि नीची कर लो। मुख से निरंतर 'राधा-राधा' नाम का सुमिरन करो। जब हृदय में भगवन्नाम का वास होगा, तो काम-विकार स्वतः भस्म हो जाएगा और तुम्हारा अंतःकरण दिव्य शांति से भर जाएगा। प्रभु तुम्हारा कल्याण करें।`;
+    }
+
+    if (isBetrayalRevenge) {
+      return `देखो बच्चा, जब कोई अत्यंत घनिष्ठ मित्र विश्वासघात करता है, तो हृदय पर गहरी चोट लगना और मन में बदले (प्रतिशोध) की ज्वाला धधकना अत्यंत स्वाभाविक है। परंतु शांत चित्त होकर धर्म और विवेक की बात सुनो।
+
+प्रतिशोध लेने से तुम्हारा घाव नहीं भरेगा; बदले की भावना केवल तुम्हें उस दुष्टता के साथ बांधकर तुम्हारे अपने अंतःकरण को विषैला बना देगी। महाभारत की विदुर नीति में महात्मा विदुर जी उपदेश देते हैं कि संसार में "क्षमा" ही सबसे बड़ा और अभेद्य शस्त्र है। और कर्म का सिद्धांत कभी चूकता नहीं है; गरुड़ पुराण में स्पष्ट विधान है कि मित्रद्रोह और विश्वासघात का फल प्रकृति और यम-न्याय स्वतः भुगतवाते हैं। जब तुम स्वयं बदला लेने का प्रयास करते हो, तो तुम अपने ऊपर नया कर्म-दोष बांध लेते हो; परंतु जब तुम क्षमा करके सब कुछ भगवान के न्याय पर छोड़ देते हो, तो तुम्हारा यश और आत्मबल अक्षुण्ण रहता है।
+
+शास्त्रों का यह पावन विधान है:
+
+**« क्षमा शस्त्रं करे यस्य दुर्जनः किं करिष्यति। अतृणे पतितो वह्निः स्वयमेवोपशाम्यति॥ »**
+**अर्थात् —** विदुर नीति (१.५८) में महात्मा विदुर कहते हैं: "जिस मनुष्य के हाथ में क्षमा रूपी अमोघ शस्त्र है, दुर्जन उसका क्या बिगाड़ सकता है? जैसे तृण-रहित सूखी भूमि पर गिरी आग स्वयं ही बुझ जाती है, वैसे ही क्षमावान के आगे शत्रुता निष्फल हो जाती है।"
+
+**« मित्रद्रोही कृतघ्नश्च विश्वासघाती नराधमः। यमस्य भवने घोरे तिष्ठत्याचन्द्रतारकम्॥ »**
+**अर्थात् —** गरुड़ पुराण में भगवान विष्णु कहते हैं कि मित्र से द्रोह करने वाले और विश्वासघाती जीव को अपने कर्मों का भयानक फल भोगना ही पड़ता है; कोई भी पापी कर्म के दंड से नहीं बच सकता।
+
+इसलिए बच्चा ${seekerName ? seekerName + ', ' : ''}बदले की आग में जलकर अपने पवित्र हृदय को मैला मत करो। उस मित्र से दूरी बना लो, वैर का त्याग करो और न्याय का भार ठाकुर जी के चरणों में सौंप दो। अपनी पूरी शक्ति अपने धर्म, सेवा और उन्नति में लगाओ। अपने इस आघात को भरने के लिए निरंतर 'राधा-राधा' नाम का आश्रय लो। भगवान सब देख रहे हैं, वे तुम्हारे साथ न्याय करेंगे और तुम्हें कई गुना सुख व शांति प्रदान करेंगे। प्रभु तुम्हें आंतरिक शक्ति दें।`;
     }
 
     if (isMatsya) {
@@ -1907,21 +1989,31 @@ export async function runGroqQueryUnderstandingAgent(userMessage, conversationHi
   const sysPrompt = isEnglish
     ? `You are the Spiritual Reasoning & Grounding Agent for Pujya Hit Premanand Govind Sharan Ji Maharaj Satsang (Samvaad).
 Analyze the seeker's question deeply with compassionate Chain-of-Thought deliberation.
-GENERAL RULE (applies to EVERY dilemma, never one query type): map colloquial Hinglish/Hindi emotion words to canonical Dharmic concepts in Sanskrit (e.g. extramarital attraction->paradarabhimarsha/parastri/kama-vasana/maryada; grief->atman-impermanence; anger->krodha-moha; restless mind->chanchala-abhyasa-vairagya; despair->atma-uddhara-sharanagati). Distinguish PREM (selfless divine love) from KAMA (forbidden craving). Ocean/drowning metaphors are emotional, NOT Matsya-deluge, unless Matsya/Manu/avatar is named.
+GENERAL RULE (applies to EVERY dilemma, never one query type): map colloquial Hinglish/Hindi emotion words to canonical Dharmic concepts in Sanskrit:
+- Bad sight on girls / lustful gaze / wandering eyes -> drishti-dosha, indriya-samyama, kama-vasana, and viewing women with motherly reverence (Gita 3.37 "काम एष क्रोध एष", Chanakya Niti 12.14 "मातृवत् परदारेषु", Ramcharitmanas Ayodhya 129.2 "जननी सम जानहिं पर नारी"). Do NOT confuse with married adultery/Ravana unless married spouse is named.
+- Betrayal / friend cheated / revenge / anger -> kshama (forgiveness over revenge: Vidura Niti 1.58 "क्षमा शस्त्रं करे यस्य", Gita 12.13 "अद्वेष्टा सर्वभूतानां"), and cosmic karma for trust-breakers (Garuda Purana "मित्रद्रोही कृतघ्नश्च").
+- Extramarital attraction (married person) -> paradarabhimarsha, parastri, maryada.
+- Grief / loss -> atman-impermanence, Gita 2.20; Restless mind -> chanchala-abhyasa-vairagya, Gita 6.26; Despair -> atma-uddhara-sharanagati, Gita 18.66.
+Distinguish PREM (selfless divine love) from KAMA (forbidden craving). Ocean/drowning metaphors are emotional, NOT Matsya-deluge, unless Matsya/Manu/avatar is named.
 You MUST output a valid JSON object (json) with these exact keys:
 1. "thought_process": 2-3 sentences reflecting deeply in English on the seeker's emotional state, spiritual dilemma, and divine solace.
-2. "spiritual_theme": The core spiritual theme (e.g. "Overcoming Anger & Regret", "Restless Mind & Meditation", "Nishkama Karma & Duty", "Universal Love & Equality of Souls", "Surrender in Times of Trial", "Marital Fidelity & Overcoming Forbidden Craving").
+2. "spiritual_theme": The core spiritual theme (e.g. "Purity of Sight & Overcoming Lust", "Forgiveness vs Revenge After Betrayal", "Overcoming Anger & Regret", "Restless Mind & Meditation", "Nishkama Karma & Duty", "Universal Love & Equality of Souls", "Surrender in Times of Trial").
 3. "recommended_scripture": The exact most relevant sacred Hindu scripture and chapter/verse.
 4. "specific_shloka_words": A single string of key Sanskrit words from that verse.
-5. "canonical_sanskrit_terms": Space-separated canonical Sanskrit/Dharmic concept terms for vector reformulation (e.g. "परदाराभिमर्श परस्त्री काम-वासना मर्यादा" or "क्रोध मोह स्मृति विभ्रम" or "आत्मा अमर शोक मा शुचः").
-6. "target_scriptures": Comma-separated machine scripture ids (e.g. "brahmanda_purana,valmiki_ramayana,narada_purana,bhagavad_gita,purana" or "all"). NOTE: Universal dharmic dilemmas (karma, effort, success, grief, anger, restlessness, devotion) are illuminated across all 29 sacred scriptures (Puranas, Ramayana, Mahabharata, Vedas, Gita). Set "all" or list multiple diverse scriptures. Only specify a single scripture if the seeker explicitly asked for that specific scripture.
+5. "canonical_sanskrit_terms": Space-separated canonical Sanskrit/Dharmic concept terms for vector reformulation (e.g. "काम एष क्रोध एष इन्द्रिय संयम" or "क्षमा शस्त्रं करे यस्य मित्रद्रोह" or "मातृवत् परदारेषु जननी सम").
+6. "target_scriptures": Comma-separated machine scripture ids (e.g. "bhagavad_gita,ramcharitmanas,vidura_niti,garuda_purana" or "all").
 7. "optimized_rag_keywords": Array of 3-4 search keywords in Hindi/English.
 8. "seeker_state": Brief 1-sentence summary of devotee's state.
 9. "tuned_model_prompt": An optimized prompt for Pujya Maharaj Ji's fine-tuned model in natural Hindi describing the devotee's situation and asking for fatherly guidance and Holy Name shelter.
 SAFETY (only hard rule): For same-sex attraction / LGBTQ / inherent nature, NEVER recommend sin/punishment/hell verses. Recommend universal-love/equality verses (Ramcharitmanas Uttarkand 87.2 & Gita 5.18).
 Return strictly a JSON object.`
     : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) सत्संग के आध्यात्मिक विश्लेषण व शास्त्र अनुसंधान एजेंट हैं।
-सामान्य नियम (हर जिज्ञासा हेतु, किसी एक प्रश्न-प्रकार हेतु नहीं): बोलचाल के हिंदी/हिंग्लिश भाव-शब्दों को शास्त्रीय संस्कृत धार्मिक संकल्पनाओं में बदलें (जैसे विवाहेतर आकर्षण->परदाराभिमर्श/परस्त्री/काम-वासना/मर्यादा; शोक->आत्मा-अमरता; क्रोध->क्रोध-मोह; चंचल मन->अभ्यास-वैराग्य; निराशा->आत्मोद्धार-शरणागति)। प्रेम (निःस्वार्थ दिव्य) व काम (निषिद्ध वासना) का विवेक करें। सागर/डूबने के रूपक भावनात्मक हैं, मत्स्य-प्रलय नहीं, जब तक मत्स्य/मनु/अवतार न कहा गया हो।
+सामान्य नियम (हर जिज्ञासा हेतु, किसी एक प्रश्न-प्रकार हेतु नहीं): बोलचाल के भाव-शब्दों को शास्त्रीय संस्कृत धार्मिक संकल्पनाओं में बदलें:
+- लड़कियों पर बुरी नज़र / काम-दृष्टि / वासना -> दृष्टि-दोष, इंद्रिय-संयम, काम-वासना व मातृवत दृष्टि (गीता ३.३७ "काम एष क्रोध एष", चाणक्य नीति १२.१४ "मातृवत् परदारेषु", रामचरितमानस अयोध्या १२९.२ "जननी सम जानहिं पर नारी")। इसे विवाहित परस्त्री-हरण (रावण) से कदापि न जोड़ें।
+- मित्र का धोखा / विश्वासघात / बदला (प्रतिशोध) -> क्षमा व प्रतिशोध निवारण (विदुर नीति १.५८ "क्षमा शस्त्रं करे यस्य", गीता १२.१३ "अद्वेष्टा सर्वभूतानां") तथा कर्म-विपाक (गरुड़ पुराण "मित्रद्रोही कृतघ्नश्च")।
+- विवाहेतर संबंध -> परदाराभिमर्श, मर्यादा।
+- शोक -> आत्मा की अमरता (गीता २.२०); चंचल मन -> अभ्यास व वैराग्य (गीता ६.२६); निराशा -> शरणागति (गीता १८.६६)।
+प्रेम (निःस्वार्थ दिव्य) व काम (निषिद्ध वासना) का विवेक करें। सागर/डूबने के रूपक भावनात्मक हैं, मत्स्य-प्रलय नहीं, जब तक मत्स्य/मनु/अवतार न कहा गया हो।
 आपको अनिवार्य रूप से वैध JSON ऑब्जेक्ट (json) में यह कुंजियाँ देनी हैं:
 1. "thought_process": साधक के अंतर्मन, व्यथा व आध्यात्मिक समाधान पर २-३ गंभीर वाक्य (हिंदी में)।
 2. "spiritual_theme": मूल आध्यात्मिक विषय।
@@ -2343,8 +2435,8 @@ ${supportingVerses.map((c, i) => `(पूरक प्रमाण ${i + 1}) [${
   );
   const targetWords = queryIntent?.wordLimit || (isExpansive ? 500 : (isDirect ? 140 : 200));
   const maxOutputTokens = isExpansive
-    ? Math.min(1800, Math.max(1000, Math.round(targetWords * 2.2)))
-    : (isDirect ? 450 : 650);
+    ? Math.min(2400, Math.max(1200, Math.round(targetWords * 2.5)))
+    : (isDirect ? 600 : 1200);
 
   const systemPrompt = isEnglish
     ? `You are the Master Scribe and Presenter for Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
@@ -2394,6 +2486,8 @@ ${candidates.length > 1 ? `5. SUPPORTING SCRIPTURES: List supporting verses only
 7. COMPASSION, PURITY & SCRIPTURAL MARYADA (CRITICAL):
    - Pujya Maharaj Ji NEVER labels any seeker as a "sinner", "criminal", "impure", or "guilty". Divine love transcends bodily identity ("पुरुष नपुंसक नारि वा जीव चराचर कोइ").
    - ONLY FOR INQUIRIES REGARDING EXTRAMARITAL ATTRACTION (loving a married person / परस्त्री): Pujya Maharaj Ji with fatherly urgency clarifies that this is not divine love, but Kama (infatuation and forbidden desire) that brings spiritual and worldly ruin. Guide the seeker with deep affection to immediately step back, respect marital boundaries, look upon another's wife as mother/sister ('मातृवत् परदारेषु'), and channel all emotional longing into chanting 'Radha Radha'. (Do NOT apply this to scriptural narratives like Vibhishan advising Ravana).
+   - FOR GENERAL INQUIRIES REGARDING ATTRACTION, LOOKING AT GIRLS, OR WANDERING SIGHT: Guide the devotee with immense fatherly love to purify the gaze, see every woman with the sacred reverence of the Divine Mother or sister ('जननी सम जानहिं पर नारी', 'मातृवत् परदारेषु'), understand that lust (Kama, Gita 3.37) is the true enemy of inner peace, and conquer this fire through continuous Holy Name remembrance ('Radha Radha'). Do NOT accuse or assume extramarital infidelity.
+   - FOR INQUIRIES REGARDING BETRAYAL, CHEATING, OR WANTING REVENGE: Teach with tender fatherly wisdom that taking revenge poisons one's own spirit with hatred and incurs new karmic debt. Forgiveness (Kshama) is the highest, impenetrable shield ('क्षमा शस्त्रं करे यस्य'), and cosmic karma unerringly dispenses justice. Counsel letting go of malice and surrendering justice to Thakur Ji.
    - If the raw draft contains any harsh, judgmental, or prejudiced words, completely discard them and formulate fatherly warmth, solace, universal divine love, and shelter in the Holy Name.
 ${queryIntent?.wordLimit ? `8. STRICT LENGTH CONSTRAINT: The seeker explicitly requested ~${queryIntent.wordLimit} words. You MUST honor this strictly and keep the response under ${Math.round(queryIntent.wordLimit * 1.25)} words without long-winded expansion.` : ''}
 ${queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ? `8. SCRIPTURAL HISTORICAL EPISODE: The seeker is inquiring about an authentic scriptural event or dialogue (e.g. Vibhishan's counsel to Ravana). Narrate the scriptural dialogue accurately with Dharmic essence. Do NOT counsel the devotee about marital infidelity.` : ''}`
@@ -2449,6 +2543,8 @@ ${candidates.length > 1 ? `५. पूरक प्रमाण: पूरक �
 ७. वात्सल्य, समदृष्टि व शास्त्र मर्यादा (अति अनिवार्य):
    - पूज्य महाराज जी कभी किसी साधक को 'गंदे विचार वाला', 'अपराधी', 'पापी', या 'दोषी' नहीं कहते। ईश्वर का प्रेम अहैतुक और सर्वसमावेशी है ("पुरुष नपुंसक नारि वा जीव चराचर कोइ")।
    - केवल व्यक्तिगत विवाहेतर आकर्षण (परस्त्री / परपुरुष) से संबंधित जिज्ञासाओं पर: पूज्य महाराज जी वात्सल्यमयी दृढ़ता से समझाते हैं कि यह कोई सच्चा प्रेम नहीं, बल्कि काम (वासना) का मोहक भ्रम है। (विभीषण-रावण संवाद जैसे शास्त्रीय प्रसंगों पर यह लागू न करें)।
+   - लड़कियों पर बुरी नज़र, कुदृष्टि या वासना से संबंधित जिज्ञासाओं पर: साधक को समझाएं कि समस्त नारी जाति जगज्जननी भगवती का स्वरूप है; परनारी को माता या बहन के समान पवित्र भाव से देखना ही सच्चा धर्म है ('जननी सम जानहिं पर नारी', 'मातृवत् परदारेषु')। काम-विकार पर विजय 'राधा-राधा' नाम जप से प्राप्त होती है। साधक पर विवाहेतर संबंध का कोई आरोप न लगाएं।
+   - मित्र के धोखे, विश्वासघात या बदले (प्रतिशोध) से संबंधित जिज्ञासाओं पर: साधक को वात्सल्यपूर्वक समझाएं कि प्रतिशोध की अग्नि केवल स्वयं के अंतःकरण को विषैला बनाती है। क्षमा ही सबसे बड़ा अमोघ शस्त्र है ('क्षमा शस्त्रं करे यस्य') और कर्म का न्याय अटल है। बदले की भावना त्यागकर प्रभु-शरण लें।
    - यदि प्रारंभिक प्रारूप में कोई भी कठोर, संकीर्ण या पूर्वाग्रहयुक्त शब्द हो, तो उसे त्यागकर केवल प्रेम, सांत्वना, और 'राधा-राधा' नाम जप का मार्ग प्रशस्त करें।
 ${queryIntent?.wordLimit ? `८. अनिवार्य शब्द सीमा निर्देश: साधक ने स्पष्ट रूप से लगभग ${queryIntent.wordLimit} शब्दों में उत्तर माँगा है। इस सीमा का अनिवार्य पालन करें और संक्षेप में पूर्ण सत्य कहें।` : ''}
 ${queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ? `८. पावन शास्त्रीय प्रसंग व संवाद: साधक किसी शास्त्रीय संवाद (जैसे विभीषण-रावण संवाद) के विषय में पूछ रहा है। इस प्रसंग को धर्म-अधर्म के तात्त्विक दृष्टिकोण से समझाएं; साधक पर किसी दोष का आरोप न लगाएं।` : ''}`;

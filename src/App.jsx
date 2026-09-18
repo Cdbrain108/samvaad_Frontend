@@ -48,7 +48,14 @@ function renderInline(text, keyPrefix) {
 function intelligentSegmentResponse(text) {
   if (!text || typeof text !== 'string') return text;
 
-  let processed = text;
+  let processed = text.replace(/\r\n/g, '\n');
+
+  // 0a. Strip newlines immediately preceding punctuation (e.g. "\n. " -> ". ")
+  processed = processed.replace(/\n\s*([.,;!?।])/g, '$1');
+
+  // 0b. Collapse soft single newlines within narrative prose so words/quotes aren't orphaned onto isolated lines
+  // (Preserves double newlines for paragraphs, and single newlines before bullets, numbered lists, shlokas, headers, and dividers)
+  processed = processed.replace(/([^\n])\n(?!\n|[•\-*]\s|\d+[.)]\s|[«📖─\-]|\*\*[«📖]|(?:\*\*|\*)*(?:Meaning|अर्थात्|भावार्थ))/g, '$1 ');
 
   // 1. Separate horizontal rules and supporting scriptural references section
   processed = processed.replace(/\s*(?:---|───|\*\*\*)\s*(?=📖|\*\*📖|$)/g, '\n\n---\n\n');

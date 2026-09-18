@@ -67,7 +67,31 @@ export const SCRIPTURE_DATABASE = [
       'sabse bada paap garun puran', 'sabse bada paap garuda puran', 'garun puran ke anusaar sabse bada paap',
       'गरुड़ पुराण में सबसे बड़ा पाप', 'गरुण पुराण में सबसे बड़ा पाप', 'गरुड़ पुराण में पाप', 'गरुण पुराण में पाप',
       'गरुड़ पुराण महापाप', 'गरुण पुराण महापाप', 'गरुड़ पुराण पाप फल', 'garuda purana sins', 'garun puran sins',
-      'garun puran mahapaap', 'garuda puran mahapaap', 'sabse bada paap kya likha hai', 'sabse bada paap kya hai garun puran'
+      'garun puran mahapaap', 'garuda puran mahapaap', 'sabse bada paap kya likha hai', 'sabse bada paap kya hai garun puran',
+      'friend cheated', 'friend cheated me', 'cheated by friend', 'friend betrayed me', 'dost ne dhokha diya',
+      'mitra ne dhokha diya', 'dhokha', 'vishwasghat', 'betrayal', 'cheating in friendship', 'revenge on friend',
+      'badla lena', 'revenge', 'want revenge', 'mitradroha', 'mitra droha', 'कृतघ्नता', 'मित्रद्रोह', 'विश्वासघात'
+    ]
+  },
+
+  // 0C2. Vidura Niti & Mahabharata - Kshama as the Supreme Shield over Revenge (क्षमा शस्त्रं करे यस्य दुर्जनः किं करिष्यति)
+  {
+    id: 'vidura_niti_forgiveness',
+    scripture_id: 'vidura_niti',
+    reference: 'विदुर नीति १.५८ (Vidura Niti · क्षमा रूपी अमोघ शस्त्र व प्रतिशोध निवारण)',
+    original_text: 'क्षमा शस्त्रं करे यस्य दुर्जनः किं करिष्यति। अतृणे पतितो वह्निः स्वयमेवोपशाम्यति॥ एकः क्षमावतां दोषो द्वितीया न च विद्यते। यदेनं क्षमया युक्तमशक्तं मन्यते जनः॥',
+    hindi_meaning: 'महात्मा विदुर जी उपदेश देते हैं कि जिस मनुष्य के हाथ में "क्षमा" रूपी अमोघ शस्त्र है, दुष्ट व्यक्ति उसका क्या बिगाड़ सकता है? जैसे तृण (घास) से रहित सूखी भूमि पर गिरी हुई आग स्वयं ही शांत हो जाती है, वैसे ही क्षमाशील व्यक्ति के आगे शत्रुता व विश्वासघात का विष स्वयं निष्फल हो जाता है। किसी मित्र या संबंधी द्वारा दिए गए धोखे पर प्रतिशोध की आग में स्वयं को जलाना नहीं चाहिए, क्योंकि कर्म का न्याय अटल है। क्षमा ही आत्मा का सबसे बड़ा बल है।',
+    english_translation: 'In Vidura Niti (1.58), Mahatma Vidura proclaims: "He who holds the supreme weapon of forgiveness (Kshama) in his hand, what harm can a wicked adversary ever do to him? Just as fire falling upon barren, grassless ground extinguishes entirely on its own, so does malice fade before a forgiving heart." When a friend betrays or cheats you, harboring vengeful wrath only poisons your own soul. Surrendering the wrongdoer to the infallible cosmic justice of Karma and cultivating forgiveness brings absolute inner victory and peace.',
+    context_intro_hi: 'जैसे विदुर नीति में महात्मा विदुर जी धोखे और प्रतिशोध के संताप से मुक्ति हेतु क्षमा का रहस्य बताते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Mahatma Vidura illuminates the invulnerable shield of forgiveness against betrayal and malice in the Vidura Niti —',
+    keywords: [
+      'friend cheated', 'friend cheated me', 'cheated by friend', 'friend betrayed me',
+      'my friend cheated me', 'revenge', 'want revenge', 'want revenge from him',
+      'take revenge', 'taking revenge', 'revenge on friend', 'badla', 'badla lena',
+      'dost ne dhokha diya', 'mitra ne dhokha diya', 'mitra droha', 'vishwasghat',
+      'dhokha mila', 'dhokhe ka badla', 'forgiveness', 'kshama', 'क्षमा शस्त्रं करे यस्य',
+      'विदुर नीति', 'vidura niti', 'प्रतिशोध', 'बदला कैसे लें', 'how to deal with betrayal',
+      'overcoming revenge', 'inner peace after betrayal', 'dealing with cheating'
     ]
   },
 
@@ -105,8 +129,7 @@ export const SCRIPTURE_DATABASE = [
       'shiv purana me kya hai', 'shiva purana me kya hai', 'what is in shiva purana', 'what is shiva purana',
       'tell me about shiv puran', 'tell me about shiva puran', 'shiv puran ka saransh', 'shiva purana summary',
       'शिव पुराण', 'शिव पुराण में क्या है', 'शिव पुराण क्या है', 'शिवपुराण का सार', 'शिवपुराण कथा', 'शिव पुराण उपदेश',
-      'anger', 'krodh', 'ahankar', 'ego', 'destroying ego', 'inner peace', 'peace of mind', 'man ki shanti',
-      'bholenath', 'har har mahadev', 'anxiety relief', 'shiva grace', 'मन शांत कैसे करें', 'क्रोध कैसे शांत करें'
+      'bholenath', 'har har mahadev', 'shiva grace', 'mahadev', 'rudra samhita', 'vidyeshvara samhita'
     ]
   },
 
@@ -646,7 +669,30 @@ export const SCRIPTURE_DATABASE = [
     keywords: [
       'मातृवत् परदारेषु', 'चाणक्य नीति', 'chanakya niti', 'परद्रव्येषु लोष्टवत्', 'परदार',
       'विवाहित', 'परस्त्री', 'परनारी', 'paradara', 'parastri', 'parnari',
-      'married', 'extramarital', 'purity of vision', 'mother', 'character', 'pandita'
+      'married', 'extramarital', 'purity of vision', 'mother', 'character', 'pandita',
+      'having bad sights on another girls', 'bad sight on girls', 'bad sights on girls',
+      'looking at girls with lust', 'gandi nazar', 'buri nazar', 'purity of gaze',
+      'drishti dosha', 'seeing girls with lust', 'respect for women'
+    ]
+  },
+
+  // 22D2. Shri Ramcharitmanas - Looking Upon Other Women as Mother (जननी सम जानहिं पर नारी - अयोध्याकाण्ड १२९.२)
+  {
+    id: 'rcm_purity_of_sight_mother',
+    scripture_id: 'ramcharitmanas',
+    reference: 'श्रीरामचरितमानस अयोध्याकाण्ड १२९.२ (Ramcharitmanas · परनारी मातृवत दृष्टि)',
+    original_text: 'जननी सम जानहिं पर नारी। तिन्ह के मन सुभ सदन तुम्हारे॥ पर धन पत्थर सरिस लुकाहीं। जिन्हहि न लोभ न क्रोध बियाहीं॥',
+    hindi_meaning: 'श्रीरामचरितमानस में महर्षि वाल्मीकि भगवान श्रीराम से कहते हैं कि हे राघव! जो मनुष्य पराई स्त्रियों को अपनी माता के समान परम पवित्र दृष्टि से देखते हैं, पराये धन को मिट्टी का ढेला समझते हैं, और जिनके अंतःकरण में न लोभ है न क्रोध—उन निष्काम, शीलवान और पवित्र भक्तों के हृदय ही आपके निवास करने योग्य दिव्य मंदिर हैं।',
+    english_translation: 'In Shri Ramcharitmanas (Ayodhyakanda 129.2), Sage Valmiki reveals the supreme sanctified dwelling for Lord Rama: "Those noble devotees who look upon all women outside wedlock with the sacred, immaculate reverence of their own mother, who view another\'s wealth as mere worthless stone, and whose hearts are free from greed and wrath—in their pure hearts, O Lord Rama, take up Your eternal divine abode."',
+    context_intro_hi: 'जैसे श्रीरामचरितमानस में महर्षि वाल्मीकि भगवान श्रीराम के दिव्य निवास का रहस्य बताते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Sage Valmiki describes the pure hearts worthy of Lord Rama\'s dwelling in Shri Ramcharitmanas —',
+    keywords: [
+      'जननी सम जानहिं पर नारी', 'रामचरितमानस अयोध्याकाण्ड', 'rcm 129.2', 'par nari matrivat',
+      'having bad sights on another girls', 'bad sight on girls', 'bad sights on girls',
+      'looking at girls with lust', 'lustful eyes', 'gandi nazar', 'buri nazar',
+      'gandi drishti', 'drishti dosha', 'purity of sight', 'purity of gaze',
+      'seeing girls', 'looking at other girls', 'respecting women', 'nari samman',
+      'परनारी', 'मातृवत', 'पवित्र दृष्टि', 'बुरी नजर', 'लड़कियों पर बुरी नजर'
     ]
   },
 
@@ -662,7 +708,10 @@ export const SCRIPTURE_DATABASE = [
     context_intro_en: 'Just as Bhagavan Shri Krishna reveals the destructive nature of forbidden craving in the Bhagavad Gita —',
     keywords: [
       'काम एष क्रोध एष', 'महाशनो महापाप्मा', 'त्रिविधं नरकस्येदं द्वारं', 'गीता ३.३७', 'gita 3.37', 'gita 16.21',
-      'काम वासना', 'कामासक्ति', 'परस्त्री', 'paradara', 'lust', 'forbidden craving', 'three gates', 'kama krodha lobha'
+      'काम वासना', 'कामासक्ति', 'परस्त्री', 'paradara', 'lust', 'forbidden craving', 'three gates', 'kama krodha lobha',
+      'having bad sights on another girls', 'bad sight on girls', 'bad sights on girls',
+      'looking at girls with lust', 'lustful eyes', 'gandi nazar', 'buri nazar',
+      'drishti dosha', 'seeing girls with lust', 'control lust', 'vasana par niyantran'
     ]
   },
 
@@ -678,7 +727,9 @@ export const SCRIPTURE_DATABASE = [
     context_intro_en: 'Just as Bhagavan Shri Krishna warns against the destructive progression of obsessive desire in the Bhagavad Gita —',
     keywords: [
       'ध्यायतो विषयान्पुंसः', 'श्रीमद्भगवद्गीता 2.62-63', 'गीता २.६२', 'gita 2.62', 'gita 2.63',
-      'परस्त्री', 'paradara', 'attachment', 'obsession', 'spiral of desire', 'buddhi nasha', 'forbidden craving'
+      'परस्त्री', 'paradara', 'attachment', 'obsession', 'spiral of desire', 'buddhi nasha', 'forbidden craving',
+      'having bad sights on another girls', 'bad sights on girls', 'looking at girls with lust',
+      'attraction to girls', 'mind wandering on girls', 'restless gaze'
     ]
   },
 

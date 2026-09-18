@@ -24,7 +24,7 @@ const statsData = [
         <path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.93 4.93l2.12 2.12m9.9 9.9l2.12 2.12M4.93 19.07l2.12-2.12m9.9-9.9l2.12-2.12" />
       </svg>
     ),
-    value: 50,
+    value: 500,
     prefix: '',
     suffix: 'M+',
     label: 'Tokens Experimented',
