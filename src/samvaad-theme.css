@@ -5447,85 +5447,255 @@ select:focus-visible,
   .spiritual-page.landing-scroll{ scroll-behavior: auto !important; }
 }
 
-/* Logo moon (night only): small dim orb centred behind the ORIGINAL
-   wordmark. Letters are opaque dark pixels so the moon can only appear
-   through transparent gaps — it cannot wash over or whiten the logo. */
-.hero-wordmark{ position: relative; }
-.hero-wordmark .hero-logo{ position: relative; z-index: 1; }
-.logo-moon{
+/* Logo moon (night only): pure, serene celestial Sharad Purnima full moon
+   centred behind the sacred Samvaad wordmark. Letters are crisp and golden,
+   backed by an ethereal multi-layer lunar aura without dark crater spots or artificial borders. */
+.hero-wordmark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.hero-wordmark .hero-logo {
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.45));
+}
+
+.night .hero-wordmark .hero-logo {
+  filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 16px rgba(254, 200, 75, 0.35));
+}
+
+.logo-moon {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: clamp(88px, 10vw, 116px);
+  top: 48%;
+  left: 45%;
+  width: clamp(140px, 16vw, 185px);
   aspect-ratio: 1 / 1;
   border-radius: 50%;
-  transform: translate(-50%, -52%);
+  transform: translate(-50%, -50%);
   pointer-events: none;
   opacity: 0;
+  display: none;
   transition: opacity 0.8s ease;
-  background:
-    radial-gradient(circle at 63% 60%, rgba(150, 144, 112, 0.5) 0 6%, transparent 7%),
-    radial-gradient(circle at 40% 66%, rgba(150, 144, 112, 0.42) 0 4.5%, transparent 5.5%),
-    radial-gradient(circle at 33% 34%, #FFFDF2 0%, #F4EAD0 45%, #DCD0A6 72%, #BFB389 100%);
-  box-shadow:
-    0 0 14px 4px rgba(255, 246, 214, 0.35),
-    0 0 36px 12px rgba(255, 214, 130, 0.12);
+  z-index: 1;
 }
-.night .logo-moon{ opacity: 0.6; }
-@media (max-width: 700px){
-  .logo-moon{ width: clamp(72px, 20vw, 96px); }
+
+.night .logo-moon {
+  display: block;
+  opacity: 0.95;
+  background: radial-gradient(circle at 48% 44%, #FFFFFF 0%, #FFFDF0 34%, #FFF2CC 60%, #FDE68A 84%, rgba(253, 230, 138, 0.8) 96%, transparent 100%);
+  box-shadow:
+    0 0 24px 8px rgba(255, 252, 235, 0.75),
+    0 0 65px 24px rgba(254, 215, 102, 0.38),
+    0 0 130px 55px rgba(245, 158, 11, 0.18);
+  animation: logo-moon-breathe 7s ease-in-out infinite;
+}
+
+.night .logo-moon::after {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 250, 230, 0.25) 0%, rgba(254, 215, 102, 0.12) 50%, transparent 74%);
+  pointer-events: none;
+}
+
+@keyframes logo-moon-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 24px 8px rgba(255, 252, 235, 0.75),
+      0 0 65px 24px rgba(254, 215, 102, 0.38),
+      0 0 130px 55px rgba(245, 158, 11, 0.18);
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 32px 12px rgba(255, 252, 235, 0.85),
+      0 0 85px 32px rgba(254, 215, 102, 0.46),
+      0 0 160px 75px rgba(245, 158, 11, 0.24);
+    transform: translate(-50%, -50%) scale(1.025);
+  }
+}
+
+@media (max-width: 700px) {
+  .logo-moon {
+    left: 46%;
+    top: 48%;
+    width: clamp(95px, 28vw, 135px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-moon { animation: none; }
 }
 
 /* Logo aligned left with the content below — rest of hero untouched. */
-.phase-hero .hero-wordmark{ align-self: flex-start; }
+.phase-hero .hero-wordmark { align-self: flex-start; }
 /* Hanging left offset for the WHOLE hero block — logo, tagline, text,
    askbox, chips (both themes): scales with viewport so it never clips. */
-@media (min-width: 901px){
-  .phase-hero .hero-copy-panel{ margin-left: clamp(-56px, calc((1240px - 100vw) * 0.25), -10px); }
+@media (min-width: 901px) {
+  .phase-hero .hero-copy-panel { margin-left: clamp(-56px, calc((1240px - 100vw) * 0.25), -10px); }
 }
 
-/* Bigger, more beautiful moon — still strictly behind the opaque
-   logo, so letters stay untouched while the halo fills the sky. */
-.logo-moon{
-  width: clamp(140px, 16vw, 190px);
+/* Tagline typography polish */
+.phase-hero .hero-tagline {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 14px;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: clamp(17.5px, 1.4vw, 22.5px);
+  letter-spacing: 0.015em;
+  line-height: 1.38;
+  max-width: 580px;
+}
+
+.hero-tagline-lead {
+  display: block;
+  font-weight: 500;
+  color: var(--sv-deep);
+}
+
+.hero-tagline-sacred {
+  display: block;
+}
+
+.hero-tagline-sacred em {
+  color: #E68A00;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.night .hero-tagline-lead {
+  color: #F0F6FC;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85), 0 0 24px rgba(0, 0, 0, 0.7);
+}
+
+.night .hero-tagline-sacred em {
+  color: #FEC84B;
+  font-style: italic;
+  font-weight: 600;
+  text-shadow: 0 0 16px rgba(254, 200, 75, 0.5);
+}
+
+/* Header width and actions spacing for flawless signed-in fit */
+.spiritual-page .spiritual-header {
+  width: min(1440px, calc(100% - 32px)) !important;
+  padding-inline: 20px !important;
+}
+
+.spiritual-page .spiritual-header-actions {
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+/* ============================================================
+   ABOUT US / CREATOR SECTION STYLES
+   ============================================================ */
+
+.about-us-section {
+  padding: max(100px, 12vh) 24px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 100vh;
+}
+
+.night .about-us-section {
   background:
-    radial-gradient(circle at 63% 60%, rgba(150, 144, 112, 0.5) 0 6%, transparent 7%),
-    radial-gradient(circle at 40% 66%, rgba(150, 144, 112, 0.42) 0 4.5%, transparent 5.5%),
-    radial-gradient(circle at 55% 38%, rgba(150, 144, 112, 0.35) 0 3.5%, transparent 4.5%),
-    radial-gradient(circle at 34% 32%, #FFFDF4 0%, #F6ECD0 42%, #E0D2A4 70%, #B7A87E 100%);
-  box-shadow:
-    0 0 22px 8px rgba(255, 246, 214, 0.55),
-    0 0 80px 30px rgba(255, 214, 130, 0.25),
-    0 0 160px 70px rgba(255, 200, 110, 0.12);
-  animation: logo-moon-breathe 7s ease-in-out infinite;
+    radial-gradient(circle at 50% 12%, rgba(254, 200, 75, 0.08), transparent 48%),
+    radial-gradient(circle at 82% 85%, rgba(59, 130, 246, 0.06), transparent 40%),
+    linear-gradient(180deg, #09192C 0%, #0A1E35 50%, #081525 100%);
 }
-.night .logo-moon{ opacity: 0.88; }
-.logo-moon::after{
-  content: '';
-  position: absolute;
-  inset: -16px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 240, 200, 0.22);
+
+.spiritual-page:not(.night) .about-us-section {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 179, 0, 0.14), transparent 46%),
+    #FFF4D6;
 }
-@keyframes logo-moon-breathe{
-  0%, 100%{
-    box-shadow:
-      0 0 22px 8px rgba(255, 246, 214, 0.55),
-      0 0 80px 30px rgba(255, 214, 130, 0.25),
-      0 0 160px 70px rgba(255, 200, 110, 0.12);
-  }
-  50%{
-    box-shadow:
-      0 0 30px 12px rgba(255, 246, 214, 0.68),
-      0 0 105px 42px rgba(255, 214, 130, 0.32),
-      0 0 190px 90px rgba(255, 200, 110, 0.16);
-  }
+
+.about-us-chat-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 16px auto 0;
 }
-@media (max-width: 700px){
-  .logo-moon{ width: clamp(100px, 30vw, 140px); }
+
+.creator-social-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(254, 200, 75, 0.18);
 }
-@media (prefers-reduced-motion: reduce){
-  .logo-moon{ animation: none; }
+
+.creator-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.creator-linkedin-btn {
+  background: #0A66C2;
+  color: #FFFFFF !important;
+  border: 1px solid #0A66C2;
+  box-shadow: 0 4px 14px rgba(10, 102, 194, 0.35);
+}
+
+.creator-linkedin-btn:hover {
+  background: #004182;
+  border-color: #004182;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(10, 102, 194, 0.45);
+}
+
+.creator-email-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #F4E9D4 !important;
+  border: 1px solid rgba(254, 200, 75, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+.spiritual-page:not(.night) .creator-email-btn {
+  background: rgba(255, 255, 255, 0.85);
+  color: #4A2E14 !important;
+  border-color: rgba(217, 119, 6, 0.35);
+}
+
+.creator-email-btn:hover {
+  background: rgba(254, 200, 75, 0.18);
+  border-color: #FEC84B;
+  transform: translateY(-2px);
+  color: #FFE9B8 !important;
+}
+
+.spiritual-page:not(.night) .creator-email-btn:hover {
+  background: #FFF8E1;
+  border-color: #D97706;
+  color: #92400E !important;
+}
+
+.landing-user-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(254, 200, 75, 0.25);
+}
+
+.landing-logout-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
 }
 
 /* ============================================================

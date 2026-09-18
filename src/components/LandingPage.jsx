@@ -124,7 +124,7 @@ const phases = [
   { id: 'overview', label: 'About Project' },
   { id: 'pipeline', label: 'How It Works' },
   { id: 'scriptures', label: 'Scriptures' },
-  { id: 'education', label: 'Purpose' },
+  { id: 'education', label: 'About Us' },
 ]
 
 /* ---------- small interaction helpers ---------- */
@@ -387,9 +387,220 @@ Key features for seekers:
   )
 }
 
+/* ---------- interactive animated about us & creator overview ---------- */
+
+function ChatAboutUs({ onEnter }) {
+  const conversations = [
+    {
+      id: 'creator',
+      label: '👨‍💻 About Anuj Kesharwani',
+      q: 'Who created Samvaad AI, and what is your story and professional background?',
+      a: `Pranam! 🙏 My name is Anuj Kesharwani — an aspiring AI & Data Science professional and software engineer.
+
+I built Samvaad as an independent passion project to challenge myself and practice end-to-end full-stack AI engineering. Rather than relying on simple wrappers, I wanted to build and master every layer:
+• Curating and transcribing 4,000+ sacred audio discourses.
+• Engineering fine-tuning datasets for compassionate, grounded LLM personas.
+• Implementing authentic multi-source RAG across Bhagavad Gita, Ramayana, Upanishads & Vedas.
+• Designing conversational memory and an authentic, serene bilingual user experience.
+
+I am actively working to grow my career in AI and Data Science. I welcome connections, feedback, and collaboration opportunities!`,
+      tag: 'Creator & Engineer',
+    },
+    {
+      id: 'passion',
+      label: '🎯 Independent Passion Project',
+      q: 'What inspired this project, and why build a spiritual AI assistant?',
+      a: `Samvaad was conceived as a non-commercial learning playground and a sincere devotional seva.
+
+Every day, countless students, professionals, and householders face deep emotional stress, moral questions, and spiritual longing. The discourses of Pujya Premanand Ji Maharaj in Vrindavan radiate profound peace, fearless truth, and unconditional divine love.
+
+I wanted to explore how cutting-edge generative AI can be sculpted with humility and reverence — delivering grounded solace and authentic scriptural wisdom rather than cold transactional answers. It has been a deeply fulfilling labor of engineering and devotion.`,
+      tag: 'Vision & Motivation',
+    },
+    {
+      id: 'disclaimer',
+      label: '⚖️ Affiliation & Disclaimer',
+      q: 'Is Samvaad officially affiliated with Bhajan Marg or Pujya Premanand Ji Maharaj?',
+      a: `No. Samvaad is strictly an independent, personal educational and portfolio project.
+
+It is not officially affiliated with, endorsed by, or representing Shri Hit Radha Kripa Trust, Bhajan Marg, or Pujya Premanand Ji Maharaj. All spiritual discourses and sacred scriptures belong to their revered traditions.
+
+This platform serves as an interactive learning playground. Guidance here is reflective and should always be complemented by living masters and personal discrimination.`,
+      tag: 'Project Transparency',
+    },
+  ]
+
+  const [activeTab, setActiveTab] = useState(0)
+  const [typedText, setTypedText] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const selected = conversations[activeTab]
+  const containerRef = useRef(null)
+  const [isVisible, setIsVisible] = useState(false)
+  const timeoutRef = useRef(null)
+
+  useEffect(() => {
+    const node = containerRef.current
+    if (!node) return
+    const scrollRoot = node.closest('.landing-scroll')
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting)
+      },
+      { root: scrollRoot || null, threshold: 0.28 }
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!isVisible) {
+      setIsTyping(false)
+      setTypedText('')
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+      return
+    }
+
+    let cancelled = false
+    setIsTyping(true)
+    setTypedText('')
+
+    const chars = Array.from(selected.a)
+    let idx = 0
+    const step = () => {
+      if (cancelled) return
+      if (idx < chars.length) {
+        idx += 3
+        setTypedText(chars.slice(0, idx).join(''))
+        timeoutRef.current = setTimeout(step, 16)
+      } else {
+        setIsTyping(false)
+        timeoutRef.current = null
+      }
+    }
+    timeoutRef.current = setTimeout(step, 200)
+    return () => {
+      cancelled = true
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+    }
+  }, [activeTab, isVisible, selected.a])
+
+  return (
+    <div ref={containerRef} className="chat-demo-container about-us-chat-container">
+      <div className="chat-demo-window">
+        {/* Chat Window Top Bar */}
+        <div className="chat-demo-topbar">
+          <div className="chat-demo-avatar" style={{ background: 'linear-gradient(135deg, #2563EB, #7C3AED)' }}>
+            <span>AK</span>
+          </div>
+          <div className="chat-demo-meta">
+            <strong>Anuj Kesharwani · Creator &amp; Engineer</strong>
+            <span className="chat-demo-sub">
+              <span className="chat-online-pulse" style={{ background: '#10B981', boxShadow: '0 0 8px #10B981' }} />
+              Aspiring AI / Data Science Professional · Independent Project
+            </span>
+          </div>
+          <span className="chat-demo-badge">{selected.tag}</span>
+        </div>
+
+        {/* Chat Messages */}
+        <div className="chat-demo-body">
+          {/* User Question */}
+          <div className="chat-demo-msg chat-demo-msg-user">
+            <div className="chat-demo-bubble">
+              <p>{selected.q}</p>
+            </div>
+            <div className="chat-demo-user-avatar" aria-hidden="true">🙏</div>
+          </div>
+
+          {/* Creator / AI Answer */}
+          <div className="chat-demo-msg chat-demo-msg-ai">
+            <div className="chat-demo-ai-avatar" style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)' }} aria-hidden="true">ॐ</div>
+            <div className="chat-demo-bubble chat-demo-bubble-ai">
+              <div className="chat-demo-sender">
+                <span>Anuj Kesharwani</span>
+                <small>Creator &amp; AI Developer</small>
+              </div>
+              <div className="chat-demo-typed-content">
+                {typedText.split('\n\n').map((para, i) => {
+                  if (para.includes('\n• ') || para.startsWith('• ')) {
+                    const lines = para.split('\n')
+                    return (
+                      <div key={i} className="chat-demo-bullet-group" style={{ margin: '6px 0', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        {lines.map((line, li) => (
+                          <p key={li} style={line.startsWith('•') ? { paddingLeft: '8px', opacity: 0.95 } : undefined}>{line}</p>
+                        ))}
+                      </div>
+                    )
+                  }
+                  return <p key={i}>{para}</p>
+                })}
+                {isTyping && <span className="term-cursor" aria-hidden="true">▌</span>}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Question Selector Tabs & Contact CTA Buttons */}
+        <div className="chat-demo-controls">
+          <span className="chat-demo-controls-label">Explore the creator's vision &amp; background:</span>
+          <div className="chat-demo-pills">
+            {conversations.map((item, idx) => (
+              <button
+                key={item.id}
+                className={`chat-demo-pill ${idx === activeTab ? 'is-active' : ''}`}
+                onClick={() => setActiveTab(idx)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Social & Connect Action Buttons */}
+          <div className="creator-social-actions">
+            <a
+              href="https://www.linkedin.com/in/anuj-kesharwani-3a5245206/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="creator-action-btn creator-linkedin-btn"
+              title="Connect with Anuj Kesharwani on LinkedIn"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45a1.65 1.65 0 0 0-1.66 1.66 1.66 1.66 0 0 0 1.66 1.66 1.66 1.66 0 0 0 1.66-1.66 1.65 1.65 0 0 0-1.66-1.66Z" />
+              </svg>
+              <span>Connect on LinkedIn</span>
+            </a>
+
+            <a
+              href="mailto:anujkeshari786@gmail.com"
+              className="creator-action-btn creator-email-btn"
+              title="Send email to Anuj Kesharwani"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect width="20" height="16" x="2" y="4" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
+              <span>Email: anujkeshari786@gmail.com</span>
+            </a>
+
+            <button className="rust-button cta-button" onClick={onEnter}>
+              <span aria-hidden="true">🙏</span> Start Live Samvaad <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ---------- main landing page ---------- */
 
-export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onToggleTheme }) {
+export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onToggleTheme, user, userProfile, onLogout }) {
   const scrollRef = useRef(null)
   const askInputRef = useRef(null)
   const activeRef = useRef(0)
@@ -641,7 +852,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
           <a href="#overview" onClick={(event) => { event.preventDefault(); goToPhase('overview') }}><Icon name="message-square" size={15} />About Project</a>
           <a href="#pipeline" onClick={(event) => { event.preventDefault(); goToPhase('pipeline') }}><Icon name="layers" size={15} />How It Works</a>
           <a href="#scriptures" onClick={(event) => { event.preventDefault(); goToPhase('scriptures') }}><Icon name="book" size={15} />Scriptures</a>
-          <a href="#education" onClick={(event) => { event.preventDefault(); goToPhase('education') }}><Icon name="info" size={15} />Purpose</a>
+          <a href="#education" onClick={(event) => { event.preventDefault(); goToPhase('education') }}><Icon name="info" size={15} />About Us</a>
         </nav>
 
         <div className="spiritual-header-actions">
@@ -658,16 +869,66 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
               Night 🌙
             </span>
           </button>
-          {onSignIn && (
-            <button
-              className="theme-pill-toggle"
-              onClick={onSignIn}
-              style={{ cursor: 'pointer', padding: '8px 16px', fontWeight: 600, fontSize: '0.85rem' }}
-              type="button"
-              aria-label="Sign In to account"
-            >
-              Sign In
-            </button>
+          {user ? (
+            <div className="landing-user-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                className="theme-pill-toggle landing-user-pill"
+                onClick={onEnter}
+                style={{
+                  cursor: 'pointer',
+                  padding: '6px 13px',
+                  fontWeight: 600,
+                  fontSize: '0.83rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  color: darkMode ? '#FFE9B8' : '#78350F',
+                  background: darkMode ? 'rgba(254, 200, 75, 0.12)' : 'rgba(254, 243, 199, 0.85)',
+                  border: darkMode ? '1px solid rgba(254, 200, 75, 0.35)' : '1px solid rgba(217, 119, 6, 0.35)',
+                  borderRadius: '999px',
+                }}
+                type="button"
+                title={`Signed in as ${userProfile?.fullName || user.email || 'Devotee'}. Click to enter chat.`}
+              >
+                <span aria-hidden="true">🙏</span>
+                <span style={{ maxWidth: '95px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {userProfile?.fullName ? userProfile.fullName.split(' ')[0] : (user.email ? user.email.split('@')[0] : 'Devotee')}
+                </span>
+              </button>
+              {onLogout && (
+                <button
+                  className="theme-pill-toggle landing-logout-btn"
+                  onClick={onLogout}
+                  style={{
+                    cursor: 'pointer',
+                    padding: '7px 12px',
+                    fontWeight: 500,
+                    fontSize: '0.8rem',
+                    color: darkMode ? '#FCA5A5' : '#DC2626',
+                    background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(254, 226, 226, 0.7)',
+                    border: darkMode ? '1px solid rgba(239, 68, 68, 0.25)' : '1px solid rgba(239, 68, 68, 0.35)',
+                    borderRadius: '999px',
+                  }}
+                  type="button"
+                  aria-label="Sign out"
+                  title="Sign out of account"
+                >
+                  Sign Out
+                </button>
+              )}
+            </div>
+          ) : (
+            onSignIn && (
+              <button
+                className="theme-pill-toggle"
+                onClick={onSignIn}
+                style={{ cursor: 'pointer', padding: '8px 16px', fontWeight: 600, fontSize: '0.85rem' }}
+                type="button"
+                aria-label="Sign In to account"
+              >
+                Sign In
+              </button>
+            )
           )}
           <button className="rust-button cta-button" onClick={onEnter}>
             <span aria-hidden="true">🙏</span> Start Asking
@@ -721,7 +982,10 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
                 alt="Samvaad — प्रश्न आपका, कृपा उसकी · Ask, Learn, Reflect, Grow"
               />
             </h1>
-            <p className="hero-tagline">Fine-Tuned AI embodying the <em>Wisdom of Indian Gurus, Saints &amp; Hindu Scriptures</em></p>
+            <p className="hero-tagline">
+              <span className="hero-tagline-lead">Fine-Tuned AI embodying the</span>
+              <span className="hero-tagline-sacred"><em>Wisdom of Indian Gurus, Saints &amp; Hindu Scriptures</em></span>
+            </p>
             <p className="hero-desc">
               Ask your personal, emotional, or devotional questions. Trained on 4,000+ Bhajan Marg discourses,
               Bhagavad Gita, Ramayana, Upanishads &amp; Vedas to guide you with calm, grounded wisdom.
@@ -975,28 +1239,26 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
             </div>
           )}
 
-          <button className="scroll-cue" onClick={() => goToPhase('education')} aria-label="Scroll down to Purpose">
+          <button className="scroll-cue" onClick={() => goToPhase('education')} aria-label="Scroll down to About Us">
             <span className="scroll-cue-wheel" aria-hidden="true" />
-            <small>Purpose</small>
+            <small>About Us</small>
           </button>
         </section>
 
         {/* ============================================================
-            PAGE 6 · EDUCATION PURPOSE & SACRED BENEDICTION
+            PAGE 6 · ABOUT US & CREATOR'S PASSION PROJECT
             ============================================================ */}
-        <section className="spiritual-quote phase" id="education">
-          <Reveal>
-            <div className="quote-om">ॐ</div>
-            <blockquote>“प्रेम ही भगवान तक पहुँचने का सरल मार्ग है !”</blockquote>
-            <p className="quote-attrib">— पूज्य प्रेमानंद जी महाराज</p>
+        <section className="about-us-section phase" id="education">
+          <Reveal className="spiritual-section-heading">
+            <span>परिचय एवं ध्येय · About Us</span>
+            <h2>Independent Passion Project &amp; Creator</h2>
             <p>
-              Samvaad is an independent <strong>personal education project</strong> — a playground for
-              learning RAG, memory systems and bilingual UI design. It is <strong>not affiliated</strong> with
-              Bhajan Marg or Premanand Ji Maharaj, and important guidance should always be
-              verified with trusted sources and living teachers.
+              Samvaad is an independent passion project crafted by <strong>Anuj Kesharwani</strong>, an aspiring AI &amp; Data Science professional,
+              to practice end-to-end full-stack AI engineering while honoring the timeless wisdom of Sanatan Dharma.
             </p>
-            <button className="rust-button cta-button" onClick={onEnter}><span aria-hidden="true">🙏</span> Begin your Samvaad</button>
           </Reveal>
+
+          <ChatAboutUs onEnter={onEnter} />
         </section>
       </main>
     </div>

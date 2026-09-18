@@ -1115,6 +1115,9 @@ export default function App() {
             darkMode={darkMode}
             onEnter={openChat}
             onAsk={askFromLanding}
+            user={user}
+            userProfile={userProfile}
+            onLogout={handleLogout}
             onSignIn={() => setView('login')}
             onToggleTheme={() => setDarkMode((current) => !current)}
           />
