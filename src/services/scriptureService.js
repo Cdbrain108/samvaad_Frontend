@@ -1315,12 +1315,20 @@ export function isTopicExcluded(cleanQ, item) {
     if (!isGarudaQuery) return true;
   }
 
-  // Gate extramarital / paradara / looking at other women verses:
-  // ONLY match when query specifically concerns women, girls, lust/attraction to others, adultery
-  if (item.id === 'chanakya_niti_matravat' || item.id === 'valmiki_ramayana_paradara' || 
-      item.id === 'padma_purana_paradara' || item.id === 'rcm_ayodhya_parnari') {
-    const isLustOrWomanQuery = /(?:girl|girls|woman|women|parastri|paradara|parnari|wife|adultery|affair|attraction|lust|vasana|drishti\s*dosha|puri\s*nazar|buri\s*nazar|nazar|paraye\s*mard|paraye\s*stree|लड़की|लड़कियों|स्त्री|परस्त्री|परनारी|पत्नी|व्यभिचार|काम-वासना|बुरी\s*नज़र|दृष्टि\s*दोष)/i.test(cleanQ);
-    if (!isLustOrWomanQuery) return true;
+  // Gate extramarital / paradara / Chandra-Tara / looking at other women verses:
+  // ONLY match when query specifically concerns women, girls, lust/attraction to others, adultery, or Chandra-Tara
+  const isParadaraOrMahapataka =
+    item.id === 'chanakya_niti_matravat' ||
+    item.id === 'valmiki_ramayana_paradara' || 
+    item.id === 'padma_purana_paradara' ||
+    item.id === 'rcm_ayodhya_parnari' ||
+    /chandra[-_]?tara|guru[-_]?patni|mahapataka|paradara/i.test(item.id || '') ||
+    /chandra[-_]?tara|चन्द्र.*तारा|गुरुपत्नी|महापातक|परदारा/i.test(item.reference || '') ||
+    /गुरुपत्नीं|चन्द्रः\s*क्षयरोगेण|तारया\s*सह|परदाराभिमर्श/i.test(item.original_text || '');
+
+  if (isParadaraOrMahapataka) {
+    const isLustOrAdulteryQuery = /(?:girl|girls|woman|women|parastri|paradara|parnari|wife|adultery|affair|attraction|lust|vasana|drishti\s*dosha|puri\s*nazar|buri\s*nazar|nazar|paraye\s*mard|paraye\s*stree|extramarital|chandra.*tara|लड़की|लड़कियों|स्त्री|परस्त्री|परनारी|पत्नी|व्यभिचार|काम-वासना|बुरी\s*नज़र|दृष्टि\s*दोष)/i.test(cleanQ);
+    if (!isLustOrAdulteryQuery) return true;
   }
 
   // 1. Check predefined topic gates
@@ -1672,6 +1680,8 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
   for (const c of [...curatedMatches, ...vectorCandidates]) {
     // General adversary quarantine: delusion/ego verses never ground satsang counsel.
     if (isAdversary(c)) continue;
+    // Apply topic exclusion filters (prevents irrelevant mahapataka/paradara or gated verses from leaking into non-target queries)
+    if (isTopicExcluded(query, c)) continue;
     // If explicitly requested a single scripture, reject any outside candidates!
     if (explicitTarget) {
       const isMatch = (c.scripture_id && c.scripture_id.toLowerCase().includes(explicitTarget.key)) ||
