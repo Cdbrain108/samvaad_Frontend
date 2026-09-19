@@ -611,8 +611,18 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   const [scriptureStage, setScriptureStage] = useState('story')
   const [navHidden, setNavHidden] = useState(false)
   const [actionsHidden, setActionsHidden] = useState(false)
+  const [cueHidden, setCueHidden] = useState(false)
   const navStage1Timer = useRef(null)
   const navStage2Timer = useRef(null)
+  const cueTimer = useRef(null)
+
+  const showCueTemporarily = (duration = 2000) => {
+    setCueHidden(false)
+    if (cueTimer.current) clearTimeout(cueTimer.current)
+    cueTimer.current = setTimeout(() => {
+      setCueHidden(true)
+    }, duration)
+  }
 
   const goToPhase = (id) => {
     const root = scrollRef.current
@@ -693,6 +703,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         requestAnimationFrame(update)
       }
       checkImplicitSettle()
+      showCueTemporarily(2000)
     }
     update()
     root.addEventListener('scroll', onScroll, { passive: true })
@@ -799,7 +810,9 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     // 3. Wheel gesture:
     // - Scrolling UP (deltaY < -15): user requested only day/night bar visible for a few seconds!
     // - Scrolling DOWN (deltaY > 20): quick hide
+    // - Scrolling in either direction: reveals bottom scroll cue mouse for 2s!
     const onWheelNav = (event) => {
+      showCueTemporarily(2000)
       if (event.deltaY < -15) {
         showActionsBriefly(2500)
       } else if (event.deltaY > 20) {
@@ -819,6 +832,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       touchStartY = event.touches[0].clientY
     }
     const onTouchMove = (event) => {
+      showCueTemporarily(2000)
       const currentY = event.touches[0].clientY
       const deltaY = currentY - touchStartY
       if (deltaY > 20) {
@@ -836,8 +850,9 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       }
     }
 
-    // When entering a new page section: trigger 2s full taskbar -> 2s day/night -> hide all
+    // When entering a new page section: trigger 2s full taskbar -> 2s day/night -> hide all, and show scroll cue for 2s
     startProgressiveSequence()
+    showCueTemporarily(2000)
 
     window.addEventListener('mousemove', onMouseMove, { passive: true })
     window.addEventListener('mouseup', onMouseUp, { passive: true })
@@ -1119,7 +1134,13 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
             )}
           </div>
 
-          <button className="scroll-cue" onClick={() => goToPhase('inspiration')} aria-label="Scroll down to Inspiration">
+          <button
+            className={`scroll-cue${cueHidden ? ' is-hidden' : ''}`}
+            onClick={() => goToPhase('inspiration')}
+            aria-label="Scroll down to Inspiration"
+            onMouseEnter={() => { if (cueTimer.current) clearTimeout(cueTimer.current); setCueHidden(false) }}
+            onMouseLeave={() => showCueTemporarily(2000)}
+          >
             <span className="scroll-cue-wheel" aria-hidden="true" />
             <small>Scroll</small>
           </button>
@@ -1163,7 +1184,13 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
             </div>
           </div>
 
-          <button className="scroll-cue" onClick={() => goToPhase('overview')} aria-label="Scroll down to About Project">
+          <button
+            className={`scroll-cue${cueHidden ? ' is-hidden' : ''}`}
+            onClick={() => goToPhase('overview')}
+            aria-label="Scroll down to About Project"
+            onMouseEnter={() => { if (cueTimer.current) clearTimeout(cueTimer.current); setCueHidden(false) }}
+            onMouseLeave={() => showCueTemporarily(2000)}
+          >
             <span className="scroll-cue-wheel" aria-hidden="true" />
             <small>Overview</small>
           </button>
@@ -1184,7 +1211,13 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
 
           <ChatProjectOverview onEnter={onEnter} />
 
-          <button className="scroll-cue" onClick={() => goToPhase('pipeline')} aria-label="Scroll down to How It Works">
+          <button
+            className={`scroll-cue${cueHidden ? ' is-hidden' : ''}`}
+            onClick={() => goToPhase('pipeline')}
+            aria-label="Scroll down to How It Works"
+            onMouseEnter={() => { if (cueTimer.current) clearTimeout(cueTimer.current); setCueHidden(false) }}
+            onMouseLeave={() => showCueTemporarily(2000)}
+          >
             <span className="scroll-cue-wheel" aria-hidden="true" />
             <small>How It Works</small>
           </button>
@@ -1262,7 +1295,13 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
             </div>
           )}
 
-          <button className="scroll-cue" onClick={() => goToPhase('scriptures')} aria-label="Scroll down to Scriptures">
+          <button
+            className={`scroll-cue${cueHidden ? ' is-hidden' : ''}`}
+            onClick={() => goToPhase('scriptures')}
+            aria-label="Scroll down to Scriptures"
+            onMouseEnter={() => { if (cueTimer.current) clearTimeout(cueTimer.current); setCueHidden(false) }}
+            onMouseLeave={() => showCueTemporarily(2000)}
+          >
             <span className="scroll-cue-wheel" aria-hidden="true" />
             <small>Scriptures</small>
           </button>
@@ -1325,7 +1364,13 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
             </div>
           )}
 
-          <button className="scroll-cue" onClick={() => goToPhase('education')} aria-label="Scroll down to About Us">
+          <button
+            className={`scroll-cue${cueHidden ? ' is-hidden' : ''}`}
+            onClick={() => goToPhase('education')}
+            aria-label="Scroll down to About Us"
+            onMouseEnter={() => { if (cueTimer.current) clearTimeout(cueTimer.current); setCueHidden(false) }}
+            onMouseLeave={() => showCueTemporarily(2000)}
+          >
             <span className="scroll-cue-wheel" aria-hidden="true" />
             <small>About Us</small>
           </button>
