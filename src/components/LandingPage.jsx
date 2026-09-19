@@ -397,9 +397,9 @@ function ChatAboutUs({ onEnter }) {
       q: 'Who created Samvaad AI, and what is your story and professional background?',
       a: `Pranam! 🙏 My name is Anuj Kesharwani — an Aspiring Gen AI & Agentic AI Developer passionate about crafting production-ready autonomous multi-agent systems, custom fine-tuned LLMs (Gemma 4 E4B IT), and high-performance RAG pipelines.
 
-I built Samvaad as an independent passion project to challenge myself and master end-to-end full-stack Agentic AI engineering from scratch:
+I built Samvaad as an independent passion project relying purely on free open-source resources and CPU infrastructure to challenge myself and master end-to-end full-stack Agentic AI engineering from scratch:
 • Architecting multi-agent reasoning with Groq Chain-of-Thought deliberation and dynamic query understanding.
-• Engineering fine-tuning datasets for compassionate, grounded LLM personas with fine-tuned Gemma 4 E4B IT inference on dedicated GPU infrastructure.
+• Engineering fine-tuning datasets for compassionate, grounded LLM personas with fine-tuned Gemma 4 E4B IT inference on free open-source CPU infrastructure.
 • Implementing authentic multi-source RAG across 29+ scriptures with hybrid semantic scoring and strict topic gating.
 • Designing real-time conversational memory, low-latency voice mode, and a serene bilingual user experience.
 
@@ -1340,7 +1340,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
             <h2>Independent Passion Project &amp; Creator</h2>
             <p>
               Samvaad is an independent passion project crafted by <strong>Anuj Kesharwani</strong>, an Aspiring Gen AI &amp; Agentic AI Developer,
-              to build and demonstrate end-to-end Agentic AI systems, custom fine-tuned LLMs (Gemma 4 E4B IT), and multi-source RAG while honoring timeless wisdom.
+              relying purely on free open-source resources and optimized CPU infrastructure to build and demonstrate end-to-end Agentic AI systems, custom fine-tuned LLMs (Gemma 4 E4B IT), and multi-source RAG while honoring timeless wisdom.
             </p>
           </Reveal>
 
