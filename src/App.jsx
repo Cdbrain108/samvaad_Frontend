@@ -1302,7 +1302,7 @@ export default function App() {
                 </div>
                 <div style={{ color: '#e5e7eb', fontSize: '0.82rem' }}>
                   {modeNotification === 'deep'
-                    ? "Deep mode: Our fine tunned llm model with Premanand ji's whole youtube;s available teachings, takes some more time but give you authenthic guruji like response with its wording and knowledge and explaination style."
+                    ? "Deep mode: Fine-Tuned Gemma 4 E4B IT model trained on Maharaj Ji's comprehensive Bhajan Marg discourses. Takes slightly longer for profound, authentic reasoning and gentle tone."
                     : "Fast mode: Quick response powered by Groq LPU which uses few shots and role bases propmting of guruji's"}
                 </div>
               </div>
@@ -1398,7 +1398,7 @@ export default function App() {
                         {message.role === 'assistant' && (
                           <div className="engine-tags-wrapper">
                             <span className={`engine-tag ${message.mode === 'deep' ? 'tag-deep' : 'tag-fast'}`}>
-                              {message.mode === 'deep' ? '🧘 Oracle Q8_0' : '⚡ Fast LPU'}
+                              {message.mode === 'deep' ? '🧘 Gemma 4 E4B IT' : '⚡ Fast LPU'}
                             </span>
                             {message.scripture && (
                               <span className="rag-verified-badge" title={`Scripture Grounded: ${message.scripture.reference || ''}`}>

@@ -39,7 +39,7 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
       setCurrentOracleUrl(activeOracle);
       if (activeOracle) {
         setOracleStatus('success');
-        setOracleStatusMsg('Active Deep Model Server (Q8_0 GGUF)');
+        setOracleStatusMsg('Active Deep Model Server (Gemma 4 E4B IT)');
       } else {
         setOracleStatus('idle');
         setOracleStatusMsg('');
@@ -60,7 +60,7 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
     }
 
     setOracleStatus('testing');
-    setOracleStatusMsg('Testing connection to Deep Model Q8_0 server...');
+    setOracleStatusMsg('Testing connection to Deep Model Gemma 4 E4B IT server...');
 
     const result = await testOracleModelUrl(clean);
     if (result.ok) {
@@ -126,7 +126,7 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
             <span className="clone-om-badge">ॐ</span>
             <div>
               <h3>AI Guru सर्वर व मॉडल सेटिंग्स</h3>
-              <p>Fine-Tuned Q8_0 Model & Cloned Voice Architecture</p>
+              <p>Fine-Tuned Gemma 4 E4B IT Model &amp; Cloned Voice Architecture</p>
             </div>
           </div>
           <button className="icon-button" onClick={onClose} aria-label="Close modal">
@@ -156,7 +156,7 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
               transition: 'all 0.2s ease'
             }}
           >
-            <span>🧘</span> Deep Model (LLM Q8_0)
+            <span>🧘</span> Deep Model (Gemma 4 E4B IT)
           </button>
           <button
             type="button"
@@ -191,14 +191,14 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
                   <span className={`status-dot ${currentOracleUrl ? 'green' : 'amber'}`} />
                   <strong>
                     {currentOracleUrl
-                      ? '🟢 Deep Mode: Dedicated Fine-Tuned Q8_0 Server Active'
+                      ? '🟢 Deep Mode: Dedicated Fine-Tuned Gemma 4 E4B IT Active'
                       : '⚠️ कोई समर्पित मॉडल टनल सेट नहीं है (Groq फ़ालबैक चलेगा)'}
                   </strong>
                 </div>
                 <p className="status-desc">
                   {currentOracleUrl
-                    ? `Connected Server: ${currentOracleUrl} (${oracleModelName || 'ai-guru-v10-4-Q8_0.gguf'})`
-                    : 'Deep Mode का उत्तर सीधे आपके फाइन-ट्यून्ड मॉडल (Q8_0) से प्राप्त करने के लिए टनल URL जोड़ें।'}
+                    ? `Connected Server: ${currentOracleUrl} (${oracleModelName || 'gemma-4-e4b-it-samvaad'})`
+                    : 'Deep Mode का उत्तर सीधे आपके फाइन-ट्यून्ड Gemma 4 E4B IT मॉडल से प्राप्त करने के लिए टनल URL जोड़ें।'}
                 </p>
               </div>
 
@@ -244,7 +244,7 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
                 <h4>🧘 Deep Mode और Fine-Tuned Model की विशेषताएँ</h4>
                 <ul style={{ margin: '0.4rem 0 0 1.2rem', padding: 0, fontSize: '0.84rem', lineHeight: '1.6', color: '#cbd5e1' }}>
                   <li>
-                    <strong>आध्यात्मिक प्रामाणिकता:</strong> पूज्य श्री प्रेमानंद जी महाराज के संपूर्ण वृंदावन सत्संग वचनों और एकांतिक वार्तालाप पर विशेष रूप से फाइन-ट्यून किया गया <code>ai-guru-v10-4-Q8_0.gguf</code> मॉडल।
+                    <strong>आध्यात्मिक प्रामाणिकता:</strong> पूज्य श्री प्रेमानंद जी महाराज के संपूर्ण वृंदावन सत्संग वचनों और एकांतिक वार्तालाप पर विशेष रूप से फाइन-ट्यून किया गया <code>Gemma 4 E4B IT</code> मॉडल।
                   </li>
                   <li>
                     <strong>चिंतन विंडो (Deliberation Window):</strong> उत्तर आने से पूर्व शास्त्रीय मंथन व सिद्धांत विचार का सजीव दर्शन।

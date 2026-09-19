@@ -395,15 +395,15 @@ function ChatAboutUs({ onEnter }) {
       id: 'creator',
       label: '👨‍💻 About Anuj Kesharwani',
       q: 'Who created Samvaad AI, and what is your story and professional background?',
-      a: `Pranam! 🙏 My name is Anuj Kesharwani — an aspiring Gen AI & Agentic AI Developer (Fresher) passionate about crafting production-ready autonomous multi-agent systems, fine-tuned LLMs, and high-performance RAG pipelines.
+      a: `Pranam! 🙏 My name is Anuj Kesharwani — an Aspiring Gen AI & Agentic AI Developer passionate about crafting production-ready autonomous multi-agent systems, custom fine-tuned LLMs (Gemma 4 E4B IT), and high-performance RAG pipelines.
 
 I built Samvaad as an independent passion project to challenge myself and master end-to-end full-stack Agentic AI engineering from scratch:
 • Architecting multi-agent reasoning with Groq Chain-of-Thought deliberation and dynamic query understanding.
-• Engineering fine-tuning datasets for compassionate, grounded LLM personas with dedicated Q8_0 GGUF inference.
+• Engineering fine-tuning datasets for compassionate, grounded LLM personas with fine-tuned Gemma 4 E4B IT inference on dedicated GPU infrastructure.
 • Implementing authentic multi-source RAG across 29+ scriptures with hybrid semantic scoring and strict topic gating.
 • Designing real-time conversational memory, low-latency voice mode, and a serene bilingual user experience.
 
-As a fresher actively seeking opportunities in Gen AI & Agentic AI Development, I am eager to contribute, build, and innovate on cutting-edge AI systems!`,
+Actively seeking full-time opportunities in Gen AI & Agentic AI Engineering, eager to contribute, build, and innovate on cutting-edge generative AI architectures!`,
       tag: 'Gen AI & Agentic AI Developer',
     },
     {
@@ -502,7 +502,7 @@ This platform serves as an interactive learning playground. Guidance here is ref
             <strong>Anuj Kesharwani · Gen AI &amp; Agentic AI Developer</strong>
             <span className="chat-demo-sub">
               <span className="chat-online-pulse" style={{ background: '#10B981', boxShadow: '0 0 8px #10B981' }} />
-              Aspiring Gen AI / Agentic AI Developer (Fresher) · Independent Project
+              Aspiring Gen AI &amp; Agentic AI Developer · Independent Project
             </span>
           </div>
           <span className="chat-demo-badge">{selected.tag}</span>
@@ -610,7 +610,9 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   const [pipelineTab, setPipelineTab] = useState('milestones')
   const [scriptureStage, setScriptureStage] = useState('story')
   const [navHidden, setNavHidden] = useState(false)
-  const navHideTimer = useRef(null)
+  const [actionsHidden, setActionsHidden] = useState(false)
+  const navStage1Timer = useRef(null)
+  const navStage2Timer = useRef(null)
 
   const goToPhase = (id) => {
     const root = scrollRef.current
@@ -726,50 +728,88 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  /* Auto-hide taskbar logic:
-     - On page section change or scroll: whole taskbar shows and auto-hides in 2 sec, leaving day/night bar visible.
-     - When pointing mouse in taskbar area (clientY <= 95) or hover: whole taskbar gets visible again.
-     - When scrolling up (deltaY < -15): whole taskbar gets visible again.
-     - When scrolling down (deltaY > 15): hides taskbar for 100% clean view.
-     - On last page (About Us / education): completely hidden / removed so creator profile is 100% unobstructed.
+  /* Auto-hide progressive taskbar logic:
+     - On entering a new page section or scrolling down:
+       1. Full taskbar visible for 2s.
+       2. Taskbar frame/nav hides, leaving only Day/Night action pill visible for 2 more seconds.
+       3. Day/Night action pill also hides completely (clean, immersive reading).
+     - When scrolling UP (deltaY < -15):
+       Only the Day/Night action pill becomes visible for 2.5s, then auto-hides.
+     - When pointing mouse in top area (clientY <= 95) or hovering header:
+       Reveals the FULL taskbar with all nav links.
+     - On last page (About Us / education):
+       Completely hidden so creator profile is 100% unobstructed.
   */
   useEffect(() => {
+    const clearTimers = () => {
+      if (navStage1Timer.current) clearTimeout(navStage1Timer.current)
+      if (navStage2Timer.current) clearTimeout(navStage2Timer.current)
+    }
+
     if (phases[active]?.id === 'education' || active === phases.length - 1) {
-      clearTimeout(navHideTimer.current)
+      clearTimers()
       setNavHidden(true)
+      setActionsHidden(true)
       return
     }
 
-    const showNavTemporarily = (duration = 2000) => {
+    // Full taskbar sequence: 2s full taskbar -> 2s day/night pill -> hide all
+    const startProgressiveSequence = () => {
+      clearTimers()
       setNavHidden(false)
-      clearTimeout(navHideTimer.current)
-      navHideTimer.current = setTimeout(() => {
-        setNavHidden(true)
+      setActionsHidden(false)
+      navStage1Timer.current = setTimeout(() => {
+        setNavHidden(true) // hides frame & links, leaves Day/Night bar
+        navStage2Timer.current = setTimeout(() => {
+          setActionsHidden(true) // Day/Night bar also hides
+        }, 2000)
+      }, 2000)
+    }
+
+    // Actions-only sequence (for scroll up): shows Day/Night pill for 2.5s, then hides
+    const showActionsBriefly = (duration = 2500) => {
+      clearTimers()
+      setNavHidden(true)
+      setActionsHidden(false)
+      navStage2Timer.current = setTimeout(() => {
+        setActionsHidden(true)
       }, duration)
     }
 
-    // 1. Mouse movement: pointing mouse in taskbar area (clientY <= 95) or moving towards top reveals whole taskbar
+    // 1. Mouse movement: pointing mouse in taskbar area (clientY <= 95) reveals full taskbar
     const onMouseMove = (event) => {
-      if (event.clientY <= 95 || event.movementY < -4) {
-        showNavTemporarily(2600)
-      } else if (event.movementY > 8 && event.clientY > 110) {
-        clearTimeout(navHideTimer.current)
-        setNavHidden(true)
+      if (event.clientY <= 95) {
+        clearTimers()
+        setNavHidden(false)
+        setActionsHidden(false)
+      } else if (event.movementY > 10 && event.clientY > 110) {
+        if (!navHidden) {
+          setNavHidden(true)
+        }
       }
     }
 
     // 2. Mouse Up
     const onMouseUp = () => {
-      showNavTemporarily(2400)
+      if (!navHidden) {
+        startProgressiveSequence()
+      }
     }
 
-    // 3. Wheel gesture: scrolling UP (deltaY < -15) reveals whole taskbar; scrolling DOWN (deltaY > 15) hides it
+    // 3. Wheel gesture:
+    // - Scrolling UP (deltaY < -15): user requested only day/night bar visible for a few seconds!
+    // - Scrolling DOWN (deltaY > 20): quick hide
     const onWheelNav = (event) => {
       if (event.deltaY < -15) {
-        showNavTemporarily(2600)
-      } else if (event.deltaY > 15) {
-        clearTimeout(navHideTimer.current)
-        setNavHidden(true)
+        showActionsBriefly(2500)
+      } else if (event.deltaY > 20) {
+        if (!navHidden) {
+          clearTimers()
+          setNavHidden(true)
+          navStage2Timer.current = setTimeout(() => {
+            setActionsHidden(true)
+          }, 1500)
+        }
       }
     }
 
@@ -781,16 +821,23 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     const onTouchMove = (event) => {
       const currentY = event.touches[0].clientY
       const deltaY = currentY - touchStartY
-      if (deltaY > 18) {
-        showNavTemporarily(2600)
-      } else if (deltaY < -18) {
-        clearTimeout(navHideTimer.current)
-        setNavHidden(true)
+      if (deltaY > 20) {
+        // Swiping downwards (scrolling up): reveal day/night pill
+        showActionsBriefly(2500)
+      } else if (deltaY < -20) {
+        // Swiping upwards (scrolling down): hide frame
+        if (!navHidden) {
+          clearTimers()
+          setNavHidden(true)
+          navStage2Timer.current = setTimeout(() => {
+            setActionsHidden(true)
+          }, 1500)
+        }
       }
     }
 
-    // Show full taskbar initially on page enter, then auto-hide in 2s
-    showNavTemporarily(2000)
+    // When entering a new page section: trigger 2s full taskbar -> 2s day/night -> hide all
+    startProgressiveSequence()
 
     window.addEventListener('mousemove', onMouseMove, { passive: true })
     window.addEventListener('mouseup', onMouseUp, { passive: true })
@@ -804,7 +851,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       window.removeEventListener('wheel', onWheelNav)
       window.removeEventListener('touchstart', onTouchStart)
       window.removeEventListener('touchmove', onTouchMove)
-      clearTimeout(navHideTimer.current)
+      clearTimers()
     }
   }, [active])
 
@@ -855,17 +902,25 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         </svg>
       </div>
 
-      {/* Full Taskbar: auto-hides in 2s to floating Day/Night bar, completely omitted on About Us */}
+      {/* Full Taskbar: auto-hides in 2s to floating Day/Night bar, then in 2s hides all */}
       {phases[active]?.id !== 'education' && (
         <header
-          className={`spiritual-header${navHidden ? ' is-hidden' : ''}`}
+          className={`spiritual-header${navHidden ? ' is-hidden' : ''}${actionsHidden ? ' actions-hidden' : ''}`}
           onMouseEnter={() => {
-            clearTimeout(navHideTimer.current)
+            if (navStage1Timer.current) clearTimeout(navStage1Timer.current)
+            if (navStage2Timer.current) clearTimeout(navStage2Timer.current)
             setNavHidden(false)
+            setActionsHidden(false)
           }}
           onMouseLeave={() => {
-            clearTimeout(navHideTimer.current)
-            navHideTimer.current = setTimeout(() => setNavHidden(true), 2000)
+            if (navStage1Timer.current) clearTimeout(navStage1Timer.current)
+            if (navStage2Timer.current) clearTimeout(navStage2Timer.current)
+            navStage1Timer.current = setTimeout(() => {
+              setNavHidden(true)
+              navStage2Timer.current = setTimeout(() => {
+                setActionsHidden(true)
+              }, 2000)
+            }, 1800)
           }}
         >
           <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
@@ -1284,8 +1339,8 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
             <span>परिचय एवं ध्येय · About Us</span>
             <h2>Independent Passion Project &amp; Creator</h2>
             <p>
-              Samvaad is an independent passion project crafted by <strong>Anuj Kesharwani</strong>, an aspiring Gen AI &amp; Agentic AI Developer (Fresher),
-              to build and demonstrate end-to-end Agentic AI systems, custom fine-tuned LLMs, and multi-source RAG while honoring timeless wisdom.
+              Samvaad is an independent passion project crafted by <strong>Anuj Kesharwani</strong>, an Aspiring Gen AI &amp; Agentic AI Developer,
+              to build and demonstrate end-to-end Agentic AI systems, custom fine-tuned LLMs (Gemma 4 E4B IT), and multi-source RAG while honoring timeless wisdom.
             </p>
           </Reveal>
 
