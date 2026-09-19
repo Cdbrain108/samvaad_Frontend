@@ -1761,6 +1761,9 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
       return false;
     };
 
+    // Target candidate count: allow 5 if user asks for top 5 or when high relevance (>= 0.85), default 4
+    const targetCandidateCount = explicitTarget ? 2 : (/(?:top\s*[5-9]|\b[5-9]\s*(?:verses?|shlokas?|श्लोक))\b/i.test(query) ? 5 : (topScore >= 0.85 ? 5 : 4));
+
     // 1. Pick top primary candidate
     addCandidate(candidatePool[0], true);
 
@@ -1768,14 +1771,14 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
     const primarySid = (candidatePool[0]?.scripture_id || '').toLowerCase();
     for (const [sid, list] of byScripture.entries()) {
       if (sid === primarySid) continue;
-      if (list.length > 0 && chosen.length < 4) {
+      if (list.length > 0 && chosen.length < targetCandidateCount) {
         addCandidate(list[0], false);
       }
     }
 
-    // 3. Second pass: Fill remaining slots up to 4, strictly requiring qualifying threshold
+    // 3. Second pass: Fill remaining slots up to targetCandidateCount, strictly requiring qualifying threshold
     for (const c of candidatePool) {
-      if (chosen.length >= 4) break;
+      if (chosen.length >= targetCandidateCount) break;
       if (!chosen.some(existing => existing.id === c.id)) {
         addCandidate(c, false);
       }
@@ -1784,7 +1787,7 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
     chosen = candidatePool;
   }
 
-  const limit = explicitTarget ? 2 : (topScore >= 0.85 ? 6 : 4);
+  const limit = explicitTarget ? 2 : (/(?:top\s*[5-9]|\b[5-9]\s*(?:verses?|shlokas?|श्लोक))\b/i.test(query) ? 5 : (topScore >= 0.85 ? 5 : 4));
   // Tag each candidate with role and strictly normalized [0.0, 1.0] score
   primary.candidates = chosen.slice(0, limit).map((c, idx) => ({
     ...c,
