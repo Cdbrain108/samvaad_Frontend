@@ -2651,16 +2651,42 @@ ${queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ? `८. पावन शास
  * Forward Progressive Typewriter Streamer:
  * Emits final framed discourse with fluid Claude-like typing cadence!
  */
-export async function streamTypewriterText(fullText, onStep, thought, duration, scripture, isEnglish = false, charIntervalMs = 16) {
+export async function streamTypewriterText(fullText, onStep, thought, duration, scripture, isEnglish = false, charIntervalMs = 14) {
   const formatted = formatScriptureLines(fullText.trim(), isEnglish);
   const clean = ensureCompleteFinalSentence(formatted, isEnglish);
   const total = clean.length;
+
+  if (total === 0) {
+    if (onStep) onStep('');
+    return { content: '', thought, scripture: scripture || null };
+  }
+
+  // Dynamic pacing: slightly faster chunking for long satsang discourses (keeps animation lively & engaging)
+  const charsPerTick = total > 1400 ? 5 : total > 700 ? 4 : 3;
+  const interval = charIntervalMs || 14;
+
   let currentIdx = 0;
-  const charsPerTick = 3;
+
+  // Emit the very first character boundary immediately so UI begins typing with 0 delay
+  currentIdx = Math.min(charsPerTick, total);
+  while (currentIdx < total && /[\u0901-\u0903\u093A-\u094F\u0951-\u0957\u0962-\u0963]/.test(clean[currentIdx])) {
+    currentIdx++;
+  }
+  if (onStep) onStep(clean.slice(0, currentIdx));
+
+  if (currentIdx >= total) {
+    return { content: clean, thought, scripture: scripture || null };
+  }
 
   return new Promise((resolve) => {
     const timer = setInterval(() => {
       currentIdx += charsPerTick;
+
+      // Unicode boundary safety: never split Devanagari combining marks (matras, virama, anusvara)
+      while (currentIdx < total && /[\u0901-\u0903\u093A-\u094F\u0951-\u0957\u0962-\u0963]/.test(clean[currentIdx])) {
+        currentIdx++;
+      }
+
       if (currentIdx >= total) {
         clearInterval(timer);
         if (onStep) onStep(clean);
@@ -2672,7 +2698,7 @@ export async function streamTypewriterText(fullText, onStep, thought, duration, 
       } else {
         if (onStep) onStep(clean.slice(0, currentIdx));
       }
-    }, charIntervalMs);
+    }, interval);
   });
 }
 

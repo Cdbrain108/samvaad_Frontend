@@ -112,46 +112,11 @@ function intelligentSegmentResponse(text) {
   return balanced.join('\n\n').trim();
 }
 
-/* Light markdown with smooth sequential typewriter stream & intelligent segmentation */
+/* Light markdown with real-time progressive typewriter stream & intelligent segmentation */
 function RichText({ content, streaming = false }) {
-  const [displayedText, setDisplayedText] = useState(content || '');
-
-  useEffect(() => {
-    if (!content) {
-      setDisplayedText('');
-      return;
-    }
-
-    // If displayedText has caught up with content, we're done typing
-    if (displayedText === content) return;
-
-    const diff = content.length - displayedText.length;
-    if (diff < 0) {
-      setDisplayedText(content);
-      return;
-    }
-
-    // If not streaming and large jump (> 100 chars, e.g. switching chats), snap immediately
-    if (!streaming && diff > 100) {
-      setDisplayedText(content);
-      return;
-    }
-
-    // Steady, readable typing pace so newly released sentences visibly type out sequentially
-    const step = diff > 120 ? 3 : diff > 40 ? 2 : 1;
-    const speed = diff > 120 ? 12 : diff > 40 ? 16 : 20;
-
-    const timer = setTimeout(() => {
-      setDisplayedText(content.slice(0, displayedText.length + step));
-    }, speed);
-
-    return () => clearTimeout(timer);
-  }, [content, displayedText, streaming]);
-
-  const activeRaw = streaming || displayedText.length < (content || '').length ? displayedText : content;
-  const segmentedText = intelligentSegmentResponse(activeRaw || '');
+  const segmentedText = intelligentSegmentResponse(content || '');
   const lines = (segmentedText || '').split('\n');
-  const isActivelyTyping = streaming && displayedText.length < (content || '').length;
+  const isActivelyTyping = Boolean(streaming);
 
   return (
     <>
