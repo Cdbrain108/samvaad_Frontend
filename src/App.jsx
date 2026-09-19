@@ -64,6 +64,10 @@ function intelligentSegmentResponse(text) {
   // 2. Separate inline bullets in supporting section
   processed = processed.replace(/([.!?।»])\s*[•\-]\s*(?=[«\*\u0900-\u097F[A-Z])/g, '$1\n\n• ');
 
+  // 2b. Separate inline numbered sequence points ("1. Transcribe... 2. Segment... 3. ...")
+  // so each point starts on its own line instead of running together in one paragraph
+  processed = processed.replace(/([.!?।»”"])\s+(\d{1,2}[.)]\s+)(?=[A-Z*«"“(\u0900-\u097F])/g, '$1\n$2');
+
   // 3. Shloka quotation isolation (before « and after »)
   processed = processed.replace(/([.!?।])\s*(?=\*?\*?«)/g, '$1\n\n');
   processed = processed.replace(/(»\*?\*?)\s*(?=(?:\*\*?Meaning|\*\*?अर्थात्|\*\*?भावार्थ|Meaning —|अर्थात् —))/gi, '$1\n');

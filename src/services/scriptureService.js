@@ -1639,9 +1639,27 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
   // rather than stripping it down to isolated Sanskrit keywords!
   let vectorCandidates = [];
   try {
-    const vectorQuery = canonStr
-      ? `${query.trim()} (${canonStr})`
-      : (enrichedKeywords ? `${query.trim()} ${enrichedKeywords}` : query.trim());
+    // Formulate a structured vector query aligned with Qdrant's search_composite_text schema:
+    // search_composite_text in our 29-scripture collections embeds:
+    // [Reference] | [Genre] | [Domain] | [Dialogue] | [Core Teaching] | [Modern Life Dilemmas] | [Themes] | [Dharmic Concepts]
+    const vectorQueryParts = [query.trim()];
+    if (groqEnrichment) {
+      if (groqEnrichment.modern_life_dilemma) {
+        vectorQueryParts.push(`Dilemma: ${groqEnrichment.modern_life_dilemma}`);
+      }
+      if (groqEnrichment.applicable_life_domain) {
+        vectorQueryParts.push(`Domain: ${groqEnrichment.applicable_life_domain}`);
+      }
+      const concepts = [canonStr, groqEnrichment.core_dharmic_concepts].filter(Boolean).join(' ').trim();
+      if (concepts) {
+        vectorQueryParts.push(`Concepts: ${concepts}`);
+      }
+    } else if (canonStr) {
+      vectorQueryParts.push(`(${canonStr})`);
+    } else if (enrichedKeywords) {
+      vectorQueryParts.push(enrichedKeywords);
+    }
+    const vectorQuery = vectorQueryParts.join(' | ');
     // Query live AWS 1024-d Qdrant gateway across all 29 scripture collections
     let routed = await queryOracleVectorRAG(vectorQuery, query);
 
