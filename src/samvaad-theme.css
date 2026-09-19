@@ -4404,58 +4404,49 @@ select:focus-visible,
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   SMART AUTO-HIDE TASKBAR: CLEAR VIEW WITH FLOATING RIGHT-SIDE CONTROLS
+   SLEEK FLOATING ACTIONS BAR (TOP RIGHT CORNER)
+   Only this pill bar is visible across all pages; completely omitted on About Us
    ═══════════════════════════════════════════════════════════════════════════ */
-.spiritual-header {
-  transition: background 380ms cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1),
-              backdrop-filter 380ms ease,
-              -webkit-backdrop-filter 380ms ease;
+.spiritual-floating-actions {
+  position: fixed !important;
+  top: 14px !important;
+  right: 24px !important;
+  z-index: 1000 !important;
+  display: flex !important;
+  align-items: center !important;
+  pointer-events: auto !important;
+  transition: opacity 300ms ease, transform 300ms ease !important;
 }
 
-/* Brand logo and navigation links smoothly fade and slide up when taskbar hides */
-.spiritual-header .spiritual-brand-button,
-.spiritual-header .spiritual-nav {
-  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+.spiritual-floating-actions .spiritual-header-actions {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: rgba(255, 255, 255, 0.22) !important;
+  border: 1px solid rgba(230, 138, 0, 0.28) !important;
+  border-radius: 999px !important;
+  padding: 4px 7px !important;
+  box-shadow: 0 8px 30px rgba(120, 70, 10, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
 }
 
-/* When hidden for clear view of site: taskbar frame vanishes */
-.spiritual-header.is-hidden {
-  background: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  pointer-events: none;
+.night .spiritual-floating-actions .spiritual-header-actions,
+.spiritual-page.night .spiritual-floating-actions .spiritual-header-actions {
+  background: rgba(10, 26, 47, 0.38) !important;
+  border: 1px solid rgba(254, 200, 75, 0.28) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 14px rgba(254, 200, 75, 0.1) !important;
 }
 
-.spiritual-header.is-hidden::before {
-  opacity: 0 !important;
-  transition: opacity 300ms ease;
-}
-
-.spiritual-header.is-hidden {
-  transform: translateY(-130%) !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transition: transform 340ms cubic-bezier(0.16, 1, 0.3, 1), opacity 280ms ease !important;
-}
-
-.spiritual-header.is-hidden .spiritual-brand-button,
-.spiritual-header.is-hidden .spiritual-nav,
-.spiritual-header.is-hidden .spiritual-header-actions {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transform: translateY(-20px) !important;
-}
-
-.spiritual-header .spiritual-header-actions {
-  transition: transform 340ms cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 280ms ease,
-              background 320ms ease;
-  pointer-events: auto;
+@media (max-width: 640px) {
+  .spiritual-floating-actions {
+    top: 8px !important;
+    right: 8px !important;
+  }
+  .spiritual-floating-actions .spiritual-header-actions {
+    gap: 5px !important;
+    padding: 3px 5px !important;
+  }
 }
 
 

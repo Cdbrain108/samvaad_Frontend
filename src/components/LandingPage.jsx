@@ -785,107 +785,89 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         </svg>
       </div>
 
-      {/* Completely omit taskbar on About Us page so content is 100% unobstructed */}
+      {/* Floating Top-Right Controls: visible on all pages, completely omitted on About Us */}
       {phases[active]?.id !== 'education' && (
-        <header className="spiritual-header">
-
-        <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
-          <img className="brand-icon" src={brandIcon} alt="" />
-          <span className="brand-text">
-            <span className="spiritual-wordmark">Samvaad</span>
-            <span className="brand-tagline">प्रश्न आपका, कृपा उसकी</span>
-          </span>
-        </button>
-
-        <nav className="spiritual-nav" aria-label="Main navigation">
-          <a href="#hero" onClick={(event) => { event.preventDefault(); goToPhase('hero') }}><Icon name="home" size={15} />Home</a>
-          <a href="#inspiration" onClick={(event) => { event.preventDefault(); goToPhase('inspiration') }}><Icon name="heart" size={15} />Inspiration</a>
-          <a href="#overview" onClick={(event) => { event.preventDefault(); goToPhase('overview') }}><Icon name="message-square" size={15} />About Project</a>
-          <a href="#pipeline" onClick={(event) => { event.preventDefault(); goToPhase('pipeline') }}><Icon name="layers" size={15} />How It Works</a>
-          <a href="#scriptures" onClick={(event) => { event.preventDefault(); goToPhase('scriptures') }}><Icon name="book" size={15} />Scriptures</a>
-          <a href="#education" onClick={(event) => { event.preventDefault(); goToPhase('education') }}><Icon name="info" size={15} />About Us</a>
-        </nav>
-
-        <div className="spiritual-header-actions">
-          <button
-            className="theme-pill-toggle"
-            onClick={onToggleTheme}
-            aria-label={darkMode ? 'Switch to Day theme' : 'Switch to Night theme'}
-            title="Toggle Day / Night theme"
-          >
-            <span className={`theme-pill-opt ${!darkMode ? 'is-active' : ''}`}>
-              Day ☀️
-            </span>
-            <span className={`theme-pill-opt ${darkMode ? 'is-active' : ''}`}>
-              Night 🌙
-            </span>
-          </button>
-          {user ? (
-            <div className="landing-user-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <button
-                className="theme-pill-toggle landing-user-pill"
-                onClick={onEnter}
-                style={{
-                  cursor: 'pointer',
-                  padding: '6px 13px',
-                  fontWeight: 600,
-                  fontSize: '0.83rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  color: darkMode ? '#FFE9B8' : '#78350F',
-                  background: darkMode ? 'rgba(254, 200, 75, 0.12)' : 'rgba(254, 243, 199, 0.85)',
-                  border: darkMode ? '1px solid rgba(254, 200, 75, 0.35)' : '1px solid rgba(217, 119, 6, 0.35)',
-                  borderRadius: '999px',
-                }}
-                type="button"
-                title={`Signed in as ${userProfile?.fullName || user.email || 'Devotee'}. Click to enter chat.`}
-              >
-                <span aria-hidden="true">🙏</span>
-                <span style={{ maxWidth: '95px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {userProfile?.fullName ? userProfile.fullName.split(' ')[0] : (user.email ? user.email.split('@')[0] : 'Devotee')}
-                </span>
-              </button>
-              {onLogout && (
+        <aside className="spiritual-floating-actions" aria-label="Quick Controls">
+          <div className="spiritual-header-actions">
+            <button
+              className="theme-pill-toggle"
+              onClick={onToggleTheme}
+              aria-label={darkMode ? 'Switch to Day theme' : 'Switch to Night theme'}
+              title="Toggle Day / Night theme"
+            >
+              <span className={`theme-pill-opt ${!darkMode ? 'is-active' : ''}`}>
+                Day ☀️
+              </span>
+              <span className={`theme-pill-opt ${darkMode ? 'is-active' : ''}`}>
+                Night 🌙
+              </span>
+            </button>
+            {user ? (
+              <div className="landing-user-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <button
-                  className="theme-pill-toggle landing-logout-btn"
-                  onClick={onLogout}
+                  className="theme-pill-toggle landing-user-pill"
+                  onClick={onEnter}
                   style={{
                     cursor: 'pointer',
-                    padding: '7px 12px',
-                    fontWeight: 500,
-                    fontSize: '0.8rem',
-                    color: darkMode ? '#FCA5A5' : '#DC2626',
-                    background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(254, 226, 226, 0.7)',
-                    border: darkMode ? '1px solid rgba(239, 68, 68, 0.25)' : '1px solid rgba(239, 68, 68, 0.35)',
+                    padding: '6px 13px',
+                    fontWeight: 600,
+                    fontSize: '0.83rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    color: darkMode ? '#FFE9B8' : '#78350F',
+                    background: darkMode ? 'rgba(254, 200, 75, 0.12)' : 'rgba(254, 243, 199, 0.85)',
+                    border: darkMode ? '1px solid rgba(254, 200, 75, 0.35)' : '1px solid rgba(217, 119, 6, 0.35)',
                     borderRadius: '999px',
                   }}
                   type="button"
-                  aria-label="Sign out"
-                  title="Sign out of account"
+                  title={`Signed in as ${userProfile?.fullName || user.email || 'Devotee'}. Click to enter chat.`}
                 >
-                  Sign Out
+                  <span aria-hidden="true">🙏</span>
+                  <span style={{ maxWidth: '95px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {userProfile?.fullName ? userProfile.fullName.split(' ')[0] : (user.email ? user.email.split('@')[0] : 'Devotee')}
+                  </span>
                 </button>
-              )}
-            </div>
-          ) : (
-            onSignIn && (
-              <button
-                className="theme-pill-toggle"
-                onClick={onSignIn}
-                style={{ cursor: 'pointer', padding: '8px 16px', fontWeight: 600, fontSize: '0.85rem' }}
-                type="button"
-                aria-label="Sign In to account"
-              >
-                Sign In
-              </button>
-            )
-          )}
-          <button className="rust-button cta-button" onClick={onEnter}>
-            <span aria-hidden="true">🙏</span> Start Asking
-          </button>
-        </div>
-      </header>
+                {onLogout && (
+                  <button
+                    className="theme-pill-toggle landing-logout-btn"
+                    onClick={onLogout}
+                    style={{
+                      cursor: 'pointer',
+                      padding: '7px 12px',
+                      fontWeight: 500,
+                      fontSize: '0.8rem',
+                      color: darkMode ? '#FCA5A5' : '#DC2626',
+                      background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(254, 226, 226, 0.7)',
+                      border: darkMode ? '1px solid rgba(239, 68, 68, 0.25)' : '1px solid rgba(239, 68, 68, 0.35)',
+                      borderRadius: '999px',
+                    }}
+                    type="button"
+                    aria-label="Sign out"
+                    title="Sign out of account"
+                  >
+                    Sign Out
+                  </button>
+                )}
+              </div>
+            ) : (
+              onSignIn && (
+                <button
+                  className="theme-pill-toggle"
+                  onClick={onSignIn}
+                  style={{ cursor: 'pointer', padding: '8px 16px', fontWeight: 600, fontSize: '0.85rem' }}
+                  type="button"
+                  aria-label="Sign In to account"
+                >
+                  Sign In
+                </button>
+              )
+            )}
+            <button className="rust-button cta-button" onClick={onEnter}>
+              <span aria-hidden="true">🙏</span> Start Asking
+            </button>
+          </div>
+        </aside>
       )}
 
       {/* Side Dot Navigation */}
