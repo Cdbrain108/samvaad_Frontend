@@ -2560,29 +2560,38 @@ select:focus-visible,
    ============================================================ */
 
 .spiritual-page.landing-scroll {
-  height: 100svh !important;
-  max-height: 100svh !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  scroll-snap-type: y mandatory !important;
+  scroll-snap-type: y proximity !important;
   scroll-behavior: smooth !important;
   scroll-padding-top: 0 !important;
+  overscroll-behavior-y: auto !important;
 }
 
 .spiritual-page .phase {
   position: relative !important;
-  height: 100svh !important;
-  min-height: 100svh !important;
-  max-height: 100svh !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  max-height: 100dvh !important;
   scroll-snap-align: start !important;
-  scroll-snap-stop: always !important;
+  scroll-snap-stop: normal !important;
   box-sizing: border-box !important;
-  overflow: hidden !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: none !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
   align-items: center !important;
-  padding: clamp(64px, 8.5vh, 84px) max(24px, calc((100vw - 1200px) / 2)) clamp(16px, 2.5vh, 28px) !important;
+  padding: clamp(40px, 5.5vh, 64px) max(20px, calc((100vw - 1200px) / 2)) clamp(16px, 2vh, 24px) !important;
+}
+
+.spiritual-page .phase::-webkit-scrollbar {
+  display: none !important;
 }
 
 .spiritual-page .spiritual-section-heading {
@@ -5412,12 +5421,19 @@ select:focus-visible,
   overscroll-behavior-y: auto !important;
 }
 .spiritual-page .phase{
-  height: auto !important;
-  max-height: none !important;
-  min-height: 100svh !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  max-height: 100dvh !important;
+  scroll-snap-align: start !important;
   scroll-snap-stop: normal !important;
-  overflow: clip !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: none !important;
   justify-content: center !important;
+  box-sizing: border-box !important;
+}
+.spiritual-page .phase::-webkit-scrollbar {
+  display: none !important;
 }
 .spiritual-page .phase-hero{
   height: 100svh !important;
@@ -5578,13 +5594,26 @@ select:focus-visible,
    ============================================================ */
 
 .about-us-section {
-  padding: max(100px, 12vh) 24px 80px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  min-height: 100vh;
+  padding: clamp(24px, 4vh, 48px) max(20px, calc((100vw - 1100px) / 2)) clamp(24px, 4vh, 48px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  max-height: 100dvh !important;
+  box-sizing: border-box !important;
+  scroll-snap-align: start !important;
+  scroll-snap-stop: normal !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: none !important;
+}
+
+.about-us-section::-webkit-scrollbar {
+  display: none !important;
 }
 
 .night .about-us-section {

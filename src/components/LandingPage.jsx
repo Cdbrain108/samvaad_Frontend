@@ -663,15 +663,41 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       }
     }
 
+    let settleTimer = null
+    const checkImplicitSettle = () => {
+      clearTimeout(settleTimer)
+      settleTimer = setTimeout(() => {
+        const rootTop = root.getBoundingClientRect().top
+        let closestEl = null
+        let minDiff = Infinity
+        elements.forEach((el) => {
+          if (!el) return
+          const diff = Math.abs(el.getBoundingClientRect().top - rootTop)
+          if (diff < minDiff) {
+            minDiff = diff
+            closestEl = el
+          }
+        })
+        // If user stopped scrolling close to a section (within 24% of viewport), gently and implicitly align it
+        if (closestEl && minDiff > 8 && minDiff < root.clientHeight * 0.24) {
+          root.scrollTo({ top: closestEl.offsetTop, behavior: 'smooth' })
+        }
+      }, 220)
+    }
+
     const onScroll = () => {
       if (!ticking) {
         ticking = true
         requestAnimationFrame(update)
       }
+      checkImplicitSettle()
     }
     update()
     root.addEventListener('scroll', onScroll, { passive: true })
-    return () => root.removeEventListener('scroll', onScroll)
+    return () => {
+      root.removeEventListener('scroll', onScroll)
+      clearTimeout(settleTimer)
+    }
   }, [])
 
   /* keyboard: arrow / page keys move one page section at a time.
