@@ -395,16 +395,16 @@ function ChatAboutUs({ onEnter }) {
       id: 'creator',
       label: '👨‍💻 About Anuj Kesharwani',
       q: 'Who created Samvaad AI, and what is your story and professional background?',
-      a: `Pranam! 🙏 My name is Anuj Kesharwani — an aspiring AI & Data Science professional and software engineer.
+      a: `Pranam! 🙏 My name is Anuj Kesharwani — an aspiring Gen AI & Agentic AI Developer (Fresher) passionate about crafting production-ready autonomous multi-agent systems, fine-tuned LLMs, and high-performance RAG pipelines.
 
-I built Samvaad as an independent passion project to challenge myself and practice end-to-end full-stack AI engineering. Rather than relying on simple wrappers, I wanted to build and master every layer:
-• Curating and transcribing 4,000+ sacred audio discourses.
-• Engineering fine-tuning datasets for compassionate, grounded LLM personas.
-• Implementing authentic multi-source RAG across Bhagavad Gita, Ramayana, Upanishads & Vedas.
-• Designing conversational memory and an authentic, serene bilingual user experience.
+I built Samvaad as an independent passion project to challenge myself and master end-to-end full-stack Agentic AI engineering from scratch:
+• Architecting multi-agent reasoning with Groq Chain-of-Thought deliberation and dynamic query understanding.
+• Engineering fine-tuning datasets for compassionate, grounded LLM personas with dedicated Q8_0 GGUF inference.
+• Implementing authentic multi-source RAG across 29+ scriptures with hybrid semantic scoring and strict topic gating.
+• Designing real-time conversational memory, low-latency voice mode, and a serene bilingual user experience.
 
-I am actively working to grow my career in AI and Data Science. I welcome connections, feedback, and collaboration opportunities!`,
-      tag: 'Creator & Engineer',
+As a fresher actively seeking opportunities in Gen AI & Agentic AI Development, I am eager to contribute, build, and innovate on cutting-edge AI systems!`,
+      tag: 'Gen AI & Agentic AI Developer',
     },
     {
       id: 'passion',
@@ -499,10 +499,10 @@ This platform serves as an interactive learning playground. Guidance here is ref
             <span>AK</span>
           </div>
           <div className="chat-demo-meta">
-            <strong>Anuj Kesharwani · Creator &amp; Engineer</strong>
+            <strong>Anuj Kesharwani · Gen AI &amp; Agentic AI Developer</strong>
             <span className="chat-demo-sub">
               <span className="chat-online-pulse" style={{ background: '#10B981', boxShadow: '0 0 8px #10B981' }} />
-              Aspiring AI / Data Science Professional · Independent Project
+              Aspiring Gen AI / Agentic AI Developer (Fresher) · Independent Project
             </span>
           </div>
           <span className="chat-demo-badge">{selected.tag}</span>
@@ -524,7 +524,7 @@ This platform serves as an interactive learning playground. Guidance here is ref
             <div className="chat-demo-bubble chat-demo-bubble-ai">
               <div className="chat-demo-sender">
                 <span>Anuj Kesharwani</span>
-                <small>Creator &amp; AI Developer</small>
+                <small>Gen AI &amp; Agentic AI Developer (Fresher)</small>
               </div>
               <div className="chat-demo-typed-content">
                 {typedText.split('\n\n').map((para, i) => {
@@ -700,92 +700,15 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  /* Auto-hide taskbar logic:
-     - Automatically hides when swiping up/down or scrolling into page content so the view of the site is completely clear.
-     - Day/Night toggle & Chat action remain visible, floating shifted slightly to the right side.
-     - Shows full taskbar on mouse up, mouse moving towards top, or when scrolling between pages.
-     - Neatly refits Day/Night and Chat into the taskbar when visible.
+  /* Header Taskbar Visibility:
+     - Kept visible and transparent across all content pages (Hero, Inspiration, About Project, How It Works, Scriptures).
+     - Completely removed / hidden on the About Us / Creator page so content is 100% unobstructed.
   */
   useEffect(() => {
-    const showNavTemporarily = (duration = 2600) => {
-      setNavHidden(false)
-      clearTimeout(navHideTimer.current)
-      navHideTimer.current = setTimeout(() => {
-        setNavHidden(true)
-      }, duration)
-    }
-
-    // 1. Mouse movement: moving UP or near top reveals full taskbar; moving down into page hides it
-    const onMouseMove = (event) => {
-      if (event.clientY <= 95 || event.movementY < -3) {
-        showNavTemporarily(3200)
-      } else if (event.movementY > 6 && event.clientY > 110) {
-        clearTimeout(navHideTimer.current)
-        setNavHidden(true)
-      }
-    }
-
-    // 2. Mouse Up: "when user make mouse up then we can see that bar"
-    const onMouseUp = () => {
-      showNavTemporarily(2800)
-    }
-
-    // 3. Wheel gesture: scrolling UP (deltaY < -15) reveals taskbar; scrolling DOWN (deltaY > 15) hides it immediately!
-    const onWheelNav = (event) => {
-      if (event.deltaY < -15) {
-        // User scrolling UP: show taskbar
-        showNavTemporarily(3000)
-      } else if (event.deltaY > 15) {
-        // User scrolling DOWN: hide taskbar immediately for 100% clean view
-        clearTimeout(navHideTimer.current)
-        setNavHidden(true)
-      }
-    }
-
-    // 4. Touch swipe events (mobile & tablet)
-    let touchStartY = 0
-    const onTouchStart = (event) => {
-      touchStartY = event.touches[0].clientY
-    }
-    const onTouchMove = (event) => {
-      const currentY = event.touches[0].clientY
-      const deltaY = currentY - touchStartY
-      if (deltaY > 18) {
-        // Swiping downwards (revealing top / scrolling up): show taskbar
-        showNavTemporarily(3000)
-      } else if (deltaY < -18) {
-        // Swiping upwards (scrolling down into content): hide taskbar immediately
-        clearTimeout(navHideTimer.current)
-        setNavHidden(true)
-      }
-    }
-    const onTouchEnd = () => {
-      // Keep state clean on touch end
-    }
-
-    // When on the last page (About Us / education), hide taskbar immediately so creator card is 100% clear!
-    if (active === phases.length - 1) {
-      clearTimeout(navHideTimer.current)
+    if (phases[active]?.id === 'education' || active === phases.length - 1) {
       setNavHidden(true)
     } else {
-      showNavTemporarily(2400)
-    }
-
-    window.addEventListener('mousemove', onMouseMove, { passive: true })
-    window.addEventListener('mouseup', onMouseUp, { passive: true })
-    window.addEventListener('wheel', onWheelNav, { passive: true })
-    window.addEventListener('touchstart', onTouchStart, { passive: true })
-    window.addEventListener('touchmove', onTouchMove, { passive: true })
-    window.addEventListener('touchend', onTouchEnd, { passive: true })
-
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove)
-      window.removeEventListener('mouseup', onMouseUp)
-      window.removeEventListener('wheel', onWheelNav)
-      window.removeEventListener('touchstart', onTouchStart)
-      window.removeEventListener('touchmove', onTouchMove)
-      window.removeEventListener('touchend', onTouchEnd)
-      clearTimeout(navHideTimer.current)
+      setNavHidden(false)
     }
   }, [active])
 
@@ -836,17 +759,9 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         </svg>
       </div>
 
-      <header
-        className={`spiritual-header${navHidden ? ' is-hidden' : ''}`}
-        onMouseEnter={() => {
-          clearTimeout(navHideTimer.current)
-          setNavHidden(false)
-        }}
-        onMouseLeave={() => {
-          clearTimeout(navHideTimer.current)
-          navHideTimer.current = setTimeout(() => setNavHidden(true), 2400)
-        }}
-      >
+      {/* Completely omit taskbar on About Us page so content is 100% unobstructed */}
+      {phases[active]?.id !== 'education' && (
+        <header className="spiritual-header">
 
         <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
           <img className="brand-icon" src={brandIcon} alt="" />
@@ -945,6 +860,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
           </button>
         </div>
       </header>
+      )}
 
       {/* Side Dot Navigation */}
       <nav className="phase-nav" aria-label="Page phases">
@@ -1263,8 +1179,8 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
             <span>परिचय एवं ध्येय · About Us</span>
             <h2>Independent Passion Project &amp; Creator</h2>
             <p>
-              Samvaad is an independent passion project crafted by <strong>Anuj Kesharwani</strong>, an aspiring AI &amp; Data Science professional,
-              to practice end-to-end full-stack AI engineering while honoring the timeless wisdom of Sanatan Dharma.
+              Samvaad is an independent passion project crafted by <strong>Anuj Kesharwani</strong>, an aspiring Gen AI &amp; Agentic AI Developer (Fresher),
+              to build and demonstrate end-to-end Agentic AI systems, custom fine-tuned LLMs, and multi-source RAG while honoring timeless wisdom.
             </p>
           </Reveal>
 

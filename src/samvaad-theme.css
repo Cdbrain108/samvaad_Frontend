@@ -1950,15 +1950,19 @@
 
 /* taskbar goes transparent glass in both themes */
 .spiritual-page .spiritual-header {
-  background: rgba(255, 248, 225, 0.35);
-  border-color: rgba(230, 138, 0, 0.18);
-  box-shadow: 0 8px 26px rgba(120, 70, 10, 0.08);
+  background: rgba(255, 248, 225, 0.25) !important;
+  border-color: rgba(230, 138, 0, 0.2) !important;
+  box-shadow: 0 8px 30px rgba(120, 70, 10, 0.06) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
 }
 
 .night .spiritual-header {
-  background: rgba(10, 26, 47, 0.35);
-  border-color: rgba(254, 200, 75, 0.18);
-  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.25);
+  background: rgba(10, 26, 47, 0.25) !important;
+  border-color: rgba(254, 200, 75, 0.2) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.22) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
 }
 
 /* Natural celestial moon in the upper sky */

@@ -3,25 +3,40 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { deleteConversation } from '../services/firebase';
 import Icon from './Icon';
 
-export default function ChatHistory({ user, conversations = [], isOpen = false, onClose, onSelectConversation, onNewChat, onDeleteConversation, onLogout, onGuestSignIn }) {
+export default function ChatHistory({ user, conversations = [], isOpen = false, onClose, onSelectConversation, onNewChat, onDeleteConversation, onClearAllConversations, onLogout, onGuestSignIn }) {
   const handleDeleteConversation = async (conversationId, e) => {
-    e.stopPropagation();
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (!window.confirm('Delete this conversation?')) return;
 
-    // Local-only conversations (id starts with "local_") only exist in localStorage
-    // — skip the Firestore call and remove them directly from state.
-    const isLocalOnly = conversationId.startsWith('local_') || !user?.uid || user.uid === 'devotee_local';
-
-    if (!isLocalOnly) {
-      const result = await deleteConversation(user.uid, conversationId);
-      if (result.error) {
-        alert('Failed to delete: ' + result.error);
-        return;
-      }
-    }
-
+    // 1. Optimistically delete immediately from UI and localStorage so user is never blocked
     if (onDeleteConversation) {
       onDeleteConversation(conversationId);
+    }
+
+    // 2. Safely sync deletion with Firestore in the background
+    const convIdStr = String(conversationId || '');
+    const isLocalOnly = convIdStr.startsWith('local_') || !user?.uid || user.uid === 'devotee_local';
+
+    if (!isLocalOnly && user?.uid) {
+      try {
+        await deleteConversation(user.uid, conversationId);
+      } catch (err) {
+        console.warn('Firestore conversation delete background warning:', err);
+      }
+    }
+  };
+
+  const handleClearAll = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (!window.confirm('Clear all conversation history? This cannot be undone.')) return;
+    if (onClearAllConversations) {
+      onClearAllConversations();
     }
   };
 
@@ -80,6 +95,32 @@ export default function ChatHistory({ user, conversations = [], isOpen = false, 
             <span>Conversations</span>
           </div>
           <div className="sidebar-header-actions">
+            {!isGuest && conversations.length > 0 && (
+              <button
+                type="button"
+                className="sidebar-header-btn sidebar-clear-btn"
+                onClick={handleClearAll}
+                aria-label="Clear all conversations"
+                title="Clear all conversations"
+                style={{
+                  color: '#ef4444',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  padding: '4px 8px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  marginRight: '4px'
+                }}
+              >
+                <Icon name="trash" size={13} />
+                <span>Clear All</span>
+              </button>
+            )}
             {!isGuest && (
               <motion.button
                 className="sidebar-header-btn sidebar-add-btn"
@@ -170,9 +211,11 @@ export default function ChatHistory({ user, conversations = [], isOpen = false, 
                         </div>
                       </button>
                       <button
+                        type="button"
                         className="icon-button conversation-delete"
                         onClick={(e) => handleDeleteConversation(conversation.id, e)}
                         aria-label="Delete conversation"
+                        title="Delete this conversation"
                       >
                         <Icon name="trash" size={14} />
                       </button>

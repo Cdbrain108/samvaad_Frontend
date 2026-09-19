@@ -842,16 +842,34 @@ export default function App() {
 
   const deleteConversationHandler = (convId) => {
     setConversations(prev => {
-      const updated = prev.filter(c => c.id !== convId);
+      const updated = prev.filter(c => String(c.id) !== String(convId));
       const activeUser = user || ensureUser();
       try {
         localStorage.setItem(`samvad_chats_${activeUser.uid}`, JSON.stringify(updated));
       } catch (e) {}
       return updated;
     });
-    if (currentConversationId === convId) {
+    if (String(currentConversationId) === String(convId)) {
       setMessages([]);
       setCurrentConversationId(null);
+    }
+  };
+
+  const clearAllConversationsHandler = async () => {
+    const activeUser = user || ensureUser();
+    const toDelete = [...conversations];
+    setConversations([]);
+    setMessages([]);
+    setCurrentConversationId(null);
+    try {
+      localStorage.removeItem(`samvad_chats_${activeUser.uid}`);
+    } catch (e) {}
+    if (activeUser?.uid && activeUser.uid !== 'devotee_local' && toDelete.length > 0) {
+      for (const conv of toDelete) {
+        try {
+          await deleteConversation(activeUser.uid, conv.id);
+        } catch (e) {}
+      }
     }
   };
 
@@ -1163,6 +1181,7 @@ export default function App() {
         onNewChat={startNewChat}
         onSelectConversation={selectConversation}
         onDeleteConversation={deleteConversationHandler}
+        onClearAllConversations={clearAllConversationsHandler}
         onLogout={handleLogout}
         onGuestSignIn={() => { setSidebarOpen(false); setShowGuestLoginModal(true); }}
       />

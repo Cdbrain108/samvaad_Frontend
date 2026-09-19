@@ -1494,19 +1494,21 @@ html { scroll-behavior: auto; }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: rgba(16, 38, 63, 0.85);
-  border: 1px solid rgba(254, 200, 75, 0.35);
+  background: rgba(10, 26, 47, 0.28) !important;
+  border: 1px solid rgba(254, 200, 75, 0.25) !important;
   border-radius: 999px;
   padding: 3px 5px;
   cursor: pointer;
   transition: all 0.25s ease;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18) !important;
 }
 
 .spiritual-page:not(.night) .theme-pill-toggle {
-  background: rgba(255, 243, 214, 0.95);
-  border-color: rgba(230, 138, 0, 0.35);
+  background: rgba(255, 255, 255, 0.35) !important;
+  border: 1px solid rgba(230, 138, 0, 0.22) !important;
+  box-shadow: 0 4px 16px rgba(120, 70, 10, 0.06) !important;
 }
 
 .theme-pill-opt {
