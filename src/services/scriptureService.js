@@ -1123,7 +1123,7 @@ const RAG_ENDPOINT = 'http://54.252.47.101/rag/search';
  * Executes intfloat/multilingual-e5-large semantic search in sub-250ms
  * Retrieves top 5 candidates for intelligent model evaluation
  */
-async function queryOracleVectorRAG(query) {
+async function queryOracleVectorRAG(query, originalUserQuery = '') {
   if (typeof fetch === 'undefined') return [];
 
   const controller = new AbortController();
@@ -1131,21 +1131,22 @@ async function queryOracleVectorRAG(query) {
   const timeoutId = setTimeout(() => controller.abort(), 12000);
 
   let scriptureFilter = 'all';
-  if (/(गीता|gita|geeta|भगवद्गीता)/i.test(query)) {
+  const textForFilter = originalUserQuery ? `${query} ${originalUserQuery}` : query;
+  if (/(गीता|gita|geeta|भगवद्गीता)/i.test(textForFilter)) {
     scriptureFilter = 'gita';
-  } else if (/(रामायण|ramayan|रामचरित|ramcharitmanas|मानस|वाल्मीकि|vibhishan|ravana|रावण|विभीषण|लङ्का|लंका|sita|सीता|hanuman|हनुमान)/i.test(query)) {
+  } else if (/(रामायण|ramayan|रामचरित|ramcharitmanas|मानस|वाल्मीकि|vibhishan|ravana|रावण|विभीषण|लङ्का|लंका|sita|सीता|hanuman|हनुमान)/i.test(textForFilter)) {
     scriptureFilter = 'ramayana';
-  } else if (/(ऋग्वेद|सामवेद|यजुर्वेद|अथर्ववेद|वेद|veda|vedas|rigved|yajurved|samved|saamved|atharvaved)/i.test(query)) {
+  } else if (/(ऋग्वेद|सामवेद|यजुर्वेद|अथर्ववेद|वेद|veda|vedas|rigved|yajurved|samved|saamved|atharvaved)/i.test(textForFilter)) {
     scriptureFilter = 'veda';
-  } else if (/(शिव\s*पुराण|shiv\s*puran|shiva\s*puran)/i.test(query)) {
+  } else if (/(शिव\s*पुराण|shiv\s*puran|shiva\s*puran)/i.test(textForFilter)) {
     scriptureFilter = 'purana';
-  } else if (/(पुराण|puran|purana|भागवत|bhagavatam|देवी|विष्णु|अग्नि|गरुड़|गरुण|garud|garun|वामन|कूर्म|मत्स्य|स्कन्द|नारद)/i.test(query)) {
+  } else if (/(पुराण|puran|purana|भागवत|bhagavatam|देवी|विष्णु|अग्नि|गरुड़|गरुण|garud|garun|वामन|कूर्म|मत्स्य|स्कन्द|नारद)/i.test(textForFilter)) {
     scriptureFilter = 'purana';
-  } else if (/(महाभारत|mahabharata)/i.test(query)) {
+  } else if (/(महाभारत|mahabharata)/i.test(textForFilter)) {
     scriptureFilter = 'mahabharata';
   }
 
-  const cleanQ = normalizeQuery(query);
+  const cleanQ = normalizeQuery(originalUserQuery || query);
 
   try {
     const res = await fetch(RAG_ENDPOINT, {
@@ -1170,24 +1171,25 @@ async function queryOracleVectorRAG(query) {
     const validCandidates = [];
     for (const c of rawCandidates) {
       if (!c || !c.original_text) continue;
-      // Calibrated Hybrid Quality Floor:
-      // AWS gateway computes dense vector_score (E5-large), rerank_score (BGE/FlashRank), and blended_score.
-      // 1. If vector similarity is strong (>= 0.76), retain candidate even if cross-encoder had conversational English penalty.
-      // 2. If rerank_score is confident (>= 0.20), retain candidate.
-      // 3. Reject only if BOTH dense vector (< 0.60) and rerank (< 0.20) confirm lack of relevance.
+      // Cross-Encoder Authority & Rejection Floor:
+      // AWS gateway computes dense vector_score (E5-large) and cross-encoder rerank_score.
+      // 1. If cross-encoder evaluated the pair, its semantic judgment is authoritative: reject mismatches (rrScore < 0.20).
+      // 2. Reject if dense vector (< 0.60) and rerank (< 0.30) indicate weak semantic alignment.
+      // 3. Score reflects reranker priority (70% cross-encoder + 30% dense vector), never ignoring the reranker via Math.max!
       const vecScore = c.score ?? c.vector_score ?? 0;
       const rrScore = c.rerank_score ?? c.rerankScore ?? null;
-      const blScore = c.blended_score ?? c.blendedScore ?? (rrScore !== null ? (0.65 * Number(rrScore) + 0.35 * Number(vecScore)) : vecScore);
 
-      if (vecScore < 0.60 && (rrScore === null || Number(rrScore) < 0.20)) continue;
-      if (rrScore !== null && Number(rrScore) < 0.10 && Number(vecScore) < 0.78) continue;
+      if (rrScore !== null && Number(rrScore) < 0.20) continue;
+      if (vecScore < 0.60 && (rrScore === null || Number(rrScore) < 0.30)) continue;
 
       const hindiMean = (c.hindi_meaning || '').trim();
       const engMean = (c.english_translation || '').trim();
       if (hindiMean.length < 6 && engMean.length < 6) continue;
 
       const scriptureId = c.scripture_id || ((c.reference || '').toLowerCase().includes('gita') ? 'bhagavad_gita' : (c.collection || 'sacred_text').replace('scripture_', ''));
-      const effectiveScore = Number(Math.max(vecScore, blScore, Number(rrScore || 0)).toFixed(4));
+      const effectiveScore = rrScore !== null
+        ? Number((0.70 * Number(rrScore) + 0.30 * Number(vecScore)).toFixed(4))
+        : Number(vecScore.toFixed(4));
 
       const itemCandidate = {
         id: c.id || `qdrant_${Date.now()}_${Math.random()}`,
@@ -1315,20 +1317,12 @@ export function isTopicExcluded(cleanQ, item) {
     if (!isGarudaQuery) return true;
   }
 
-  // Gate extramarital / paradara / Chandra-Tara / looking at other women verses:
-  // ONLY match when query specifically concerns women, girls, lust/attraction to others, adultery, or Chandra-Tara
-  const isParadaraOrMahapataka =
-    item.id === 'chanakya_niti_matravat' ||
-    item.id === 'valmiki_ramayana_paradara' || 
-    item.id === 'padma_purana_paradara' ||
-    item.id === 'rcm_ayodhya_parnari' ||
-    /chandra[-_]?tara|guru[-_]?patni|mahapataka|paradara/i.test(item.id || '') ||
-    /chandra[-_]?tara|चन्द्र.*तारा|गुरुपत्नी|महापातक|परदारा/i.test(item.reference || '') ||
-    /गुरुपत्नीं|चन्द्रः\s*क्षयरोगेण|तारया\s*सह|परदाराभिमर्श/i.test(item.original_text || '');
-
-  if (isParadaraOrMahapataka) {
-    const isLustOrAdulteryQuery = /(?:girl|girls|woman|women|parastri|paradara|parnari|wife|adultery|affair|attraction|lust|vasana|drishti\s*dosha|puri\s*nazar|buri\s*nazar|nazar|paraye\s*mard|paraye\s*stree|extramarital|chandra.*tara|लड़की|लड़कियों|स्त्री|परस्त्री|परनारी|पत्नी|व्यभिचार|काम-वासना|बुरी\s*नज़र|दृष्टि\s*दोष)/i.test(cleanQ);
-    if (!isLustOrAdulteryQuery) return true;
+  // Gate extramarital / paradara / looking at other women verses:
+  // ONLY match when query specifically concerns women, girls, lust/attraction to others, adultery
+  if (item.id === 'chanakya_niti_matravat' || item.id === 'valmiki_ramayana_paradara' || 
+      item.id === 'padma_purana_paradara' || item.id === 'rcm_ayodhya_parnari') {
+    const isLustOrWomanQuery = /(?:girl|girls|woman|women|parastri|paradara|parnari|wife|adultery|affair|attraction|lust|vasana|drishti\s*dosha|puri\s*nazar|buri\s*nazar|nazar|paraye\s*mard|paraye\s*stree|लड़की|लड़कियों|स्त्री|परस्त्री|परनारी|पत्नी|व्यभिचार|काम-वासना|बुरी\s*नज़र|दृष्टि\s*दोष)/i.test(cleanQ);
+    if (!isLustOrWomanQuery) return true;
   }
 
   // 1. Check predefined topic gates
@@ -1639,13 +1633,17 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
   }
   const curatedMatches = Array.from(curatedMatchesMap.values()).sort((a, b) => b.score - a.score);
 
-  // 2. Live Vector Search using the CANONICAL concept query first (general reformulation).
+  // 2. Live Vector Search using the FULL user query + canonical concepts.
+  // ALWAYS preserve the complete user question sentence so the dense embedder
+  // and cross-encoder reranker understand the full query context and intent,
+  // rather than stripping it down to isolated Sanskrit keywords!
   let vectorCandidates = [];
   try {
-    const canonicalQuery = canonStr ? `${canonStr}` : null;
-    const vectorQuery = canonicalQuery || (enrichedKeywords ? `${query} ${enrichedKeywords}` : query);
+    const vectorQuery = canonStr
+      ? `${query.trim()} (${canonStr})`
+      : (enrichedKeywords ? `${query.trim()} ${enrichedKeywords}` : query.trim());
     // Query live AWS 1024-d Qdrant gateway across all 29 scripture collections
-    let routed = await queryOracleVectorRAG(vectorQuery);
+    let routed = await queryOracleVectorRAG(vectorQuery, query);
 
     if (explicitTarget && routed.length) {
       // Hard filter ONLY when the user explicitly asked for a specific scripture
@@ -1706,9 +1704,6 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
   const primary = { ...candidatePool[0] };
   primary.isExplicitSingle = Boolean(explicitTarget);
   primary.explicitScriptureName = explicitTarget ? explicitTarget.name : null;
-  // General diverse selection (EVERY intent): when several high-confidence curated
-  // matches exist, prefer one verse per scripture so Puranas/Ramayana/Gita/Niti all
-  // illuminate the dilemma instead of 3 verses from one source. No per-query lists.
   const topScore = candidatePool[0]?.score ?? 0;
   const wantDiverse = !explicitTarget;
   let chosen = [];
@@ -1716,7 +1711,17 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
   if (wantDiverse && candidatePool.length > 1) {
     // True Cross-Scripture Diversity Algorithm:
     // Cap any single scripture at max 2 candidates, actively ensuring diverse representation
-    // across 29 Sacred Scriptures (Gita, Ramcharitmanas, Puranas, Niti, Upanishads, Vedas)
+    // across 29 Sacred Scriptures (Gita, Ramcharitmanas, Puranas, Niti, Upanishads, Vedas).
+    // CRITICAL: Supporting candidates MUST meet strict absolute relevance (>= 0.65)
+    // AND relative score thresholds (>= 75% of primary). Never drag in low-scoring/irrelevant
+    // verses just to fulfill a diversity quota!
+    const MIN_SUPPORTING_SCORE = 0.65;
+    const MIN_RELATIVE_SCORE = topScore * 0.75;
+    const isQualifyingSupporting = (cand) => {
+      const s = cand.score || 0;
+      return s >= MIN_SUPPORTING_SCORE && s >= MIN_RELATIVE_SCORE;
+    };
+
     const byScripture = new Map();
     for (const c of candidatePool) {
       const sid = (c.scripture_id || 'other').toLowerCase();
@@ -1725,7 +1730,9 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
     }
 
     const scriptureCounts = new Map();
-    const addCandidate = (cand) => {
+    const addCandidate = (cand, isPrimary = false) => {
+      if (!cand) return false;
+      if (!isPrimary && !isQualifyingSupporting(cand)) return false;
       const sid = (cand.scripture_id || 'other').toLowerCase();
       const current = scriptureCounts.get(sid) || 0;
       if (current < 2) {
@@ -1737,32 +1744,22 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
     };
 
     // 1. Pick top primary candidate
-    addCandidate(candidatePool[0]);
+    addCandidate(candidatePool[0], true);
 
-    // 2. Round-robin: Pick highest-scoring candidate from each OTHER scripture
+    // 2. Round-robin: Pick qualifying candidate from each OTHER scripture
     const primarySid = (candidatePool[0]?.scripture_id || '').toLowerCase();
     for (const [sid, list] of byScripture.entries()) {
       if (sid === primarySid) continue;
-      if (list.length > 0 && chosen.length < 6) {
-        addCandidate(list[0]);
+      if (list.length > 0 && chosen.length < 4) {
+        addCandidate(list[0], false);
       }
     }
 
-    // 3. Second pass: Fill remaining slots up to 6, still respecting max 2 per scripture
+    // 3. Second pass: Fill remaining slots up to 4, strictly requiring qualifying threshold
     for (const c of candidatePool) {
-      if (chosen.length >= 6) break;
+      if (chosen.length >= 4) break;
       if (!chosen.some(existing => existing.id === c.id)) {
-        addCandidate(c);
-      }
-    }
-
-    // 4. If still under limit, add any remaining candidate
-    if (chosen.length < 6) {
-      for (const c of candidatePool) {
-        if (chosen.length >= 6) break;
-        if (!chosen.some(existing => existing.id === c.id)) {
-          chosen.push(c);
-        }
+        addCandidate(c, false);
       }
     }
   } else {

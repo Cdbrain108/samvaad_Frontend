@@ -2387,7 +2387,10 @@ Spiritual Meaning: "${c.english_translation || c.hindi_meaning}"`).join('\n\n')}
 INSTRUCTIONS FOR CONTINUOUS WEAVING & END SUMMARY:
 1. In Paragraph 3, weave the Primary Verse naturally into the conversational body inside **« ${primaryVerse.original_text} »**, followed immediately on the next line by:
    **Meaning —** "[Authentic spiritual meaning in pure English]"
-2. If Supporting Verses are provided above, DO NOT crowd the main conversational body with multiple Sanskrit recitations. Instead, at the very end of your response, provide a clean, concise supporting block:
+2. SUPPORTING VERSES (STRICT HARMONIOUS RELEVANCE):
+   - Only include a supporting verse in the end block if it DIRECTLY, naturally, and constructively illuminates the devotee's specific question.
+   - If any candidate above is off-topic, dissonant, or from an unrelated narrative context, DISCARD IT completely. NEVER force unrelated verses into the satsang response.
+   - If relevant:
    ---
    📖 **Supporting Scriptural References & Insights:**
    ${supportingVerses.map(c => `• **${c.reference}**: *«${(c.original_text || '').slice(0, 45)}...»* — [1-2 concise sentences explaining how this sacred verse illuminates the seeker's inquiry].`).join('\n   ')}`
@@ -2416,7 +2419,10 @@ ${supportingVerses.map((c, i) => `(पूरक प्रमाण ${i + 1}) [${
 
 निर्देश (प्रवाह में समन्वय व अंत में सरल सारांश):
 १. अनुच्छेद ३ में मुख्य आधार प्रमाण श्लोक को **« ${primaryVerse.original_text} »** में रखें और ठीक नीचे **अर्थात् —** में उसका मर्मस्पर्शी भावार्थ दें।
-२. पूरक प्रमाण श्लोकों को मुख्य वार्तालाप में न ठूंसें; बल्कि उत्तर के अंत में एक सुंदर सारांश दें:
+२. पूरक प्रमाण (केवल प्रासंगिक होने पर ही):
+   - केवल तभी किसी पूरक श्लोक को अंत में शामिल करें जब वह साधक के प्रश्न से सीधा, स्वाभाविक व सकारात्मक संबंध रखता हो।
+   - यदि कोई पूरक श्लोक संदर्भहीन या असंगत प्रसंग का हो, तो उसे पूर्णतः छोड़ दें; व्यर्थ के श्लोक न ठूंसें।
+   - यदि प्रासंगिक हो:
    ---
    📖 **पूरक शास्त्र प्रमाण व भावार्थ:**
    ${supportingVerses.map(c => `• **${c.reference}**: *«${(c.original_text || '').slice(0, 45)}...»* — [१-२ वाक्यों में सरल व व्यावहारिक सार]।`).join('\n   ')}`
