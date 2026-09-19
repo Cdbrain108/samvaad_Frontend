@@ -726,15 +726,85 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  /* Header Taskbar Visibility:
-     - Kept visible and transparent across all content pages (Hero, Inspiration, About Project, How It Works, Scriptures).
-     - Completely removed / hidden on the About Us / Creator page so content is 100% unobstructed.
+  /* Auto-hide taskbar logic:
+     - On page section change or scroll: whole taskbar shows and auto-hides in 2 sec, leaving day/night bar visible.
+     - When pointing mouse in taskbar area (clientY <= 95) or hover: whole taskbar gets visible again.
+     - When scrolling up (deltaY < -15): whole taskbar gets visible again.
+     - When scrolling down (deltaY > 15): hides taskbar for 100% clean view.
+     - On last page (About Us / education): completely hidden / removed so creator profile is 100% unobstructed.
   */
   useEffect(() => {
     if (phases[active]?.id === 'education' || active === phases.length - 1) {
+      clearTimeout(navHideTimer.current)
       setNavHidden(true)
-    } else {
+      return
+    }
+
+    const showNavTemporarily = (duration = 2000) => {
       setNavHidden(false)
+      clearTimeout(navHideTimer.current)
+      navHideTimer.current = setTimeout(() => {
+        setNavHidden(true)
+      }, duration)
+    }
+
+    // 1. Mouse movement: pointing mouse in taskbar area (clientY <= 95) or moving towards top reveals whole taskbar
+    const onMouseMove = (event) => {
+      if (event.clientY <= 95 || event.movementY < -4) {
+        showNavTemporarily(2600)
+      } else if (event.movementY > 8 && event.clientY > 110) {
+        clearTimeout(navHideTimer.current)
+        setNavHidden(true)
+      }
+    }
+
+    // 2. Mouse Up
+    const onMouseUp = () => {
+      showNavTemporarily(2400)
+    }
+
+    // 3. Wheel gesture: scrolling UP (deltaY < -15) reveals whole taskbar; scrolling DOWN (deltaY > 15) hides it
+    const onWheelNav = (event) => {
+      if (event.deltaY < -15) {
+        showNavTemporarily(2600)
+      } else if (event.deltaY > 15) {
+        clearTimeout(navHideTimer.current)
+        setNavHidden(true)
+      }
+    }
+
+    // 4. Touch swipe events (mobile & tablet)
+    let touchStartY = 0
+    const onTouchStart = (event) => {
+      touchStartY = event.touches[0].clientY
+    }
+    const onTouchMove = (event) => {
+      const currentY = event.touches[0].clientY
+      const deltaY = currentY - touchStartY
+      if (deltaY > 18) {
+        showNavTemporarily(2600)
+      } else if (deltaY < -18) {
+        clearTimeout(navHideTimer.current)
+        setNavHidden(true)
+      }
+    }
+
+    // Show full taskbar initially on page enter, then auto-hide in 2s
+    showNavTemporarily(2000)
+
+    window.addEventListener('mousemove', onMouseMove, { passive: true })
+    window.addEventListener('mouseup', onMouseUp, { passive: true })
+    window.addEventListener('wheel', onWheelNav, { passive: true })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+      window.removeEventListener('wheel', onWheelNav)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchmove', onTouchMove)
+      clearTimeout(navHideTimer.current)
     }
   }, [active])
 
@@ -785,9 +855,36 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         </svg>
       </div>
 
-      {/* Floating Top-Right Controls: visible on all pages, completely omitted on About Us */}
+      {/* Full Taskbar: auto-hides in 2s to floating Day/Night bar, completely omitted on About Us */}
       {phases[active]?.id !== 'education' && (
-        <aside className="spiritual-floating-actions" aria-label="Quick Controls">
+        <header
+          className={`spiritual-header${navHidden ? ' is-hidden' : ''}`}
+          onMouseEnter={() => {
+            clearTimeout(navHideTimer.current)
+            setNavHidden(false)
+          }}
+          onMouseLeave={() => {
+            clearTimeout(navHideTimer.current)
+            navHideTimer.current = setTimeout(() => setNavHidden(true), 2000)
+          }}
+        >
+          <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
+            <img className="brand-icon" src={brandIcon} alt="" />
+            <span className="brand-text">
+              <span className="spiritual-wordmark">Samvaad</span>
+              <span className="brand-tagline">प्रश्न आपका, कृपा उसकी</span>
+            </span>
+          </button>
+
+          <nav className="spiritual-nav" aria-label="Main navigation">
+            <a href="#hero" onClick={(event) => { event.preventDefault(); goToPhase('hero') }}><Icon name="home" size={15} />Home</a>
+            <a href="#inspiration" onClick={(event) => { event.preventDefault(); goToPhase('inspiration') }}><Icon name="heart" size={15} />Inspiration</a>
+            <a href="#overview" onClick={(event) => { event.preventDefault(); goToPhase('overview') }}><Icon name="message-square" size={15} />About Project</a>
+            <a href="#pipeline" onClick={(event) => { event.preventDefault(); goToPhase('pipeline') }}><Icon name="layers" size={15} />How It Works</a>
+            <a href="#scriptures" onClick={(event) => { event.preventDefault(); goToPhase('scriptures') }}><Icon name="book" size={15} />Scriptures</a>
+            <a href="#education" onClick={(event) => { event.preventDefault(); goToPhase('education') }}><Icon name="info" size={15} />About Us</a>
+          </nav>
+
           <div className="spiritual-header-actions">
             <button
               className="theme-pill-toggle"
@@ -867,7 +964,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
               <span aria-hidden="true">🙏</span> Start Asking
             </button>
           </div>
-        </aside>
+        </header>
       )}
 
       {/* Side Dot Navigation */}
