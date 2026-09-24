@@ -690,7 +690,6 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         ticking = true
         requestAnimationFrame(update)
       }
-      showCueTemporarily(2000)
     }
     update()
     root.addEventListener('scroll', onScroll, { passive: true })
@@ -1036,17 +1035,6 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
               {scriptures.map((scripture) => <span key={scripture}>{scripture}</span>)}
             </div>
           </div>
-
-          <button
-            className={`scroll-cue${cueHidden ? ' is-hidden' : ''}`}
-            onClick={() => goToPhase('overview')}
-            aria-label="Scroll down to About Project"
-            onMouseEnter={() => { if (cueTimer.current) clearTimeout(cueTimer.current); setCueHidden(false) }}
-            onMouseLeave={() => showCueTemporarily(2000)}
-          >
-            <span className="scroll-cue-wheel" aria-hidden="true" />
-            <small>Overview</small>
-          </button>
         </section>
 
         {/* ============================================================
@@ -1063,17 +1051,6 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
           </Reveal>
 
           <ChatProjectOverview onEnter={onEnter} />
-
-          <button
-            className={`scroll-cue${cueHidden ? ' is-hidden' : ''}`}
-            onClick={() => goToPhase('pipeline')}
-            aria-label="Scroll down to How It Works"
-            onMouseEnter={() => { if (cueTimer.current) clearTimeout(cueTimer.current); setCueHidden(false) }}
-            onMouseLeave={() => showCueTemporarily(2000)}
-          >
-            <span className="scroll-cue-wheel" aria-hidden="true" />
-            <small>How It Works</small>
-          </button>
         </section>
 
         {/* ============================================================
@@ -1147,17 +1124,6 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
               </div>
             </div>
           )}
-
-          <button
-            className={`scroll-cue${cueHidden ? ' is-hidden' : ''}`}
-            onClick={() => goToPhase('scriptures')}
-            aria-label="Scroll down to Scriptures"
-            onMouseEnter={() => { if (cueTimer.current) clearTimeout(cueTimer.current); setCueHidden(false) }}
-            onMouseLeave={() => showCueTemporarily(2000)}
-          >
-            <span className="scroll-cue-wheel" aria-hidden="true" />
-            <small>Scriptures</small>
-          </button>
         </section>
 
         {/* ============================================================
@@ -1216,17 +1182,6 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
               <ScriptureBook />
             </div>
           )}
-
-          <button
-            className={`scroll-cue${cueHidden ? ' is-hidden' : ''}`}
-            onClick={() => goToPhase('education')}
-            aria-label="Scroll down to About Us"
-            onMouseEnter={() => { if (cueTimer.current) clearTimeout(cueTimer.current); setCueHidden(false) }}
-            onMouseLeave={() => showCueTemporarily(2000)}
-          >
-            <span className="scroll-cue-wheel" aria-hidden="true" />
-            <small>About Us</small>
-          </button>
         </section>
 
         {/* ============================================================

@@ -5479,30 +5479,122 @@ select:focus-visible,
    - tall phases grow naturally (no clipped content forcing a skip)
    - hero stays exactly one viewport
    ============================================================ */
-.spiritual-page.landing-scroll{
-  scroll-snap-type: y proximity !important;
-  overscroll-behavior-y: auto !important;
+@media (min-width: 901px) {
+  .spiritual-page.landing-scroll{
+    scroll-snap-type: y proximity !important;
+    overscroll-behavior-y: auto !important;
+  }
+  .spiritual-page .phase{
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: normal !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: none !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+  .spiritual-page .phase::-webkit-scrollbar {
+    display: none !important;
+  }
+  .spiritual-page .phase-hero{
+    height: 100svh !important;
+    max-height: 100svh !important;
+    min-height: 100svh !important;
+    overflow: hidden !important;
+  }
 }
-.spiritual-page .phase{
-  height: 100dvh !important;
-  min-height: 100dvh !important;
-  max-height: 100dvh !important;
-  scroll-snap-align: start !important;
-  scroll-snap-stop: normal !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  scrollbar-width: none !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-}
-.spiritual-page .phase::-webkit-scrollbar {
-  display: none !important;
-}
-.spiritual-page .phase-hero{
-  height: 100svh !important;
-  max-height: 100svh !important;
-  min-height: 100svh !important;
-  overflow: hidden !important;
+
+/* ============================================================
+   MOBILE (<= 900px) & TOUCHSCREEN OPTIMIZATION & SEGMENTATION
+   - Strictly hides mouse scroll cue on all touch / mobile screens
+   - Clear, clean section segmentation with no vertical clipping
+   - Each phase snaps comfortably below the sticky topbar
+   ============================================================ */
+@media (max-width: 900px), (hover: none), (pointer: coarse) {
+  .scroll-cue,
+  .heritage-scroll-cue {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  .spiritual-page.landing-scroll {
+    height: 100svh !important;
+    height: 100dvh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scroll-snap-type: y proximity !important;
+    overscroll-behavior-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .spiritual-page .phase {
+    height: auto !important;
+    min-height: 100svh !important;
+    max-height: none !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
+    padding: 82px 16px 42px !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    scroll-snap-align: start !important;
+    scroll-margin-top: 60px !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+  }
+
+  .spiritual-page .phase-hero {
+    height: auto !important;
+    min-height: 100svh !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 80px 16px 36px !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+  }
+
+  /* Distinct visual segmentation between consecutive sections */
+  .spiritual-page .phase:not(:last-child)::after {
+    content: '';
+    display: block;
+    width: min(85%, 340px);
+    height: 1px;
+    margin: 36px auto 0;
+    background: linear-gradient(90deg, transparent, rgba(254, 200, 75, 0.4), transparent);
+  }
+
+  .spiritual-page .spiritual-section-heading {
+    margin-bottom: 20px !important;
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  .pipeline-switcher-wrap {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    margin: 8px 0 16px !important;
+  }
+
+  .pipeline-switcher {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: 440px !important;
+    gap: 6px !important;
+  }
+
+  .pipeline-tab-btn {
+    flex: 1 1 auto !important;
+    justify-content: center !important;
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+  }
 }
 @media (prefers-reduced-motion: reduce){
   .spiritual-page.landing-scroll{ scroll-behavior: auto !important; }

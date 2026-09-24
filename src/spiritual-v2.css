@@ -1026,8 +1026,13 @@ html { scroll-behavior: auto; }
   .story-grid { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 900px) {
-  .scroll-cue { bottom: 66px; }
+@media (max-width: 900px), (hover: none), (pointer: coarse) {
+  .scroll-cue,
+  .heritage-scroll-cue {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
 }
 
 @media (max-width: 700px) {
