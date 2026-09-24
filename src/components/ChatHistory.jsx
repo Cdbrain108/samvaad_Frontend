@@ -96,30 +96,17 @@ export default function ChatHistory({ user, conversations = [], isOpen = false, 
           </div>
           <div className="sidebar-header-actions">
             {!isGuest && conversations.length > 0 && (
-              <button
+              <motion.button
                 type="button"
                 className="sidebar-header-btn sidebar-clear-btn"
                 onClick={handleClearAll}
                 aria-label="Clear all conversations"
                 title="Clear all conversations"
-                style={{
-                  color: '#ef4444',
-                  fontSize: '0.72rem',
-                  fontWeight: 600,
-                  padding: '4px 8px',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  marginRight: '4px'
-                }}
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.94 }}
               >
-                <Icon name="trash" size={13} />
-                <span>Clear All</span>
-              </button>
+                <Icon name="trash" size={15} />
+              </motion.button>
             )}
             {!isGuest && (
               <motion.button

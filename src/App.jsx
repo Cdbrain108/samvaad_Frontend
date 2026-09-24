@@ -508,6 +508,11 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [view, setView] = useState('landing');
   const [currentConversationId, setCurrentConversationId] = useState(null);
+  const currentConversationIdRef = useRef(null);
+  const updateCurrentConvId = (id) => {
+    currentConversationIdRef.current = id;
+    setCurrentConversationId(id);
+  };
   const [loading, setLoading] = useState(true);
   const [isResponding, setIsResponding] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -697,7 +702,7 @@ export default function App() {
         } catch (e) { }
         setConversations([]);
         setMessages([]);
-        setCurrentConversationId(null);
+        updateCurrentConvId(null);
         // NOTE: Do NOT reset guestMessageCount here — it lives in sessionStorage
         // and must survive logout so the 1-question limit stays enforced for the whole tab session.
         setUserMemory(null);
@@ -770,8 +775,9 @@ export default function App() {
   const maybeAutoNameChatOnLeave = async () => {
     const activeUser = user || ensureUser();
     if (!activeUser || !currentConversationId || messages.length < 2) return;
-    const currentConv = conversations.find(c => c.id === currentConversationId);
-    if (currentConv && (!currentConv.title || currentConv.title.endsWith('...') || currentConv.title === 'New Conversation')) {
+    const activeId = currentConversationIdRef.current || currentConversationId;
+    const currentConv = conversations.find(c => String(c.id) === String(activeId));
+    if (currentConv && (!currentConv.title || currentConv.title.endsWith('...') || currentConv.title === 'New Conversation' || currentConv.title === 'Spiritual Satsang')) {
       const newTitle = await generateChatTitle(messages);
       if (newTitle && newTitle !== 'New Conversation') {
         const updatedConvData = { ...currentConv, title: newTitle, updatedAt: new Date() };
@@ -790,7 +796,7 @@ export default function App() {
     await maybeAutoNameChatOnLeave();
     setMessages([]);
     setDraft('');
-    setCurrentConversationId(null);
+    updateCurrentConvId(null);
     setSidebarOpen(false);
   };
 
@@ -805,7 +811,7 @@ export default function App() {
         setMessages(result.conversation.messages);
       }
     }
-    setCurrentConversationId(conversation.id);
+    updateCurrentConvId(conversation.id);
     setSidebarOpen(false);
   };
 
@@ -818,9 +824,9 @@ export default function App() {
       } catch (e) {}
       return updated;
     });
-    if (String(currentConversationId) === String(convId)) {
+    if (String(currentConversationIdRef.current) === String(convId) || String(currentConversationId) === String(convId)) {
       setMessages([]);
-      setCurrentConversationId(null);
+      updateCurrentConvId(null);
     }
   };
 
@@ -829,7 +835,7 @@ export default function App() {
     const toDelete = [...conversations];
     setConversations([]);
     setMessages([]);
-    setCurrentConversationId(null);
+    updateCurrentConvId(null);
     try {
       localStorage.removeItem(`samvad_chats_${activeUser.uid}`);
     } catch (e) {}
@@ -849,6 +855,13 @@ export default function App() {
 
     const message = (typeof explicitMessage === 'string' ? explicitMessage : draft).trim();
     if (!message) return;
+
+    // Lock activeChatId upfront so every message in this session stays in the exact SAME conversation
+    let activeChatId = currentConversationIdRef.current;
+    if (!activeChatId) {
+      activeChatId = 'chat_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+      updateCurrentConvId(activeChatId);
+    }
 
     // Guest users get exactly 1 free question
     if (getIsGuestLimitReached()) {
@@ -970,24 +983,29 @@ export default function App() {
       }
 
 
-      // Guest users: no persistence (counter already incremented above before streaming)
+// Guest users: no persistence (counter already incremented above before streaming)
       if (activeUser.uid === 'devotee_local') {
         // Don't save to localStorage or Firestore for guests
       } else {
+        const existingConv = conversations.find(c => String(c.id) === String(activeChatId));
+        const conversationTitle = (existingConv && existingConv.title && existingConv.title !== 'Spiritual Satsang' && existingConv.title !== 'New Conversation')
+          ? existingConv.title
+          : (message.length > 35 ? message.slice(0, 35) + '...' : message);
+
         const conversationData = {
-          title: messages.length === 0 ? (message.length > 30 ? message.slice(0, 30) + '...' : message) : (conversations.find(c => c.id === currentConversationId)?.title || 'Spiritual Satsang'),
+          title: conversationTitle,
           messages: [...updatedMessagesWithUser, finalizedAssistantMsg],
           updatedAt: new Date()
         };
 
         setConversations(prev => {
-          const existingIndex = prev.findIndex(c => c.id === currentConversationId);
+          const existingIndex = prev.findIndex(c => String(c.id) === String(activeChatId));
           let updated;
           if (existingIndex >= 0) {
             updated = [...prev];
-            updated[existingIndex] = { ...updated[existingIndex], ...conversationData };
+            updated[existingIndex] = { ...updated[existingIndex], ...conversationData, id: activeChatId };
           } else {
-            updated = [{ id: currentConversationId || `local_${Date.now()}`, ...conversationData }, ...prev];
+            updated = [{ id: activeChatId, ...conversationData, createdAt: new Date() }, ...prev];
           }
           try {
             localStorage.setItem(`samvad_chats_${activeUser.uid}`, JSON.stringify(updated));
@@ -995,16 +1013,13 @@ export default function App() {
           return updated;
         });
 
-        if (currentConversationId) {
-          await updateConversation(activeUser.uid, currentConversationId, conversationData);
-        } else {
-          const result = await saveConversation(activeUser.uid, {
+        try {
+          await updateConversation(activeUser.uid, activeChatId, {
             ...conversationData,
-            createdAt: new Date()
+            createdAt: existingConv?.createdAt || new Date()
           });
-          if (!result.error && result.id) {
-            setCurrentConversationId(result.id);
-          }
+        } catch (e) {
+          console.warn('[Chat History] Firestore update error:', e);
         }
       }
     } catch (err) {
@@ -1028,7 +1043,7 @@ export default function App() {
     setUserProfile(null);
     setConversations([]);
     setMessages([]);
-    setCurrentConversationId(null);
+    updateCurrentConvId(null);
     setUserMemory(null);
     setShowGuestLoginModal(false);
     setShowOnboarding(false);

@@ -1,18 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const STAGES_HI = [
+const STAGES_RAG_HI = [
   { id: 'intent', label: 'साधक भाव व अंतर्मन अध्ययन', icon: '🔍' },
-  { id: 'rag', label: '२९ पावन शास्त्रों व गीता में अनुसंधान', icon: '📜' },
+  { id: 'rag', label: '२५+ पावन शास्त्रों (१.५ लाख+ श्लोक) में अनुसंधान', icon: '📜' },
   { id: 'deliberation', label: 'पूज्य महाराज जी की सत्संग वाणी अनुशीलन', icon: '🧘' },
   { id: 'synthesis', label: 'प्रामाणिक श्लोक व वात्सल्य समन्वय', icon: '🌸' }
 ];
 
-const STAGES_EN = [
+const STAGES_RAG_EN = [
   { id: 'intent', label: 'Analyzing Seeker Intent & Dilemma', icon: '🔍' },
-  { id: 'rag', label: 'Searching 29 Scriptures on AWS Qdrant', icon: '📜' },
+  { id: 'rag', label: 'Searching 150K+ Verses across 25+ Scriptures', icon: '📜' },
   { id: 'deliberation', label: 'Deliberating Maharaj Ji’s Satsang Counsel', icon: '🧘' },
   { id: 'synthesis', label: 'Harmonizing Sacred Verses & Divine Solace', icon: '🌸' }
+];
+
+const STAGES_DIRECT_HI = [
+  { id: 'intent', label: 'साधक भाव व अंतर्मन अध्ययन', icon: '🔍' },
+  { id: 'deliberation', label: 'पूज्य महाराज जी की प्रत्यक्ष सत्संग वाणी अनुशीलन', icon: '🧘' },
+  { id: 'solace', label: 'वात्सल्यपूर्ण पावन मार्गदर्शन व नाम-जप आश्रय', icon: '🌸' }
+];
+
+const STAGES_DIRECT_EN = [
+  { id: 'intent', label: 'Analyzing Seeker Tone & Intent', icon: '🔍' },
+  { id: 'deliberation', label: 'Deliberating Maharaj Ji’s Satsang Counsel', icon: '🧘' },
+  { id: 'solace', label: 'Formulating Fatherly Solace & Holy Name Blessing', icon: '🌸' }
 ];
 
 const WISDOM_PEARLS_HI = [
@@ -46,6 +58,7 @@ export default function ReasoningBlock({
   duration = 0,
   scripture = null,
   isEnglish = false,
+  needsScriptureRag = undefined,
 }) {
   const [isOpen, setIsOpen] = useState(Boolean(isThinking));
   const [isExpanded, setIsExpanded] = useState(false);
@@ -58,7 +71,10 @@ export default function ReasoningBlock({
   const isEnglishView = Boolean(isEnglish) || (thought && /^(?:🔍\s*Query Intent|Contemplating|Searching|Analyzing)/i.test(thought));
   const [displayedThought, setDisplayedThought] = useState(thought || '');
 
-  const stages = isEnglishView ? STAGES_EN : STAGES_HI;
+  const isRagActive = Boolean(scripture) || (needsScriptureRag === true);
+  const stages = isRagActive
+    ? (isEnglishView ? STAGES_RAG_EN : STAGES_RAG_HI)
+    : (isEnglishView ? STAGES_DIRECT_EN : STAGES_DIRECT_HI);
   const pearls = isEnglishView ? WISDOM_PEARLS_EN : WISDOM_PEARLS_HI;
   const currentPearl = pearls[pearlIndex % pearls.length];
 
@@ -136,16 +152,12 @@ export default function ReasoningBlock({
 
   const hasLongThought = (thought || '').length > 130;
 
-  // Active step index based on elapsed time
+  // Active step index dynamically matching stages count
   const currentStageIdx = !isThinking
-    ? 4
-    : elapsed < 2.5
-      ? 0
-      : elapsed < 6.5
-        ? 1
-        : elapsed < 13.0
-          ? 2
-          : 3;
+    ? stages.length
+    : isRagActive
+      ? (elapsed < 2.5 ? 0 : elapsed < 6.5 ? 1 : elapsed < 13.0 ? 2 : 3)
+      : (elapsed < 3.0 ? 0 : elapsed < 8.0 ? 1 : 2);
 
   return (
     <div className={`reasoning-container claude-reasoning-container ${isThinking ? 'thinking-active' : 'thinking-done'}`}>
@@ -212,10 +224,19 @@ export default function ReasoningBlock({
             <span className={`claude-rag-pill-chevron ${isScriptureOpen ? 'open' : ''}`}>▾</span>
           </button>
         ) : isThinking ? (
-          <div className="claude-rag-searching-pill">
-            <span className="claude-shimmer-dot" />
-            <span className="claude-shimmer-text">Searching 29 Scriptures on AWS...</span>
-          </div>
+          isRagActive ? (
+            <div className="claude-rag-searching-pill">
+              <span className="claude-shimmer-dot" />
+              <span className="claude-shimmer-text">Searching 150K+ Sacred Verses across 25+ Scriptures...</span>
+            </div>
+          ) : (
+            <div className="claude-rag-searching-pill">
+              <span className="claude-shimmer-dot" />
+              <span className="claude-shimmer-text">
+                {isEnglishView ? 'Contemplating with Fatherly Grace...' : 'पूज्य महाराज जी का पावन चिंतन...'}
+              </span>
+            </div>
+          )
         ) : null}
       </div>
 
@@ -253,7 +274,7 @@ export default function ReasoningBlock({
               {scripture.candidates && scripture.candidates.length > 1 && (
                 <div className="claude-scripture-candidates-strip" style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px dashed rgba(245, 158, 11, 0.25)' }}>
                   <div style={{ fontSize: '0.74rem', color: 'var(--muted, #94a3b8)', marginBottom: '6px', fontWeight: 600 }}>
-                    {isEnglishView ? '📜 Multi-Scripture Grounding Candidates Evaluated:' : '📜 अनुसंधित पावन शास्त्र संदर्भ (२९ शास्त्रों से):'}
+                    {isEnglishView ? '📜 Multi-Scripture Grounding Candidates Evaluated (150K+ Verses):' : '📜 अनुसंधित पावन शास्त्र संदर्भ (२५+ शास्त्रों व १.५ लाख+ श्लोकों से):'}
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                     {scripture.candidates.map((cand, cIdx) => (

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Samvaad">
+  <!-- Full-bleed background: maskable icons get cropped to a circle on Android,
+       so all meaning stays inside the centre 80% safe zone. -->
+  <rect width="512" height="512" fill="#090C19"/>
+
+  <!-- Soft halo -->
+  <circle cx="256" cy="250" r="132" fill="#F0B05C" opacity="0.10"/>
+  <circle cx="256" cy="250" r="96" fill="#F0B05C" opacity="0.13"/>
+
+  <!-- Diya flame -->
+  <path d="M256 140
+           c 30 46 52 74 52 108
+           a 52 52 0 0 1 -104 0
+           c 0 -34 22 -62 52 -108 z"
+        fill="#F5C271"/>
+  <path d="M256 190
+           c 16 28 27 44 27 63
+           a 27 27 0 0 1 -54 0
+           c 0 -19 11 -35 27 -63 z"
+        fill="#FFF1D0"/>
+
+  <!-- Lamp bowl -->
+  <path d="M168 318
+           h 176
+           c -8 40 -44 62 -88 62
+           s -80 -22 -88 -62 z"
+        fill="#C98A3E"/>
+  <rect x="160" y="306" width="192" height="16" rx="8" fill="#E0A756"/>
+</svg>

@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import heroNightTemple from '../assets/hero-night-temple.webp';
+import { getMaxPixelRatio } from '../utils/device';
 
 /* Lamps: pixel-detected warm cores, kept ONLY if they pass a contrast test
    (bright point vs darker 32px ring), so golden carvings never get one.
@@ -202,7 +203,7 @@ export default function TempleNightCanvas({ className = '' }) {
     function resizeCanvas() {
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = getMaxPixelRatio();
       canvas.width = Math.round(rect.width * dpr);
       canvas.height = Math.round(rect.height * dpr);
     }

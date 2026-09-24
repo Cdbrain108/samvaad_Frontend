@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AVATAR_COLORS as COLOR, AVATAR_PROPORTIONS as SIZE, AVATAR_MOTION as MOTION } from './sadhuAvatarConfig';
+import { getMaxPixelRatio, shouldAntialias } from '../../utils/device';
 
 /**
  * Procedurally generated, code-only 3D sadhu figure (no external mesh/likeness file).
@@ -32,12 +33,13 @@ export default function SadhuAvatar3D({ state = 'idle', pulseTick = 0 }) {
       const container = containerRef.current;
       let renderer;
       try {
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' });
+        // MSAA is skipped on phones: at DPR 2+ it costs more than it shows.
+        renderer = new THREE.WebGLRenderer({ antialias: shouldAntialias(), alpha: true, powerPreference: 'low-power' });
       } catch {
         setSupported(false);
         return;
       }
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setPixelRatio(getMaxPixelRatio());
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       container.appendChild(renderer.domElement);
 

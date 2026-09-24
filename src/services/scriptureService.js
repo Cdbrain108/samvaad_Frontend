@@ -7,6 +7,8 @@
  * - Shri Radha Sudha Nidhi
  */
 
+import { analyzeQuery } from './queryIntent.js';
+
 export const SCRIPTURE_DATABASE = [
   // 0. Comprehensive Gita Summary & Core Teachings (कुरुक्षेत्र, अर्जुन विषाद, निष्काम कर्म व शरणागति)
   {
@@ -302,7 +304,7 @@ export const SCRIPTURE_DATABASE = [
     context_intro_en: 'Just as Bhagavan Shri Krishna reveals the immortality of the soul in the Bhagavad Gita —',
     keywords: [
       'मृत्यु का भय', 'मौत से डर', 'मृत्यु के बाद क्या', 'अविनाशी आत्मा', 'मौत', 'मरण', 'मृत्यु क्या है', 'अमर आत्मा',
-      'fear of death', 'death', 'mortality', 'what happens after death', 'afraid of dying', 'immortal soul', 'overcome fear of death',
+      'fear of death', 'death', 'mortality', 'what happens after death', 'afraid of dying', 'immortal soul', 'overcome fear of death', 'soul and body', 'difference between soul and body', 'what is soul', 'difference between body and soul', 'शरीर और आत्मा', 'आत्मा और शरीर',
       'మరణం భయం', 'చనిపోవడం', 'ఆత్మ',
       'mrityu ka dar', 'mrityu ka bhay', 'maut se dar', 'mrityu', 'bhay', 'atma amar hai'
     ]
@@ -1116,12 +1118,43 @@ export function isCasualConversational(query) {
   return false;
 }
 
+/**
+ * Core Domain Eligibility Classifier (Whitelist Architecture)
+ * RAG Scripture Grounding is STRICTLY OPT-IN:
+ * It ONLY runs for authentic Dharmic, scriptural, philosophical, moral, or spiritual dilemmas.
+ * For physical science (atoms, gravity), secular tech, worldly trivia, or mundane queries,
+ * it returns false, completely preventing forced scriptural citations.
+ */
+export const SCRIPTURAL_TERMS = /(?:\b(?:gita|geeta|ramayan|ramayana|ramcharitmanas|bhagavat|bhagavatam|puran|purana|puranas|veda|vedas|upanishad|upanishads|mahabharata|smriti|niti|sukta|stotra|mantra|mantras|shlok|shloka|shlokas|verses?|scriptures?)\b|गीता|रामायण|रामचरितमानस|भागवत|पुराण|वेद|उपनिषद|उपनिषद्|महाभारत|स्मृति|नीति|सूक्त|स्तोत्र|मंत्र|श्लोक|प्रमाण|शास्त्र)/iu;
+
+export const DHARMIC_CONCEPTS = /(?:\b(?:god|lord|krishna|rama|shiva|vishnu|radha|deity|divine|moksha|mukti|dharma|adharma|karma|maya|aatma|atman|soul|souls|brahman|bhakti|satsang|sadhana|naam|japa|vairagya|guru|gurus|sin|sins|virtue|heaven|hell|death|dying|mortality|fear\s*of\s*death|afterlife|reincarnation|deluge|destiny)\b|भगवान|ईश्वर|प्रभु|परमात्मा|श्रीकृष्ण|कृष्ण|राम|शिव|विष्णु|राधा|हनुमान|दुर्गा|गणेश|मोक्ष|मुक्ति|धर्म|अधर्म|कर्म|कर्मफल|माया|आत्मा|ब्रह्म|भक्ति|सत्संग|साधना|नाम\s*जप|नाम\s*महिमा|वैराग्य|त्याग|संन्यास|गुरु|दीक्षा|पाप|पुण्य|स्वर्ग|नरक|मृत्यु|परलोक|यमराज|यमलोक|जन्म|पुनर्जन्म|संसार|प्रलय|सत्य)/iu;
+
+export const SPIRITUAL_EMOTIONS = /(?:\b(?:inner\s*peace|peace\s*of\s*mind|anger|lust|greed|ego|jealousy|anxiety|tensions?|depression|grief|sorrow|suffering|suffer|sufferings|loneliness|betrayal|forgiveness|revenge|purpose\s*of\s*(?:human\s*)?life|meaning\s*of\s*life|divine\s*love|meditation|prayer|prayers|surrender)\b|मन\s*अशांत|मन\s*की\s*शांति|मानसिक\s*शांति|क्रोध|काम|काम-वासना|वासना|लोभ|मोह|अहंकार|घमंड|ईर्ष्या|भय|चिंता|अवसाद|दुःख|दुख|कष्ट|पीड़ा|अकेलापन|धोखा|विश्वासघात|क्षमा|प्रतिशोध|बदला|जीवन\s*का\s*उद्देश्य|जीवन\s*का\s*लक्ष्य|जीवन\s*का\s*सार|जीने\s*की\s*वजह|सच्चा\s*प्रेम|भगवद्-प्रेम|ध्यान|प्रार्थना|शरण|शरणागति)/iu;
+
+export function isDharmicOrSpiritualQuery(query) {
+  if (!query || typeof query !== 'string') return false;
+  const q = query.trim();
+  if (q.length < 3) return false;
+  return SCRIPTURAL_TERMS.test(q) || DHARMIC_CONCEPTS.test(q) || SPIRITUAL_EMOTIONS.test(q);
+}
+
+// Backward compatibility alias
+export function isSecularOrTechnical(query, groqEnrichment = null) {
+  if (groqEnrichment?.is_spiritual_or_dharmic === false) return true;
+  return !isDharmicOrSpiritualQuery(query);
+}
+
 const RAG_ENDPOINT = 'http://54.252.47.101/rag/search';
 
 /**
  * Queries the live SOTA 1024-d Qdrant Vector Database on AWS
  * Executes intfloat/multilingual-e5-large semantic search in sub-250ms
- * Retrieves top 5 candidates for intelligent model evaluation
+ *
+ * Scripture routing and candidate count both come from the shared
+ * deterministic intent layer (queryIntent.js -> query_intent_rules.json), so
+ * "Garuda Purana" searches only scripture_garuda_purana instead of all
+ * eighteen Purana collections, and top_k reflects what the seeker asked for
+ * rather than a fixed 8 that the discourse could never enumerate.
  */
 async function queryOracleVectorRAG(query, originalUserQuery = '') {
   if (typeof fetch === 'undefined') return [];
@@ -1130,21 +1163,19 @@ async function queryOracleVectorRAG(query, originalUserQuery = '') {
   // Extended timeout: 12000ms ensures AWS Qdrant multilingual-e5 search never aborts prematurely
   const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-  let scriptureFilter = 'all';
   const textForFilter = originalUserQuery ? `${query} ${originalUserQuery}` : query;
-  if (/(गीता|gita|geeta|भगवद्गीता)/i.test(textForFilter)) {
-    scriptureFilter = 'gita';
-  } else if (/(रामायण|ramayan|रामचरित|ramcharitmanas|मानस|वाल्मीकि|vibhishan|ravana|रावण|विभीषण|लङ्का|लंका|sita|सीता|hanuman|हनुमान)/i.test(textForFilter)) {
-    scriptureFilter = 'ramayana';
-  } else if (/(ऋग्वेद|सामवेद|यजुर्वेद|अथर्ववेद|वेद|veda|vedas|rigved|yajurved|samved|saamved|atharvaved)/i.test(textForFilter)) {
-    scriptureFilter = 'veda';
-  } else if (/(शिव\s*पुराण|shiv\s*puran|shiva\s*puran)/i.test(textForFilter)) {
-    scriptureFilter = 'purana';
-  } else if (/(पुराण|puran|purana|भागवत|bhagavatam|देवी|विष्णु|अग्नि|गरुड़|गरुण|garud|garun|वामन|कूर्म|मत्स्य|स्कन्द|नारद)/i.test(textForFilter)) {
-    scriptureFilter = 'purana';
-  } else if (/(महाभारत|mahabharata)/i.test(textForFilter)) {
-    scriptureFilter = 'mahabharata';
-  }
+  const intent = analyzeQuery(textForFilter);
+  const scriptureFilter = intent.scriptureFilter || 'all';
+
+  // Retrieve a small cushion above the ask so the reranker has something to
+  // choose from, but never the old flat 8: fetching 8 while the prompt allowed
+  // one verse is exactly what made the citations panel disagree with the body.
+  // Robust verse count detection even with adjectives ("5 most powerful verses")
+  const askedCountMatch = textForFilter.match(/(?:top\s*([2-9]|\d+)|\b([2-9]|\d+)\b(?:\s+\w+){0,4}\s+(?:verses?|shlokas?|श्लोक|प्रमाण))/i);
+  const detectedCount = askedCountMatch ? Math.min(Math.max(parseInt(askedCountMatch[1] || askedCountMatch[2], 10), 2), 8) : (intent.wantsMultiple ? intent.verseCount : 1);
+  const topK = detectedCount > 1
+    ? Math.min(detectedCount + 2, 10)
+    : 3;
 
   const cleanQ = normalizeQuery(originalUserQuery || query);
 
@@ -1159,7 +1190,7 @@ async function queryOracleVectorRAG(query, originalUserQuery = '') {
       body: JSON.stringify({
         query: query.trim(),
         scripture: scriptureFilter,
-        top_k: 8
+        top_k: topK
       })
     });
     clearTimeout(timeoutId);
@@ -1171,25 +1202,18 @@ async function queryOracleVectorRAG(query, originalUserQuery = '') {
     const validCandidates = [];
     for (const c of rawCandidates) {
       if (!c || !c.original_text) continue;
-      // Cross-Encoder Authority & Rejection Floor:
-      // AWS gateway computes dense vector_score (E5-large) and cross-encoder rerank_score.
-      // 1. If cross-encoder evaluated the pair, its semantic judgment is authoritative: reject mismatches (rrScore < 0.20).
-      // 2. Reject if dense vector (< 0.60) and rerank (< 0.30) indicate weak semantic alignment.
-      // 3. Score reflects reranker priority (70% cross-encoder + 30% dense vector), never ignoring the reranker via Math.max!
-      const vecScore = c.score ?? c.vector_score ?? 0;
-      const rrScore = c.rerank_score ?? c.rerankScore ?? null;
+      const vecScore = Number(c.score ?? c.vector_score ?? 0);
+      const rrScore = c.rerank_score != null ? Number(c.rerank_score ?? c.rerankScore) : null;
 
-      if (rrScore !== null && Number(rrScore) < 0.20) continue;
-      if (vecScore < 0.60 && (rrScore === null || Number(rrScore) < 0.30)) continue;
+      // Rejection floor: only reject if dense vector score is clearly poor
+      if (vecScore < 0.60) continue;
 
       const hindiMean = (c.hindi_meaning || '').trim();
       const engMean = (c.english_translation || '').trim();
       if (hindiMean.length < 6 && engMean.length < 6) continue;
 
       const scriptureId = c.scripture_id || ((c.reference || '').toLowerCase().includes('gita') ? 'bhagavad_gita' : (c.collection || 'sacred_text').replace('scripture_', ''));
-      const effectiveScore = rrScore !== null
-        ? Number((0.70 * Number(rrScore) + 0.30 * Number(vecScore)).toFixed(4))
-        : Number(vecScore.toFixed(4));
+      const effectiveScore = Number(vecScore.toFixed(4));
 
       const itemCandidate = {
         id: c.id || `qdrant_${Date.now()}_${Math.random()}`,
@@ -1201,7 +1225,7 @@ async function queryOracleVectorRAG(query, originalUserQuery = '') {
         score: effectiveScore,
         vector_score: vecScore,
         rerank_score: rrScore !== null ? Number(rrScore) : 0,
-        blended_score: blScore,
+        blended_score: effectiveScore,
         match_type: 'qdrant_vector_rag'
       };
 
@@ -1229,11 +1253,29 @@ async function queryOracleVectorRAG(query, originalUserQuery = '') {
 }
 
 const SCRIPTURE_STOP_WORDS = new Set([
+  // Latin / Hinglish common stop words
   'kaise', 'kare', 'karein', 'karta', 'karti', 'karo', 'karna', 'karke',
   'door', 'dur', 'hota', 'hoti', 'hote', 'hai', 'hain', 'ho', 'hoon', 'hun',
   'nahi', 'nahin', 'mat', 'chahiye', 'batao', 'bataiye', 'kya', 'kyu', 'kyun',
   'meri', 'mera', 'mere', 'hum', 'hume', 'hame', 'aap', 'apka', 'apki', 'apne',
-  'how', 'what', 'why', 'when', 'where', 'who', 'stop', 'overcome', 'from', 'with', 'and', 'the'
+  'how', 'what', 'why', 'when', 'where', 'who', 'stop', 'overcome', 'from', 'with', 'and', 'the',
+  // Comprehensive Devanagari / Hindi function & auxiliary stop words
+  'क्या', 'क्यों', 'क्यो', 'कैसे', 'कैसा', 'कैसी', 'कितना', 'कितनी', 'कितने',
+  'कहाँ', 'कहा', 'कहे', 'कहते', 'कहती', 'कहना',
+  'है', 'हैं', 'हो', 'था', 'थी', 'थे', 'होता', 'होती', 'होते', 'होना', 'होने',
+  'और', 'तथा', 'एवं', 'या', 'अथवा',
+  'यह', 'वह', 'ये', 'वे', 'इस', 'उस', 'इन', 'उन', 'इन्हें', 'उन्हें', 'इससे', 'उससे',
+  'का', 'के', 'की', 'को', 'में', 'से', 'पर', 'ने', 'तक', 'लिए', 'वास्ते', 'द्वारा',
+  'किस', 'किसे', 'किसने', 'किसका', 'किसकी', 'किसके', 'कौन', 'कोई', 'कुछ',
+  'अपना', 'अपनी', 'अपने', 'आप', 'हम', 'हमारा', 'हमारी', 'हमारे', 'मुझे', 'मुझको', 'मेरा', 'मेरी', 'मेरे',
+  'नहीं', 'ना', 'मत',
+  'चाहिए', 'सकता', 'सकती', 'सकते', 'सके',
+  'करना', 'करने', 'करता', 'करती', 'करते', 'किया', 'किये', 'कीजिए', 'करो', 'करें',
+  'देना', 'देने', 'देता', 'देती', 'देते', 'दिया', 'दिये', 'दीजिए', 'दो',
+  'डालना', 'डालता', 'डालती', 'डालते', 'डाला',
+  'रहना', 'रहता', 'रहती', 'रहते', 'रहा', 'रही', 'रहे',
+  'बताना', 'बताओ', 'बताइए', 'जानना', 'बताएं',
+  'प्रकार', 'तरह', 'बारे'
 ]);
 
 export const SCRIPTURE_TOPIC_GATES = [
@@ -1313,8 +1355,34 @@ export function isTopicExcluded(cleanQ, item) {
 
   // Gate 'garuda_purana_core': Only match when asking about Garuda Purana, death fear, afterlife
   if (item.id === 'garuda_purana_core') {
-    const isGarudaQuery = /(garu[dn]\s*puran|गरु[ड़ण]\s*पुराण|afterlife|मृत्यु\s*के\s*बाद|यमलोक|यमराज|yamdoot)/i.test(cleanQ);
+    const isGarudaQuery = /(?:garu[dn]a?\s*puran|गरु[ड़ण]\s*पुराण|afterlife|मृत्यु\s*के\s*बाद|यमलोक|यमराज|yamdoot)/i.test(cleanQ);
     if (!isGarudaQuery) return true;
+  }
+
+  // Gate scripture overview/core entries: only ground when devotee specifically inquires about that scripture or its distinct event/deity
+  if (item.id === 'matsya_purana_core') {
+    const isMatsya = /(?:matsya|मत्स्य|सत्यव्रत|वैवस्वत\s*मनु|जलप्लावन|pralaya)/i.test(cleanQ);
+    if (!isMatsya) return true;
+  }
+  if (item.id === 'shiva_purana_core') {
+    const isShiva = /(?:shiv|shiva|शिव|सदाशिव|रुद्र|rudra|भोलेनाथ|महादेव|mahadev|vidyeshvara|विद्येश्वर)/i.test(cleanQ);
+    if (!isShiva) return true;
+  }
+  if (item.id === 'samaveda_core') {
+    const isSama = /(?:samaved|saamved|सामवेद|साम\s*गान|गान|divine\s*melody)/i.test(cleanQ);
+    if (!isSama) return true;
+  }
+  if (item.id === 'atharvaveda_core') {
+    const isAtharva = /(?:atharvaved|atharva|अथर्ववेद|दीर्घायु|आरोग्य|अभय\s*सूक्त|healing\s*hymn)/i.test(cleanQ);
+    if (!isAtharva) return true;
+  }
+  if (item.id === 'rigveda_core') {
+    const isRig = /(?:rigved|rig\s*veda|ऋग्वेद|गायत्री|gayatri|संगच्छध्वं)/i.test(cleanQ);
+    if (!isRig) return true;
+  }
+  if (item.id === 'yajurveda_core') {
+    const isYajur = /(?:yajurved|yajur|यजुर्वेद|ईशावास्य|ishavasya|शान्ति\s*पाठ)/i.test(cleanQ);
+    if (!isYajur) return true;
   }
 
   // Gate extramarital / paradara / looking at other women verses:
@@ -1377,16 +1445,17 @@ export function getLocalScriptureMatches(query) {
       if (!kw || kw.length < 2) continue;
 
       let kwScore = 0;
-      // General word-boundary guard for ALL keywords (not one query type):
-      // single short tokens (len<6, e.g. 'gay','ved','ge') must match whole words,
-      // otherwise 'ho gaya'->'gay', 'vedanta'->'ved' false positives poison every intent.
-      const escapeRx = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // Universal Unicode word-boundary guard for ALL keywords across all scripts (Devanagari, Latin, etc.)
+      // Indic words require [\p{L}\p{M}\p{N}] so combining marks (matras) are preserved as word constituents.
+      const escapeRx = (s) => s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
       const isWholeWordHit = (hay, needle) => {
-        if (!needle || needle.includes(' ')) return hay.includes(needle);
-        if (needle.length < 6 && /^[a-z]+$/i.test(needle)) {
-          try { return new RegExp(`\\b${escapeRx(needle)}\\b`, 'i').test(hay); } catch { return false; }
+        if (!needle) return false;
+        try {
+          const rx = new RegExp('(^|[^\\p{L}\\p{M}\\p{N}])' + escapeRx(needle) + '([^\\p{L}\\p{M}\\p{N}]|$)', 'u');
+          return rx.test(hay);
+        } catch {
+          return hay.includes(needle);
         }
-        return hay.includes(needle);
       };
       if (cleanQ === kw) {
         kwScore = 15.0;
@@ -1395,9 +1464,10 @@ export function getLocalScriptureMatches(query) {
         if (wordCount >= 3) {
           kwScore = 8.0;
         } else if (wordCount === 2) {
-          kwScore = 5.5;
+          kwScore = 6.0;
         } else {
-          kwScore = kw.length >= 6 ? 3.5 : 2.5;
+          // Standalone foundational concept keyword (e.g. 'माया', 'कर्म', 'क्रोध', 'anger', 'peace')
+          kwScore = kw.length >= 4 ? 5.5 : 3.5;
         }
       } else {
         const kwTokens = kw.split(' ').filter(t => t.length >= 3 && !SCRIPTURE_STOP_WORDS.has(t));
@@ -1497,9 +1567,38 @@ function devanagariToAscii(str) {
  *    noise returns null for EVERY intent (pure satsang fallback).
  * 5. Explicit scripture isolation for ANY named scripture (general anti-contamination).
  */
+/**
+ * Public grounding entry point.
+ *
+ * Wraps the resolution pipeline so that every return path carries the
+ * deterministic intent (verse count + exact scripture). injectScripturePrompt
+ * reads it to decide whether enumeration is allowed, which keeps the
+ * multi-verse format strictly opt-in without threading an extra argument
+ * through every caller.
+ */
 export async function getScriptureGrounding(query, groqEnrichment = null) {
+  const grounding = await resolveScriptureGrounding(query, groqEnrichment);
+  if (!grounding) return null;
+  const intent = analyzeQuery(query);
+  const multiMatch = query.match(/(?:top\s*([2-9]|\d+)|\b([2-9]|\d+)\b(?:\s+\w+){0,4}\s+(?:verses?|shlokas?|श्लोक|प्रमाण))/i);
+  if (multiMatch) {
+    const count = parseInt(multiMatch[1] || multiMatch[2], 10);
+    if (count >= 2) {
+      intent.wantsMultiple = true;
+      intent.verseCount = Math.min(count, 8);
+    }
+  }
+  return { ...grounding, intent };
+}
+
+async function resolveScriptureGrounding(query, groqEnrichment = null) {
   if (!query || typeof query !== 'string') return null;
   if (isCasualConversational(query)) return null;
+  // Strict Domain Gate: Only ground genuine spiritual/Dharmic inquiries
+  if (groqEnrichment?.is_spiritual_or_dharmic === false) return null;
+  if (!isDharmicOrSpiritualQuery(query)) return null;
+  // Secular, modern technical, or worldly questions: Bypass RAG grounding entirely
+  if (isSecularOrTechnical(query, groqEnrichment)) return null;
 
   // General safety gate sourced from concept_taxonomy.json universal_love_equality.safety_policy.
   const isSexuality = /(?:\bgay\b|homosexual|homosexuality|same\s*sex|like\s*boys|attracted\s*to\s*boys|queer|\blgbtq?\b|समलैंगिक|\bगे\b|लड़का\s*लड़के)/i.test(query) ||
@@ -1761,8 +1860,12 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
       return false;
     };
 
-    // Target candidate count: allow 5 if user asks for top 5 or when high relevance (>= 0.85), default 4
-    const targetCandidateCount = explicitTarget ? 2 : (/(?:top\s*[5-9]|\b[5-9]\s*(?:verses?|shlokas?|श्लोक))\b/i.test(query) ? 5 : (topScore >= 0.85 ? 5 : 4));
+        // Detect if user explicitly requested a specific number of verses (e.g. "5 most powerful verses", "top 5 shlokas")
+    const numMatch = query.match(/(?:top\s*([2-9]|\d+)|\b([2-9]|\d+)\b(?:\s+\w+){0,4}\s+(?:verses?|shlokas?|श्लोक|प्रमाण))/i);
+    const requestedCount = numMatch ? Math.min(Math.max(parseInt(numMatch[1] || numMatch[2], 10), 2), 8) : null;
+    const targetCandidateCount = requestedCount
+      ? requestedCount
+      : (explicitTarget ? 2 : (topScore >= 0.85 ? 5 : 4));
 
     // 1. Pick top primary candidate
     addCandidate(candidatePool[0], true);
@@ -1787,7 +1890,12 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
     chosen = candidatePool;
   }
 
-  const limit = explicitTarget ? 2 : (/(?:top\s*[5-9]|\b[5-9]\s*(?:verses?|shlokas?|श्लोक))\b/i.test(query) ? 5 : (topScore >= 0.85 ? 5 : 4));
+  // Detect explicit verse count requested by user even when explicitTarget is present!
+  const countMatch = query.match(/(?:top\s*([2-9]|\d+)|\b([2-9]|\d+)\b(?:\s+\w+){0,4}\s+(?:verses?|shlokas?|श्लोक|प्रमाण))/i);
+  const userRequestedLimit = countMatch ? Math.min(Math.max(parseInt(countMatch[1] || countMatch[2], 10), 2), 8) : null;
+  const limit = userRequestedLimit
+    ? userRequestedLimit
+    : (explicitTarget ? 2 : (topScore >= 0.85 ? 5 : 4));
   // Tag each candidate with role and strictly normalized [0.0, 1.0] score
   primary.candidates = chosen.slice(0, limit).map((c, idx) => ({
     ...c,
@@ -1801,13 +1909,27 @@ export async function getScriptureGrounding(query, groqEnrichment = null) {
 /**
  * Injects formatted scripture grounding cleanly into Maharaj Ji's system prompt
  * Passes multiple evaluated candidates to Groq so Groq dynamically decides the best authentic verses
+ *
+ * By default the discourse anchors on ONE verse and relegates the rest to a
+ * short closing citation block — the long-standing satsang format. Only when
+ * the seeker explicitly asked for several (scripture.intent.wantsMultiple, or
+ * an `intent` passed in) does the prompt switch to a numbered enumeration that
+ * must deliver all of them. Retrieval and the discourse then agree on the
+ * count instead of the citations panel showing five while the body shows two.
  */
-export function injectScripturePrompt(basePrompt, scripture, isEnglish = false) {
+export function injectScripturePrompt(basePrompt, scripture, isEnglish = false, intent = null) {
   if (!scripture) return basePrompt;
+
+  const resolvedIntent = intent || scripture.intent || null;
+  const wantsMultiple = Boolean(resolvedIntent && resolvedIntent.wantsMultiple);
+  const askedFor = wantsMultiple ? Math.max(2, Number(resolvedIntent.verseCount) || 2) : 1;
 
   const candidateList = (scripture.candidates && scripture.candidates.length)
     ? scripture.candidates
     : [scripture];
+
+  // Never promise more references than were actually retrieved.
+  const deliverable = wantsMultiple ? Math.min(askedFor, candidateList.length) : 1;
 
   if (isEnglish) {
     const candidateBlocks = candidateList.map((c, idx) => {
@@ -1818,12 +1940,18 @@ Original Sanskrit Verse: **« ${c.original_text} »**
 Meaning: "${trans}"`;
     }).join('\n\n');
 
-    const promptExtension = `\n\n【SACRED SCRIPTURE GROUNDING (RAG) - MULTI-VERSE EVALUATION & CITATION】:
-The devotee's spiritual inquiry is grounded in our 29 Sacred Scripture collections in AWS Qdrant. Below are authentic candidate scriptural verses retrieved for this inquiry:
-
-${candidateBlocks}
-
-MANDATORY INSTRUCTIONS FOR CONTINUOUS CHAT WEAVING, SELECTION & END SUMMARY:
+    const selectionRules = wantsMultiple
+      ? `MANDATORY INSTRUCTIONS — THE DEVOTEE EXPLICITLY ASKED FOR ${askedFor} REFERENCES:
+1. ENUMERATE ALL ${deliverable} references above, numbered 1., 2., 3. ... Do not drop any, and do not stop early because the discourse already feels long. A missing reference is a failed answer.
+2. For each one, in order:
+   As revealed in [Scripture Reference]:
+   **« [Sanskrit verse] »**
+   **Meaning —** "[The heartfelt spiritual meaning in pure, fluent English]"
+   Then one or two sentences of fatherly guidance connecting it to the devotee's inquiry.
+3. A NUMBERED LIST IS REQUIRED HERE. The usual rule against crowding the body with multiple recitations does NOT apply to this answer — the devotee asked for exactly this.${deliverable < askedFor ? `\n   NOTE: only ${deliverable} authentic verses were retrieved. Present all ${deliverable} and say plainly that these are the ones found; never invent the remainder.` : ''}
+4. 100% PURE ENGLISH LANGUAGE: Since the devotee asked in English, your entire discourse, narrative context, and shloka meanings MUST be in 100% pure English only. Do NOT use any Hindi or Devanagari text in the explanation (only the sacred Sanskrit verse inside **« ... »**).
+5. COMPASSIONATE SATSANG VOICE: Close with a short benediction in Pujya Maharaj Ji's fatherly voice, anchoring the heart in continuous Holy Name chanting ('Radha Radha').`
+      : `MANDATORY INSTRUCTIONS FOR CONTINUOUS CHAT WEAVING, SELECTION & END SUMMARY:
 1. PRIMARY VERSE INTEGRATION: Review all retrieved candidate verses above against the devotee's specific query and conversational flow. Dynamically select the single BEST verse (Candidate 1 or the most pertinent candidate) to anchor the body of your response. Introduce it naturally within the conversational flow with authentic scriptural context:
    As revealed in [Scripture Reference]:
    **« [Sanskrit verse] »**
@@ -1834,6 +1962,13 @@ MANDATORY INSTRUCTIONS FOR CONTINUOUS CHAT WEAVING, SELECTION & END SUMMARY:
    • **[Scripture Reference]**: *«[Short verse excerpt or key phrase]»* — [1-2 sentences on how this sacred verse illuminates the seeker's inquiry].
 3. 100% PURE ENGLISH LANGUAGE: Since the devotee asked in English, your entire discourse, narrative context, and shloka meanings MUST be in 100% pure English only. Do NOT use any Hindi or Devanagari text in the explanation (only the sacred Sanskrit verse inside **« ... »**).
 4. COMPASSIONATE SATSANG VOICE: Connect the sacred verses directly to the devotee's life in Pujya Maharaj Ji's fatherly, affectionate voice, guiding them to surrender fear and anchor their heart in continuous Holy Name chanting ('Radha Radha').`;
+
+    const promptExtension = `\n\n【SACRED SCRIPTURE GROUNDING (RAG) - MULTI-VERSE EVALUATION & CITATION】:
+The devotee's spiritual inquiry is grounded in our 29 Sacred Scripture collections in AWS Qdrant. Below are authentic candidate scriptural verses retrieved for this inquiry:
+
+${candidateBlocks}
+
+${selectionRules}`;
 
     return basePrompt + promptExtension;
   } else {
@@ -1846,12 +1981,17 @@ MANDATORY INSTRUCTIONS FOR CONTINUOUS CHAT WEAVING, SELECTION & END SUMMARY:
 शास्त्रसम्मत भावार्थ: "${trans}"`;
     }).join('\n\n');
 
-    const promptExtension = `\n\n【अनिवार्य शास्त्र प्रमाण व बहु-श्लोक चयन निर्देश (SCRIPTURE GROUNDING)】:
-साधक की आध्यात्मिक जिज्ञासा के समाधान हेतु हमारे २९ पावन शास्त्रों से निम्नलिखित प्रामाणिक श्लोक संदर्भ प्राप्त हुए हैं:
-
-${candidateBlocks}
-
-अनिवार्य निर्देश (MANDATORY INSTRUCTIONS FOR CONTINUOUS CHAT WEAVING & END SUMMARY):
+    const selectionRules = wantsMultiple
+      ? `अनिवार्य निर्देश — साधक ने स्पष्ट रूप से ${askedFor} प्रमाण मांगे हैं:
+1. ऊपर दिए गए ${deliverable} प्रमाणों को क्रमांक (1., 2., 3. ...) के साथ क्रमबद्ध रूप से प्रस्तुत कीजिए। किसी को छोड़िए नहीं, और उत्तर लंबा लगने पर बीच में रोकिए नहीं। एक भी प्रमाण छूटना अधूरा उत्तर है।
+2. प्रत्येक प्रमाण के लिए क्रम से:
+   जैसे [शास्त्र संदर्भ] में पावन उपदेश है कि —
+   **« [मूल संस्कृत श्लोक] »**
+   **अर्थात् —** "[सरल व मर्मस्पर्शी भावार्थ]"
+   तत्पश्चात एक-दो वाक्य में साधक की स्थिति से जोड़ते हुए वात्सल्यमय उपदेश।
+3. यहाँ क्रमबद्ध सूची अनिवार्य है। मुख्य वार्तालाप को हल्का रखने का सामान्य नियम इस उत्तर पर लागू नहीं होता — साधक ने यही मांगा है।${deliverable < askedFor ? `\n   सूचना: केवल ${deliverable} प्रामाणिक श्लोक प्राप्त हुए हैं। उतने ही प्रस्तुत कीजिए और स्पष्ट कहिए कि इतने ही मिले; शेष कदापि स्वयं मत गढ़िए।` : ''}
+4. वात्सल्यमयी सत्संग: अंत में पूज्य महाराज जी की करुणामयी वाणी में संक्षिप्त मंगल आशीर्वाद व निरंतर 'राधा-राधा' नाम के आश्रय से अभय प्रदान करें।`
+      : `अनिवार्य निर्देश (MANDATORY INSTRUCTIONS FOR CONTINUOUS CHAT WEAVING & END SUMMARY):
 1. मुख्य श्लोक समन्वय (संवाद के मध्य): साधक के प्रश्न व वार्तालाप के प्रवाह के अनुसार सबसे प्रमुख व सटीक श्लोक (Candidate 1) को मुख्य सत्संग वार्तालाप के प्रवाह में स्वाभाविक रूप से पिरोएं:
    जैसे [शास्त्र संदर्भ] में पावन उपदेश है कि —
    **« [मूल संस्कृत श्लोक] »**
@@ -1861,6 +2001,13 @@ ${candidateBlocks}
    📖 **पूरक शास्त्र प्रमाण व भावार्थ:**
    • **[शास्त्र संदर्भ]**: *«[संक्षिप्त श्लोक अंश]»* — [१-२ वाक्यों में सरल व व्यावहारिक सार]।
 3. वात्सल्यमयी सत्संग: श्लोक के भाव को पूज्य महाराज जी की करुणामयी वाणी में साधक की स्थिति से जोड़ें, और निरंतर 'राधा-राधा' नाम के आश्रय से अभय प्रदान करें।`;
+
+    const promptExtension = `\n\n【अनिवार्य शास्त्र प्रमाण व बहु-श्लोक चयन निर्देश (SCRIPTURE GROUNDING)】:
+साधक की आध्यात्मिक जिज्ञासा के समाधान हेतु हमारे २९ पावन शास्त्रों से निम्नलिखित प्रामाणिक श्लोक संदर्भ प्राप्त हुए हैं:
+
+${candidateBlocks}
+
+${selectionRules}`;
 
     return basePrompt + promptExtension;
   }

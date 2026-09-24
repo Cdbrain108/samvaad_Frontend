@@ -389,7 +389,7 @@ Key features for seekers:
 
 /* ---------- interactive animated about us & creator overview ---------- */
 
-function ChatAboutUs({ onEnter }) {
+function ChatAboutUs({ onEnter, headingDismissed, onToggleHeading, onChatStart }) {
   const conversations = [
     {
       id: 'creator',
@@ -397,10 +397,10 @@ function ChatAboutUs({ onEnter }) {
       q: 'Who created Samvaad AI, and what is your story and professional background?',
       a: `Pranam! 🙏 My name is Anuj Kesharwani — an Aspiring Gen AI & Agentic AI Developer passionate about crafting production-ready autonomous multi-agent systems, custom fine-tuned LLMs (Gemma 4 E4B IT), and high-performance RAG pipelines.
 
-I built Samvaad as an independent passion project relying purely on free open-source resources and CPU infrastructure to challenge myself and master end-to-end full-stack Agentic AI engineering from scratch:
+I built Samvaad as an independent passion project relying purely on free open-source resources and Oracle CPU VM infrastructure to challenge myself and master end-to-end full-stack Agentic AI engineering from scratch:
 • Architecting multi-agent reasoning with Groq Chain-of-Thought deliberation and dynamic query understanding.
-• Engineering fine-tuning datasets for compassionate, grounded LLM personas with fine-tuned Gemma 4 E4B IT inference on free open-source CPU infrastructure.
-• Implementing authentic multi-source RAG across 29+ scriptures with hybrid semantic scoring and strict topic gating.
+• Engineering fine-tuning datasets for compassionate, grounded LLM personas with fine-tuned Gemma 4 E4B IT inference on free Oracle Cloud CPU VM.
+• Implementing authentic multi-source RAG across 150K+ verses from 25+ ancient scriptures (Bhagavad Gita, Ramayana, Upanishads, Puranas, etc.) with hybrid semantic scoring and strict topic gating.
 • Designing real-time conversational memory, low-latency voice mode, and a serene bilingual user experience.
 
 Actively seeking full-time opportunities in Gen AI & Agentic AI Engineering, eager to contribute, build, and innovate on cutting-edge generative AI architectures!`,
@@ -467,6 +467,15 @@ This platform serves as an interactive learning playground. Guidance here is ref
     setIsTyping(true)
     setTypedText('')
 
+    // Backward removing animation for the section heading as chat starts
+    if (onChatStart) {
+      setTimeout(() => {
+        if (!cancelled) {
+          onChatStart()
+        }
+      }, 5000)
+    }
+
     const chars = Array.from(selected.a)
     let idx = 0
     const step = () => {
@@ -505,7 +514,20 @@ This platform serves as an interactive learning playground. Guidance here is ref
               Aspiring Gen AI &amp; Agentic AI Developer · Independent Project
             </span>
           </div>
-          <span className="chat-demo-badge">{selected.tag}</span>
+          <div className="chat-demo-topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
+            {onToggleHeading && (
+              <button
+                type="button"
+                className="about-heading-toggle-btn"
+                onClick={onToggleHeading}
+                title={headingDismissed ? 'Show About Us overview heading' : 'Hide overview heading'}
+                aria-label={headingDismissed ? 'Show About Us overview heading' : 'Hide overview heading'}
+              >
+                {headingDismissed ? '📖 Overview' : '✕ Hide'}
+              </button>
+            )}
+            <span className="chat-demo-badge">{selected.tag}</span>
+          </div>
         </div>
 
         {/* Chat Messages */}
@@ -609,6 +631,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   const [question, setQuestion] = useState('')
   const [pipelineTab, setPipelineTab] = useState('milestones')
   const [scriptureStage, setScriptureStage] = useState('story')
+  const [aboutHeadingDismissed, setAboutHeadingDismissed] = useState(false)
   const [navHidden, setNavHidden] = useState(false)
   const [actionsHidden, setActionsHidden] = useState(false)
   const [cueHidden, setCueHidden] = useState(false)
@@ -628,9 +651,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     const root = scrollRef.current
     const el = root?.querySelector(`#${id}`)
     if (!root || !el) return
-    // scrollTo with offsetTop plays nice with proximity snap;
-    // scrollIntoView(smooth) fights the snap animation and overshoots.
-    root.scrollTo({ top: el.offsetTop, behavior: 'smooth' })
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const focusAsk = () => {
@@ -675,41 +696,18 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       }
     }
 
-    let settleTimer = null
-    const checkImplicitSettle = () => {
-      clearTimeout(settleTimer)
-      settleTimer = setTimeout(() => {
-        const rootTop = root.getBoundingClientRect().top
-        let closestEl = null
-        let minDiff = Infinity
-        elements.forEach((el) => {
-          if (!el) return
-          const diff = Math.abs(el.getBoundingClientRect().top - rootTop)
-          if (diff < minDiff) {
-            minDiff = diff
-            closestEl = el
-          }
-        })
-        // If user stopped scrolling close to a section (within 24% of viewport), gently and implicitly align it
-        if (closestEl && minDiff > 8 && minDiff < root.clientHeight * 0.24) {
-          root.scrollTo({ top: closestEl.offsetTop, behavior: 'smooth' })
-        }
-      }, 220)
-    }
-
     const onScroll = () => {
       if (!ticking) {
         ticking = true
         requestAnimationFrame(update)
       }
-      checkImplicitSettle()
       showCueTemporarily(2000)
     }
     update()
     root.addEventListener('scroll', onScroll, { passive: true })
     return () => {
       root.removeEventListener('scroll', onScroll)
-      clearTimeout(settleTimer)
+      // settleTimer removed
     }
   }, [])
 
@@ -918,9 +916,18 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       </div>
 
       {/* Full Taskbar: auto-hides in 2s to floating Day/Night bar, then in 2s hides all */}
-      {phases[active]?.id !== 'education' && (
-        <header
+      <header
           className={`spiritual-header${navHidden ? ' is-hidden' : ''}${actionsHidden ? ' actions-hidden' : ''}`}
+          style={navHidden ? {
+            background: 'transparent',
+            backgroundColor: 'transparent',
+            backgroundImage: 'none',
+            border: 'none',
+            borderColor: 'transparent',
+            boxShadow: 'none',
+            backdropFilter: 'none',
+            WebkitBackdropFilter: 'none',
+          } : undefined}
           onMouseEnter={() => {
             if (navStage1Timer.current) clearTimeout(navStage1Timer.current)
             if (navStage2Timer.current) clearTimeout(navStage2Timer.current)
@@ -1035,7 +1042,6 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
             </button>
           </div>
         </header>
-      )}
 
       {/* Side Dot Navigation */}
       <nav className="phase-nav" aria-label="Page phases">
@@ -1379,17 +1385,24 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         {/* ============================================================
             PAGE 6 · ABOUT US & CREATOR'S PASSION PROJECT
             ============================================================ */}
-        <section className="about-us-section phase" id="education">
-          <Reveal className="spiritual-section-heading">
-            <span>परिचय एवं ध्येय · About Us</span>
-            <h2>Independent Passion Project &amp; Creator</h2>
-            <p>
-              Samvaad is an independent passion project crafted by <strong>Anuj Kesharwani</strong>, an Aspiring Gen AI &amp; Agentic AI Developer,
-              relying purely on free open-source resources and optimized CPU infrastructure to build and demonstrate end-to-end Agentic AI systems, custom fine-tuned LLMs (Gemma 4 E4B IT), and multi-source RAG while honoring timeless wisdom.
-            </p>
-          </Reveal>
+        <section className={`about-us-section phase${aboutHeadingDismissed ? ' heading-hidden' : ''}`} id="education">
+          <div className={`about-heading-wrap${aboutHeadingDismissed ? ' is-backward-removing' : ''}`}>
+            <Reveal className="spiritual-section-heading">
+              <span>परिचय एवं ध्येय · About Us</span>
+              <h2>Independent Passion Project &amp; Creator</h2>
+              <p>
+                Samvaad is an independent passion project crafted by <strong>Anuj Kesharwani</strong>, an Aspiring Gen AI &amp; Agentic AI Developer,
+                relying purely on free open-source resources and optimized Oracle CPU VM infrastructure to build and demonstrate end-to-end Agentic AI systems, custom fine-tuned LLMs (Gemma 4 E4B IT), and multi-source RAG across 150K+ verses from 25+ ancient scriptures while honoring timeless wisdom.
+              </p>
+            </Reveal>
+          </div>
 
-          <ChatAboutUs onEnter={onEnter} />
+          <ChatAboutUs
+            onEnter={onEnter}
+            headingDismissed={aboutHeadingDismissed}
+            onToggleHeading={() => setAboutHeadingDismissed((prev) => !prev)}
+            onChatStart={() => setAboutHeadingDismissed(true)}
+          />
         </section>
       </main>
     </div>

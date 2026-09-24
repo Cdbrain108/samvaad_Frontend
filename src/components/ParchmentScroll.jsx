@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 
 const statsData = [
-  {
+    {
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
@@ -11,38 +11,11 @@ const statsData = [
         <path d="M8 11h6" />
       </svg>
     ),
-    value: 4000,
+    value: 150,
     prefix: '',
-    suffix: '+',
-    label: 'Discourses Processed',
-    hindi: 'प्रवचन प्रसंस्कृत'
-  },
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.93 4.93l2.12 2.12m9.9 9.9l2.12 2.12M4.93 19.07l2.12-2.12m9.9-9.9l2.12-2.12" />
-      </svg>
-    ),
-    value: 500,
-    prefix: '',
-    suffix: 'M+',
-    label: 'Tokens Experimented',
-    hindi: 'टोकेन्स परीक्षण'
-  },
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="9" />
-        <circle cx="12" cy="12" r="3" />
-        <path d="M12 3v6m0 6v6M3 12h6m6 0h6M5.6 5.6l4.2 4.2m4.4 4.4l4.2 4.2M5.6 18.4l4.2-4.2m4.4-4.4l4.2-4.2" />
-      </svg>
-    ),
-    value: 10,
-    prefix: '',
-    suffix: '+',
-    label: 'Segmentation Iterations',
-    hindi: 'खंड पुनरावृत्तियां'
+    suffix: 'K+',
+    label: 'Ancient Verses Indexed',
+    hindi: 'प्राचीन श्लोक अनुक्रमित'
   },
   {
     icon: (
@@ -54,7 +27,7 @@ const statsData = [
     value: 50,
     prefix: '',
     suffix: 'K+',
-    label: 'Q&A Pairs Generated',
+    label: 'Fine-Tuning Q&A Pairs',
     hindi: 'संवाद प्रश्नोत्तरी'
   },
   {

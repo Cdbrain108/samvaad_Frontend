@@ -3,6 +3,13 @@ import * as THREE from 'three'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { ContactShadows } from '@react-three/drei'
 import oldManuscriptBg from '../assets/old-manuscript-page.jpg'
+import { getMaxPixelRatio, shouldAntialias, getPowerPreference } from '../utils/device'
+
+// Render quality is decided once per session rather than per render, so the
+// renderer is never torn down and rebuilt by a fresh `gl` object identity.
+// See utils/device.js for why phones get a lower ceiling.
+const MAX_DPR = getMaxPixelRatio()
+const GL_SETTINGS = { antialias: shouldAntialias(), alpha: true, powerPreference: getPowerPreference() }
 
 const verses = [
   { source: 'Bhagavad Gita · 2.47', devanagari: 'कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥', meaning: 'Your right is to action alone, never to its fruits — act without attachment, and never rest in inaction.' },
@@ -534,7 +541,7 @@ export default function ScriptureBook(){
       <div className='pothi-scene-wrap'>
         {!canRender3D? <ManuscriptFallback verse={current} onNext={nextPage} /> : (
           <>
-            <Canvas dpr={[1,1.7]} frameloop={visible?'always':'never'} camera={{ position:[0,1.28,5.85], fov:36 }} gl={{ antialias:true, alpha:true, powerPreference:'high-performance' }} shadows={false} onCreated={({gl})=>{ gl.setClearColor(0x000000,0); gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=1.08 }} onError={handleCanvasError} className='pothi-canvas' style={{ width:'100%', height:'100%', display:'block' }}>
+            <Canvas dpr={[1, MAX_DPR]} frameloop={visible?'always':'never'} camera={{ position:[0,1.28,5.85], fov:36 }} gl={GL_SETTINGS} shadows={false} onCreated={({gl})=>{ gl.setClearColor(0x000000,0); gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=1.08 }} onError={handleCanvasError} className='pothi-canvas' style={{ width:'100%', height:'100%', display:'block' }}>
               <ambientLight intensity={1.08} color='#FFF2DC' />
               <directionalLight position={[4,6,4]} intensity={1.9} color='#FFE9C2' />
               <directionalLight position={[-3.5,3.5,-2]} intensity={0.58} color='#C8A87A' />

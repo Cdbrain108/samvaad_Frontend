@@ -176,7 +176,7 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 .suggestion-copy strong { font-size: 14px; line-height: 1.4; }
 .card-arrow { position: absolute; top: 16px; right: 17px; color: var(--muted); font-size: 16px; }
 
-.messages { display: grid; width: 100%; max-width: 780px; align-self: flex-start; gap: 24px; margin: auto; padding-bottom: 20px; }
+.messages { display: grid; width: 100%; max-width: 780px; align-self: flex-start; gap: 24px; margin: auto; padding-bottom: 36px; }
 .message { display: grid; grid-template-columns: 38px 1fr; gap: 14px; animation: reveal 250ms ease both; }
 .message-avatar { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 11px; background: var(--accent-soft); color: var(--accent-dark); font-size: 12px; font-weight: 700; flex-shrink: 0; }
 .message.assistant .message-avatar { background: var(--text); color: var(--panel); font-family: 'Newsreader', serif; font-size: 18px; }
@@ -1093,6 +1093,42 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
   font-weight: 800;
 }
 .rich-bullet:not(.numbered) i::before { content: '•'; font-size: 12px; }
+
+/* Enhanced Numbered Scripture & List Badges */
+.rich-bullet.numbered {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  color: #D97706;
+}
+
+:root[data-theme='dark'] .rich-bullet.numbered {
+  color: #FBBF24;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+}
+
+.rich-bullet.numbered i {
+  width: 22px;
+  height: 22px;
+  margin-top: 0;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.28), rgba(217, 119, 6, 0.16));
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  color: #D97706;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+:root[data-theme='dark'] .rich-bullet.numbered i {
+  color: #FDE68A;
+  border-color: rgba(251, 191, 36, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
 .rich-text strong { color: var(--accent-dark); }
 .inline-code {
   padding: 1px 6px;
@@ -3182,4 +3218,222 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .rag-verses-primary-preview {
     display: none;
   }
+}
+
+
+/* ============================================================
+   DAY THEME (LIGHT MODE) OVERRIDES FOR REASONING BLOCK & CHAT
+   ============================================================ */
+:root[data-theme='light'] .reasoning-container {
+  background: rgba(254, 252, 246, 0.96) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(217, 119, 6, 0.28) !important;
+  border-left: 3px solid #d97706 !important;
+  box-shadow: 0 4px 20px rgba(180, 83, 9, 0.08) !important;
+}
+
+:root[data-theme='light'] .reasoning-container.thinking-active {
+  border-color: rgba(245, 158, 11, 0.55) !important;
+  border-left-color: #f59e0b !important;
+  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.16), inset 0 0 16px rgba(254, 243, 199, 0.5) !important;
+}
+
+:root[data-theme='light'] .reasoning-container.thinking-done {
+  border-color: rgba(217, 119, 6, 0.2) !important;
+  border-left-color: #059669 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+:root[data-theme='light'] .reasoning-header-btn {
+  color: #451a03 !important;
+}
+
+:root[data-theme='light'] .reasoning-header-btn:hover {
+  background: rgba(245, 158, 11, 0.08) !important;
+}
+
+:root[data-theme='light'] .reasoning-title-text {
+  color: #451a03 !important;
+}
+
+:root[data-theme='light'] .thinking-active .reasoning-title-text {
+  color: #78350f !important;
+  font-weight: 600 !important;
+}
+
+:root[data-theme='light'] .claude-timer-badge {
+  background: rgba(245, 158, 11, 0.14) !important;
+  color: #92400e !important;
+}
+
+:root[data-theme='light'] .thinking-done .claude-timer-badge {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #78716c !important;
+}
+
+:root[data-theme='light'] .deliberation-stepper {
+  background: rgba(254, 243, 199, 0.5) !important;
+  border-bottom: 1px solid rgba(217, 119, 6, 0.16) !important;
+}
+
+:root[data-theme='light'] .stepper-step {
+  background: rgba(255, 255, 255, 0.75) !important;
+  color: #78716c !important;
+  border: 1px solid rgba(217, 119, 6, 0.16) !important;
+}
+
+:root[data-theme='light'] .stepper-step.step-active {
+  background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+  border-color: #f59e0b !important;
+  color: #78350f !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.22) !important;
+}
+
+:root[data-theme='light'] .stepper-step.step-completed {
+  color: #047857 !important;
+  background: rgba(16, 185, 129, 0.09) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+:root[data-theme='light'] .stepper-pending-dot {
+  background: #a8a29e !important;
+}
+
+:root[data-theme='light'] .reasoning-content-box.claude-thinking-box {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-top: 1px solid rgba(217, 119, 6, 0.16) !important;
+}
+
+:root[data-theme='light'] .reasoning-text-stream.claude-thought-stream {
+  color: #292524 !important;
+}
+
+:root[data-theme='light'] .reasoning-expand-toggle-btn {
+  border-color: rgba(217, 119, 6, 0.28) !important;
+  color: #78350f !important;
+}
+
+:root[data-theme='light'] .reasoning-expand-toggle-btn:hover {
+  background: rgba(245, 158, 11, 0.1) !important;
+  border-color: rgba(245, 158, 11, 0.5) !important;
+  color: #451a03 !important;
+}
+
+:root[data-theme='light'] .deliberation-pearl-card {
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.95), rgba(253, 230, 138, 0.8)) !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  box-shadow: 0 4px 16px rgba(180, 83, 9, 0.1) !important;
+}
+
+:root[data-theme='light'] .pearl-title {
+  color: #92400e !important;
+}
+
+:root[data-theme='light'] .pearl-text {
+  color: #78350f !important;
+}
+
+:root[data-theme='light'] .claude-rag-searching-pill {
+  background: rgba(245, 158, 11, 0.14) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  color: #92400e !important;
+}
+
+:root[data-theme='light'] .claude-rag-pill-btn {
+  background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+  border-color: rgba(245, 158, 11, 0.45) !important;
+  color: #78350f !important;
+}
+
+:root[data-theme='light'] .claude-rag-pill-btn:hover {
+  background: linear-gradient(135deg, #fde68a, #fcd34d) !important;
+  border-color: #f59e0b !important;
+}
+
+:root[data-theme='light'] .claude-scripture-drawer {
+  border-top: 1px solid rgba(217, 119, 6, 0.25) !important;
+  background: rgba(254, 243, 199, 0.92) !important;
+}
+
+:root[data-theme='light'] .claude-scripture-shlok {
+  background: rgba(255, 255, 255, 0.75) !important;
+  color: #78350f !important;
+}
+
+:root[data-theme='light'] .claude-scripture-meaning {
+  color: #451a03 !important;
+}
+
+
+/* Enhanced Day Theme Thinking Process & Stepper Contrast */
+:root[data-theme='light'] .claude-shimmer-text {
+  background: linear-gradient(90deg, #92400e 0%, #b45309 50%, #78350f 100%) !important;
+  background-size: 200% 100% !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
+}
+
+:root[data-theme='light'] .claude-shimmer-dot {
+  background: #d97706 !important;
+  box-shadow: 0 0 6px rgba(217, 119, 6, 0.7) !important;
+}
+
+:root[data-theme='light'] .claude-rag-searching-pill {
+  background: #fffbeb !important;
+  border: 1.5px solid #f59e0b !important;
+  color: #78350f !important;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.15) !important;
+}
+
+:root[data-theme='light'] .stepper-step.step-active {
+  background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+  border: 1.5px solid #f59e0b !important;
+  color: #78350f !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.25) !important;
+}
+
+:root[data-theme='light'] .stepper-step.step-completed {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  color: #047857 !important;
+  font-weight: 600 !important;
+}
+
+:root[data-theme='light'] .reasoning-text-stream.claude-thought-stream {
+  color: #1c1917 !important;
+  font-weight: 500 !important;
+}
+
+:root[data-theme='light'] .reasoning-title-text {
+  color: #451a03 !important;
+  font-weight: 700 !important;
+}
+
+:root[data-theme='light'] .deliberation-pearl-card {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7) !important;
+  border: 1.5px solid #f59e0b !important;
+  box-shadow: 0 4px 16px rgba(180, 83, 9, 0.12) !important;
+}
+
+:root[data-theme='light'] .pearl-title {
+  color: #b45309 !important;
+  font-weight: 700 !important;
+}
+
+:root[data-theme='light'] .pearl-text {
+  color: #451a03 !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+}
+
+:root[data-theme='light'] .reasoning-expand-toggle-btn {
+  background: #fffbeb !important;
+  border: 1.5px solid #f59e0b !important;
+  color: #78350f !important;
+  font-weight: 600 !important;
 }

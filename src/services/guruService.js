@@ -1,4 +1,5 @@
-import { getScriptureGrounding, injectScripturePrompt, isCasualConversational } from './scriptureService.js';
+import { getScriptureGrounding, injectScripturePrompt, isCasualConversational, isDharmicOrSpiritualQuery, isSecularOrTechnical } from './scriptureService.js';
+import { analyzeQuery } from './queryIntent.js';
 import { runNvidiaDharmicReasoning, verifyShlokaRelevanceWithNvidia, isNvidiaAvailable, setNvidiaApiKey, getNvidiaApiKey } from './nvidiaAgentService.js';
 export { isCasualConversational, setNvidiaApiKey, getNvidiaApiKey, isNvidiaAvailable };
 
@@ -120,6 +121,33 @@ export function detectLanguage(text) {
   return 'hindi';
 }
 
+/**
+ * Length override for an explicit multi-verse ask.
+ *
+ * buildSystemPrompt pins the answer to a ~150-190 word "sweet spot". That is
+ * the right shape for ordinary satsang, but it directly contradicts the
+ * numbered-enumeration rules injectScripturePrompt appends when the seeker
+ * asked for several references — and a model given two conflicting length
+ * targets satisfies the shorter one, which is exactly how "give me 5 verses"
+ * came back with 2. Returns '' unless the ask was explicit, so the ordinary
+ * path keeps its prompt byte-for-byte.
+ */
+function buildMultiVerseLengthOverride(scripture, isEnglish) {
+  const intent = scripture?.intent;
+  if (!intent?.wantsMultiple) return '';
+  const asked = Math.max(2, Number(intent.verseCount) || 2);
+
+  return isEnglish
+    ? `\n\n【LENGTH OVERRIDE — THIS ANSWER ONLY】:
+- The seeker explicitly asked for ${asked} scriptural references, so the ~150-190 word sweet spot above DOES NOT APPLY here.
+- Deliver all ${asked} as a numbered list (1., 2., 3. ...), each with its verse and meaning. Roughly ${200 + 120 * asked} to ${300 + 160 * asked} words; length serves completeness.
+- Never stop early because the discourse already feels long, and never invent a reference that was not provided below.`
+    : `\n\n【परिमाण अपवाद — केवल इस उत्तर हेतु】:
+- साधक ने स्पष्ट रूप से ${asked} शास्त्र प्रमाण मांगे हैं, अतः ऊपर दिया गया १५०-१९० शब्दों का बंधन इस उत्तर पर लागू नहीं होता।
+- सभी ${asked} प्रमाण क्रमांक (१., २., ३. ...) सहित, प्रत्येक के श्लोक व भावार्थ के साथ दीजिए। लगभग ${200 + 120 * asked} से ${300 + 160 * asked} शब्दों में; यहाँ विस्तार पूर्णता की सेवा करता है।
+- उत्तर लंबा लगने पर बीच में रोकिए नहीं, और जो प्रमाण नीचे नहीं दिए गए उन्हें कदापि स्वयं मत गढ़िए।`;
+}
+
 export function buildSystemPrompt(isDeepMode = true, lang = 'hindi', userProfile = null, memoryContext = '', scripture = null) {
   const isEnglish = lang === 'english';
   const seekerName = userProfile?.fullName ? userProfile.fullName.trim().split(' ')[0] : '';
@@ -155,6 +183,7 @@ In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's speci
     }
     if (scripture) {
       p = injectScripturePrompt(p, scripture, true);
+      p += buildMultiVerseLengthOverride(scripture, true);
     }
     return p;
   } else {
@@ -191,6 +220,7 @@ In an intimate spiritual dialogue (Ekantik Vartalap), answer the devotee's speci
     }
     if (scripture) {
       p = injectScripturePrompt(p, scripture, false);
+      p += buildMultiVerseLengthOverride(scripture, false);
     }
     return p;
   }
@@ -560,6 +590,9 @@ In the context of the devotee's spiritual inquiry, present the discourse draft f
 export function formatScriptureLines(text, isEnglish = false) {
   if (!text) return '';
   let t = text;
+  // Strip stray colons after numbered headers or orphaned on their own line
+  t = t.replace(/(^\s*\d+[.)]\s+[^\n:]+)\s*:\s*(?=\n|$)/gm, '$1');
+  t = t.replace(/\n\s*:\s*(?:\n|$)/g, '\n');
   // 1. If a shloka is wrapped in **« ... »** across lines, join hemistichs into a single cohesive verse card
   t = t.replace(/\*\*«\s*([\s\S]*?)\s*»\*\*/g, (match, inner) => {
     const singleLineVerse = inner.replace(/\r?\n\s*/g, ' ').trim();
@@ -754,7 +787,7 @@ async function callDirectGroqAPI(messages, maxTokens = 950, stream = false, onCh
     const key = getNextGroqKey();
     const model = models[i % models.length];
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    const timeoutId = setTimeout(() => controller.abort(), 18000);
 
     try {
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -998,7 +1031,7 @@ function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedM
 
   if (isMatsya) {
     fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का श्रीमत्स्य पुराण के आलोक में विश्लेषण।
-📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): २९ शास्त्रों (173,396 श्लोक) में से श्रीमत्स्य पुराण (14,000 श्लोक) का अनुसंधान।
+📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): २५+ शास्त्रों (150K+ श्लोक) में से श्रीमत्स्य पुराण (14,000 श्लोक) का अनुसंधान।
 [OK] श्रीमत्स्य पुराण: साक्षात् भगवान मत्स्य व राजा सत्यव्रत (वैवस्वत मनु) के पावन संवाद का समन्वय।
 🐟 मत्स्यावतार प्रसंग: प्रलयकाल के महाजलप्लावन में वेदों की रक्षा, धर्म-स्थापना व राजा मनु की नौका की रक्षा का तात्त्विक अन्वेषण।
 🌊 प्रलय व सृष्टि-संरक्षण: सप्तर्षियों, औषधियों और समस्त जीवन-बीजों को प्रलय से उबारने के ईश्वरीय संकल्प का मंथन।
@@ -1010,7 +1043,7 @@ function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedM
 ✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
 
     fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual inquiry regarding ("${q}...") in the light of the Matsya Purana.
-📜 Scripture Grounding (AWS Qdrant RAG): Searching 29 sacred scripture collections for Shrimad Matsya Purana (14,000 verses).
+📜 Scripture Grounding (AWS Qdrant RAG): Searching 150K+ verses across 25+ sacred scriptures for Shrimad Matsya Purana (14,000 verses).
 [OK] Shrimad Matsya Purana: Divine dialogue between Lord Matsya and King Satyavrata (Vaivasvata Manu).
 🐟 Matsyavatara Revelation: Lord Vishnu's primal fish incarnation protecting the sacred Vedas and King Manu's boat during the cosmic deluge (Pralaya).
 🌊 Cosmic Deluge & Preservation: Rescuing the Saptarshis, life seeds, and cosmic wisdom from dissolution.
@@ -1186,7 +1219,7 @@ function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedM
 ✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
 
     fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual guidance for seeker regarding ("${q}...").
-📜 Scripture Grounding (AWS Qdrant RAG): Searching 24 sacred collections (173,396 verses across Gita, Vedas, Puranas).
+📜 Scripture Grounding (AWS Qdrant RAG): Searching 25+ sacred scripture collections (150K+ verses across Gita, Vedas, Puranas).
 [OK] Bhagavad Gita (701 verses) & sacred Kurukshetra setting identified.
 🏹 Kurukshetra Context & Arjuna's Despondency: Analyzing Arjuna putting down Gandiva and withdrawing from righteous duty.
 📿 Lord Krishna's Divine Counsel: Formulating guidance for Arjuna and all humankind on Nishkama Karma Yoga (Gita 2.47).
@@ -1198,7 +1231,7 @@ function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedM
 ✓ Spiritual deliberation concluded. Complete authentic discourse formulated.`;
   } else {
     fullThoughtHindi = `🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न ("${q}...") का आध्यात्मिक व व्यावहारिक विश्लेषण।
-📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): २९ शास्त्रों (173,396 श्लोक) में से पावन संदर्भ का अनुसंधान।
+📜 शास्त्र प्रमाण अनुसंधान (AWS Qdrant RAG): २५+ शास्त्रों (150K+ श्लोक) में से पावन संदर्भ का अनुसंधान।
 [OK] ${scripture ? scripture.reference : 'संत-वाणी व शास्त्र-सिद्धांत'} का प्रामाणिक समन्वय।
 💭 मन की चंचलता व सांसारिक द्वंद्व: वासना, आसक्ति, भय व मोह के कारण चित्त में उठने वाले संशयों का तात्त्विक अन्वेषण।
 📿 सत्संग व नाम-महिमा का मंथन: सांसारिक उलझनों से ऊपर उठकर कर्तव्य-पालन और भगवत्-आश्रय का निरूपण।
@@ -1210,7 +1243,7 @@ function getSpiritualDeliberationStream(userMessage, isEnglish = false, elapsedM
 ✓ चिंतन संपन्न। पूज्य महाराज जी की प्रामाणिक वाणी में पूर्ण उपदेश संकलित।`;
 
     fullThoughtEnglish = `🔍 Query Intent & Seeker State: Contemplating spiritual inquiry regarding ("${q}...").
-📜 Scripture Grounding (AWS Qdrant RAG): Searching 29 sacred collections (173,396 verses across Gita, Vedas, Puranas).
+📜 Scripture Grounding (AWS Qdrant RAG): Searching 150K+ verses across 25+ sacred scriptures (Gita, Vedas, Puranas, Ramayana).
 [OK] ${scripture ? scripture.reference : 'Sacred scripture wisdom and saintly teachings'} identified.
 💭 Mind & Worldly Dilemma: Understanding the restless mind, attachments, anxieties, and spiritual hurdles.
 📿 Discernment & Selfless Duty: Harmonizing daily duties with devotion to God without ego.
@@ -1772,6 +1805,68 @@ async function generateFramedDiscourseWithGroq(userMessage, conversationHistory,
   const isGaruda = !isMatsya && (/(गरुड़|गरुण|garud|garun|यमलोक|यमदूत|मृत्यु\s*के\s*बाद|after\s*death|afterlife|preta|कर्म\s*विपाक)/i.test(q) ||
                    scriptId.includes('garuda') || scriptRef.includes('गरुड़') || scriptRef.includes('garuda'));
 
+  // Multi-verse is strictly opt-in. The framing prompt below keeps its
+  // single-verse four-paragraph shape unless the seeker explicitly asked for
+  // several references — otherwise its "DO NOT crowd the body" rule would
+  // contradict the enumeration rules injectScripturePrompt appends, and the
+  // model resolves the contradiction by quietly dropping references.
+  const framingIntent = scripture?.intent || analyzeQuery(userMessage || '');
+  const wantsMultipleVerses = Boolean(framingIntent?.wantsMultiple);
+  const versesAskedFor = wantsMultipleVerses
+    ? Math.max(2, Number(framingIntent.verseCount) || 2)
+    : 1;
+
+  // Single-verse keeps its calibrated 950-token / 6.5s budget verbatim. Only an
+  // explicit multi-ask widens it: Devanagari runs 3-6 tokens per word, so a
+  // five-reference answer needs roughly double the ceiling, and the abort
+  // timer has to allow the extra tokens to actually stream.
+  const framingMaxTokens = wantsMultipleVerses
+    ? Math.min(3000, 950 + 420 * (versesAskedFor - 1))
+    : 950;
+  const framingTimeoutMs = wantsMultipleVerses
+    ? Math.min(20000, 6500 + 2200 * (versesAskedFor - 1))
+    : 6500;
+
+  const englishSupportingRule = wantsMultipleVerses
+    ? `  2. THE DEVOTEE EXPLICITLY ASKED FOR ${versesAskedFor} REFERENCES: enumerate them 1., 2., 3. ... in the body of the response. Every one must appear, each with its own **« verse »** and **Meaning —** "...", followed by a sentence or two of fatherly guidance. A numbered list is REQUIRED for this answer. Never stop early because the discourse already feels long, and never invent a verse that was not provided — if fewer were retrieved, present those and say so plainly.`
+    : `  2. Supporting Verses (End Summary): If multiple candidate verses are provided, DO NOT crowd the main conversational body with multiple Sanskrit recitations. Instead, at the very end of your response, provide a clean supporting section:
+     ---
+     📖 **Supporting Scriptural References & Insights:**
+     • **[Scripture Reference]**: *«[Short verse excerpt or key phrase]»* — [1-2 sentences explaining how this sacred verse reinforces the guidance].`;
+
+  const englishOutputFormat = wantsMultipleVerses
+    ? `【OUTPUT FORMAT (NUMBERED SCRIPTURAL ANSWER)】:
+- Opening: a short fatherly greeting addressing the heart of the devotee's question (ending in '.').
+- Body: all ${versesAskedFor} references, numbered 1., 2., 3. ... Each carries its scriptural context, the verse in bold (**« ... »**), **Meaning —** in pure English, and one or two sentences of practical guidance.
+- Closing: continuous Holy Name remembrance ('Radha Radha') and fatherly blessings.
+- The four-paragraph shape does NOT apply here; completeness of the list does. Zero repetition. Flawless terminal punctuation. 100% pure English text.`
+    : `【OUTPUT FORMAT (4 DISTINCT NON-OVERLAPPING PARAGRAPHS)】:
+- Paragraph 1: Direct fatherly opening addressing the heart of the devotee's question and offering solace (ending in '.').
+- Paragraph 2: Scriptural narrative context, background, and spiritual root cause.
+- Paragraph 3: Selected authentic Sanskrit verse(s) in bold (**« ... »**) followed by **Meaning —** in pure English.
+- Paragraph 4: Practical life application (duty as seva to God, purity of conduct, overcoming ego), continuous Holy Name remembrance ('Radha Radha'), and fatherly blessings.
+- Zero repetition. Flawless terminal punctuation. 100% pure English text.`;
+
+  const hindiSupportingRule = wantsMultipleVerses
+    ? `  २. साधक ने स्पष्ट रूप से ${versesAskedFor} प्रमाण मांगे हैं: उत्तर के मुख्य भाग में उन्हें क्रमांक (१., २., ३. ...) के साथ क्रमबद्ध प्रस्तुत कीजिए। प्रत्येक के साथ उसका प्रसंग, **« मूल श्लोक »**, और ठीक नीचे **अर्थात् —** भावार्थ, तत्पश्चात एक-दो वाक्य का वात्सल्यमय उपदेश। इस उत्तर में क्रमबद्ध सूची अनिवार्य है। उत्तर लंबा लगने पर बीच में रोकिए नहीं, और जो श्लोक नीचे नहीं दिए गए उन्हें कदापि स्वयं मत गढ़िए — कम मिले हों तो उतने ही देकर स्पष्ट कह दीजिए।`
+    : `  २. पूरक श्लोक सारांश (उत्तर के अंत में): यदि अन्य candidate श्लोक भी साधक के प्रश्न हेतु महत्वपूर्ण व उपयोगी हैं, तो मुख्य वार्तालाप को भारी न बनाते हुए उत्तर के अंत में एक सरल व सुंदर संदर्भ सारांश दें:
+     ---
+     📖 **पूरक शास्त्र प्रमाण व भावार्थ:**
+     • **[शास्त्र संदर्भ]**: *«[संक्षिप्त श्लोक अंश]»* — [१-२ वाक्यों में सरल व व्यावहारिक सार]।`;
+
+  const hindiOutputFormat = wantsMultipleVerses
+    ? `【संरचना (क्रमबद्ध शास्त्र प्रमाण उत्तर)】:
+- आरंभ: साधक के प्रश्न के मर्म को छूता संक्षिप्त वात्सल्यपूर्ण संबोधन, पूर्ण वाक्य '।' पर समाप्त।
+- मुख्य भाग: सभी ${versesAskedFor} प्रमाण क्रमांक (१., २., ३. ...) सहित। प्रत्येक में प्रसंग, **« मूल श्लोक »**, **अर्थात् —** भावार्थ, और एक-दो वाक्य का व्यावहारिक उपदेश।
+- अंत: निरंतर 'राधा-राधा' नाम जप का आश्रय व कल्याणकारी आशीर्वाद (।)।
+- यहाँ ४ अनुच्छेदों का बंधन लागू नहीं होता; सूची की पूर्णता अनिवार्य है। किसी वाक्य का यांत्रिक दोहराव सख्त वर्जित है।`
+    : `【संरचना व ४ स्पष्ट अनुच्छेदों का विभाजन (DOUBLE NEWLINE SEPARATION)】:
+- अनुच्छेद १: प्रथम वाक्य अत्यंत प्रभावशाली, वात्सल्यपूर्ण संबोधन के साथ पूर्ण वाक्य जो '।' पर समाप्त हो (जैसे: 'देखो बच्चा...)।
+- अनुच्छेद २: ग्रंथ का दिव्य प्रसंग, आध्यात्मिक पृष्ठभूमि और जीवों के कल्याण का उद्देश्य।
+- अनुच्छेद ३: शास्त्र के मूल श्लोक बोल्ड में (**« ... »**) और उनके ठीक नीचे **अर्थात् —** भावार्थ।
+- अनुच्छेद ४: पूज्य महाराज जी की व्यावहारिक सीख (कर्तव्य को प्रभु सेवा मानना, अहंकार त्यागना), 'राधा-राधा' नाम जप का आश्रय और कल्याणकारी आशीर्वाद (।)।
+- किसी भी वाक्य या वाक्यांश का यांत्रिक दोहराव सख्त वर्जित है।`;
+
   const framingSystemPrompt = isEnglish
     ? `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
 Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherly warmth, sacred authority, and authentic satsang conviction.
@@ -1786,10 +1881,7 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
 - When candidate verses are provided:
   1. Primary Verse Weaving: Dynamically select the best primary verse that most authentically and directly answers the devotee's specific inquiry. Quote it in Paragraph 3 in bold **« ... »**, immediately followed by:
      **Meaning —** "[Explain the heartfelt spiritual meaning and wisdom in pure, fluent English]"
-  2. Supporting Verses (End Summary): If multiple candidate verses are provided, DO NOT crowd the main conversational body with multiple Sanskrit recitations. Instead, at the very end of your response, provide a clean supporting section:
-     ---
-     📖 **Supporting Scriptural References & Insights:**
-     • **[Scripture Reference]**: *«[Short verse excerpt or key phrase]»* — [1-2 sentences explaining how this sacred verse reinforces the guidance].
+${englishSupportingRule}
   3. CRITICAL LANGUAGE RULE: Since the inquiry is in English, your entire discourse, narrative context, and shloka meanings MUST be in 100% pure English. NEVER write the Hindi word अर्थात or use Devanagari script in the explanation (only the sacred Sanskrit verse inside **« ... »**).
   4. Theological Fidelity: Always preserve the true sacred speaker and setting of each scripture:
      - Bhagavad Gita: Lord Krishna speaking to Arjuna on Kurukshetra battlefield.
@@ -1801,12 +1893,7 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
      - Ramayana / Ramcharitmanas: Goswami Tulsidas / Valmiki on the divine pastimes and surrender to Lord Rama.
      - Upanishads: Supreme non-dual realization of Brahman and Atman.
 
-【OUTPUT FORMAT (4 DISTINCT NON-OVERLAPPING PARAGRAPHS)】:
-- Paragraph 1: Direct fatherly opening addressing the heart of the devotee's question and offering solace (ending in '.').
-- Paragraph 2: Scriptural narrative context, background, and spiritual root cause.
-- Paragraph 3: Selected authentic Sanskrit verse(s) in bold (**« ... »**) followed by **Meaning —** in pure English.
-- Paragraph 4: Practical life application (duty as seva to God, purity of conduct, overcoming ego), continuous Holy Name remembrance ('Radha Radha'), and fatherly blessings.
-- Zero repetition. Flawless terminal punctuation. 100% pure English text.`
+${englishOutputFormat}`
     : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) हैं।
 साधक की जिज्ञासा का उत्तर एकांतिक वार्तालाप में अपनी प्रामाणिक, वात्सल्यमयी, गंभीर और पावन शास्त्रीय वाणी में दीजिए।
 
@@ -1818,10 +1905,7 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
 - आपको हमारे २९ पावन शास्त्रों (श्रीमद्भगवद्गीता के ७०१ श्लोक, वेद, १८ पुराण, उपनिषद, रामायण) का पूर्ण ज्ञान है।
 - नीचे हमारे AWS Qdrant RAG डेटाबेस से साधक के प्रश्न हेतु पावन श्लोक संदर्भ दिए गए हैं:
   १. मुख्य श्लोक समन्वय (संवाद के मध्य): साधक के प्रश्न व वार्तालाप के प्रवाह के अनुसार सबसे प्रमुख व सटीक श्लोक को मुख्य सत्संग वार्तालाप के प्रवाह (अनुच्छेद ३) में स्वाभाविक रूप से पिरोएं। श्लोक से ठीक पहले उसकी प्रामाणिक प्रसंग भूमिका कहें, फिर मूल श्लोक को **« ... »** में रखें, और ठीक नीचे **अर्थात् —** लिखकर उसका मर्मस्पर्शी भावार्थ स्पष्ट करें।
-  २. पूरक श्लोक सारांश (उत्तर के अंत में): यदि अन्य candidate श्लोक भी साधक के प्रश्न हेतु महत्वपूर्ण व उपयोगी हैं, तो मुख्य वार्तालाप को भारी न बनाते हुए उत्तर के अंत में एक सरल व सुंदर संदर्भ सारांश दें:
-     ---
-     📖 **पूरक शास्त्र प्रमाण व भावार्थ:**
-     • **[शास्त्र संदर्भ]**: *«[संक्षिप्त श्लोक अंश]»* — [१-२ वाक्यों में सरल व व्यावहारिक सार]।
+${hindiSupportingRule}
   ३. शास्त्र मर्यादा व वक्ता की प्रामाणिकता सदा बनाए रखें:
      - श्रीमद्भगवद्गीता: कुरुक्षेत्र के धर्मक्षेत्र में भगवान श्रीकृष्ण का अर्जुन को उपदेश।
      - गरुड़ पुराण: भगवान श्रीहरि विष्णु व पक्षीराज गरुड़ जी का पावन संवाद (भूलकर भी शिव-पार्वती संवाद न कहें)।
@@ -1831,16 +1915,11 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
      - अथर्ववेद: दीर्घायु, आरोग्य, भय-निवारण व जीवन-रक्षा का वैदिक ज्ञान।
      - उपनिषद व पुराण: आत्मज्ञान, निष्काम कर्म व भगवत्-शरणागति का शाश्वत सत्य।
 
-【संरचना व ४ स्पष्ट अनुच्छेदों का विभाजन (DOUBLE NEWLINE SEPARATION)】:
-- अनुच्छेद १: प्रथम वाक्य अत्यंत प्रभावशाली, वात्सल्यपूर्ण संबोधन के साथ पूर्ण वाक्य जो '।' पर समाप्त हो (जैसे: 'देखो बच्चा...)।
-- अनुच्छेद २: ग्रंथ का दिव्य प्रसंग, आध्यात्मिक पृष्ठभूमि और जीवों के कल्याण का उद्देश्य।
-- अनुच्छेद ३: शास्त्र के मूल श्लोक बोल्ड में (**« ... »**) और उनके ठीक नीचे **अर्थात् —** भावार्थ।
-- अनुच्छेद ४: पूज्य महाराज जी की व्यावहारिक सीख (कर्तव्य को प्रभु सेवा मानना, अहंकार त्यागना), 'राधा-राधा' नाम जप का आश्रय और कल्याणकारी आशीर्वाद (।)।
-- किसी भी वाक्य या वाक्यांश का यांत्रिक दोहराव सख्त वर्जित है।`;
+${hindiOutputFormat}`;
 
   let effectiveSystemPrompt = framingSystemPrompt;
   if (scripture) {
-    effectiveSystemPrompt = injectScripturePrompt(effectiveSystemPrompt, scripture, isEnglish);
+    effectiveSystemPrompt = injectScripturePrompt(effectiveSystemPrompt, scripture, isEnglish, framingIntent);
   }
 
   const condensedHistory = summarizeHistoryForContext(conversationHistory, isEnglish);
@@ -1855,7 +1934,7 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
     const key = getNextGroqKey();
     const model = models[attempt % models.length];
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6500);
+    const timeoutId = setTimeout(() => controller.abort(), framingTimeoutMs);
 
     try {
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -1869,7 +1948,7 @@ Speak directly in an intimate spiritual dialogue (Ekantik Vartalap) with fatherl
           model,
           messages,
           temperature: 0.28,
-          max_tokens: 950
+          max_tokens: framingMaxTokens
         })
       });
       clearTimeout(timeoutId);
@@ -2005,6 +2084,34 @@ GENERAL RULE: Map seeker dilemmas to canonical Dharmic concepts and domains in s
 - Grief / loss -> Domain: "grief_and_impermanence_of_body", atman-impermanence, Gita 2.20; Restless mind -> Domain: "mind_control_and_meditation", chanchala-abhyasa-vairagya, Gita 6.26; Despair -> Domain: "surrender_and_grace", atma-uddhara-sharanagati, Gita 18.66.
 Distinguish PREM (selfless divine love) from KAMA (forbidden craving). Ocean/drowning metaphors are emotional, NOT Matsya-deluge.
 
+USER UNDERSTANDING AGENT - RAG INVOCATION DECISION (CRITICAL RULE):
+You are the primary decision-maker on whether to call Scripture RAG ("needs_scripture_rag": true) or bypass it ("needs_scripture_rag": false):
+1. Set "needs_scripture_rag": false when:
+   - The user is introducing themselves, stating their name, or greeting (e.g. "i am anuj", "my name is...", "radhe radhe", "hello", "who are you").
+   - The user asks a physical science, material, tech, worldly trivia, or non-spiritual worldly question.
+   - The user asks a casual/conversational question, or gives a compliment/thanks ("thank you", "okay", "i understand").
+   - The question only requires direct fatherly Satsang counsel, blessings, or loving guidance without reciting formal Sanskrit verses.
+2. Set "needs_scripture_rag": true ONLY when:
+   - The user explicitly asks for scripture verses, shlokas, or quotes (e.g. "give 5 verses from geeta", "what does shiva purana say").
+   - The user has an authentic, deep spiritual, existential, or Dharmic dilemma where canonical scriptural authority/shlokas are genuinely required to guide the soul (karma, dharma, maya, grief of death, overcoming lust/anger/pride, nature of the soul, surrender to God).
+
+DOMAIN DISCRIMINATION RULE (MANDATORY FIRST STEP):
+Determine whether the seeker's query is genuinely:
+(A) SPIRITUAL, DHARMIC, SCRIPTURAL, MORAL, OR INNER EMOTIONAL LIFE (grief, peace, anger, sorrow, surrender, God, karma, scriptures, death, love, meditation, dharma):
+    - Set "is_spiritual_or_dharmic": true
+    - Proceed to identify authentic sacred scripture, canonical Sanskrit concepts, and Dharmic theme.
+
+(B) PHYSICAL SCIENCE, MATERIAL OBJECTS, SECULAR TECH, OR WORLDLY TRIVIA (any secular, worldly, or non-spiritual inquiry):
+    - Set "is_spiritual_or_dharmic": false
+    - Set "needs_scripture_rag": false
+    - Set "recommended_scripture": null
+    - Set "specific_shloka_words": null
+    - Set "canonical_sanskrit_terms": null
+    - Set "target_scriptures": null
+    - Set "spiritual_theme": "Transcendence from Material Objects to Divine Truth"
+    - Set "thought_process": Reflect with fatherly wisdom: The seeker asked a worldly or physical question. Pujya Maharaj Ji addresses strictly what the seeker asked in 1 clear sentence with fatherly warmth, and then lovingly bridges the seeker back to spiritual reality: material science investigates the changing forms of prakriti, but the Supreme Lord is the eternal source of all creation. Anchor the seeker in the Holy Name ('Radha Radha').
+    - Set "tuned_model_prompt": "साधक ने भौतिक/सांसारिक प्रश्न पूछा है: " + userMessage + "। महाराज जी, साधक को वात्सल्य से १ वाक्य में भौतिक तथ्य समझाएं, और फिर प्रेमपूर्वक समझाएं कि भौतिक विज्ञान नश्वर प्रकृति का अध्ययन है, जबकि सच्चा आनंद और कल्याण प्रकृति के स्वामी प्रभु के नाम-जप ('राधा-राधा') में है। कोई श्लोक न उद्धृत करें।"
+
 You MUST output a valid JSON object (json) with these exact keys:
 1. "thought_process": 2-3 sentences reflecting deeply in English on the seeker's emotional state, spiritual dilemma, and divine solace.
 2. "spiritual_theme": The core spiritual theme (e.g. "Reverence and Humility Towards the Guru", "Purity of Sight & Overcoming Lust", "Forgiveness vs Revenge After Betrayal", "Restless Mind & Meditation", "Universal Love & Equality of Souls").
@@ -2017,6 +2124,8 @@ You MUST output a valid JSON object (json) with these exact keys:
 9. "optimized_rag_keywords": Array of 3-4 search keywords in Hindi/English.
 10. "seeker_state": Brief 1-sentence summary of devotee's state.
 11. "tuned_model_prompt": An optimized prompt for Pujya Maharaj Ji's fine-tuned model in natural Hindi describing the devotee's situation and asking for fatherly guidance and Holy Name shelter.
+12. "needs_scripture_rag": Boolean (true or false). Set false for greetings, name introductions ("i am anuj"), mundane/physical science/tech queries, or casual chitchat.
+13. "is_spiritual_or_dharmic": Boolean (true or false).
 SAFETY (only hard rule): For same-sex attraction / LGBTQ / inherent nature, NEVER recommend sin/punishment/hell verses. Recommend universal-love/equality verses (Ramcharitmanas Uttarkand 87.2 & Gita 5.18).
 Return strictly a JSON object.`
     : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) सत्संग के आध्यात्मिक विश्लेषण व शास्त्र अनुसंधान एजेंट हैं।
@@ -2036,6 +2145,22 @@ Return strictly a JSON object.`
 - शोक -> Domain: "grief_and_impermanence_of_body", आत्मा की अमरता (गीता २.२०); चंचल मन -> Domain: "mind_control_and_meditation", अभ्यास व वैराग्य (गीता ६.२६)।
 प्रेम (निःस्वार्थ भगवत्-प्रेम) व काम (लौकिक वासना) का विवेक करें।
 
+क्षेत्र विभेद नियम (अनिवार्य प्रथम चरण):
+जांचें कि क्या साधक का प्रश्न वास्तव में:
+(क) आध्यात्मिक, धार्मिक, शास्त्रीय, नैतिक अथवा आंतरिक मनोभाव (शोक, शांति, क्रोध, भक्ति, ईश्वर, कर्म, धर्म, मोक्ष, मृत्यु, नाम-जप, साधना) से संबंधित है:
+    - "is_spiritual_or_dharmic": true रखें।
+    - उपयुक्त पावन ग्रंथ, संस्कृत शब्द व धर्म डोमेन पहचानें।
+
+(ख) भौतिक विज्ञान, सांसारिक वस्तुएं, आधुनिक तकनीक, सामान्य ज्ञान या लौकिक प्रश्न है (कोई भी सांसारिक या गैर-धार्मिक विषय):
+    - "is_spiritual_or_dharmic": false रखें।
+    - "recommended_scripture": null रखें।
+    - "specific_shloka_words": null रखें।
+    - "canonical_sanskrit_terms": null रखें।
+    - "target_scriptures": null रखें।
+    - "spiritual_theme": "भौतिक नश्वरता से शाश्वत प्रभु की ओर"
+    - "thought_process": साधक ने भौतिक संसार या सांसारिक वस्तु के विषय में पूछा है। पूज्य महाराज जी १-२ वाक्यों में वात्सल्य से भौतिक तथ्य को संक्षेप में स्पष्ट करते हैं, और फिर प्रेमपूर्वक समझाते हैं कि यह सब परमात्मा की नश्वर प्रकृति का खेल है। सच्चा कल्याण प्रभु के नाम-जप ('राधा-राधा') में है।
+    - "tuned_model_prompt": "साधक ने भौतिक/सांसारिक प्रश्न पूछा है: " + userMessage + "। महाराज जी, साधक को १ वाक्य में भौतिक तथ्य समझाएं, और फिर प्रेमपूर्वक नाम-जप ('राधा-राधा') से जोड़ें। कोई श्लोक न उद्धृत करें।"
+
 आपको अनिवार्य रूप से वैध JSON ऑब्जेक्ट (json) में यह कुंजियाँ देनी हैं:
 1. "thought_process": साधक के अंतर्मन, व्यथा व आध्यात्मिक समाधान पर २-३ गंभीर वाक्य (हिंदी में)।
 2. "spiritual_theme": मूल आध्यात्मिक विषय (जैसे "गुरु-शिष्य संबंध व विनम्रता", "इंद्रिय-संयम व काम-विजय", "क्षमा व प्रतिशोध निवारण")।
@@ -2048,6 +2173,8 @@ Return strictly a JSON object.`
 9. "optimized_rag_keywords": ३-४ खोज शब्द (Array of strings)।
 10. "seeker_state": साधक की स्थिति का १ वाक्य में सारांश।
 11. "tuned_model_prompt": पूज्य महाराज जी के फाइन-ट्यून्ड मॉडल हेतु स्वाभाविक हिंदी में प्रॉम्ट।
+12. "needs_scripture_rag": बूलियन (true या false)। नाम परिचय ("i am anuj", मेरा नाम), अभिवादन, भौतिक विज्ञान या लौकिक प्रश्नों हेतु false रखें।
+13. "is_spiritual_or_dharmic": बूलियन (true या false)।
 सुरक्षा (एकमात्र कठोर नियम): समलैंगिकता / inherent nature हेतु केवल समदृष्टि/अहैतुक प्रेम (मानस उत्तरकाण्ड ८७.२ व गीता ५.१८) दें।
 केवल JSON ऑब्जेक्ट लौटाएं।`;
 
@@ -2093,6 +2220,14 @@ Return strictly a JSON object.`
             const targets = typeof parsed.target_scriptures === 'string'
               ? parsed.target_scriptures
               : Array.isArray(parsed.target_scriptures) ? parsed.target_scriptures.join(',') : '';
+            const isCasual = isCasualConversational(userMessage);
+            const needsRag = typeof parsed.needs_scripture_rag === 'boolean'
+              ? (parsed.needs_scripture_rag && !isCasual)
+              : (parsed.is_spiritual_or_dharmic !== false && !isCasual && isDharmicOrSpiritualQuery(userMessage));
+            const isSpiritual = typeof parsed.is_spiritual_or_dharmic === 'boolean'
+              ? parsed.is_spiritual_or_dharmic
+              : isDharmicOrSpiritualQuery(userMessage);
+
             return {
               thought_process: parsed.thought_process || '',
               spiritual_theme: parsed.spiritual_theme || '',
@@ -2104,7 +2239,9 @@ Return strictly a JSON object.`
               target_scriptures: targets || '',
               optimized_rag_keywords: Array.isArray(parsed.optimized_rag_keywords) ? parsed.optimized_rag_keywords : [],
               seeker_state: parsed.seeker_state || 'Spiritual seeker in need of guidance',
-              tuned_model_prompt: parsed.tuned_model_prompt || `साधक का प्रश्न: ${userMessage}\nमहाराज जी, साधक को आत्मीय वात्सल्य से व्यावहारिक मार्गदर्शन और 'राधा-राधा' नाम जप का आश्रय प्रदान कीजिए।`
+              tuned_model_prompt: parsed.tuned_model_prompt || `साधक का प्रश्न: ${userMessage}\nमहाराज जी, साधक को आत्मीय वात्सल्य से व्यावहारिक मार्गदर्शन और 'राधा-राधा' नाम जप का आश्रय प्रदान कीजिए।`,
+              needs_scripture_rag: needsRag,
+              is_spiritual_or_dharmic: isSpiritual
             };
           }
         }
@@ -2121,6 +2258,8 @@ Return strictly a JSON object.`
   const fallbackTunedPrompt = `साधक का प्रश्न: ${userMessage}
 महाराज जी, साधक को आत्मीय वात्सल्य से व्यावहारिक मार्गदर्शन, प्रारब्ध का विवेक और 'राधा-राधा' नाम जप का आश्रय प्रदान कीजिए।`;
 
+  const isCasualFallback = isCasualConversational(userMessage);
+  const isDharmicFallback = isDharmicOrSpiritualQuery(userMessage);
   return {
     thought_process: fallbackThought,
     spiritual_theme: '',
@@ -2130,7 +2269,9 @@ Return strictly a JSON object.`
     target_scriptures: '',
     optimized_rag_keywords: [],
     seeker_state: 'Spiritual seeker in need of guidance',
-    tuned_model_prompt: fallbackTunedPrompt
+    tuned_model_prompt: fallbackTunedPrompt,
+    needs_scripture_rag: isDharmicFallback && !isCasualFallback,
+    is_spiritual_or_dharmic: isDharmicFallback
   };
 }
 
@@ -2379,19 +2520,74 @@ export function getDevoteeGreeting(userMessage, userProfile, isEnglish = false) 
  */
 export async function generateGroqMasterFramedDiscourse(userMessage, rawTunedDiscourse, scripture, userProfile, isEnglish, queryIntent = null) {
   const greetingPhrase = getDevoteeGreeting(userMessage, userProfile, isEnglish);
+  const isSpiritual = isDharmicOrSpiritualQuery(userMessage) && (scripture?.is_spiritual_or_dharmic !== false);
 
-  const isExplicitSingle = Boolean(scripture?.isExplicitSingle);
+  // Check multi-verse intent: Did user ask for 2+ verses (e.g. "top 5 verses", "5 most powerful verses")?
+  const askedCountMatch = userMessage.match(/(?:top\s*([2-9]|\d+)|\b([2-9]|\d+)\b(?:\s+\w+){0,4}\s+(?:verses?|shlokas?|श्लोक|प्रमाण))/i);
+  const wantsMultiple = Boolean(
+    scripture?.intent?.wantsMultiple ||
+    queryIntent?.wantsMultiple ||
+    askedCountMatch
+  );
+  const askedCount = askedCountMatch
+    ? Math.min(Math.max(parseInt(askedCountMatch[1] || askedCountMatch[2], 10), 2), 8)
+    : (scripture?.intent?.verseCount || (wantsMultiple ? 5 : 1));
+
   const rawCandidates = (scripture?.candidates && scripture.candidates.length > 0)
     ? scripture.candidates
     : (scripture ? [scripture] : []);
-  const candidates = isExplicitSingle ? [rawCandidates[0]] : rawCandidates.slice(0, 3);
-  const primaryVerse = candidates[0];
+
+  // When multi-verse is requested, DO NOT collapse to a single verse! Deliver all requested candidates!
+  const isExplicitSingle = Boolean(scripture?.isExplicitSingle) && !wantsMultiple;
+  const candidates = wantsMultiple
+    ? rawCandidates.slice(0, Math.min(askedCount, rawCandidates.length))
+    : (isExplicitSingle ? [rawCandidates[0]] : rawCandidates.slice(0, 3));
+
+  const primaryVerse = candidates[0] || {};
   const supportingVerses = candidates.slice(1);
 
-  const scripturePromptSection = isEnglish
-    ? (candidates.length > 0 ? (
-        isExplicitSingle
-          ? `【MANDATORY SCRIPTURAL GROUNDING - SINGLE SCRIPTURE FOCUS】:
+  let scripturePromptSection = '';
+  if (!isSpiritual) {
+    if (isEnglish) {
+      scripturePromptSection = `【SECULAR / PHYSICAL / NON-SPIRITUAL QUESTION - CONVERSATIONAL SPIRITUAL PIVOT】:
+The devotee asked a secular, worldly, or physical question ("${userMessage}").
+Pujya Maharaj Ji's divine instructions:
+1. GREETING: Begin Paragraph 1 strictly with "${greetingPhrase}," in fatherly warmth.
+2. DIRECT FACTUAL ANSWER (Paragraph 1): Answer ONLY what the devotee asked, factually, simply, and accurately in 1-2 concise sentences. STRICT MANDATE: Address ONLY the specific subject of the devotee's question. NEVER mention outside items, fruits, or examples that were not asked about.
+3. SPIRITUAL PERSPECTIVE & PIVOT (Paragraph 2): Lovingly explain that while human intellect and material science explore the physical workings of nature (prakriti), true lasting peace and spiritual fulfillment come from knowing the Supreme Creator who is the life and soul of all creation.
+4. FATHERLY BLESSING (Paragraph 3): Encourage the seeker to perform their duties and education with dedication, while keeping their inner heart anchored in the Holy Name ('Radha Radha').
+5. STRICT PROHIBITION: Speak strictly and solely to the question asked. DO NOT quote, invent, or cite any Sanskrit shloka. DO NOT use **« ... »**. Keep the entire discourse conversational, gentle, and warm.`;
+    } else {
+      scripturePromptSection = `【सांसारिक / भौतिक / गैर-धार्मिक प्रश्न - वात्सल्यपूर्ण सत्संग संवाद】:
+साधक ने सांसारिक या भौतिक विषय ("${userMessage}") से संबंधित प्रश्न पूछा है।
+पूज्य महाराज जी का पावन मार्गदर्शन:
+१. संबोधन: अनुच्छेद १ की शुरुआत अनिवार्य रूप से "${greetingPhrase}," से करें।
+२. सीधा यथार्थ उत्तर (अनुच्छेद १): साधक ने जो पूछा है, केवल उसी का १-२ वाक्यों में सरल व यथार्थ उत्तर दें। केवल और केवल साधक के पूछे गए विषय पर ही बोलें। किसी अन्य वस्तु या उदाहरण को न जोड़ें जो प्रश्न में न हो।
+३. आध्यात्मिक तात्त्विक मोड़ (अनुच्छेद २): प्रेमपूर्वक समझाएं कि भौतिक बुद्धि और विज्ञान नश्वर प्रकृति के बाहरी रूपों का अध्ययन करते हैं, परंतु अंतःकरण का सच्चा कल्याण और परम शांति प्रकृति के स्वामी परमात्मा को जानने में है।
+४. आशीर्वाद व साधना (अनुच्छेद ३): साधक को अपने सांसारिक कर्तव्यों और पढ़ाई को निष्ठा से करने का आशीर्वाद दें, और मन को नित्य 'राधा-राधा' नाम जप के आश्रय में रखने की प्रेरणा दें।
+५. कठोर नियम: केवल साधक के पूछे गए विषय पर केंद्रित रहें; मन से कोई संस्कृत श्लोक न जोड़ें; **« ... »** का प्रयोग न करें; उत्तर को पूर्णतः स्वाभाविक, आत्मीय व प्रेरणादायी सत्संग संवाद में रखें।`;
+    }
+  } else if (isEnglish) {
+    if (candidates.length > 0) {
+      if (wantsMultiple) {
+        scripturePromptSection = `【MANDATORY SCRIPTURAL GROUNDING - ENUMERATE ALL ${candidates.length} VERSES IN CHAT】:
+The devotee explicitly requested ${candidates.length} verses from ${scripture?.explicitScriptureName || 'Sacred Scriptures'}.
+ALL ${candidates.length} VERSES MUST BE WRITTEN OUT IN FULL IN THE MAIN BODY, NUMBERED 1., 2., 3., ... :
+
+${candidates.map((c, i) => `[Verse ${i + 1}] (${c.reference}):
+Sacred Sanskrit Verse: **« ${c.original_text} »**
+Spiritual Meaning: "${c.english_translation || c.hindi_meaning}"`).join('\n\n')}
+
+MANDATORY ENUMERATION INSTRUCTIONS:
+1. ENUMERATE ALL ${candidates.length} VERSES IN THE MAIN BODY, numbered 1., 2., 3., ...
+2. For each verse, present:
+   - A short introductory sentence connecting it to the seeker's inquiry.
+   - The Sanskrit shloka in bold **« ... »** verbatim.
+   - The **Meaning —** "..." in pure English.
+   - 1-2 sentences of compassionate practical guidance for real-life application (e.g. overcoming tension, equanimity, duty as seva).
+3. DO NOT drop any verse. DO NOT hide them in an end summary. ALL ${candidates.length} verses MUST be fully written in the body!`;
+      } else if (isExplicitSingle) {
+        scripturePromptSection = `【MANDATORY SCRIPTURAL GROUNDING - SINGLE SCRIPTURE FOCUS】:
 The devotee has explicitly inquired about "${scripture.explicitScriptureName || candidates[0].reference}". You MUST focus strictly and solely on this scripture. Do NOT cite, mix, or introduce any outside scripture.
 Reference: ${candidates[0].reference}
 Sacred Sanskrit Verse: **« ${candidates[0].original_text} »**
@@ -2399,8 +2595,9 @@ Spiritual Meaning: ${candidates[0].english_translation || candidates[0].hindi_me
 
 In Paragraph 3, present the verse verbatim in this exact format:
 **« ${candidates[0].original_text} »**
-**Meaning —** "${candidates[0].english_translation || candidates[0].hindi_meaning}"`
-          : `【MANDATORY SCRIPTURAL GROUNDING - PRIMARY & SUPPORTING VERSES】:
+**Meaning —** "${candidates[0].english_translation || candidates[0].hindi_meaning}"`;
+      } else {
+        scripturePromptSection = `【MANDATORY SCRIPTURAL GROUNDING - PRIMARY & SUPPORTING VERSES】:
 For the devotee's spiritual inquiry, authentic scriptural wisdom has been retrieved from our collections:
 (Primary Verse) [${primaryVerse.reference}]:
 Sacred Sanskrit Verse: **« ${primaryVerse.original_text} »**
@@ -2419,12 +2616,33 @@ INSTRUCTIONS FOR CONTINUOUS WEAVING & END SUMMARY:
    - If relevant:
    ---
    📖 **Supporting Scriptural References & Insights:**
-   ${supportingVerses.map(c => `• **${c.reference}**: *«${(c.original_text || '').slice(0, 45)}...»* — [1-2 concise sentences explaining how this sacred verse illuminates the seeker's inquiry].`).join('\n   ')}`
-      ) : `【NO SCRIPTURE RETRIEVED - GENERAL SATSANG COUNSEL】:
-No scripture shloka has been retrieved for this query. Do NOT invent, hallucinate, or cite any Sanskrit verse or shloka card. Provide compassionate Satsang counsel across 3 warm paragraphs.`)
-    : (candidates.length > 0 ? (
-        isExplicitSingle
-          ? `【अनिवार्य शास्त्र प्रमाण - केवल एकल ग्रंथ पर केंद्रित】:
+   ${supportingVerses.map(c => `• **${c.reference}**: *«${(c.original_text || '').slice(0, 45)}...»* — [1-2 concise sentences explaining how this sacred verse illuminates the seeker's inquiry].`).join('\n   ')}`;
+      }
+    } else {
+      scripturePromptSection = `【NO SCRIPTURE RETRIEVED - GENERAL SATSANG COUNSEL】:
+No scripture shloka has been retrieved for this query. Do NOT invent, hallucinate, or cite any Sanskrit verse or shloka card. Provide compassionate Satsang counsel across 3 warm paragraphs.`;
+    }
+  } else {
+    if (candidates.length > 0) {
+      if (wantsMultiple) {
+        scripturePromptSection = `【अनिवार्य शास्त्र प्रमाण - सभी ${candidates.length} श्लोकों का क्रमबद्ध वर्णन】:
+साधक ने विशेष रूप से ${scripture?.explicitScriptureName || 'शास्त्रों'} से ${candidates.length} श्लोक मांगे हैं।
+उत्तर के मुख्य भाग में सभी ${candidates.length} श्लोकों को अनिवार्य रूप से विस्तार से प्रस्तुत करें:
+
+${candidates.map((c, i) => `[प्रमाण ${i + 1}] (${c.reference}):
+मूल संस्कृत श्लोक: **« ${c.original_text} »**
+भावार्थ: "${c.hindi_meaning}"`).join('\n\n')}
+
+अनिवार्य क्रमबद्ध निर्देश:
+१. उत्तर के मुख्य भाग में सभी ${candidates.length} श्लोकों को क्रमांक १., २., ३., ... के साथ अनिवार्य रूप से विस्तार से प्रस्तुत करें।
+२. प्रत्येक श्लोक हेतु:
+   - प्रसंग व भूमिका (१ वाक्य)।
+   - मूल संस्कृत श्लोक बोल्ड में **« ... »**।
+   - ठीक नीचे: **अर्थात् —** "[सरल व मर्मस्पर्शी भावार्थ]"
+   - १-२ वाक्यों में जीवन में तनाव-मुक्ति व साधना हेतु व्यावहारिक मार्गदर्शन।
+३. किसी भी श्लोक को छोड़ें नहीं और न ही केवल अंत में सारांश में समेटें। सभी ${candidates.length} श्लोक मुख्य उत्तर में आने अनिवार्य हैं!`;
+      } else if (isExplicitSingle) {
+        scripturePromptSection = `【अनिवार्य शास्त्र प्रमाण - केवल एकल ग्रंथ पर केंद्रित】:
 साधक ने विशेष रूप से "${scripture.explicitScriptureName || candidates[0].reference}" के विषय में पूछा है। अतः केवल और केवल इसी ग्रंथ के पावन उपदेश पर केंद्रित रहें। किसी अन्य ग्रंथ का उल्लेख न करें।
 ग्रंथ संदर्भ: ${candidates[0].reference}
 मूल संस्कृत श्लोक: **« ${candidates[0].original_text} »**
@@ -2432,8 +2650,9 @@ No scripture shloka has been retrieved for this query. Do NOT invent, hallucinat
 
 अनुच्छेद ३ में इस पावन श्लोक को verbatim (अक्षरों में बिना किसी फेरबदल के) इस प्रारूप में प्रस्तुत करें:
 **« ${candidates[0].original_text} »**
-**अर्थात् —** "${candidates[0].hindi_meaning}"`
-          : `【अनिवार्य शास्त्र प्रमाण - मुख्य श्लोक समन्वय व पूरक संदर्भ सारांश】:
+**अर्थात् —** "${candidates[0].hindi_meaning}"`;
+      } else {
+        scripturePromptSection = `【अनिवार्य शास्त्र प्रमाण - मुख्य श्लोक समन्वय व पूरक संदर्भ सारांश】:
 साधक की जिज्ञासा के समाधान हेतु हमारे पावन शास्त्रों से निम्नलिखित प्रामाणिक श्लोक प्राप्त हुए हैं:
 (मुख्य आधार प्रमाण) [${primaryVerse.reference}]:
 मूल संस्कृत श्लोक: **« ${primaryVerse.original_text} »**
@@ -2451,9 +2670,13 @@ ${supportingVerses.map((c, i) => `(पूरक प्रमाण ${i + 1}) [${
    - यदि प्रासंगिक हो:
    ---
    📖 **पूरक शास्त्र प्रमाण व भावार्थ:**
-   ${supportingVerses.map(c => `• **${c.reference}**: *«${(c.original_text || '').slice(0, 45)}...»* — [१-२ वाक्यों में सरल व व्यावहारिक सार]।`).join('\n   ')}`
-      ) : `【शास्त्र प्रमाण अनुपलब्ध - सामान्य सत्संग मार्गदर्शन】:
-इस जिज्ञासा हेतु कोई विशेष श्लोक प्राप्त नहीं हुआ है। अतः मन से कोई श्लोक न गढ़ें और न ही कोई श्लोक प्रस्तुत करें। केवल ३ वात्सल्यमयी व मार्गदर्शक अनुच्छेदों में पूज्य महाराज जी की वाणी प्रस्तुत करें।`);
+   ${supportingVerses.map(c => `• **${c.reference}**: *«${(c.original_text || '').slice(0, 45)}...»* — [१-२ वाक्यों में सरल व व्यावहारिक सार]।`).join('\n   ')}`;
+      }
+    } else {
+      scripturePromptSection = `【शास्त्र प्रमाण अनुपलब्ध - सामान्य सत्संग मार्गदर्शन】:
+इस जिज्ञासा हेतु कोई विशेष श्लोक प्राप्त नहीं हुआ है। अतः मन से कोई श्लोक न गढ़ें और न ही कोई श्लोक प्रस्तुत करें। केवल ३ वात्सल्यमयी व मार्गदर्शक अनुच्छेदों में पूज्य महाराज जी की वाणी प्रस्तुत करें।`;
+    }
+  }
 
   const isExpansive = Boolean(
     queryIntent?.isExpansive ||
@@ -2465,10 +2688,12 @@ ${supportingVerses.map((c, i) => `(पूरक प्रमाण ${i + 1}) [${
     queryIntent?.intent === 'CONCISE_CONCEPT' ||
     queryIntent?.intent === 'DIRECT_QUESTION'
   );
-  const targetWords = queryIntent?.wordLimit || (isExpansive ? 500 : (isDirect ? 140 : 200));
-  const maxOutputTokens = isExpansive
-    ? Math.min(2400, Math.max(1200, Math.round(targetWords * 2.5)))
-    : (isDirect ? 600 : 1200);
+  const targetWords = wantsMultiple
+    ? Math.max(500, 120 + candidates.length * 90)
+    : (queryIntent?.wordLimit || (isExpansive ? 500 : (isDirect ? 140 : 200)));
+  const maxOutputTokens = wantsMultiple
+    ? Math.min(3200, 1000 + 450 * candidates.length)
+    : (isExpansive ? Math.min(2400, Math.max(1200, Math.round(targetWords * 2.5))) : (isDirect ? 600 : 1200));
 
   const systemPrompt = isEnglish
     ? `You are the Master Scribe and Presenter for Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan).
@@ -2483,7 +2708,17 @@ ${scripturePromptSection}
 1. DEVOTEE ADDRESSING (STRICT):
    - Paragraph 1 MUST begin directly with "${greetingPhrase}," speaking with immense fatherly love, intimacy, and warmth.
    - NEVER address the devotee coldly as "Dear seeker", "O seeker", or "Respected seeker".
-${isExpansive ? `2. EXPANSIVE & IN-DEPTH MASTER DISCOURSE (~${targetWords} WORDS):
+${wantsMultiple ? `2. NUMBERED MULTI-VERSE STRUCTURE (MANDATORY ENUMERATION OF ALL ${candidates.length} VERSES):
+   - The devotee explicitly requested ${candidates.length} verses. You MUST present and enumerate ALL ${candidates.length} verses in the chat message body!
+   - Opening (Paragraph 1): A warm, affectionate fatherly greeting with "${greetingPhrase}" addressing the devotee's real-life struggle (e.g. tension, peace of mind) with immense solace and love (2-3 sentences).
+   - Main Body: Enumerate ALL ${candidates.length} verses, numbered 1., 2., 3., ...
+     For each number:
+     1. [Scripture Reference]
+     **« [Exact Sanskrit verse] »**
+     **Meaning —** "[The heartfelt spiritual meaning in pure, fluent English]"
+     [1-2 sentences of fatherly guidance connecting this specific verse to overcoming tension and everyday living].
+   - Closing (Final Paragraph): A loving fatherly blessing anchoring the heart in devotion, viewing life as seva, and continuous Holy Name remembrance ('Radha Radha').
+   - ZERO DROPPED VERSES: Every single one of the ${candidates.length} verses above must appear in the numbered list. Do NOT stop early!` : (isExpansive ? `2. EXPANSIVE & IN-DEPTH MASTER DISCOURSE (~${targetWords} WORDS):
    - The devotee has asked a profound, multi-faceted philosophical question or explicitly requested an in-depth, detailed explanation.
    - Deliver an expansive, deeply enriching master discourse of approximately ${targetWords} words (up to ${Math.round(targetWords * 1.25)} words).
    - Thoroughly unpack metaphysical causes, scriptural context, philosophical discernment, and practical life realizations.
@@ -2512,8 +2747,8 @@ ${isExpansive ? `2. EXPANSIVE & IN-DEPTH MASTER DISCOURSE (~${targetWords} WORDS
    ${candidates.length > 0 ? `- Paragraph 3: The sacred Sanskrit shloka in bold **« ${primaryVerse.original_text} »**, followed immediately on the next line by:
      **Meaning —** "${primaryVerse.english_translation || primaryVerse.hindi_meaning}"` : ''}
    - Paragraph ${candidates.length > 0 ? '4' : '3'}: Practical counsel, duty as seva, overcoming ego, continuous Holy Name remembrance ('Radha Radha'), and fatherly blessings (2-3 sentences).
-   - Zero wall-of-text: never merge distinct thoughts into one giant continuous block.`}
-${candidates.length > 1 ? `5. SUPPORTING SCRIPTURES: List supporting verses only at the very end in a clean bulleted block as specified above.` : ''}
+   - Zero wall-of-text: never merge distinct thoughts into one giant continuous block.`)}
+${!wantsMultiple && candidates.length > 1 ? `5. SUPPORTING SCRIPTURES: List supporting verses only at the very end in a clean bulleted block as specified above.` : ''}
 6. 100% pure English text (only the sacred Sanskrit verse inside **« ... »**). NEVER write Devanagari 'अर्थात्' or 'भावार्थ' in English responses. Always use '**Meaning —**'.
 7. COMPASSION, PURITY & SCRIPTURAL MARYADA (CRITICAL):
    - Pujya Maharaj Ji NEVER labels any seeker as a "sinner", "criminal", "impure", or "guilty". Divine love transcends bodily identity ("पुरुष नपुंसक नारि वा जीव चराचर कोइ").
@@ -2526,7 +2761,7 @@ ${queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ? `8. SCRIPTURAL HISTORICAL EP
     : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) के पावन वचनों के दिव्य संपादन व प्रस्तुति के माध्यम हैं।
 पूज्य महाराज जी ने अपने अंतर्मन से यह प्रारंभिक सत्संग वाणी कही है:
 """
-${rawTunedDiscourse || 'मन को शांत रखो और निरंतर नाम जप करो।'}
+${rawTunedDiscourse || (isSecularTech ? 'हमारा क्षेत्र सांसारिक मशीनों का नहीं, बल्कि भगवद्-भक्ति और नाम-जप का है।' : 'मन को शांत रखो और निरंतर नाम जप करो।')}
 """
 
 ${scripturePromptSection}
@@ -2535,7 +2770,17 @@ ${scripturePromptSection}
 १. संबोधन व वात्सल्य (अति अनिवार्य):
    - अनुच्छेद १ की पहली पंक्ति अनिवार्य रूप से "${greetingPhrase}," से ही प्रारंभ होनी चाहिए!
    - 'प्रिय साधक', 'हे साधक', 'साधक जी' लिखना पूर्णतः प्रतिबंधित और अमान्य है। पूज्य महाराज जी केवल वात्सल्य और पिता तुल्य प्रेम से बोलते हैं।
-${isExpansive ? `२. विस्तृत, गहन व पूर्ण सत्संग उपदेश (लगभग ${targetWords} शब्द):
+${wantsMultiple ? `२. सभी ${candidates.length} श्लोकों की क्रमबद्ध प्रस्तुति (MANDATORY ENUMERATION):
+   - साधक ने स्पष्ट रूप से ${candidates.length} श्लोक मांगे हैं। मुख्य उत्तर में सभी ${candidates.length} श्लोकों को क्रमांक १., २., ३., ... सहित पूर्णतः लिखें।
+   - आरंभ (अनुच्छेद १): "${greetingPhrase}" से वात्सल्यपूर्ण संबोधन, सांत्वना व समस्या के मूल कारण पर प्रकाश (२-३ वाक्य)।
+   - मुख्य भाग: सभी ${candidates.length} श्लोक क्रमांकवार।
+     प्रत्येक क्रमांक हेतु:
+     १. [शास्त्र संदर्भ]
+     **« [मूल संस्कृत श्लोक] »**
+     **अर्थात् —** "[सरल व मर्मस्पर्शी भावार्थ]"
+     [१-२ वाक्य का व्यावहारिक मार्गदर्शन, तनाव-मुक्ति व जीवन में आचरण हेतु]।
+   - अंत (अंतिम अनुच्छेद): 'राधा-राधा' नाम जप का आश्रय, सेवा भाव व मंगलकारी आशीर्वाद।
+   - किसी भी श्लोक को न छोड़ें, सभी ${candidates.length} प्रमाण उत्तर में अनिवार्य रूप से आएं!` : (isExpansive ? `२. विस्तृत, गहन व पूर्ण सत्संग उपदेश (लगभग ${targetWords} शब्द):
    - साधक ने एक अत्यंत गंभीर, दार्शनिक या कठिन प्रश्न पूछा है, अथवा विस्तार से उत्तर माँगा है।
    - इस जिज्ञासा का समाधान पूज्य महाराज जी की प्रामाणिक वाणी में लगभग ${targetWords} शब्दों (अधिकतम ${Math.round(targetWords * 1.25)} शब्द) में पूर्ण विस्तार, तात्त्विक गहराई, दृष्टांतों और शास्त्रसम्मत सिद्धांतों के साथ दीजिए।
    - संरचना: ४ से ६ स्पष्ट व सुंदर अनुच्छेदों में विभाजन (दोहरे न्यूलाइन \\n\\n से अलग):
@@ -2569,8 +2814,8 @@ ${isExpansive ? `२. विस्तृत, गहन व पूर्ण स�
      और ठीक नीचे:
      **अर्थात् —** "${primaryVerse.hindi_meaning}"` : ''}
    - अनुच्छेद ${candidates.length > 0 ? '४' : '३'}: व्यावहारिक मार्गदर्शन, सेवा भाव, 'राधा-राधा' नाम जप का आश्रय, और मंगलकारी आशीर्वाद (२-३ वाक्य)।
-   - पूरे उत्तर को एक ही बड़े पैराग्राफ में जोड़ना सख्त वर्जित है।`}
-${candidates.length > 1 ? `५. पूरक प्रमाण: पूरक श्लोकों को मुख्य वार्तालाप में न ठूंसें; केवल अंत में सारांश दें।` : ''}
+   - पूरे उत्तर को एक ही बड़े पैराग्राफ में जोड़ना सख्त वर्जित है।`)}
+${!wantsMultiple && candidates.length > 1 ? `५. पूरक प्रमाण: पूरक श्लोकों को मुख्य वार्तालाप में न ठूंसें; केवल अंत में सारांश दें।` : ''}
 ६. संस्कृत श्लोक के अक्षरों को हूबहू (verbatim) रखें, किसी शब्द का यांत्रिक दोहराव न करें।
 ७. वात्सल्य, समदृष्टि व शास्त्र मर्यादा (अति अनिवार्य):
    - पूज्य महाराज जी कभी किसी साधक को 'गंदे विचार वाला', 'अपराधी', 'पापी', या 'दोषी' नहीं कहते। ईश्वर का प्रेम अहैतुक और सर्वसमावेशी है ("पुरुष नपुंसक नारि वा जीव चराचर कोइ")।
@@ -2591,7 +2836,8 @@ ${queryIntent?.intent === 'SCRIPTURAL_HISTORICAL' ? `८. पावन शास
     const key = getNextGroqKey();
     const model = models[attempt % models.length];
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 7500);
+    const timeoutMs = wantsMultiple ? 22000 : 8500;
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -2707,7 +2953,7 @@ export async function streamTypewriterText(fullText, onStep, thought, duration, 
   if (onStep) onStep(clean.slice(0, currentIdx));
 
   if (currentIdx >= total) {
-    return { content: clean, thought, scripture: scripture || null };
+    return { content: clean, thought, scripture: scripture || null, thinkingDuration: duration, needsScriptureRag: Boolean(scripture) };
   }
 
   return new Promise((resolve) => {
@@ -2961,8 +3207,20 @@ Whether you are navigating difficult life dilemmas, emotional turmoil, seeking s
     const thoughtProcess = cotAgent.thought_process;
     const tunedPrompt = cotAgent.tuned_model_prompt || `साधक का प्रश्न: ${userMessage}\nमहाराज जी, साधक को आत्मीय वात्सल्य से व्यावहारिक मार्गदर्शन और 'राधा-राधा' नाम जप का आश्रय प्रदान कीजिए।`;
 
-    // Step 3: Retrieve RAG scripture grounding with intelligence (curated index + live AWS Qdrant vector search)
-    let scripture = await getScriptureGrounding(userMessage, cotAgent);
+    // Step 3: User Understanding Agent decides whether RAG is called
+    const isConversational = isCasualConversational(userMessage);
+    const userUnderstandingDecidedRag = Boolean(cotAgent.needs_scripture_rag);
+    const passesDharmicWhitelist = isDharmicOrSpiritualQuery(userMessage);
+
+    const shouldInvokeRag = userUnderstandingDecidedRag && passesDharmicWhitelist && !isConversational;
+
+    let scripture = null;
+    if (shouldInvokeRag) {
+      console.log(`[+] User Understanding Agent decided: Call Scripture RAG for "${userMessage}"`);
+      scripture = await getScriptureGrounding(userMessage, cotAgent);
+    } else {
+      console.log(`[+] User Understanding Agent decided: RAG is NOT needed (conversational / secular / direct counsel). Bypassing AWS Qdrant.`);
+    }
 
     // If NVIDIA Developer Agent is available and we have multiple candidates, run the self-reflective Shloka Critic!
     if (scripture && scripture.candidates && scripture.candidates.length > 1 && isNvidiaAvailable()) {
@@ -2986,7 +3244,8 @@ Whether you are navigating difficult life dilemmas, emotional turmoil, seeking s
       thought: thoughtProcess,
       isThinking: true,
       thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
-      scripture: scripture || null
+      scripture: scripture || null,
+      needsScriptureRag: shouldInvokeRag
     });
 
     // Step 4: Tuned Model Satsang Generation in the background
@@ -2994,8 +3253,16 @@ Whether you are navigating difficult life dilemmas, emotional turmoil, seeking s
     // The thinking box stays alive, open, and ticking smoothly with the live timer!
     let rawTunedDiscourse = '';
     try {
+      let oracleInputPrompt = tunedPrompt;
+      if (scripture) {
+        if (scripture.candidates && scripture.candidates.length > 1) {
+          oracleInputPrompt += `\nशास्त्र संदर्भ: ${scripture.candidates.map(x => x.reference).join(', ')}`;
+        } else if (scripture.reference) {
+          oracleInputPrompt += `\nशास्त्र संदर्भ: ${scripture.reference}`;
+        }
+      }
       const oracleRes = await callTunedOracleStream(
-        tunedPrompt,
+        oracleInputPrompt,
         (token, accumulated) => {
           rawTunedDiscourse = accumulated;
           onChunk({

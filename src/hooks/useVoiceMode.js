@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { generateSpeech } from '../services/ttsService';
 import { splitSpeechText } from '../utils/speechText';
+import { getSharedAudio, playUnlocked, stopShared, unlockAudio } from '../utils/audioUnlock';
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -50,17 +51,11 @@ export default function useVoiceMode() {
 
   const stop = useCallback(() => {
     clearTimer();
-    
-    // Stop HTML Audio element if playing
-    if (audioRef.current) {
-      audioRef.current.onplay = null;
-      audioRef.current.onended = null;
-      audioRef.current.onerror = null;
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      audioRef.current.src = '';
-      audioRef.current = null;
-    }
+
+    // Detach handlers and rewind, but keep the unlocked element alive. Throwing
+    // it away would mean re-unlocking on iOS before every single utterance.
+    stopShared();
+    audioRef.current = null;
 
     // Stop Browser speech
     window.speechSynthesis?.cancel();
@@ -125,60 +120,74 @@ export default function useVoiceMode() {
   }, [clearTimer, language, muted, speed, startTimer, volume]);
 
   const speak = useCallback(async (answer) => {
+    // iOS only allows playback to begin inside the synchronous turn of a user
+    // gesture, and the TTS fetch below takes seconds. Prime the shared element
+    // now, while we are still inside the tap that triggered this call.
+    const unlocking = unlockAudio();
+
     stop();
     setError('');
     setActiveSpeech(answer);
     setState(VOICE_STATES.PREPARING);
 
-
     try {
+      await unlocking;
       const speech = await generateSpeech(answer, { language, speed });
       activeTextRef.current = speech.text;
       currentProviderRef.current = speech.provider;
       setIsCloned(Boolean(speech.isCloned));
 
       if (speech.provider === 'backend-neural' && speech.audioUrl) {
-        // High-Fidelity Guru Neural Speech Path
-        const audio = new Audio(speech.audioUrl);
-        audio.volume = muted ? 0 : volume;
-        audio.playbackRate = 1.0;
+        // High-Fidelity Guru Neural Speech Path — routed through the shared,
+        // already-unlocked element rather than a fresh `new Audio()`, which iOS
+        // would treat as a brand-new source needing its own gesture.
+        const audio = getSharedAudio();
         audioRef.current = audio;
 
-        audio.onloadedmetadata = () => {
-          const dur = Math.ceil(audio.duration) || 5;
-          durationRef.current = dur;
-          setDuration(dur);
-        };
-
-        audio.onplay = () => {
-          setState(VOICE_STATES.SPEAKING);
-          clearTimer();
-          timerRef.current = window.setInterval(() => {
-            if (audioRef.current) {
-              const cur = audioRef.current.currentTime;
-              elapsedRef.current = cur;
-              setElapsed(cur);
-              setSpeechTick((tick) => tick + 1);
-            }
-          }, 200);
-        };
-
-        audio.onended = () => {
-          clearTimer();
-          setElapsed(durationRef.current);
-          setActiveSpeech('');
-          setState(VOICE_STATES.FINISHED);
-        };
-
-
-        audio.onerror = () => {
-          console.warn('Backend audio failed during playback, falling back to browser speech...');
+        const fallbackToBrowserSpeech = () => {
           chunksRef.current = splitSpeechText(speech.text);
           chunkIndexRef.current = 0;
           speakChunk(0);
         };
 
-        await audio.play();
+        const started = await playUnlocked(speech.audioUrl, {
+          volume: muted ? 0 : volume,
+          onLoadedMetadata: () => {
+            const dur = Math.ceil(audio.duration) || 5;
+            durationRef.current = dur;
+            setDuration(dur);
+          },
+          onPlay: () => {
+            setState(VOICE_STATES.SPEAKING);
+            clearTimer();
+            timerRef.current = window.setInterval(() => {
+              if (audioRef.current) {
+                const cur = audioRef.current.currentTime;
+                elapsedRef.current = cur;
+                setElapsed(cur);
+                setSpeechTick((tick) => tick + 1);
+              }
+            }, 200);
+          },
+          onEnded: () => {
+            clearTimer();
+            setElapsed(durationRef.current);
+            setActiveSpeech('');
+            setState(VOICE_STATES.FINISHED);
+          },
+          onError: () => {
+            console.warn('Backend audio failed during playback, falling back to browser speech...');
+            fallbackToBrowserSpeech();
+          },
+        });
+
+        if (!started) {
+          // Refused outright — almost always iOS without a trusted gesture.
+          // speechSynthesis has a laxer policy, so it is the better fallback
+          // here than surfacing an error the user can do nothing about.
+          console.warn('[voice] Neural audio blocked by autoplay policy, using browser speech.');
+          fallbackToBrowserSpeech();
+        }
       } else {
         // Browser Speech Fallback Path
         chunksRef.current = splitSpeechText(speech.text);
@@ -250,25 +259,33 @@ export default function useVoiceMode() {
     recognition.start();
   }, [isListening, language]);
 
-  const playDefaultGreeting = useCallback(() => {
+  const playDefaultGreeting = useCallback(async () => {
+    // Called from a tap, so prime inside the gesture turn before anything else.
+    const unlocking = unlockAudio();
     stop();
-    try {
-      const audio = new Audio('/audio/radhe_radhe_baccha.mp3');
-      audio.volume = muted ? 0 : volume;
-      audio.playbackRate = 1.0;
-      audioRef.current = audio;
-      currentProviderRef.current = 'backend-neural';
-      setIsCloned(true);
-      setActiveSpeech('राधे राधे बच्चा...');
-      setState(VOICE_STATES.SPEAKING);
 
-      audio.onloadedmetadata = () => {
+    currentProviderRef.current = 'backend-neural';
+    setIsCloned(true);
+    setActiveSpeech('राधे राधे बच्चा...');
+    setState(VOICE_STATES.SPEAKING);
+
+    await unlocking;
+
+    const audio = getSharedAudio();
+    audioRef.current = audio;
+
+    // BASE_URL keeps this correct when the app is served from a subpath — a
+    // leading-slash path would 404 on GitHub Pages, which serves from /<repo>/.
+    const greetingUrl = `${import.meta.env.BASE_URL}audio/radhe_radhe_baccha.mp3`;
+
+    const started = await playUnlocked(greetingUrl, {
+      volume: muted ? 0 : volume,
+      onLoadedMetadata: () => {
         const dur = Math.ceil(audio.duration) || 2;
         durationRef.current = dur;
         setDuration(dur);
-      };
-
-      audio.onplay = () => {
+      },
+      onPlay: () => {
         console.log('[Audio] Opening blessing playback started: राधे राधे बच्चा...');
         setState(VOICE_STATES.SPEAKING);
         clearTimer();
@@ -280,38 +297,30 @@ export default function useVoiceMode() {
             setSpeechTick((tick) => tick + 1);
           }
         }, 200);
-      };
-
-      audio.onended = () => {
+      },
+      onEnded: () => {
         clearTimer();
         setElapsed(durationRef.current);
         setActiveSpeech('');
         setState(VOICE_STATES.IDLE);
-      };
-
-      audio.onerror = (e) => {
-        if (audio.error && audio.error.code !== 20) {
-          console.warn('[Audio] Opening blessing playback notice:', audio.error?.message || e);
-        }
+      },
+      onError: () => {
         setState(VOICE_STATES.IDLE);
-      };
+      },
+    });
 
-      audio.play().catch((err) => {
-        console.warn('[Audio] Opening blessing autoplay prevented by browser policy:', err);
-        setState(VOICE_STATES.IDLE);
-      });
-    } catch (e) {
-      console.warn('[Audio] Failed to initialize opening blessing:', e);
+    if (!started) {
+      // The blessing is decorative — if the browser refuses it, fall quiet
+      // rather than surfacing an error the user can do nothing about.
+      setActiveSpeech('');
       setState(VOICE_STATES.IDLE);
     }
   }, [clearTimer, muted, stop, volume]);
 
   useEffect(() => () => {
     clearTimer();
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
+    stopShared();
+    audioRef.current = null;
     window.speechSynthesis?.cancel();
     recognitionRef.current?.stop();
   }, [clearTimer]);
@@ -335,6 +344,10 @@ export default function useVoiceMode() {
     speechTick,
     isCloned,
     activeSpeech,
+    // Expose the unlock so a component can prime audio on any early tap (the
+    // Voice Mode button, the onboarding dismiss) rather than waiting for the
+    // first speak() — the earlier this runs, the more reliable iOS is.
+    primeAudio: unlockAudio,
     speak,
     stop,
     playDefaultGreeting,

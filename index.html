@@ -2,7 +2,9 @@
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover lets the layout reach under the notch / home indicator
+         once the app is installed and running without browser chrome. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta
       name="description"
       content="Samvaad — a personal educational playground that learns from 4000+ Bhajan Marg Q&A discourses to answer devotional questions in a warm, calm style. प्रश्न आपका, कृपा उसकी।"
@@ -11,6 +13,20 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
+
+    <!-- Installable app (PWA). Paths are relative so the app still resolves
+         them when served from a subpath, e.g. GitHub Pages at /<repo>/. -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="icon.svg" />
+    <link rel="apple-touch-icon" href="icon.svg" />
+
+    <!-- iOS ignores the manifest for standalone launch and status-bar styling,
+         so it needs these older meta tags as well. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Samvaad" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
     <title>Samvaad · Devotional Q&A Learning Playground</title>
   </head>
   <body>

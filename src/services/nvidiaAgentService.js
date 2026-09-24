@@ -1,3 +1,4 @@
+import { isDharmicOrSpiritualQuery, isCasualConversational } from './scriptureService.js';
 /**
  * NVIDIA Developer Reasoning & Agentic RAG Service for Samvaad
  * ==============================================================
@@ -110,7 +111,9 @@ You must output a strictly valid JSON object with keys:
 5. "canonical_sanskrit_terms": Space-separated authentic Sanskrit concepts for Shastric retrieval.
 6. "target_scriptures": Recommended scriptures for this specific dilemma.
 7. "specific_shloka_words": Key Sanskrit verse words relevant to this dilemma.
-8. "seeker_state": Brief 1-sentence summary of seeker state.`
+8. "seeker_state": Brief 1-sentence summary of seeker state.
+9. "needs_scripture_rag": Boolean (true or false). Set false for name introductions ("i am anuj"), greetings, secular/mundane questions, or direct counseling without shlokas.
+10. "is_spiritual_or_dharmic": Boolean (true or false).`
     : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन) के आध्यात्मिक चिंतन व शास्त्र अनुसंधान एजेंट हैं।
 साधक के अंतर्मन की व्यथा, द्वंद्व व परिस्थिति का अत्यंत आत्मीय, वात्सल्यपूर्ण व गंभीर चिंतन करें।
 
@@ -126,7 +129,9 @@ You must output a strictly valid JSON object with keys:
 5. "canonical_sanskrit_terms": शास्त्रीय संस्कृत संकल्पना शब्द (स्पेस से अलग)।
 6. "target_scriptures": इस समस्या हेतु सबसे प्रामाणिक ग्रंथ।
 7. "specific_shloka_words": प्रासंगिक श्लोक के मूल संस्कृत शब्द।
-8. "seeker_state": साधक की मनःस्थिति का सारांश।`;
+8. "seeker_state": साधक की मनःस्थिति का सारांश।
+9. "needs_scripture_rag": बूलियन (true या false)। नाम परिचय ("i am anuj"), अभिवादन या लौकिक प्रश्नों हेतु false रखें।
+10. "is_spiritual_or_dharmic": बूलियन (true या false)।`;
 
   const messages = [
     { role: 'system', content: systemPrompt },
@@ -154,7 +159,13 @@ You must output a strictly valid JSON object with keys:
               : (parsed.target_scriptures || ''),
             specific_shloka_words: parsed.specific_shloka_words || '',
             seeker_state: parsed.seeker_state || 'Spiritual seeker seeking guidance',
-            agent_source: `nvidia_${model.split('/')[1]}`
+            agent_source: `nvidia_${model.split('/')[1]}`,
+            needs_scripture_rag: typeof parsed.needs_scripture_rag === 'boolean'
+              ? (parsed.needs_scripture_rag && !isCasualConversational(userMessage))
+              : (isDharmicOrSpiritualQuery(userMessage) && !isCasualConversational(userMessage)),
+            is_spiritual_or_dharmic: typeof parsed.is_spiritual_or_dharmic === 'boolean'
+              ? parsed.is_spiritual_or_dharmic
+              : isDharmicOrSpiritualQuery(userMessage)
           };
         }
       } catch {}
