@@ -116,11 +116,52 @@ function intelligentSegmentResponse(text) {
   return balanced.join('\n\n').trim();
 }
 
-/* Light markdown with real-time progressive typewriter stream & intelligent segmentation */
+/* Light markdown with smooth sequential typewriter stream & intelligent segmentation */
 function RichText({ content, streaming = false }) {
-  const segmentedText = intelligentSegmentResponse(content || '');
+  const [displayedText, setDisplayedText] = useState(content || '');
+
+  useEffect(() => {
+    if (!content) {
+      setDisplayedText('');
+      return;
+    }
+
+    // If displayedText has caught up with content, we're done typing
+    if (displayedText === content) return;
+
+    const diff = content.length - displayedText.length;
+    if (diff < 0) {
+      setDisplayedText(content);
+      return;
+    }
+
+    // If not streaming and large jump (> 80 chars, e.g. switching chats), snap immediately
+    if (!streaming && diff > 80) {
+      setDisplayedText(content);
+      return;
+    }
+
+    // Steady, readable typing pace so newly released sentences visibly type out sequentially
+    const step = diff > 100 ? 4 : diff > 30 ? 3 : diff > 10 ? 2 : 1;
+    const speed = diff > 100 ? 10 : diff > 30 ? 14 : 18;
+
+    let targetIdx = Math.min(displayedText.length + step, content.length);
+    // Unicode safety: do not split Devanagari combining marks (matras, virama, anusvara)
+    while (targetIdx < content.length && /[\u0901-\u0903\u093A-\u094F\u0951-\u0957\u0962-\u0963]/.test(content[targetIdx])) {
+      targetIdx++;
+    }
+
+    const timer = setTimeout(() => {
+      setDisplayedText(content.slice(0, targetIdx));
+    }, speed);
+
+    return () => clearTimeout(timer);
+  }, [content, displayedText, streaming]);
+
+  const activeRaw = streaming || displayedText.length < (content || '').length ? displayedText : content;
+  const segmentedText = intelligentSegmentResponse(activeRaw || '');
   const lines = (segmentedText || '').split('\n');
-  const isActivelyTyping = Boolean(streaming);
+  const isActivelyTyping = streaming || displayedText.length < (content || '').length;
 
   return (
     <>
@@ -1168,6 +1209,7 @@ export default function App() {
         onClearAllConversations={clearAllConversationsHandler}
         onLogout={handleLogout}
         onGuestSignIn={() => { setSidebarOpen(false); setShowGuestLoginModal(true); }}
+        onGoHome={() => { setSidebarOpen(false); setView('landing'); }}
       />
 
       <main className="main-panel">
@@ -1181,7 +1223,10 @@ export default function App() {
           </button>
 
           <div className="topbar-center">
-            <button className="home-link" onClick={() => setView('landing')}>Back Home</button>
+            <button className="home-link" onClick={() => setView('landing')} title="Return to Home" aria-label="Return to Home">
+              <Icon name="home" size={15} />
+              <span className="home-link-text">Home</span>
+            </button>
             <div className="mode-toggle-group" style={{ display: 'inline-flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', borderRadius: '24px', padding: '3px 4px', border: '1px solid rgba(255,255,255,0.1)' }}>
               <button
                 type="button"
@@ -1489,23 +1534,25 @@ export default function App() {
           )}
         </div>
 
-        <motion.div
-          className="diya-row"
-          aria-hidden="true"
-          initial="hidden"
-          animate="visible"
-          variants={{ visible: { transition: { staggerChildren: 0.15, delayChildren: 0.4 } } }}
-        >
-          {[0, 1, 2, 3, 4].map((i) => (
-            <motion.span
-              className="diya"
-              key={i}
-              style={{ '--flick': `${(i * 0.37).toFixed(2)}s` }}
-              variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }}
-              transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-            />
-          ))}
-        </motion.div>
+        {messages.length === 0 && (
+          <motion.div
+            className="diya-row"
+            aria-hidden="true"
+            initial="hidden"
+            animate="visible"
+            variants={{ visible: { transition: { staggerChildren: 0.15, delayChildren: 0.4 } } }}
+          >
+            {[0, 1, 2, 3, 4].map((i) => (
+              <motion.span
+                className="diya"
+                key={i}
+                style={{ '--flick': `${(i * 0.37).toFixed(2)}s` }}
+                variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }}
+                transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+              />
+            ))}
+          </motion.div>
+        )}
 
         <Composer
           value={draft}

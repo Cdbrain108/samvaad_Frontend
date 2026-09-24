@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { deleteConversation } from '../services/firebase';
 import Icon from './Icon';
 
-export default function ChatHistory({ user, conversations = [], isOpen = false, onClose, onSelectConversation, onNewChat, onDeleteConversation, onClearAllConversations, onLogout, onGuestSignIn }) {
+export default function ChatHistory({ user, conversations = [], isOpen = false, onClose, onSelectConversation, onNewChat, onDeleteConversation, onClearAllConversations, onLogout, onGuestSignIn, onGoHome }) {
   const handleDeleteConversation = async (conversationId, e) => {
     if (e) {
       e.preventDefault();
@@ -118,6 +118,19 @@ export default function ChatHistory({ user, conversations = [], isOpen = false, 
                 whileTap={{ scale: 0.94 }}
               >
                 <Icon name="plus" size={16} />
+              </motion.button>
+            )}
+            {onGoHome && (
+              <motion.button
+                className="sidebar-header-btn"
+                onClick={onGoHome}
+                aria-label="Return to Home"
+                title="Return to Home"
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.94 }}
+                style={{ color: '#fbbf24' }}
+              >
+                <Icon name="home" size={15} />
               </motion.button>
             )}
             <button

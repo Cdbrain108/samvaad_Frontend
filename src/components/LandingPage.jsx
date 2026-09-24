@@ -625,11 +625,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   const [pipelineTab, setPipelineTab] = useState('milestones')
   const [scriptureStage, setScriptureStage] = useState('story')
   const [aboutHeadingDismissed, setAboutHeadingDismissed] = useState(false)
-  const [navHidden, setNavHidden] = useState(false)
-  const [actionsHidden, setActionsHidden] = useState(false)
   const [cueHidden, setCueHidden] = useState(false)
-  const navStage1Timer = useRef(null)
-  const navStage2Timer = useRef(null)
   const cueTimer = useRef(null)
 
   const showCueTemporarily = (duration = 2000) => {
@@ -742,124 +738,8 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
      - On last page (About Us / education):
        Completely hidden so creator profile is 100% unobstructed.
   */
-  useEffect(() => {
-    const clearTimers = () => {
-      if (navStage1Timer.current) clearTimeout(navStage1Timer.current)
-      if (navStage2Timer.current) clearTimeout(navStage2Timer.current)
-    }
+  // Header Taskbar is permanently visible on all content pages, hidden only on About Us (education)
 
-    if (phases[active]?.id === 'education' || active === phases.length - 1) {
-      clearTimers()
-      setNavHidden(true)
-      setActionsHidden(true)
-      return
-    }
-
-    // Full taskbar sequence: 2s full taskbar -> 2s day/night pill -> hide all
-    const startProgressiveSequence = () => {
-      clearTimers()
-      setNavHidden(false)
-      setActionsHidden(false)
-      navStage1Timer.current = setTimeout(() => {
-        setNavHidden(true) // hides frame & links, leaves Day/Night bar
-        navStage2Timer.current = setTimeout(() => {
-          setActionsHidden(true) // Day/Night bar also hides
-        }, 2000)
-      }, 2000)
-    }
-
-    // Actions-only sequence (for scroll up): shows Day/Night pill for 2.5s, then hides
-    const showActionsBriefly = (duration = 2500) => {
-      clearTimers()
-      setNavHidden(true)
-      setActionsHidden(false)
-      navStage2Timer.current = setTimeout(() => {
-        setActionsHidden(true)
-      }, duration)
-    }
-
-    // 1. Mouse movement: pointing mouse in taskbar area (clientY <= 95) reveals full taskbar
-    const onMouseMove = (event) => {
-      if (event.clientY <= 95) {
-        clearTimers()
-        setNavHidden(false)
-        setActionsHidden(false)
-      } else if (event.movementY > 10 && event.clientY > 110) {
-        if (!navHidden) {
-          setNavHidden(true)
-        }
-      }
-    }
-
-    // 2. Mouse Up
-    const onMouseUp = () => {
-      if (!navHidden) {
-        startProgressiveSequence()
-      }
-    }
-
-    // 3. Wheel gesture:
-    // - Scrolling UP (deltaY < -15): user requested only day/night bar visible for a few seconds!
-    // - Scrolling DOWN (deltaY > 20): quick hide
-    // - Scrolling in either direction: reveals bottom scroll cue mouse for 2s!
-    const onWheelNav = (event) => {
-      showCueTemporarily(2000)
-      if (event.deltaY < -15) {
-        showActionsBriefly(2500)
-      } else if (event.deltaY > 20) {
-        if (!navHidden) {
-          clearTimers()
-          setNavHidden(true)
-          navStage2Timer.current = setTimeout(() => {
-            setActionsHidden(true)
-          }, 1500)
-        }
-      }
-    }
-
-    // 4. Touch swipe events (mobile & tablet)
-    let touchStartY = 0
-    const onTouchStart = (event) => {
-      touchStartY = event.touches[0].clientY
-    }
-    const onTouchMove = (event) => {
-      showCueTemporarily(2000)
-      const currentY = event.touches[0].clientY
-      const deltaY = currentY - touchStartY
-      if (deltaY > 20) {
-        // Swiping downwards (scrolling up): reveal day/night pill
-        showActionsBriefly(2500)
-      } else if (deltaY < -20) {
-        // Swiping upwards (scrolling down): hide frame
-        if (!navHidden) {
-          clearTimers()
-          setNavHidden(true)
-          navStage2Timer.current = setTimeout(() => {
-            setActionsHidden(true)
-          }, 1500)
-        }
-      }
-    }
-
-    // When entering a new page section: trigger 2s full taskbar -> 2s day/night -> hide all, and show scroll cue for 2s
-    startProgressiveSequence()
-    showCueTemporarily(2000)
-
-    window.addEventListener('mousemove', onMouseMove, { passive: true })
-    window.addEventListener('mouseup', onMouseUp, { passive: true })
-    window.addEventListener('wheel', onWheelNav, { passive: true })
-    window.addEventListener('touchstart', onTouchStart, { passive: true })
-    window.addEventListener('touchmove', onTouchMove, { passive: true })
-
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove)
-      window.removeEventListener('mouseup', onMouseUp)
-      window.removeEventListener('wheel', onWheelNav)
-      window.removeEventListener('touchstart', onTouchStart)
-      window.removeEventListener('touchmove', onTouchMove)
-      clearTimers()
-    }
-  }, [active])
 
 
   const askQuestion = (text) => {
@@ -908,36 +788,9 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         </svg>
       </div>
 
-      {/* Full Taskbar: auto-hides in 2s to floating Day/Night bar, then in 2s hides all */}
-      <header
-          className={`spiritual-header${navHidden ? ' is-hidden' : ''}${actionsHidden ? ' actions-hidden' : ''}`}
-          style={navHidden ? {
-            background: 'transparent',
-            backgroundColor: 'transparent',
-            backgroundImage: 'none',
-            border: 'none',
-            borderColor: 'transparent',
-            boxShadow: 'none',
-            backdropFilter: 'none',
-            WebkitBackdropFilter: 'none',
-          } : undefined}
-          onMouseEnter={() => {
-            if (navStage1Timer.current) clearTimeout(navStage1Timer.current)
-            if (navStage2Timer.current) clearTimeout(navStage2Timer.current)
-            setNavHidden(false)
-            setActionsHidden(false)
-          }}
-          onMouseLeave={() => {
-            if (navStage1Timer.current) clearTimeout(navStage1Timer.current)
-            if (navStage2Timer.current) clearTimeout(navStage2Timer.current)
-            navStage1Timer.current = setTimeout(() => {
-              setNavHidden(true)
-              navStage2Timer.current = setTimeout(() => {
-                setActionsHidden(true)
-              }, 2000)
-            }, 1800)
-          }}
-        >
+      {/* Taskbar: Clean, persistent header across all content pages, hidden only on About Us */}
+      {phases[active]?.id !== 'education' && (
+        <header className="spiritual-header">
           <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
             <img className="brand-icon" src={brandIcon} alt="" />
             <span className="brand-text">
@@ -1035,6 +888,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
             </button>
           </div>
         </header>
+      )}
 
       {/* Side Dot Navigation */}
       <nav className="phase-nav" aria-label="Page phases">

@@ -2912,7 +2912,22 @@ select:focus-visible,
     justify-content: center !important;
   }
   .home-link {
-    display: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 4px 8px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    color: var(--accent, #f59e0b) !important;
+    background: rgba(245, 158, 11, 0.12) !important;
+    border: 1px solid rgba(245, 158, 11, 0.28) !important;
+    border-radius: 999px !important;
+    cursor: pointer !important;
+  }
+  @media (max-width: 480px) {
+    .home-link .home-link-text {
+      display: none !important;
+    }
   }
   .mode-toggle-group {
     padding: 2px 3px !important;
@@ -4428,119 +4443,37 @@ select:focus-visible,
   left: 50% !important;
   transform: translateX(-50%) !important;
   z-index: 100 !important;
-  transition: background 380ms cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1),
-              backdrop-filter 380ms ease,
-              -webkit-backdrop-filter 380ms ease;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: min(1380px, calc(100% - 40px)) !important;
+  height: 64px !important;
+  margin: 0 auto !important;
+  padding-inline: 26px !important;
+  border: 1px solid rgba(230, 138, 0, 0.28) !important;
+  border-radius: 20px !important;
+  background: rgba(255, 248, 225, 0.92) !important;
+  box-shadow: 0 12px 32px rgba(120, 70, 10, 0.1) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transition: all 0.25s ease !important;
 }
 
-/* Brand logo and navigation links smoothly fade and slide up when taskbar hides */
-.spiritual-header .spiritual-brand-button,
-.spiritual-header .spiritual-nav {
-  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+.night .spiritual-header,
+.spiritual-page.night .spiritual-header {
+  background: rgba(10, 26, 47, 0.92) !important;
+  border: 1px solid rgba(254, 200, 75, 0.28) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55), 0 0 14px rgba(254, 200, 75, 0.1) !important;
 }
 
-/* When hidden for clear view of site: taskbar frame completely vanishes */
-.spiritual-header.is-hidden,
-.spiritual-page .spiritual-header.is-hidden,
-.night .spiritual-header.is-hidden,
-.spiritual-page.night .spiritual-header.is-hidden,
-.spiritual-header.actions-hidden,
-.spiritual-page .spiritual-header.actions-hidden,
-.night .spiritual-header.actions-hidden,
-.spiritual-page.night .spiritual-header.actions-hidden {
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  border: none !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  pointer-events: none !important;
-}
-
-.spiritual-header.is-hidden::before,
-.spiritual-page .spiritual-header.is-hidden::before,
-.night .spiritual-header.is-hidden::before,
-.spiritual-page.night .spiritual-header.is-hidden::before,
-.spiritual-header.is-hidden::after,
-.spiritual-page .spiritual-header.is-hidden::after,
-.night .spiritual-header.is-hidden::after,
-.spiritual-page.night .spiritual-header.is-hidden::after,
-.spiritual-header.actions-hidden::before,
-.spiritual-page .spiritual-header.actions-hidden::before,
-.night .spiritual-header.actions-hidden::before,
-.spiritual-page.night .spiritual-header.actions-hidden::before,
-.spiritual-header.actions-hidden::after,
-.spiritual-page .spiritual-header.actions-hidden::after,
-.night .spiritual-header.actions-hidden::after,
-.spiritual-page.night .spiritual-header.actions-hidden::after {
-  opacity: 0 !important;
-  background: none !important;
-  display: none !important;
-  content: none !important;
-  transition: opacity 300ms ease;
-}
-
-.spiritual-header.is-hidden .spiritual-brand-button,
-.spiritual-header.is-hidden .spiritual-nav {
-  opacity: 0 !important;
-  transform: translateY(-24px) scale(0.96) !important;
-  pointer-events: none !important;
-}
-
-/* Day/Night and Chat option: remain visible and shift slightly to right with floating glass pill styling */
 .spiritual-header .spiritual-header-actions {
-  transition: transform 380ms cubic-bezier(0.16, 1, 0.3, 1),
-              background 320ms ease,
-              border-color 320ms ease,
-              box-shadow 320ms ease,
-              padding 320ms ease;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  opacity: 1 !important;
   pointer-events: auto !important;
-}
-
-.spiritual-header.is-hidden .spiritual-header-actions {
-  pointer-events: auto !important;
-  transform: translateX(24px); /* Shifted slightly to the right side */
-  background: rgba(255, 248, 225, 0.92);
-  border: 1px solid rgba(230, 138, 0, 0.32);
-  border-radius: 999px;
-  padding: 5px 8px;
-  box-shadow: 0 10px 30px rgba(120, 70, 10, 0.22), 0 2px 8px rgba(0, 0, 0, 0.06);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
-
-.night .spiritual-header.is-hidden .spiritual-header-actions,
-.spiritual-page.night .spiritual-header.is-hidden .spiritual-header-actions {
-  background: rgba(10, 26, 47, 0.92);
-  border-color: rgba(254, 200, 75, 0.35);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55), 0 0 14px rgba(254, 200, 75, 0.12);
-}
-
-@media (max-width: 768px) {
-  .spiritual-header.is-hidden .spiritual-header-actions {
-    transform: translateX(10px);
-    padding: 4px 6px;
-    gap: 8px;
-  }
-}
-
-/* Stage 3: After 2 more seconds, the floating Day/Night bar also auto-hides for 100% serene reading */
-.spiritual-header.actions-hidden .spiritual-header-actions {
-  opacity: 0 !important;
-  transform: translateY(-28px) translateX(24px) scale(0.94) !important;
-  pointer-events: none !important;
-  transition: opacity 340ms ease, transform 380ms cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-@media (max-width: 768px) {
-  .spiritual-header.actions-hidden .spiritual-header-actions {
-    transform: translateY(-24px) translateX(10px) scale(0.94) !important;
-  }
 }
 
 
@@ -5412,24 +5345,46 @@ select:focus-visible,
     padding:72px 16px 28px !important;
     gap:0 !important;
   }
-  /* header — compact, no overflow */
-  .spiritual-page .spiritual-header{
-    width:calc(100% - 16px) !important;
-    height:56px !important;
-    margin:6px auto 0 !important;
-    padding:0 10px !important;
-    border-radius:14px !important;
+  /* header — compact mobile app header, persistent, no overflow */
+  .spiritual-header,
+  .spiritual-page .spiritual-header {
+    position: fixed !important;
+    top: 8px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: calc(100% - 16px) !important;
+    height: 54px !important;
+    margin: 0 auto !important;
+    padding: 0 10px !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    z-index: 100 !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    background: rgba(255, 248, 225, 0.94) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(230, 138, 0, 0.28) !important;
+    box-shadow: 0 8px 24px rgba(120, 70, 10, 0.15) !important;
   }
-  .spiritual-page .spiritual-wordmark{ font-size:17px !important; }
-  .brand-tagline{ display:none !important; }
-  .spiritual-page .spiritual-nav{ display:none !important; }
-  .spiritual-page .spiritual-header-actions{ gap:6px !important; }
-  .theme-pill-toggle{ padding:2px !important; }
-  .theme-pill-opt{ padding:4px 8px !important; font-size:10px !important; }
-  .spiritual-page .cta-button{ padding:0 12px !important; min-height:36px !important; font-size:11px !important; }
-  .spiritual-page .cta-button span[aria-hidden]{ display:none !important; }
+  .night .spiritual-header,
+  .spiritual-page.night .spiritual-header {
+    background: rgba(10, 26, 47, 0.94) !important;
+    border-color: rgba(254, 200, 75, 0.28) !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5) !important;
+  }
+  .spiritual-page .spiritual-wordmark { font-size: 16px !important; }
+  .brand-tagline { display: none !important; }
+  .spiritual-page .spiritual-nav { display: none !important; }
+  .spiritual-page .spiritual-header-actions { display: inline-flex !important; align-items: center !important; gap: 6px !important; opacity: 1 !important; pointer-events: auto !important; }
+  .theme-pill-toggle { padding: 2px !important; }
+  .theme-pill-opt { padding: 4px 7px !important; font-size: 10px !important; }
+  .spiritual-page .cta-button { padding: 0 10px !important; min-height: 34px !important; font-size: 11px !important; }
+  .spiritual-page .cta-button span[aria-hidden] { display: none !important; }
   /* hero */
-  .phase-hero .hero-copy-panel{ max-width:100% !important; width:100% !important; }
+  .phase-hero .hero-copy-panel { max-width: 100% !important; width: 100% !important; padding-top: 66px !important; }
   .phase-hero .hero-logo{ width:min(260px, 68vw) !important; max-height:96px !important; }
   .phase-hero .hero-tagline{ font-size:14px !important; line-height:1.4 !important; margin-top:8px !important; }
   .phase-hero .hero-desc{ font-size:13px !important; line-height:1.5 !important; margin-top:8px !important; }
