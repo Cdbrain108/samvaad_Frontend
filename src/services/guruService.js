@@ -81,7 +81,34 @@ const GROQ_KEYS = ENV_GROQ_KEYS
 
 let currentKeyIdx = 0;
 
+export function getCustomGroqKey() {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('samvaad_custom_groq_key');
+      if (saved && saved.trim()) return saved.trim();
+    }
+  } catch {}
+  return '';
+}
+
+export function setCustomGroqKey(key) {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('samvaad_custom_groq_key', (key || '').trim());
+    }
+  } catch {}
+}
+
 function getNextGroqKey() {
+  const custom = getCustomGroqKey();
+  if (custom) {
+    const list = custom.split(',').map((s) => s.trim()).filter(Boolean);
+    if (list.length > 0) {
+      const k = list[currentKeyIdx % list.length];
+      currentKeyIdx++;
+      return k;
+    }
+  }
   if (GROQ_KEYS.length === 0) return '';
   const k = GROQ_KEYS[currentKeyIdx % GROQ_KEYS.length];
   currentKeyIdx++;

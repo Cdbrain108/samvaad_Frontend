@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Icon from '../Icon';
 import { getVoiceCloneUrl, setVoiceCloneUrl, testVoiceCloneUrl } from '../../services/ttsService';
-import { getOracleUrl, setOracleUrl, testOracleModelUrl } from '../../services/guruService';
+import { getOracleUrl, setOracleUrl, testOracleModelUrl, getCustomGroqKey, setCustomGroqKey } from '../../services/guruService';
 
 export default function VoiceCloneModal({ isOpen, onClose }) {
   const [activeTab, setActiveTab] = useState('model'); // 'model' | 'voice'
@@ -12,6 +12,8 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
   const [oracleStatusMsg, setOracleStatusMsg] = useState('');
   const [currentOracleUrl, setCurrentOracleUrl] = useState('');
   const [oracleModelName, setOracleModelName] = useState('');
+  const [customGroqInput, setCustomGroqInput] = useState('');
+  const [groqSavedMsg, setGroqSavedMsg] = useState('');
 
   // Voice Clone States
   const [voiceUrl, setVoiceUrl] = useState('');
@@ -34,6 +36,8 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
       }
 
       // Load Deep Model (Oracle / ngrok)
+      const activeGroq = getCustomGroqKey();
+      setCustomGroqInput(activeGroq);
       const activeOracle = getOracleUrl();
       setOracleUrlInput(activeOracle);
       setCurrentOracleUrl(activeOracle);
@@ -73,6 +77,12 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
       setOracleStatus('error');
       setOracleStatusMsg(`Connection failed: ${result.error || 'Server returned HTTP ' + result.status}. Ensure your tunnel/llama.cpp server is running.`);
     }
+  };
+
+  const handleSaveGroqKeys = () => {
+    setCustomGroqKey(customGroqInput);
+    setGroqSavedMsg('Groq keys saved successfully! Key rotation is now active.');
+    setTimeout(() => setGroqSavedMsg(''), 4000);
   };
 
   const handleResetOracle = () => {
@@ -235,6 +245,37 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
                 {oracleStatusMsg && (
                   <p className={`clone-status-msg ${oracleStatus}`}>
                     {oracleStatusMsg}
+                  </p>
+                )}
+              </div>
+
+              {/* Additional Groq Keys Section */}
+              <div className="clone-form-section" style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <label htmlFor="groq-keys-input">
+                  <strong>⚡ Additional Groq API Keys (Custom Multi-Key Rotation)</strong>
+                </label>
+                <p style={{ fontSize: '0.78rem', color: '#9ca3af', marginBottom: '8px' }}>
+                  Enter your own Groq API key(s) (comma-separated). The app automatically rotates across all keys.
+                </p>
+                <div className="clone-input-row">
+                  <input
+                    id="groq-keys-input"
+                    type="password"
+                    placeholder="gsk_key1, gsk_key2"
+                    value={customGroqInput}
+                    onChange={(e) => setCustomGroqInput(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="rust-button primary"
+                    onClick={handleSaveGroqKeys}
+                  >
+                    Save Keys
+                  </button>
+                </div>
+                {groqSavedMsg && (
+                  <p className="clone-status-msg success" style={{ color: '#10b981', fontSize: '0.8rem', marginTop: '6px' }}>
+                    {groqSavedMsg}
                   </p>
                 )}
               </div>
