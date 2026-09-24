@@ -76,12 +76,12 @@ export default function VoiceCloneModal({ isOpen, onClose }) {
   };
 
   const handleResetOracle = () => {
-    const defaultUrl = 'https://immature-zen-earthen.ngrok-free.dev';
+    const defaultUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ORACLE_GURU_URL) || '';
     setOracleUrl(defaultUrl);
     setOracleUrlInput(defaultUrl);
     setCurrentOracleUrl(defaultUrl);
     setOracleStatus('idle');
-    setOracleStatusMsg('Reset to default active ngrok tunnel.');
+    setOracleStatusMsg('Reset to default active server.');
   };
 
   const handleTestAndSaveVoice = async () => {

@@ -5448,6 +5448,10 @@ select:focus-visible,
   .parchment-unfurl-stage{ min-height:180px !important; }
   .parchment-sheet{ min-height:170px !important; padding:12px 16px !important; }
   .parchment-metrics-grid{ grid-template-columns:1fr 1fr !important; gap:10px !important; }
+  /* 2-col rows are [1,2] [3,4] [5]: dividers between a pair stay, the ones
+     hanging at the end of rows 1 and 2 (items 2 and 4) would float near the
+     sheet edge, so drop those. */
+  .parchment-metric-item:nth-child(2n) .metric-vertical-divider{ display:none; }
   .parchment-metric-item:nth-child(5){ grid-column:1 / -1; max-width:50%; margin:0 auto; }
   .metric-digit{ font-size:24px !important; }
   .metric-text-label{ font-size:10px !important; }
@@ -6550,4 +6554,61 @@ select:focus-visible,
 .spiritual-page .about-us-section {
   padding-top: clamp(40px, 6vh, 64px) !important;
   margin-top: 0 !important;
+}
+
+
+/* High-contrast sacred traditions & scriptures names visibility */
+.spiritual-page:not(.night) .traditions-label,
+:root[data-theme='light'] .traditions-label,
+.traditions-label {
+  color: #78350F !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  opacity: 0.95 !important;
+}
+
+.spiritual-page:not(.night) .scripture-row span,
+:root[data-theme='light'] .scripture-row span,
+.scripture-row span {
+  background: #FFFFFF !important;
+  border: 1.5px solid rgba(217, 119, 6, 0.45) !important;
+  color: #451A03 !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  box-shadow: 0 2px 10px rgba(180, 83, 9, 0.12) !important;
+  transition: all 200ms ease !important;
+}
+
+.spiritual-page:not(.night) .scripture-row span:hover,
+:root[data-theme='light'] .scripture-row span:hover {
+  border-color: #D97706 !important;
+  background: #FEF3C7 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 14px rgba(180, 83, 9, 0.18) !important;
+}
+
+.night .traditions-label,
+:root[data-theme='dark'] .traditions-label {
+  color: #FCD34D !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  opacity: 0.95 !important;
+}
+
+.night .scripture-row span,
+:root[data-theme='dark'] .scripture-row span {
+  background: rgba(15, 23, 42, 0.9) !important;
+  border: 1.5px solid rgba(254, 200, 75, 0.38) !important;
+  color: #F8FAFC !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;
+  transition: all 200ms ease !important;
+}
+
+.night .scripture-row span:hover,
+:root[data-theme='dark'] .scripture-row span:hover {
+  border-color: #F59E0B !important;
+  background: rgba(30, 41, 59, 0.95) !important;
+  transform: translateY(-2px) !important;
 }

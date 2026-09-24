@@ -2,7 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 
 const statsData = [
-    {
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="23 7 16 12 23 17 23 7" />
+        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+      </svg>
+    ),
+    value: 4000,
+    prefix: '',
+    suffix: '+',
+    label: 'Videos Data Used',
+    hindi: 'चार हज़ार+ वीडियो डेटा'
+  },
+  {
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
@@ -29,6 +42,18 @@ const statsData = [
     suffix: 'K+',
     label: 'Fine-Tuning Q&A Pairs',
     hindi: 'संवाद प्रश्नोत्तरी'
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+      </svg>
+    ),
+    value: 500,
+    prefix: '',
+    suffix: 'M+',
+    label: 'Tokens Used',
+    hindi: 'पाँच सौ मिलियन टोकन'
   },
   {
     icon: (
@@ -180,3 +205,4 @@ export default function ParchmentScroll() {
     </div>
   );
 }
+

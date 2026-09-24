@@ -467,14 +467,7 @@ This platform serves as an interactive learning playground. Guidance here is ref
     setIsTyping(true)
     setTypedText('')
 
-    // Backward removing animation for the section heading as chat starts
-    if (onChatStart) {
-      setTimeout(() => {
-        if (!cancelled) {
-          onChatStart()
-        }
-      }, 5000)
-    }
+    // Auto-dismiss timer removed to ensure rock-solid scroll stability
 
     const chars = Array.from(selected.a)
     let idx = 0

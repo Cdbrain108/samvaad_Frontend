@@ -1475,6 +1475,20 @@ html { scroll-behavior: auto; }
   }
 }
 
+/* 769–900px: five stats wrap 3 + 2. Use 6 columns of span-2 cells so row 1 is
+   still three even columns, and place the last two in cols 2–5 so the final
+   row is centred instead of left-hanging. */
+@media (min-width: 769px) and (max-width: 900px) {
+  .parchment-metrics-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .parchment-metric-item { grid-column: span 2; }
+  .parchment-metric-item:nth-child(4) { grid-column: 2 / 4; }
+  .parchment-metric-item:nth-child(5) { grid-column: 4 / 6; }
+  /* No divider at the end of a wrapped row (3rd cell touches the sheet edge). */
+  .parchment-metric-item:nth-child(3n) .metric-vertical-divider { display: none; }
+}
+
 @media (max-width: 600px) {
   .parchment-metrics-grid {
     grid-template-columns: 1fr 1fr;

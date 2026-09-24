@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 /**
  * RagVersesDropdown
  * Renders an elegant, collapsible "Preferred References" section immediately beneath
- * the assistant's chat response. Displays all top candidate RAG verses (from AWS Qdrant
+ * the assistant's chat response. Displays all top candidate RAG verses (from 150K+ Verses across 25+ Scriptures
  * and curated scripture corpus) as premium styled scripture cards with Sanskrit shlokas,
  * Hindi/English meanings, match scores, role tags, and one-click copy actions.
  */

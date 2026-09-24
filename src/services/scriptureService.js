@@ -1160,7 +1160,7 @@ async function queryOracleVectorRAG(query, originalUserQuery = '') {
   if (typeof fetch === 'undefined') return [];
 
   const controller = new AbortController();
-  // Extended timeout: 12000ms ensures AWS Qdrant multilingual-e5 search never aborts prematurely
+  // Extended timeout: 12000ms ensures Multi-Source Scripture RAG multilingual-e5 search never aborts prematurely
   const timeoutId = setTimeout(() => controller.abort(), 12000);
 
   const textForFilter = originalUserQuery ? `${query} ${originalUserQuery}` : query;
@@ -1759,7 +1759,7 @@ async function resolveScriptureGrounding(query, groqEnrichment = null) {
       vectorQueryParts.push(enrichedKeywords);
     }
     const vectorQuery = vectorQueryParts.join(' | ');
-    // Query live AWS 1024-d Qdrant gateway across all 29 scripture collections
+    // Query live AWS 1024-d Qdrant gateway across 150K+ verses from 25+ ancient scriptures
     let routed = await queryOracleVectorRAG(vectorQuery, query);
 
     if (explicitTarget && routed.length) {
@@ -1964,7 +1964,7 @@ Meaning: "${trans}"`;
 4. COMPASSIONATE SATSANG VOICE: Connect the sacred verses directly to the devotee's life in Pujya Maharaj Ji's fatherly, affectionate voice, guiding them to surrender fear and anchor their heart in continuous Holy Name chanting ('Radha Radha').`;
 
     const promptExtension = `\n\n【SACRED SCRIPTURE GROUNDING (RAG) - MULTI-VERSE EVALUATION & CITATION】:
-The devotee's spiritual inquiry is grounded in our 29 Sacred Scripture collections in AWS Qdrant. Below are authentic candidate scriptural verses retrieved for this inquiry:
+The devotee's spiritual inquiry is grounded in 150K+ verses across 25+ ancient scriptures (Bhagavad Gita, Vedas, Puranas, Ramayana, Upanishads). Below are authentic candidate scriptural verses retrieved for this inquiry:
 
 ${candidateBlocks}
 

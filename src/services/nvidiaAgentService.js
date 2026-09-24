@@ -95,7 +95,7 @@ export async function runNvidiaDharmicReasoning(userMessage, conversationHistory
 Reflect deeply with compassionate Chain-of-Thought deliberation on the seeker's emotional suffering and spiritual conflict.
 
 SCRIPTURE METADATA NOTE:
-Our 29 scripture collections in Qdrant are indexed with:
+Our 150K+ verses across 25+ sacred scriptures are indexed with:
 - "Domain": Life domain category (e.g. "spiritual_discipleship_and_reverence", "conquering_lust_and_chastity", "forgiveness_vs_revenge", "grief_and_impermanence_of_body", "devotion_and_divine_love").
 - "Modern Life Dilemmas": Universal real-world dilemmas/questions.
 - "Themes": Core thematic tags.
