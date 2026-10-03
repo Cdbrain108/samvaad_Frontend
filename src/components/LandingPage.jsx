@@ -4,6 +4,7 @@ import ScriptureBook from './ScriptureBook'
 import ParchmentScroll from './ParchmentScroll'
 import TempleNightCanvas from './TempleNightCanvas'
 import heroSunrise from '../assets/hero-sunrise.png'
+import heroSunriseMobile from '../assets/hero-sunrise-mobile.webp'
 import heroNightTemple from '../assets/hero-night-temple.png'
 import heroNightTempleMobile from '../assets/hero-night-temple-mobile.webp'
 import logoWordmark from '../assets/logo-wordmark.webp'
@@ -260,8 +261,12 @@ Key features for seekers:
   const [isVisible, setIsVisible] = useState(false)
   const timeoutRef = useRef(null)
 
-  // Replay typing every time the chat enters the viewport (ChatGPT-style)
+  // Detect mobile to skip character-by-character typing loop and avoid jitter/resets
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+
+  // Replay typing every time the chat enters the viewport on desktop
   useEffect(() => {
+    if (isMobile) return
     const node = containerRef.current
     if (!node) return
     const scrollRoot = node.closest('.landing-scroll')
@@ -273,11 +278,16 @@ Key features for seekers:
     )
     observer.observe(node)
     return () => observer.disconnect()
-  }, [])
+  }, [isMobile])
 
   useEffect(() => {
-    // When not visible, reset and cancel any pending typing so the next
-    // entry always starts from an empty bubble with a fresh typewriter run
+    if (isMobile) {
+      setIsTyping(false)
+      setTypedText(selected.a)
+      return
+    }
+
+    // When not visible on desktop, reset for clean re-entry
     if (!isVisible) {
       setIsTyping(false)
       setTypedText('')
@@ -314,7 +324,7 @@ Key features for seekers:
         timeoutRef.current = null
       }
     }
-  }, [activeTab, isVisible, selected.a])
+  }, [activeTab, isVisible, selected.a, isMobile])
 
   return (
     <div ref={containerRef} className="chat-demo-container">
@@ -353,10 +363,10 @@ Key features for seekers:
                 <small>Compassionate reflection</small>
               </div>
               <div className="chat-demo-typed-content">
-                {typedText.split('\n\n').map((para, i) => (
+                {(isMobile ? selected.a : (typedText || selected.a)).split('\n\n').map((para, i) => (
                   <p key={i}>{para}</p>
                 ))}
-                {isTyping && <span className="term-cursor" aria-hidden="true">▌</span>}
+                {!isMobile && isTyping && <span className="term-cursor" aria-hidden="true">▌</span>}
               </div>
             </div>
           </div>
@@ -438,7 +448,11 @@ This platform serves as an interactive learning playground. Guidance here is ref
   const [isVisible, setIsVisible] = useState(false)
   const timeoutRef = useRef(null)
 
+  // Detect mobile to skip character-by-character typing loop and avoid jitter/resets
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+
   useEffect(() => {
+    if (isMobile) return
     const node = containerRef.current
     if (!node) return
     const scrollRoot = node.closest('.landing-scroll')
@@ -450,9 +464,15 @@ This platform serves as an interactive learning playground. Guidance here is ref
     )
     observer.observe(node)
     return () => observer.disconnect()
-  }, [])
+  }, [isMobile])
 
   useEffect(() => {
+    if (isMobile) {
+      setIsTyping(false)
+      setTypedText(selected.a)
+      return
+    }
+
     if (!isVisible) {
       setIsTyping(false)
       setTypedText('')
@@ -490,7 +510,7 @@ This platform serves as an interactive learning playground. Guidance here is ref
         timeoutRef.current = null
       }
     }
-  }, [activeTab, isVisible, selected.a])
+  }, [activeTab, isVisible, selected.a, isMobile])
 
   return (
     <div ref={containerRef} className="chat-demo-container about-us-chat-container">
@@ -542,7 +562,7 @@ This platform serves as an interactive learning playground. Guidance here is ref
                 <small>Gen AI &amp; Agentic AI Developer (Fresher)</small>
               </div>
               <div className="chat-demo-typed-content">
-                {typedText.split('\n\n').map((para, i) => {
+                {(isMobile ? selected.a : (typedText || selected.a)).split('\n\n').map((para, i) => {
                   if (para.includes('\n• ') || para.startsWith('• ')) {
                     const lines = para.split('\n')
                     return (
@@ -555,7 +575,7 @@ This platform serves as an interactive learning playground. Guidance here is ref
                   }
                   return <p key={i}>{para}</p>
                 })}
-                {isTyping && <span className="term-cursor" aria-hidden="true">▌</span>}
+                {!isMobile && isTyping && <span className="term-cursor" aria-hidden="true">▌</span>}
               </div>
             </div>
           </div>
@@ -919,11 +939,19 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
               <TempleNightCanvas className="hero-bg hero-bg-canvas desktop-only-canvas" />
             </>
           ) : (
-            <div
-              className="hero-bg hero-bg-sunrise"
-              style={{ backgroundImage: `url(${heroSunrise})` }}
-              aria-hidden="true"
-            />
+            <>
+              <img
+                src={heroSunriseMobile}
+                className="hero-bg hero-bg-mobile-sunrise hero-bg-mobile-temple"
+                alt="Sacred Yamuna Ghat Sunrise"
+                aria-hidden="true"
+              />
+              <div
+                className="hero-bg hero-bg-sunrise desktop-only-canvas"
+                style={{ backgroundImage: `url(${heroSunrise})` }}
+                aria-hidden="true"
+              />
+            </>
           )}
 
           <div className="hero-copy-panel">

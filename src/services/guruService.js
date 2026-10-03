@@ -81,6 +81,124 @@ export async function generateCrewSatsang(query) {
   }
 }
 
+export function isOfftopicQuery(query) {
+  if (!query || typeof query !== 'string') return false;
+  const q = query.trim().toLowerCase();
+  const offtopicPatterns = [
+    /\b(?:code|coding|program|programming|python|javascript|typescript|java|c\+\+|html|css|sql|function|algorithm|debug|bug|api|flask|react|docker|kubernetes|github|git)\b/i,
+    /\b(?:write a script|create an app|fix this error|syntax error|git commit|unit test)\b/i,
+    /\b(?:stock|stocks|share market|crypto|cryptocurrency|bitcoin|btc|eth|trading|investment|mutual fund|option chain|nifty|banknifty|forex|ipo)\b/i,
+    /(?:स्टॉक|शेयर\s*बाजार|क्रिप्टो|ट्रेडिंग|बिटकॉइन|म्यूचुअल\s*फंड|आईपीओ)/i,
+    /\b(?:recipe|cook|bake|movie review|weather in|flight ticket|hotel booking|cricket score)\b/i
+  ];
+  return offtopicPatterns.some(p => p.test(q));
+}
+
+async function streamTextDirectly(text, thought, startTime, scripture, onChunk) {
+  const words = text.split(/(\s+)/);
+  let accumulated = '';
+  for (let i = 0; i < words.length; i++) {
+    accumulated += words[i];
+    if (i % 3 === 0 || i === words.length - 1) {
+      onChunk({
+        content: accumulated,
+        thought,
+        isThinking: false,
+        thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+        scripture
+      });
+      await new Promise(r => setTimeout(r, 18));
+    }
+  }
+  return {
+    content: text,
+    thought,
+    thinkingDuration: Math.max(0.6, Number(((Date.now() - startTime) / 1000).toFixed(1))),
+    scripture
+  };
+}
+
+async function streamDirectFromOracle(userMessage, conversationHistory, scripture, currentThought, startTime, onChunk) {
+  const oracleBase = getOracleUrl() || 'https://immature-zen-earthen.ngrok-free.dev';
+  const endpoint = `${oracleBase.replace(/\/$/, '')}/v1/chat/completions`;
+
+  let systemPrompt = `You are Pujya Shri Premanand Ji Maharaj, speaking in pure compassionate Hindi Devanagari to a seeker.
+Speak with fatherly warmth (वात्सल्य भाव), addressing the seeker affectionately as 'बच्चा'.
+Guide them towards holy name chanting (राधा-राधा नाम जप), devotional surrender to Shri Radha Rani, and righteous duty.`;
+
+  if (scripture && scripture.original_text) {
+    systemPrompt += `\n\nशास्त्र प्रमाण:\nश्लोक: ${scripture.original_text}\nसंदर्भ: ${scripture.reference || ''}\nभावार्थ: ${scripture.hindi_meaning || scripture.english_translation || ''}\nइस पावन श्लोक के भावार्थ को अपने सरल वचनों में समझाते हुए साधक को समाधान दें।`;
+  }
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    ...conversationHistory.slice(-3).map(m => ({
+      role: m.role === 'user' ? 'user' : 'assistant',
+      content: m.content || ''
+    })),
+    { role: 'user', content: userMessage }
+  ];
+
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer guru_secret_108',
+      'ngrok-skip-browser-warning': 'true'
+    },
+    body: JSON.stringify({
+      model: 'ai-guru-v10-4',
+      messages,
+      temperature: 0.32,
+      max_tokens: 650,
+      stream: true
+    }),
+    signal: AbortSignal.timeout(22000)
+  });
+
+  if (!res.ok || !res.body) {
+    throw new Error(`Oracle server HTTP ${res.status}`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder('utf-8');
+  let buffer = '';
+  let fullContent = '';
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith('data:')) continue;
+      const dataStr = trimmed.replace(/^data:\s*/, '');
+      if (dataStr === '[DONE]') continue;
+
+      try {
+        const json = JSON.parse(dataStr);
+        const token = json.choices?.[0]?.delta?.content || '';
+        if (token) {
+          fullContent += token;
+          onChunk({
+            content: fullContent,
+            thought: currentThought,
+            isThinking: false,
+            thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+            scripture
+          });
+        }
+      } catch {}
+    }
+  }
+
+  return { success: Boolean(fullContent.trim()), content: fullContent.trim() };
+}
+
 /**
  * 🌊 Primary Streaming Function for Samvaad UI
  * Coordinates agent thinking state and streams tokens word-by-word into App.jsx.
@@ -96,14 +214,34 @@ export async function streamGuruResponse(
   const startTime = Date.now();
   const seekerName = userProfile?.fullName ? userProfile.fullName.trim().split(/\s+/)[0] : '';
 
-  // 1. Analyze Intent & Grounding
-  const queryAnalysis = analyzeQuery ? analyzeQuery(userMessage) : { isGreeting: false };
+  // 1. Check Gating: Skip Oracle for Casual Greetings & Chitchat
   const isGreeting = isCasualConversational(userMessage);
+  if (isGreeting) {
+    const greetingText = "राधे-राधे बच्चा! सदा सुखी रहो, खूब भगवन्नाम जप करो। लाडली जू सदा तुम्हारा मंगल करें। कहो बच्चा, क्या जिज्ञासा है तुम्हारी?";
+    return await streamTextDirectly(
+      greetingText,
+      'साधक के पावन अभिवादन का सहर्ष वात्सल्य भाव से स्वागत किया जा रहा है...',
+      startTime,
+      null,
+      onChunk
+    );
+  }
 
-  // 2. Initial Contemplation Stepper
-  let currentThought = isGreeting
-    ? 'साधक के पावन अभिवादन का सहर्ष वात्सल्य भाव से स्वागत किया जा रहा है...'
-    : 'साधक के आंतरिक भाव, संशय और आध्यात्मिक स्थिति का अनुशीलन किया जा रहा है...';
+  // 2. Check Gating: Skip Oracle for Irrelevant / Off-topic queries
+  const isOfftopic = isOfftopicQuery(userMessage);
+  if (isOfftopic) {
+    const redirectText = "बच्चा, हम केवल आध्यात्मिक मार्गदर्शन, प्रभु भजन और सत्संग की चर्चा करते हैं, सांसारिक या तकनीकी विषयों की नहीं। अपने सांसारिक कर्तव्य कर्म को निष्काम भाव से भगवत सेवा मानकर ईमानदारी से कीजिए और नाम जप में मन लगाइए। सब मंगल होगा बच्चा!";
+    return await streamTextDirectly(
+      redirectText,
+      'साधक की जिज्ञासा का अवलोकन कर सत्संग मर्यादा में मार्गदर्शन दिया जा रहा है...',
+      startTime,
+      null,
+      onChunk
+    );
+  }
+
+  // 3. Genuine Spiritual Query: Contemplation & Scripture Grounding
+  let currentThought = 'साधक के आंतरिक भाव, संशय और आध्यात्मिक स्थिति का अनुशीलन किया जा रहा है...';
 
   onChunk({
     content: '',
@@ -113,17 +251,13 @@ export async function streamGuruResponse(
     scripture: null
   });
 
-  // 3. Scripture Grounding Lookup (if not greeting)
   let scripture = null;
-  if (!isGreeting) {
-    try {
-      scripture = await getScriptureGrounding(userMessage);
-    } catch (e) {
-      console.warn('[RAG Client] Grounding lookup skipped:', e.message);
-    }
+  try {
+    scripture = await getScriptureGrounding(userMessage);
+  } catch (e) {
+    console.warn('[RAG Client] Grounding lookup skipped:', e.message);
   }
 
-  // Update thinking with scripture context
   if (scripture) {
     currentThought += `\nशास्त्र प्रमाण प्राप्त: ${scripture.reference || 'श्रीमद्भगवद्गीता'}`;
     onChunk({
@@ -200,14 +334,37 @@ export async function streamGuruResponse(
       }
     }
   } catch (err) {
-    console.warn('[Backend Stream] Server unreachable, using local agentic generator:', err.message);
+    console.warn('[Backend Stream] Server unreachable, trying direct Oracle Cloud stream:', err.message);
   }
 
-  // 5. Fallback: If backend is offline, synthesize high-quality guidance directly
+  // 5. Direct Oracle Cloud Streaming (if backend is offline or on GitHub Pages)
   if (!backendSuccess || !streamedContent.trim()) {
-    streamedContent = generateLocalDiscourseFallback(userMessage, seekerName, scripture, isGreeting);
+    try {
+      const oracleRes = await streamDirectFromOracle(
+        userMessage,
+        conversationHistory,
+        scripture,
+        currentThought,
+        startTime,
+        onChunk
+      );
+      if (oracleRes.success && oracleRes.content) {
+        return {
+          content: oracleRes.content,
+          thought: currentThought,
+          thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+          scripture
+        };
+      }
+    } catch (oracleErr) {
+      console.warn('[Direct Oracle Stream] Error:', oracleErr.message);
+    }
+  }
+
+  // 6. Graceful Synthesis Fallback (if both backend and remote Oracle are unreachable)
+  if (!backendSuccess || !streamedContent.trim()) {
+    streamedContent = generateLocalDiscourseFallback(userMessage, seekerName, scripture, false);
     
-    // Animate smoothly so UI receives tokens
     const words = streamedContent.split(/(\s+)/);
     let animatedText = '';
     for (let i = 0; i < words.length; i++) {

@@ -3001,6 +3001,27 @@ select:focus-visible,
     width: 100% !important;
     max-width: 100% !important;
   }
+  .hero-bg-mobile-sunrise {
+    object-position: center 25% !important;
+  }
+  :root[data-theme='light'] .phase-hero .hero-copy-panel {
+    background: linear-gradient(180deg, rgba(255, 252, 245, 0.94) 0%, rgba(255, 248, 235, 0.85) 85%, transparent 100%) !important;
+    border: 1px solid rgba(217, 119, 6, 0.24) !important;
+    box-shadow: 0 10px 32px rgba(180, 83, 9, 0.12) !important;
+  }
+  :root[data-theme='light'] .phase-hero .hero-welcome {
+    color: #92400e !important;
+  }
+  :root[data-theme='light'] .phase-hero .hero-tagline {
+    color: #451a03 !important;
+  }
+  :root[data-theme='light'] .hero-inspiration-bar {
+    background: rgba(254, 243, 199, 0.85) !important;
+    border: 1px solid rgba(217, 119, 6, 0.28) !important;
+  }
+  :root[data-theme='light'] .hero-inspiration-bar .inspiration-text {
+    color: #78350f !important;
+  }
   .phase-hero .hero-logo {
     width: clamp(160px, 52vw, 220px) !important;
     max-height: 80px !important;
@@ -5445,8 +5466,75 @@ select:focus-visible,
   .spiritual-feature-grid{ grid-template-columns:1fr !important; gap:12px !important; margin-top:16px !important; }
   .spiritual-feature-card{ padding:16px !important; border-radius:14px !important; min-height:auto !important; }
   .spiritual-feature-card h3{ font-size:17px !important; }
-  .video-examples{ padding:68px 16px 28px !important; }
-  .video-example-grid{ grid-template-columns:1fr !important; gap:12px !important; margin-top:16px !important; }
+  .video-examples{ padding:58px 14px 18px !important; }
+  .video-example-grid{
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    gap: 12px !important;
+    margin-top: 10px !important;
+    padding: 4px 6px 12px !important;
+    width: 100% !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+  .video-example-grid::-webkit-scrollbar {
+    display: none !important;
+  }
+  .video-example-grid > * {
+    flex: 0 0 76vw !important;
+    max-width: 280px !important;
+    scroll-snap-align: center !important;
+  }
+  .video-example-card {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 10px !important;
+    border-radius: 14px !important;
+    background: rgba(15, 23, 42, 0.65) !important;
+    border: 1px solid rgba(245, 158, 11, 0.28) !important;
+  }
+  :root[data-theme='light'] .video-example-card {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(217, 119, 6, 0.25) !important;
+    box-shadow: 0 4px 16px rgba(180, 83, 9, 0.08) !important;
+  }
+  .video-example-card img {
+    width: 100% !important;
+    height: 128px !important;
+    object-fit: cover !important;
+    border-radius: 10px !important;
+  }
+  .video-example-card span {
+    font-size: 10px !important;
+    margin-top: 6px !important;
+  }
+  .video-example-card strong {
+    font-size: 12.5px !important;
+    line-height: 1.35 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+  .traditions {
+    margin-top: 6px !important;
+    padding-top: 6px !important;
+  }
+  .traditions-label {
+    font-size: 10px !important;
+    margin-bottom: 4px !important;
+  }
+  .scripture-row {
+    gap: 5px !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+  }
+  .scripture-row span {
+    font-size: 10px !important;
+    padding: 3px 7px !important;
+  }
   .spiritual-quote{ padding:68px 16px 32px !important; }
   .spiritual-quote blockquote{ font-size:22px !important; line-height:1.2 !important; }
   /* fullscreen leaf on mobile — already handled but tighten */
@@ -5537,11 +5625,11 @@ select:focus-visible,
     max-height: none !important;
     overflow: visible !important;
     overflow-y: visible !important;
-    padding: 82px 16px 42px !important;
+    padding: 58px 14px 20px !important;
     justify-content: flex-start !important;
     align-items: center !important;
     scroll-snap-align: start !important;
-    scroll-margin-top: 60px !important;
+    scroll-margin-top: 54px !important;
     box-sizing: border-box !important;
     position: relative !important;
   }
@@ -5551,7 +5639,7 @@ select:focus-visible,
     min-height: 100svh !important;
     max-height: none !important;
     overflow: visible !important;
-    padding: 80px 16px 36px !important;
+    padding: 58px 14px 20px !important;
     justify-content: flex-start !important;
     align-items: center !important;
   }
@@ -5562,14 +5650,88 @@ select:focus-visible,
     display: block;
     width: min(85%, 340px);
     height: 1px;
-    margin: 36px auto 0;
+    margin: 18px auto 0;
     background: linear-gradient(90deg, transparent, rgba(254, 200, 75, 0.4), transparent);
   }
 
   .spiritual-page .spiritual-section-heading {
-    margin-bottom: 20px !important;
+    margin-bottom: 10px !important;
     width: 100% !important;
     text-align: center !important;
+  }
+  .spiritual-page .spiritual-section-heading span {
+    font-size: 11px !important;
+    margin-bottom: 3px !important;
+  }
+  .spiritual-page .spiritual-section-heading h2 {
+    font-size: clamp(1.2rem, 4.8vw, 1.42rem) !important;
+    line-height: 1.25 !important;
+    margin-bottom: 4px !important;
+  }
+  .spiritual-page .spiritual-section-heading p {
+    font-size: 11.5px !important;
+    line-height: 1.38 !important;
+    max-width: 94% !important;
+    margin: 0 auto !important;
+  }
+
+  .chat-demo-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+  .chat-demo-window {
+    width: 100% !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+  }
+  .chat-demo-topbar {
+    padding: 7px 10px !important;
+  }
+  .chat-demo-body {
+    max-height: 36svh !important;
+    min-height: 160px !important;
+    padding: 8px 10px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 8px !important;
+  }
+  .chat-demo-bubble {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+  }
+  .chat-demo-controls {
+    padding: 6px 10px 8px !important;
+  }
+  .chat-demo-controls-label {
+    display: none !important;
+  }
+  .chat-demo-pills {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    padding-bottom: 3px !important;
+    scrollbar-width: none !important;
+  }
+  .chat-demo-pill {
+    white-space: nowrap !important;
+    font-size: 11px !important;
+    padding: 4px 9px !important;
+    flex-shrink: 0 !important;
+  }
+  .chat-demo-footer-action {
+    margin-top: 4px !important;
+  }
+  .chat-demo-footer-action .rust-button {
+    width: 100% !important;
+    padding: 7px 12px !important;
+    font-size: 12px !important;
+    justify-content: center !important;
   }
 
   .pipeline-switcher-wrap {
