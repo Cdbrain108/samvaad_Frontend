@@ -661,6 +661,42 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   const [cueHidden, setCueHidden] = useState(false)
   const cueTimer = useRef(null)
 
+  // Auto-hide taskbar header state & timer
+  const [headerVisible, setHeaderVisible] = useState(true)
+  const headerTimerRef = useRef(null)
+
+  const showHeaderTemporarily = (duration = 3200) => {
+    setHeaderVisible(true)
+    if (headerTimerRef.current) clearTimeout(headerTimerRef.current)
+    headerTimerRef.current = setTimeout(() => {
+      setHeaderVisible(false)
+    }, duration)
+  }
+
+  // Auto-hide taskbar after initial view & whenever active section changes
+  useEffect(() => {
+    showHeaderTemporarily(3200)
+    return () => {
+      if (headerTimerRef.current) clearTimeout(headerTimerRef.current)
+    }
+  }, [active])
+
+  // Show taskbar when user moves pointer or touches near the top
+  useEffect(() => {
+    const handleTopInteraction = (e) => {
+      const y = e.touches ? e.touches[0].clientY : e.clientY
+      if (y <= 95) {
+        showHeaderTemporarily(3200)
+      }
+    }
+    window.addEventListener('pointermove', handleTopInteraction, { passive: true })
+    window.addEventListener('touchstart', handleTopInteraction, { passive: true })
+    return () => {
+      window.removeEventListener('pointermove', handleTopInteraction)
+      window.removeEventListener('touchstart', handleTopInteraction)
+    }
+  }, [])
+
   const showCueTemporarily = (duration = 2000) => {
     setCueHidden(false)
     if (cueTimer.current) clearTimeout(cueTimer.current)
@@ -719,6 +755,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     }
 
     const onScroll = () => {
+      showHeaderTemporarily(3200)
       if (!ticking) {
         ticking = true
         requestAnimationFrame(update)
@@ -728,7 +765,6 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     root.addEventListener('scroll', onScroll, { passive: true })
     return () => {
       root.removeEventListener('scroll', onScroll)
-      // settleTimer removed
     }
   }, [])
 
@@ -820,9 +856,12 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         </svg>
       </div>
 
-      {/* Taskbar: Clean, persistent header across all content pages, hidden only on About Us */}
       {phases[active]?.id !== 'education' && (
-        <header className="spiritual-header">
+        <header
+          className={`spiritual-header ${!headerVisible ? 'is-hidden-auto' : ''}`}
+          onMouseEnter={() => { if (headerTimerRef.current) clearTimeout(headerTimerRef.current); setHeaderVisible(true) }}
+          onMouseLeave={() => showHeaderTemporarily(2000)}
+        >
           <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
             <img className="brand-icon" src={brandIcon} alt="" />
             <span className="brand-text">
@@ -1055,16 +1094,22 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
 
           <div className="video-example-grid">
             {videoExamples.map((video, index) => (
-              <Reveal delay={index * 110} key={video.id}>
+              <Reveal delay={index * 110} key={video.id} className={`video-card-wrap ${index === 0 ? 'mobile-hidden-video' : ''}`}>
                 <a
                   className="video-example-card"
                   href={`https://www.youtube.com/watch?v=${video.id}`}
                   rel="noreferrer"
                   target="_blank"
                 >
-                  <img alt={`${video.title} thumbnail`} loading="lazy" src={`https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`} />
-                  <span>{video.label}</span>
-                  <strong>{video.title}</strong>
+                  <div className="video-thumb-container">
+                    <img alt={`${video.title} thumbnail`} loading="lazy" src={`https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`} />
+                    <span className="video-play-overlay" aria-hidden="true">▶</span>
+                  </div>
+                  <div className="video-card-info">
+                    <span className="video-card-tag">{video.label}</span>
+                    <strong className="video-card-title">{video.title}</strong>
+                    <span className="video-card-action">Watch Satsang ↗</span>
+                  </div>
                 </a>
               </Reveal>
             ))}

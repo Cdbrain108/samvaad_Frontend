@@ -319,8 +319,33 @@ export default function App() {
   const [draft, setDraft] = useState('');
   const [messages, setMessages] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth >= 900 : false));
-  const [darkMode, setDarkMode] = useState(true);
   const [view, setView] = useState('landing');
+  const [darkMode, setDarkMode] = useState(() => {
+    try {
+      const isMobile = typeof window !== 'undefined' && (window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+      const explicit = localStorage.getItem('samvaad_theme_explicit');
+      if (explicit) {
+        return localStorage.getItem('samvaad_theme') === 'dark';
+      }
+      if (isMobile) {
+        return false; // Day theme default for mobile
+      }
+      const saved = localStorage.getItem('samvaad_theme');
+      if (saved) return saved === 'dark';
+    } catch {}
+    return true; // Night theme default for desktop
+  });
+
+  const toggleTheme = useCallback(() => {
+    setDarkMode((current) => {
+      const next = !current;
+      try {
+        localStorage.setItem('samvaad_theme', next ? 'dark' : 'light');
+        localStorage.setItem('samvaad_theme_explicit', 'true');
+      } catch {}
+      return next;
+    });
+  }, []);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const currentConversationIdRef = useRef(null);
   const updateCurrentConvId = (id) => {
@@ -942,7 +967,7 @@ export default function App() {
             userProfile={userProfile}
             onLogout={handleLogout}
             onSignIn={() => setView('login')}
-            onToggleTheme={() => setDarkMode((current) => !current)}
+            onToggleTheme={toggleTheme}
           />
         </motion.div>
       )}
@@ -1134,7 +1159,7 @@ export default function App() {
             <button
               className="icon-button"
               aria-label={darkMode ? 'Use light theme' : 'Use dark theme'}
-              onClick={() => setDarkMode((current) => !current)}
+              onClick={toggleTheme}
             >
               <Icon name={darkMode ? 'sun' : 'moon'} />
             </button>

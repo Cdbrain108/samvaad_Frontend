@@ -2991,18 +2991,15 @@ select:focus-visible,
     flex-direction: column !important;
     justify-content: flex-start !important;
   }
-  /* Enhanced Sacred Frosted Glassmorphism for Mobile Hero */
+  /* Rich, Solid Devotional Surface for Mobile Hero */
   .phase-hero .hero-copy-panel {
-    background: linear-gradient(165deg, rgba(8, 18, 38, 0.65) 0%, rgba(12, 24, 48, 0.50) 50%, rgba(20, 35, 65, 0.38) 100%) !important;
-    border-radius: 24px !important;
-    padding: 16px 16px 18px !important;
-    backdrop-filter: blur(24px) saturate(200%) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
-    border: 1px solid rgba(245, 158, 11, 0.38) !important;
-    box-shadow: 0 16px 45px -8px rgba(0, 0, 0, 0.65),
-                inset 0 1px 2px rgba(255, 255, 255, 0.18),
-                inset 0 -1px 1px rgba(245, 158, 11, 0.2),
-                0 0 32px rgba(245, 158, 11, 0.12) !important;
+    background: linear-gradient(180deg, rgba(8, 18, 36, 0.90) 0%, rgba(10, 22, 44, 0.86) 80%, rgba(13, 26, 52, 0.82) 100%) !important;
+    border: 1.5px solid rgba(245, 158, 11, 0.35) !important;
+    border-radius: 20px !important;
+    padding: 14px 14px 18px !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.6) !important;
     width: 100% !important;
     max-width: 100% !important;
   }
@@ -3011,14 +3008,13 @@ select:focus-visible,
   }
   :root[data-theme='light'] .phase-hero .hero-copy-panel,
   .spiritual-page:not(.night) .phase-hero .hero-copy-panel {
-    background: linear-gradient(165deg, rgba(255, 253, 248, 0.82) 0%, rgba(255, 249, 238, 0.68) 55%, rgba(254, 243, 199, 0.52) 100%) !important;
-    border: 1px solid rgba(217, 119, 6, 0.38) !important;
-    border-radius: 24px !important;
-    backdrop-filter: blur(24px) saturate(200%) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
-    box-shadow: 0 16px 40px -8px rgba(180, 83, 9, 0.18),
-                inset 0 1px 2px rgba(255, 255, 255, 0.95),
-                0 0 28px rgba(245, 158, 11, 0.15) !important;
+    background: linear-gradient(180deg, rgba(255, 253, 248, 0.96) 0%, rgba(255, 249, 238, 0.92) 80%, rgba(254, 243, 199, 0.88) 100%) !important;
+    border: 1.5px solid rgba(217, 119, 6, 0.35) !important;
+    border-radius: 20px !important;
+    padding: 14px 14px 18px !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    box-shadow: 0 12px 32px rgba(180, 83, 9, 0.14) !important;
   }
   :root[data-theme='light'] .phase-hero .hero-welcome {
     color: #92400e !important;
@@ -5610,6 +5606,17 @@ select:focus-visible,
     pointer-events: none !important;
   }
 
+  /* Auto-hide taskbar header on scroll/idle */
+  .spiritual-header {
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.32s ease !important;
+    will-change: transform, opacity;
+  }
+  .spiritual-header.is-hidden-auto {
+    transform: translateY(-120%) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
   .spiritual-page.landing-scroll {
     height: 100svh !important;
     height: 100dvh !important;
@@ -5628,10 +5635,10 @@ select:focus-visible,
     max-height: 100dvh !important;
     overflow: hidden !important;
     overflow-y: hidden !important;
-    padding: 60px 12px 14px !important;
+    padding: 56px 14px 16px !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: flex-start !important;
+    justify-content: center !important;
     align-items: center !important;
     scroll-snap-align: start !important;
     scroll-snap-stop: always !important;
@@ -5646,7 +5653,7 @@ select:focus-visible,
     min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
-    padding: 64px 12px 14px !important;
+    padding: 58px 14px 16px !important;
     justify-content: center !important;
     align-items: center !important;
   }
@@ -5657,7 +5664,7 @@ select:focus-visible,
   }
 
   .spiritual-page .spiritual-section-heading {
-    margin-bottom: 6px !important;
+    margin-bottom: 8px !important;
     width: 100% !important;
     text-align: center !important;
     flex-shrink: 0 !important;
@@ -5685,6 +5692,14 @@ select:focus-visible,
     display: none !important;
   }
 
+  /* Mobile: 2 Videos Vertically with Horizontal Card Layout */
+  .video-examples.phase.inspiration-section {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 54px 14px 16px !important;
+  }
   .inspiration-section .spiritual-section-heading p {
     font-size: 10.5px !important;
     line-height: 1.3 !important;
@@ -5694,6 +5709,175 @@ select:focus-visible,
     display: -webkit-box !important;
     -webkit-line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
+  }
+  .mobile-hidden-video {
+    display: none !important;
+  }
+  .video-example-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-width: 440px !important;
+    margin: 8px auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+  .video-card-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+  }
+  .video-example-card {
+    display: grid !important;
+    grid-template-columns: 120px 1fr !important;
+    gap: 12px !important;
+    align-items: center !important;
+    padding: 8px 10px !important;
+    border-radius: 14px !important;
+    background: #0E1B2E !important;
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+    text-decoration: none !important;
+  }
+  :root[data-theme='light'] .video-example-card,
+  .spiritual-page:not(.night) .video-example-card {
+    background: #FFFDF7 !important;
+    border: 1px solid rgba(217, 119, 6, 0.3) !important;
+    box-shadow: 0 4px 14px rgba(180, 83, 9, 0.1) !important;
+  }
+  .video-thumb-container {
+    position: relative !important;
+    width: 120px !important;
+    height: 72px !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+  }
+  .video-thumb-container img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+  }
+  .video-play-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(0, 0, 0, 0.38) !important;
+    color: #FFF !important;
+    font-size: 14px !important;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8) !important;
+  }
+  .video-card-info {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    min-width: 0 !important;
+    text-align: left !important;
+  }
+  .video-card-tag {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    color: #F59E0B !important;
+    text-transform: uppercase !important;
+  }
+  :root[data-theme='light'] .video-card-tag,
+  .spiritual-page:not(.night) .video-card-tag {
+    color: #B45309 !important;
+  }
+  .video-card-title {
+    font-size: 12.5px !important;
+    line-height: 1.3 !important;
+    color: #F3F4F6 !important;
+    font-weight: 600 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+  :root[data-theme='light'] .video-card-title,
+  .spiritual-page:not(.night) .video-card-title {
+    color: #451A03 !important;
+  }
+  .video-card-action {
+    font-size: 10.5px !important;
+    color: #FEC84B !important;
+    margin-top: 2px !important;
+    font-weight: 500 !important;
+  }
+  :root[data-theme='light'] .video-card-action,
+  .spiritual-page:not(.night) .video-card-action {
+    color: #D97706 !important;
+  }
+  .inspiration-section .traditions {
+    margin-top: 8px !important;
+    width: 100% !important;
+    max-width: 440px !important;
+    text-align: center !important;
+  }
+  .inspiration-section .traditions-label {
+    font-size: 10px !important;
+    margin-bottom: 4px !important;
+  }
+  .inspiration-section .scripture-row {
+    gap: 5px !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+  }
+  .inspiration-section .scripture-row span {
+    font-size: 10.5px !important;
+    padding: 3px 8px !important;
+  }
+
+  /* Scripture Section Centered on Mobile */
+  .scripture-section {
+    justify-content: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    padding: 54px 14px 16px !important;
+  }
+  .scripture-story-stage {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: 440px !important;
+    margin: 0 auto !important;
+  }
+  .heritage-parchment-card {
+    padding: 14px 16px !important;
+    margin: 10px auto 14px !important;
+    background: #0E1B2E !important;
+    border: 1px solid rgba(245, 158, 11, 0.35) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  }
+  :root[data-theme='light'] .heritage-parchment-card,
+  .spiritual-page:not(.night) .heritage-parchment-card {
+    background: #FFFDF7 !important;
+    border: 1px solid rgba(217, 119, 6, 0.35) !important;
+    box-shadow: 0 6px 20px rgba(180, 83, 9, 0.12) !important;
+  }
+  .scripture-section .heritage-parchment-card p.heritage-sub {
+    display: block !important;
+    font-size: 11.5px !important;
+    line-height: 1.4 !important;
+    margin-top: 8px !important;
+  }
+  .heritage-lead {
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+  }
+  .unfurl-pothi-btn {
+    padding: 10px 18px !important;
+    font-size: 12px !important;
+    border-radius: 999px !important;
   }
 
   .chat-demo-container {
@@ -5778,7 +5962,10 @@ select:focus-visible,
     min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
-    padding: 60px 12px 12px !important;
+    padding: 56px 12px 14px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
   }
   .about-us-section .chat-demo-container {
     flex: 1 1 auto !important;
