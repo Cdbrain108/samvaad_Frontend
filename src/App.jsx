@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { onAuthStateChange, saveConversation, getUserConversations, getConversation, updateConversation, getUserMemory, saveUserMemory, getUserProfileInfo, saveUserProfileInfo, signInWithGoogle, loginUser, registerUser } from './services/firebase';
-import { generateGuruResponse, streamGuruResponse, generateChatTitle, isCasualConversational } from './services/guruService';
+import { generateGuruResponse, streamGuruResponse, generateChatTitle, isCasualConversational, detectQueryLanguage } from './services/guruService';
 import Composer from './components/Composer';
 import Icon from './components/Icon';
 import LandingPage from './components/LandingPage';
@@ -1219,7 +1219,7 @@ export default function App() {
                               isThinking={message.isThinking}
                               duration={message.thinkingDuration}
                               scripture={message.scripture}
-                              isEnglish={index > 0 && messages[index - 1] ? !/[\u0900-\u097F]/.test(messages[index - 1].content || '') : false}
+                              isEnglish={index > 0 && messages[index - 1] ? detectQueryLanguage(messages[index - 1].content || '') === 'english' : false}
                             />
                           )}
 

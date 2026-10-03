@@ -81,6 +81,30 @@ export async function generateCrewSatsang(query) {
   }
 }
 
+export function detectQueryLanguage(text) {
+  if (!text || typeof text !== 'string') return 'hindi';
+  const clean = text.trim();
+  // 1. Any Devanagari character -> definitively Hindi
+  if (/[\u0900-\u097F]/.test(clean)) {
+    return 'hindi';
+  }
+  // 2. English syntax & vocabulary markers
+  const engMarkers = clean.match(
+    /\b(hi|hello|hey|greetings|morning|evening|the|is|are|am|was|were|how|what|why|when|where|which|who|can|could|should|would|will|do|does|did|in|to|for|of|and|with|about|my|your|our|their|his|her|its|have|has|had|be|been|being|if|that|this|these|those|from|by|at|on|so|no|not|please|tell|give|life|mind|peace|death|soul|god|lord|devotion|meditation|prayer|divine|love|manifest|chanting|holy|name|transformation|practitioner|bring|satsang|dharma)\b/gi
+  );
+  // 3. Hinglish grammar markers
+  const hinMarkers = clean.match(
+    /\b(kya|kaise|kyu|kyun|karein|kare|karte|karti|karta|hai|hain|ho|hun|hoon|nahi|nahin|mat|hota|hoti|hote|mera|meri|mere|mujhe|mujhko|hum|humko|hamein|aap|apka|apki|apke|batao|bataiye|samjhaiye|kahiye|chahiye|raha|rahi|rahe|karo|dekho|suno|pranam|namaste|radhe|krishna|ram)\b/gi
+  );
+
+  const engCount = engMarkers ? engMarkers.length : 0;
+  const hinCount = hinMarkers ? hinMarkers.length : 0;
+
+  if (engCount > 0 && engCount >= hinCount) return 'english';
+  if (hinCount > 0) return 'hindi';
+  return /^[a-zA-Z0-9\s.,!?'"()\-—]+$/.test(clean) ? 'english' : 'hindi';
+}
+
 export function isOfftopicQuery(query) {
   if (!query || typeof query !== 'string') return false;
   const q = query.trim().toLowerCase();
@@ -118,16 +142,31 @@ async function streamTextDirectly(text, thought, startTime, scripture, onChunk) 
   };
 }
 
-async function streamDirectFromOracle(userMessage, conversationHistory, scripture, currentThought, startTime, onChunk) {
+async function streamDirectFromOracle(userMessage, conversationHistory, scripture, currentThought, startTime, isEnglish, onChunk) {
   const oracleBase = getOracleUrl() || 'https://immature-zen-earthen.ngrok-free.dev';
   const endpoint = `${oracleBase.replace(/\/$/, '')}/v1/chat/completions`;
 
-  let systemPrompt = `You are Pujya Shri Premanand Ji Maharaj, speaking in pure compassionate Hindi Devanagari to a seeker.
+  let systemPrompt = '';
+  if (isEnglish) {
+    systemPrompt = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Pujya Maharaj Ji).
+A sincere seeker has asked you a spiritual or life question in English.
+Respond with profound fatherly love, spiritual dignity, and compassionate warmth.
+Address them affectionately as "Dear child" or "Dear seeker".
+Guide them to anchor their mind in continuous Holy Name chanting (Radha-Radha / Hare Krishna), righteous duty (dharma), and unwavering surrender to the Divine.
+Speak in clean, serene, deeply compassionate English. Never use dry robotic language.`;
+
+    if (scripture && scripture.original_text) {
+      const engMeaning = scripture.english_translation || scripture.hindi_meaning || '';
+      systemPrompt += `\n\nSacred Scriptural Grounding:\nVerse: ${scripture.original_text}\nReference: ${scripture.reference || ''}\nTranslation: ${engMeaning}\nExplain the sublime meaning of this verse gently in your discourse to illumine their path.`;
+    }
+  } else {
+    systemPrompt = `You are Pujya Shri Premanand Ji Maharaj, speaking in pure compassionate Hindi Devanagari to a seeker.
 Speak with fatherly warmth (वात्सल्य भाव), addressing the seeker affectionately as 'बच्चा'.
 Guide them towards holy name chanting (राधा-राधा नाम जप), devotional surrender to Shri Radha Rani, and righteous duty.`;
 
-  if (scripture && scripture.original_text) {
-    systemPrompt += `\n\nशास्त्र प्रमाण:\nश्लोक: ${scripture.original_text}\nसंदर्भ: ${scripture.reference || ''}\nभावार्थ: ${scripture.hindi_meaning || scripture.english_translation || ''}\nइस पावन श्लोक के भावार्थ को अपने सरल वचनों में समझाते हुए साधक को समाधान दें।`;
+    if (scripture && scripture.original_text) {
+      systemPrompt += `\n\nशास्त्र प्रमाण:\nश्लोक: ${scripture.original_text}\nसंदर्भ: ${scripture.reference || ''}\nभावार्थ: ${scripture.hindi_meaning || scripture.english_translation || ''}\nइस पावन श्लोक के भावार्थ को अपने सरल वचनों में समझाते हुए साधक को समाधान दें।`;
+    }
   }
 
   const messages = [
@@ -213,14 +252,21 @@ export async function streamGuruResponse(
 ) {
   const startTime = Date.now();
   const seekerName = userProfile?.fullName ? userProfile.fullName.trim().split(/\s+/)[0] : '';
+  const queryLang = detectQueryLanguage(userMessage);
+  const isEnglish = queryLang === 'english';
 
   // 1. Check Gating: Skip Oracle for Casual Greetings & Chitchat
   const isGreeting = isCasualConversational(userMessage);
   if (isGreeting) {
-    const greetingText = "राधे-राधे बच्चा! सदा सुखी रहो, खूब भगवन्नाम जप करो। लाडली जू सदा तुम्हारा मंगल करें। कहो बच्चा, क्या जिज्ञासा है तुम्हारी?";
+    const greetingText = isEnglish
+      ? "Radhe Radhe! May Shri Radha Rani bless you with profound peace, pure devotion, and holy name shelter. Tell me, dear child, what inquiry rests in your heart today?"
+      : "राधे-राधे बच्चा! सदा सुखी रहो, खूब भगवन्नाम जप करो। लाडली जू सदा तुम्हारा मंगल करें। कहो बच्चा, क्या जिज्ञासा है तुम्हारी?";
+    const greetingThought = isEnglish
+      ? "Welcoming seeker's heartfelt salutation with fatherly blessing..."
+      : "साधक के पावन अभिवादन का सहर्ष वात्सल्य भाव से स्वागत किया जा रहा है...";
     return await streamTextDirectly(
       greetingText,
-      'साधक के पावन अभिवादन का सहर्ष वात्सल्य भाव से स्वागत किया जा रहा है...',
+      greetingThought,
       startTime,
       null,
       onChunk
@@ -230,10 +276,15 @@ export async function streamGuruResponse(
   // 2. Check Gating: Skip Oracle for Irrelevant / Off-topic queries
   const isOfftopic = isOfftopicQuery(userMessage);
   if (isOfftopic) {
-    const redirectText = "बच्चा, हम केवल आध्यात्मिक मार्गदर्शन, प्रभु भजन और सत्संग की चर्चा करते हैं, सांसारिक या तकनीकी विषयों की नहीं। अपने सांसारिक कर्तव्य कर्म को निष्काम भाव से भगवत सेवा मानकर ईमानदारी से कीजिए और नाम जप में मन लगाइए। सब मंगल होगा बच्चा!";
+    const redirectText = isEnglish
+      ? "Dear child, our guidance is centered on spiritual inquiry, Satsang, and devotion to God. Perform your daily duties honestly as sacred seva, and dedicate your mind to chanting the Holy Name. All will be auspicious."
+      : "बच्चा, हम केवल आध्यात्मिक मार्गदर्शन, प्रभु भजन और सत्संग की चर्चा करते हैं, सांसारिक या तकनीकी विषयों की नहीं। अपने सांसारिक कर्तव्य कर्म को निष्काम भाव से भगवत सेवा मानकर ईमानदारी से कीजिए और नाम जप में मन लगाइए। सब मंगल होगा बच्चा!";
+    const redirectThought = isEnglish
+      ? "Observing seeker inquiry and warmly guiding towards spiritual reflection..."
+      : "साधक की जिज्ञासा का अवलोकन कर सत्संग मर्यादा में मार्गदर्शन दिया जा रहा है...";
     return await streamTextDirectly(
       redirectText,
-      'साधक की जिज्ञासा का अवलोकन कर सत्संग मर्यादा में मार्गदर्शन दिया जा रहा है...',
+      redirectThought,
       startTime,
       null,
       onChunk
@@ -241,7 +292,9 @@ export async function streamGuruResponse(
   }
 
   // 3. Genuine Spiritual Query: Contemplation & Scripture Grounding
-  let currentThought = 'साधक के आंतरिक भाव, संशय और आध्यात्मिक स्थिति का अनुशीलन किया जा रहा है...';
+  let currentThought = isEnglish
+    ? "Contemplating the seeker's spiritual inquiry, emotional state, and seeking divine guidance..."
+    : "साधक के आंतरिक भाव, संशय और आध्यात्मिक स्थिति का अनुशीलन किया जा रहा है...";
 
   onChunk({
     content: '',
@@ -259,7 +312,9 @@ export async function streamGuruResponse(
   }
 
   if (scripture) {
-    currentThought += `\nशास्त्र प्रमाण प्राप्त: ${scripture.reference || 'श्रीमद्भगवद्गीता'}`;
+    currentThought += isEnglish
+      ? `\nScriptural citation verified: ${scripture.reference || 'Shrimad Bhagavad Gita'}`
+      : `\nशास्त्र प्रमाण प्राप्त: ${scripture.reference || 'श्रीमद्भगवद्गीता'}`;
     onChunk({
       content: '',
       thought: currentThought,
@@ -346,6 +401,7 @@ export async function streamGuruResponse(
         scripture,
         currentThought,
         startTime,
+        isEnglish,
         onChunk
       );
       if (oracleRes.success && oracleRes.content) {
@@ -363,7 +419,7 @@ export async function streamGuruResponse(
 
   // 6. Graceful Synthesis Fallback (if both backend and remote Oracle are unreachable)
   if (!backendSuccess || !streamedContent.trim()) {
-    streamedContent = generateLocalDiscourseFallback(userMessage, seekerName, scripture, false);
+    streamedContent = generateLocalDiscourseFallback(userMessage, seekerName, scripture, false, isEnglish);
     
     const words = streamedContent.split(/(\s+)/);
     let animatedText = '';
@@ -392,9 +448,30 @@ export async function streamGuruResponse(
 }
 
 /**
- * Clean offline fallback generating authentic Maharaj Ji voice
+ * Clean offline fallback generating authentic Maharaj Ji voice (Hindi & English)
  */
-function generateLocalDiscourseFallback(query, seekerName, scripture, isGreeting) {
+function generateLocalDiscourseFallback(query, seekerName, scripture, isGreeting, isEnglish = false) {
+  if (isEnglish) {
+    const address = seekerName ? `Dear child ${seekerName}` : 'Dear child';
+
+    if (isGreeting) {
+      return `Radhe Radhe, dear child! May Shri Radha Rani bless you with pure devotion, unwavering peace, and holy name shelter. Always remain under the lotus feet of the Divine.`;
+    }
+
+    let text = `${address}, listen attentively to what is being shared with love. In every circumstance of life—whether favorable or difficult—never let go of the supreme refuge of the Divine Name ('Radha-Radha'). All worldly situations, joys, and sorrows are simply the ripening of past karma. When you perform your duties righteously with patience and keep your mind anchored in continuous Holy Name chanting, every doubt, restlessness, and anxiety will gently dissolve.`;
+
+    if (scripture) {
+      const orig = scripture.original_text || '';
+      const meaning = scripture.english_translation || scripture.hindi_meaning || '';
+      if (orig && meaning) {
+        text += `\n\nAs the holy scripture instructs:\n**« ${orig} »**\n**Meaning —** ${meaning}\n\nTherefore, do not despair over any worldly dilemma. Have steadfast faith in Divine Grace and keep chanting with devotion. Shri Radha!`;
+      }
+    } else {
+      text += `\n\nAlways uphold truth, respect your parents and elders, and dedicate as much time as possible each day to remembering the Holy Name. All will be auspicious, dear child. Jai Jai Shri Radhe!`;
+    }
+    return text;
+  }
+
   const address = seekerName ? `देखो बच्चा ${seekerName}` : 'देखो बच्चा';
 
   if (isGreeting) {

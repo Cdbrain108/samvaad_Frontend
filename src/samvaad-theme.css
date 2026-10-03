@@ -2991,23 +2991,34 @@ select:focus-visible,
     flex-direction: column !important;
     justify-content: flex-start !important;
   }
+  /* Enhanced Sacred Frosted Glassmorphism for Mobile Hero */
   .phase-hero .hero-copy-panel {
-    background: linear-gradient(180deg, rgba(6, 16, 32, 0.84) 0%, rgba(6, 16, 32, 0.52) 85%, transparent 100%) !important;
-    border-radius: 20px !important;
-    padding: 12px 14px 16px !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45) !important;
+    background: linear-gradient(165deg, rgba(8, 18, 38, 0.65) 0%, rgba(12, 24, 48, 0.50) 50%, rgba(20, 35, 65, 0.38) 100%) !important;
+    border-radius: 24px !important;
+    padding: 16px 16px 18px !important;
+    backdrop-filter: blur(24px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+    border: 1px solid rgba(245, 158, 11, 0.38) !important;
+    box-shadow: 0 16px 45px -8px rgba(0, 0, 0, 0.65),
+                inset 0 1px 2px rgba(255, 255, 255, 0.18),
+                inset 0 -1px 1px rgba(245, 158, 11, 0.2),
+                0 0 32px rgba(245, 158, 11, 0.12) !important;
     width: 100% !important;
     max-width: 100% !important;
   }
   .hero-bg-mobile-sunrise {
     object-position: center 25% !important;
   }
-  :root[data-theme='light'] .phase-hero .hero-copy-panel {
-    background: linear-gradient(180deg, rgba(255, 252, 245, 0.94) 0%, rgba(255, 248, 235, 0.85) 85%, transparent 100%) !important;
-    border: 1px solid rgba(217, 119, 6, 0.24) !important;
-    box-shadow: 0 10px 32px rgba(180, 83, 9, 0.12) !important;
+  :root[data-theme='light'] .phase-hero .hero-copy-panel,
+  .spiritual-page:not(.night) .phase-hero .hero-copy-panel {
+    background: linear-gradient(165deg, rgba(255, 253, 248, 0.82) 0%, rgba(255, 249, 238, 0.68) 55%, rgba(254, 243, 199, 0.52) 100%) !important;
+    border: 1px solid rgba(217, 119, 6, 0.38) !important;
+    border-radius: 24px !important;
+    backdrop-filter: blur(24px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+    box-shadow: 0 16px 40px -8px rgba(180, 83, 9, 0.18),
+                inset 0 1px 2px rgba(255, 255, 255, 0.95),
+                0 0 28px rgba(245, 158, 11, 0.15) !important;
   }
   :root[data-theme='light'] .phase-hero .hero-welcome {
     color: #92400e !important;
@@ -3167,17 +3178,7 @@ select:focus-visible,
     background-position: 70% center !important;
   }
 
-  /* Hero Copy Panel Glassmorphism on Mobile */
-  .phase-hero .hero-copy-panel {
-    background: radial-gradient(ellipse at top left, rgba(6, 18, 36, 0.72) 0%, rgba(6, 18, 36, 0.42) 75%, transparent 100%) !important;
-    border-radius: 20px !important;
-    padding: 14px !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
-  }
-  :root[data-theme='light'] .phase-hero .hero-copy-panel {
-    background: radial-gradient(ellipse at top left, rgba(255, 248, 225, 0.85) 0%, rgba(255, 248, 225, 0.55) 75%, transparent 100%) !important;
-  }
+  /* Hero Copy Panel: master frosted glassmorphism defined above in .phase-hero .hero-copy-panel */
 
   /* Chat messages */
   .messages {
@@ -5614,65 +5615,85 @@ select:focus-visible,
     height: 100dvh !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    scroll-snap-type: y proximity !important;
-    overscroll-behavior-y: auto !important;
+    scroll-snap-type: y mandatory !important;
+    scroll-snap-stop: always !important;
+    overscroll-behavior-y: contain !important;
     -webkit-overflow-scrolling: touch !important;
   }
 
   .spiritual-page .phase {
-    height: auto !important;
-    min-height: 100svh !important;
-    max-height: none !important;
-    overflow: visible !important;
-    overflow-y: visible !important;
-    padding: 58px 14px 20px !important;
+    height: 100svh !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    overflow-y: hidden !important;
+    padding: 60px 12px 14px !important;
+    display: flex !important;
+    flex-direction: column !important;
     justify-content: flex-start !important;
     align-items: center !important;
     scroll-snap-align: start !important;
-    scroll-margin-top: 54px !important;
+    scroll-snap-stop: always !important;
+    scroll-margin-top: 0 !important;
     box-sizing: border-box !important;
     position: relative !important;
   }
 
   .spiritual-page .phase-hero {
-    height: auto !important;
-    min-height: 100svh !important;
-    max-height: none !important;
-    overflow: visible !important;
-    padding: 58px 14px 20px !important;
-    justify-content: flex-start !important;
+    height: 100svh !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    padding: 64px 12px 14px !important;
+    justify-content: center !important;
     align-items: center !important;
   }
 
   /* Distinct visual segmentation between consecutive sections */
   .spiritual-page .phase:not(:last-child)::after {
-    content: '';
-    display: block;
-    width: min(85%, 340px);
-    height: 1px;
-    margin: 18px auto 0;
-    background: linear-gradient(90deg, transparent, rgba(254, 200, 75, 0.4), transparent);
+    display: none !important;
   }
 
   .spiritual-page .spiritual-section-heading {
-    margin-bottom: 10px !important;
+    margin-bottom: 6px !important;
     width: 100% !important;
     text-align: center !important;
+    flex-shrink: 0 !important;
   }
   .spiritual-page .spiritual-section-heading span {
-    font-size: 11px !important;
-    margin-bottom: 3px !important;
+    font-size: 10.5px !important;
+    margin-bottom: 2px !important;
   }
   .spiritual-page .spiritual-section-heading h2 {
-    font-size: clamp(1.2rem, 4.8vw, 1.42rem) !important;
-    line-height: 1.25 !important;
-    margin-bottom: 4px !important;
+    font-size: clamp(1.15rem, 4.4vw, 1.35rem) !important;
+    line-height: 1.22 !important;
+    margin-bottom: 3px !important;
   }
   .spiritual-page .spiritual-section-heading p {
-    font-size: 11.5px !important;
-    line-height: 1.38 !important;
-    max-width: 94% !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    max-width: 96% !important;
     margin: 0 auto !important;
+  }
+
+  /* Chat Overview & About Us: Hide verbose subtitle so chat response has complete room */
+  .chat-overview-section .spiritual-section-heading p,
+  .about-us-section .spiritual-section-heading p,
+  .pipeline-combined-section .spiritual-section-heading p {
+    display: none !important;
+  }
+
+  .inspiration-section .spiritual-section-heading p {
+    font-size: 10.5px !important;
+    line-height: 1.3 !important;
+    max-height: 28px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
   }
 
   .chat-demo-container {
@@ -5680,33 +5701,48 @@ select:focus-visible,
     max-width: 100% !important;
     margin: 0 auto !important;
     flex: 1 1 auto !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 110px) !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: center !important;
+    justify-content: flex-start !important;
   }
   .chat-demo-window {
     width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
     border-radius: 16px !important;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+    overflow: hidden !important;
   }
   .chat-demo-topbar {
     padding: 7px 10px !important;
+    flex-shrink: 0 !important;
   }
   .chat-demo-body {
-    max-height: 36svh !important;
-    min-height: 160px !important;
+    flex: 1 1 auto !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
     padding: 8px 10px !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
     gap: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
   .chat-demo-bubble {
     padding: 8px 10px !important;
-    font-size: 12px !important;
+    font-size: 12.5px !important;
     line-height: 1.45 !important;
   }
   .chat-demo-controls {
     padding: 6px 10px 8px !important;
+    flex-shrink: 0 !important;
   }
   .chat-demo-controls-label {
     display: none !important;
@@ -5717,6 +5753,7 @@ select:focus-visible,
     gap: 6px !important;
     padding-bottom: 3px !important;
     scrollbar-width: none !important;
+    flex-shrink: 0 !important;
   }
   .chat-demo-pill {
     white-space: nowrap !important;
@@ -5726,12 +5763,37 @@ select:focus-visible,
   }
   .chat-demo-footer-action {
     margin-top: 4px !important;
+    flex-shrink: 0 !important;
   }
   .chat-demo-footer-action .rust-button {
     width: 100% !important;
     padding: 7px 12px !important;
     font-size: 12px !important;
     justify-content: center !important;
+  }
+
+  .about-us-section {
+    height: 100svh !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    padding: 60px 12px 12px !important;
+  }
+  .about-us-section .chat-demo-container {
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 110px) !important;
+  }
+  .creator-social-actions {
+    margin-top: 6px !important;
+    padding-top: 6px !important;
+    gap: 6px !important;
+  }
+  .creator-action-btn {
+    padding: 6px 12px !important;
+    font-size: 11.5px !important;
   }
 
   .pipeline-switcher-wrap {

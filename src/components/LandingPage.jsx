@@ -256,17 +256,15 @@ Key features for seekers:
   const [activeTab, setActiveTab] = useState(0)
   const [typedText, setTypedText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [hasStartedTyping, setHasStartedTyping] = useState(false)
   const selected = conversations[activeTab]
   const containerRef = useRef(null)
+  const bodyRef = useRef(null)
   const [isVisible, setIsVisible] = useState(false)
   const timeoutRef = useRef(null)
 
-  // Detect mobile to skip character-by-character typing loop and avoid jitter/resets
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
-
-  // Replay typing every time the chat enters the viewport on desktop
+  // Replay typing when entering the viewport
   useEffect(() => {
-    if (isMobile) return
     const node = containerRef.current
     if (!node) return
     const scrollRoot = node.closest('.landing-scroll')
@@ -274,23 +272,17 @@ Key features for seekers:
       ([entry]) => {
         setIsVisible(entry.isIntersecting)
       },
-      { root: scrollRoot || null, threshold: 0.32 }
+      { root: scrollRoot || null, threshold: 0.2 }
     )
     observer.observe(node)
     return () => observer.disconnect()
-  }, [isMobile])
+  }, [])
 
   useEffect(() => {
-    if (isMobile) {
-      setIsTyping(false)
-      setTypedText(selected.a)
-      return
-    }
-
-    // When not visible on desktop, reset for clean re-entry
     if (!isVisible) {
       setIsTyping(false)
       setTypedText('')
+      setHasStartedTyping(false)
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
         timeoutRef.current = null
@@ -299,24 +291,37 @@ Key features for seekers:
     }
 
     let cancelled = false
-    setIsTyping(true)
+    setIsTyping(false)
     setTypedText('')
+    setHasStartedTyping(false)
 
-    const chars = Array.from(selected.a)
-    let idx = 0
-    const step = () => {
+    // 1. Give seeker time to read the question first (420ms pause)
+    timeoutRef.current = setTimeout(() => {
       if (cancelled) return
-      if (idx < chars.length) {
-        idx += 3
-        setTypedText(chars.slice(0, idx).join(''))
-        timeoutRef.current = setTimeout(step, 16)
-      } else {
-        setIsTyping(false)
-        timeoutRef.current = null
+      setHasStartedTyping(true)
+      setIsTyping(true)
+
+      const chars = Array.from(selected.a)
+      let idx = 0
+      const step = () => {
+        if (cancelled) return
+        if (idx < chars.length) {
+          idx += 4
+          setTypedText(chars.slice(0, idx).join(''))
+          // Auto-scroll body down smoothly so new text is always visible
+          if (bodyRef.current) {
+            bodyRef.current.scrollTop = bodyRef.current.scrollHeight
+          }
+          timeoutRef.current = setTimeout(step, 14)
+        } else {
+          setTypedText(selected.a)
+          setIsTyping(false)
+          timeoutRef.current = null
+        }
       }
-    }
-    // small entrance delay so the scroll-snap settle is perceived before typing
-    timeoutRef.current = setTimeout(step, 220)
+      step()
+    }, 420)
+
     return () => {
       cancelled = true
       if (timeoutRef.current) {
@@ -324,7 +329,7 @@ Key features for seekers:
         timeoutRef.current = null
       }
     }
-  }, [activeTab, isVisible, selected.a, isMobile])
+  }, [activeTab, isVisible, selected.a])
 
   return (
     <div ref={containerRef} className="chat-demo-container">
@@ -345,8 +350,8 @@ Key features for seekers:
         </div>
 
         {/* Chat Messages */}
-        <div className="chat-demo-body">
-          {/* User Question */}
+        <div className="chat-demo-body" ref={bodyRef}>
+          {/* User Question - shown first */}
           <div className="chat-demo-msg chat-demo-msg-user">
             <div className="chat-demo-bubble">
               <p>{selected.q}</p>
@@ -354,22 +359,24 @@ Key features for seekers:
             <div className="chat-demo-user-avatar" aria-hidden="true">🙏</div>
           </div>
 
-          {/* AI Answer */}
-          <div className="chat-demo-msg chat-demo-msg-ai">
-            <div className="chat-demo-ai-avatar" aria-hidden="true">🪷</div>
-            <div className="chat-demo-bubble chat-demo-bubble-ai">
-              <div className="chat-demo-sender">
-                <span>Samvaad Assistant</span>
-                <small>Compassionate reflection</small>
-              </div>
-              <div className="chat-demo-typed-content">
-                {(isMobile ? selected.a : (typedText || selected.a)).split('\n\n').map((para, i) => (
-                  <p key={i}>{para}</p>
-                ))}
-                {!isMobile && isTyping && <span className="term-cursor" aria-hidden="true">▌</span>}
+          {/* AI Answer - begins after question has been absorbed */}
+          {hasStartedTyping && (
+            <div className="chat-demo-msg chat-demo-msg-ai">
+              <div className="chat-demo-ai-avatar" aria-hidden="true">🪷</div>
+              <div className="chat-demo-bubble chat-demo-bubble-ai">
+                <div className="chat-demo-sender">
+                  <span>Samvaad Assistant</span>
+                  <small>Compassionate reflection</small>
+                </div>
+                <div className="chat-demo-typed-content">
+                  {typedText.split('\n\n').map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+                  {isTyping && <span className="term-cursor" aria-hidden="true">▌</span>}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Question Selector Tabs & CTA */}
@@ -443,16 +450,14 @@ This platform serves as an interactive learning playground. Guidance here is ref
   const [activeTab, setActiveTab] = useState(0)
   const [typedText, setTypedText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [hasStartedTyping, setHasStartedTyping] = useState(false)
   const selected = conversations[activeTab]
   const containerRef = useRef(null)
+  const bodyRef = useRef(null)
   const [isVisible, setIsVisible] = useState(false)
   const timeoutRef = useRef(null)
 
-  // Detect mobile to skip character-by-character typing loop and avoid jitter/resets
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
-
   useEffect(() => {
-    if (isMobile) return
     const node = containerRef.current
     if (!node) return
     const scrollRoot = node.closest('.landing-scroll')
@@ -460,22 +465,17 @@ This platform serves as an interactive learning playground. Guidance here is ref
       ([entry]) => {
         setIsVisible(entry.isIntersecting)
       },
-      { root: scrollRoot || null, threshold: 0.28 }
+      { root: scrollRoot || null, threshold: 0.2 }
     )
     observer.observe(node)
     return () => observer.disconnect()
-  }, [isMobile])
+  }, [])
 
   useEffect(() => {
-    if (isMobile) {
-      setIsTyping(false)
-      setTypedText(selected.a)
-      return
-    }
-
     if (!isVisible) {
       setIsTyping(false)
       setTypedText('')
+      setHasStartedTyping(false)
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
         timeoutRef.current = null
@@ -484,25 +484,36 @@ This platform serves as an interactive learning playground. Guidance here is ref
     }
 
     let cancelled = false
-    setIsTyping(true)
+    setIsTyping(false)
     setTypedText('')
+    setHasStartedTyping(false)
 
-    // Auto-dismiss timer removed to ensure rock-solid scroll stability
-
-    const chars = Array.from(selected.a)
-    let idx = 0
-    const step = () => {
+    // 1. Give seeker time to read the question first (420ms pause)
+    timeoutRef.current = setTimeout(() => {
       if (cancelled) return
-      if (idx < chars.length) {
-        idx += 3
-        setTypedText(chars.slice(0, idx).join(''))
-        timeoutRef.current = setTimeout(step, 16)
-      } else {
-        setIsTyping(false)
-        timeoutRef.current = null
+      setHasStartedTyping(true)
+      setIsTyping(true)
+
+      const chars = Array.from(selected.a)
+      let idx = 0
+      const step = () => {
+        if (cancelled) return
+        if (idx < chars.length) {
+          idx += 4
+          setTypedText(chars.slice(0, idx).join(''))
+          if (bodyRef.current) {
+            bodyRef.current.scrollTop = bodyRef.current.scrollHeight
+          }
+          timeoutRef.current = setTimeout(step, 14)
+        } else {
+          setTypedText(selected.a)
+          setIsTyping(false)
+          timeoutRef.current = null
+        }
       }
-    }
-    timeoutRef.current = setTimeout(step, 200)
+      step()
+    }, 420)
+
     return () => {
       cancelled = true
       if (timeoutRef.current) {
@@ -510,7 +521,7 @@ This platform serves as an interactive learning playground. Guidance here is ref
         timeoutRef.current = null
       }
     }
-  }, [activeTab, isVisible, selected.a, isMobile])
+  }, [activeTab, isVisible, selected.a])
 
   return (
     <div ref={containerRef} className="chat-demo-container about-us-chat-container">
@@ -544,8 +555,8 @@ This platform serves as an interactive learning playground. Guidance here is ref
         </div>
 
         {/* Chat Messages */}
-        <div className="chat-demo-body">
-          {/* User Question */}
+        <div className="chat-demo-body" ref={bodyRef}>
+          {/* User Question - shown first */}
           <div className="chat-demo-msg chat-demo-msg-user">
             <div className="chat-demo-bubble">
               <p>{selected.q}</p>
@@ -553,32 +564,34 @@ This platform serves as an interactive learning playground. Guidance here is ref
             <div className="chat-demo-user-avatar" aria-hidden="true">🙏</div>
           </div>
 
-          {/* Creator / AI Answer */}
-          <div className="chat-demo-msg chat-demo-msg-ai">
-            <div className="chat-demo-ai-avatar" style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)' }} aria-hidden="true">ॐ</div>
-            <div className="chat-demo-bubble chat-demo-bubble-ai">
-              <div className="chat-demo-sender">
-                <span>Anuj Kesharwani</span>
-                <small>Gen AI &amp; Agentic AI Developer (Fresher)</small>
-              </div>
-              <div className="chat-demo-typed-content">
-                {(isMobile ? selected.a : (typedText || selected.a)).split('\n\n').map((para, i) => {
-                  if (para.includes('\n• ') || para.startsWith('• ')) {
-                    const lines = para.split('\n')
-                    return (
-                      <div key={i} className="chat-demo-bullet-group" style={{ margin: '6px 0', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                        {lines.map((line, li) => (
-                          <p key={li} style={line.startsWith('•') ? { paddingLeft: '8px', opacity: 0.95 } : undefined}>{line}</p>
-                        ))}
-                      </div>
-                    )
-                  }
-                  return <p key={i}>{para}</p>
-                })}
-                {!isMobile && isTyping && <span className="term-cursor" aria-hidden="true">▌</span>}
+          {/* Creator / AI Answer - begins after question */}
+          {hasStartedTyping && (
+            <div className="chat-demo-msg chat-demo-msg-ai">
+              <div className="chat-demo-ai-avatar" style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)' }} aria-hidden="true">ॐ</div>
+              <div className="chat-demo-bubble chat-demo-bubble-ai">
+                <div className="chat-demo-sender">
+                  <span>Anuj Kesharwani</span>
+                  <small>Gen AI &amp; Agentic AI Developer (Fresher)</small>
+                </div>
+                <div className="chat-demo-typed-content">
+                  {typedText.split('\n\n').map((para, i) => {
+                    if (para.includes('\n• ') || para.startsWith('• ')) {
+                      const lines = para.split('\n')
+                      return (
+                        <div key={i} className="chat-demo-bullet-group" style={{ margin: '6px 0', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                          {lines.map((line, li) => (
+                            <p key={li} style={line.startsWith('•') ? { paddingLeft: '8px', opacity: 0.95 } : undefined}>{line}</p>
+                          ))}
+                        </div>
+                      )
+                    }
+                    return <p key={i}>{para}</p>
+                  })}
+                  {isTyping && <span className="term-cursor" aria-hidden="true">▌</span>}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Question Selector Tabs & Contact CTA Buttons */}
