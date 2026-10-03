@@ -665,7 +665,13 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   const [headerVisible, setHeaderVisible] = useState(true)
   const headerTimerRef = useRef(null)
 
-  const showHeaderTemporarily = (duration = 3200) => {
+  const showHeaderTemporarily = (duration = 1800) => {
+    const currentPhase = phases[activeRef.current]?.id
+    if (currentPhase === 'overview' || currentPhase === 'education') {
+      setHeaderVisible(false)
+      if (headerTimerRef.current) clearTimeout(headerTimerRef.current)
+      return
+    }
     setHeaderVisible(true)
     if (headerTimerRef.current) clearTimeout(headerTimerRef.current)
     headerTimerRef.current = setTimeout(() => {
@@ -673,9 +679,15 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     }, duration)
   }
 
-  // Auto-hide taskbar after initial view & whenever active section changes
+  // Auto-hide taskbar within 1.8s & IMMEDIATELY in project overview & about me
   useEffect(() => {
-    showHeaderTemporarily(3200)
+    const currentPhase = phases[active]?.id
+    if (currentPhase === 'overview' || currentPhase === 'education') {
+      setHeaderVisible(false)
+      if (headerTimerRef.current) clearTimeout(headerTimerRef.current)
+    } else {
+      showHeaderTemporarily(1800)
+    }
     return () => {
       if (headerTimerRef.current) clearTimeout(headerTimerRef.current)
     }
@@ -686,7 +698,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     const handleTopInteraction = (e) => {
       const y = e.touches ? e.touches[0].clientY : e.clientY
       if (y <= 95) {
-        showHeaderTemporarily(3200)
+        showHeaderTemporarily(1800)
       }
     }
     window.addEventListener('pointermove', handleTopInteraction, { passive: true })
@@ -755,7 +767,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     }
 
     const onScroll = () => {
-      showHeaderTemporarily(3200)
+      showHeaderTemporarily(1800)
       if (!ticking) {
         ticking = true
         requestAnimationFrame(update)
@@ -856,11 +868,11 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         </svg>
       </div>
 
-      {phases[active]?.id !== 'education' && (
+      {phases[active]?.id !== 'education' && phases[active]?.id !== 'overview' && (
         <header
           className={`spiritual-header ${!headerVisible ? 'is-hidden-auto' : ''}`}
           onMouseEnter={() => { if (headerTimerRef.current) clearTimeout(headerTimerRef.current); setHeaderVisible(true) }}
-          onMouseLeave={() => showHeaderTemporarily(2000)}
+          onMouseLeave={() => showHeaderTemporarily(1800)}
         >
           <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
             <img className="brand-icon" src={brandIcon} alt="" />

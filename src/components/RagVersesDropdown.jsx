@@ -56,8 +56,15 @@ export default function RagVersesDropdown({ scripture = null, isEnglish = false 
   return (
     <div className="rag-verses-dropdown-container">
 
-      {/* ─── Section Header Label (always visible) ─── */}
-      <div className="rag-section-header">
+      {/* ─── Section Header Label (always visible & clickable) ─── */}
+      <div
+        className="rag-section-header"
+        onClick={() => setIsOpen((prev) => !prev)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsOpen((prev) => !prev); } }}
+        aria-label="Toggle referenced scripture verses"
+      >
         <span className="rag-section-lotus" aria-hidden="true">❧</span>
         <span className="rag-section-label">
           {isEnglish ? 'Preferred Scriptural References' : 'पावन शास्त्र संदर्भ · श्रेष्ठ उद्धरण'}

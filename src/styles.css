@@ -3263,26 +3263,37 @@ html, body { max-width: 100%; overflow-x: hidden; }
     letter-spacing: 0.04em;
   }
   .rag-verses-toggle-btn {
-    padding: 8px 10px;
-    flex-wrap: wrap;
-    gap: 6px;
+    padding: 8px 12px;
+    flex-wrap: nowrap;
+    gap: 8px;
+    align-items: center;
   }
   .rag-verses-toggle-left {
-    gap: 6px;
+    gap: 8px;
     min-width: 0;
     flex: 1 1 auto;
   }
   .rag-verses-scroll-icon {
-    font-size: 14px;
+    font-size: 15px;
+    flex-shrink: 0;
   }
   .rag-verses-toggle-title {
     font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .rag-verses-primary-preview {
-    display: none;
+    display: block;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
   }
   .rag-verses-toggle-right {
     gap: 6px;
+    flex-shrink: 0;
     margin-left: auto;
   }
   .rag-verses-score-badge {
