@@ -1106,7 +1106,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
 
           <div className="video-example-grid">
             {videoExamples.map((video, index) => (
-              <Reveal delay={index * 110} key={video.id} className={`video-card-wrap ${index === 0 ? 'mobile-hidden-video' : ''}`}>
+              <Reveal delay={index * 110} key={video.id} className="video-card-wrap">
                 <a
                   className="video-example-card"
                   href={`https://www.youtube.com/watch?v=${video.id}`}

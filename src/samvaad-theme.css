@@ -5711,15 +5711,15 @@ select:focus-visible,
     -webkit-box-orient: vertical !important;
   }
   .mobile-hidden-video {
-    display: none !important;
+    display: block !important;
   }
   .video-example-grid {
     display: flex !important;
     flex-direction: column !important;
-    gap: 10px !important;
+    gap: 7px !important;
     width: 100% !important;
     max-width: 440px !important;
-    margin: 8px auto !important;
+    margin: 4px auto !important;
     overflow: visible !important;
     padding: 0 !important;
   }
@@ -5730,14 +5730,14 @@ select:focus-visible,
   }
   .video-example-card {
     display: grid !important;
-    grid-template-columns: 120px 1fr !important;
-    gap: 12px !important;
+    grid-template-columns: 104px 1fr !important;
+    gap: 10px !important;
     align-items: center !important;
-    padding: 8px 10px !important;
-    border-radius: 14px !important;
+    padding: 6px 10px !important;
+    border-radius: 12px !important;
     background: #0E1B2E !important;
     border: 1px solid rgba(245, 158, 11, 0.3) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
     text-decoration: none !important;
   }
   :root[data-theme='light'] .video-example-card,
@@ -5748,8 +5748,8 @@ select:focus-visible,
   }
   .video-thumb-container {
     position: relative !important;
-    width: 120px !important;
-    height: 72px !important;
+    width: 104px !important;
+    height: 58px !important;
     border-radius: 8px !important;
     overflow: hidden !important;
     flex-shrink: 0 !important;
@@ -6070,32 +6070,36 @@ select:focus-visible,
     flex-shrink: 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 5px !important;
+    gap: 6px !important;
   }
   .chat-demo-controls-label {
-    display: none !important;
+    display: block !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    margin-bottom: 4px !important;
+    text-align: left !important;
+    line-height: 1.25 !important;
   }
   .chat-demo-pills {
     display: flex !important;
     flex-direction: row !important;
-    overflow-x: auto !important;
-    flex-wrap: nowrap !important;
+    flex-wrap: wrap !important;
     gap: 6px !important;
-    padding-bottom: 3px !important;
-    scrollbar-width: none !important;
-    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 2px !important;
     flex-shrink: 0 !important;
-  }
-  .chat-demo-pills::-webkit-scrollbar {
-    display: none !important;
   }
   .chat-demo-pill {
     white-space: nowrap !important;
     font-size: 11px !important;
-    padding: 5px 10px !important;
+    font-weight: 600 !important;
+    padding: 6px 11px !important;
     border-radius: 999px !important;
     flex-shrink: 0 !important;
     cursor: pointer !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
   .chat-demo-footer-action {
     margin-top: 4px !important;
@@ -6153,17 +6157,24 @@ select:focus-visible,
     background: rgba(9, 18, 35, 0.98) !important;
     border-top: 1px solid rgba(245, 158, 11, 0.2) !important;
   }
+  .spiritual-page.night .chat-demo-controls-label,
+  :root[data-theme='dark'] .chat-demo-controls-label {
+    color: #FDE68A !important;
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.35) !important;
+  }
   .spiritual-page.night .chat-demo-pill,
   :root[data-theme='dark'] .chat-demo-pill {
     background: rgba(245, 158, 11, 0.12) !important;
-    border: 1px solid rgba(245, 158, 11, 0.3) !important;
-    color: #FDE68A !important;
+    border: 1.5px solid rgba(245, 158, 11, 0.35) !important;
+    color: #FEF3C7 !important;
   }
   .spiritual-page.night .chat-demo-pill.is-active,
   :root[data-theme='dark'] .chat-demo-pill.is-active {
-    background: #D97706 !important;
-    color: #FFFFFF !important;
-    border-color: #F59E0B !important;
+    background: linear-gradient(135deg, #F59E0B, #D97706) !important;
+    color: #0B132B !important;
+    font-weight: 700 !important;
+    border-color: #FCD34D !important;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.45) !important;
   }
 
   .spiritual-page:not(.night) .chat-demo-window,
@@ -6190,17 +6201,24 @@ select:focus-visible,
     background: #FFFDF8 !important;
     border-top: 1px solid rgba(217, 119, 6, 0.18) !important;
   }
+  .spiritual-page:not(.night) .chat-demo-controls-label,
+  :root[data-theme='light'] .chat-demo-controls-label {
+    color: #78350F !important;
+  }
   .spiritual-page:not(.night) .chat-demo-pill,
   :root[data-theme='light'] .chat-demo-pill {
     background: #FEF3C7 !important;
-    border: 1px solid rgba(217, 119, 6, 0.28) !important;
-    color: #92400E !important;
+    border: 1.5px solid rgba(217, 119, 6, 0.35) !important;
+    color: #78350F !important;
+    font-weight: 600 !important;
   }
   .spiritual-page:not(.night) .chat-demo-pill.is-active,
   :root[data-theme='light'] .chat-demo-pill.is-active {
-    background: #D97706 !important;
+    background: linear-gradient(135deg, #D97706, #B45309) !important;
     color: #FFFFFF !important;
-    border-color: #B45309 !important;
+    font-weight: 700 !important;
+    border-color: #92400E !important;
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35) !important;
   }
 
   .pipeline-switcher-wrap {
