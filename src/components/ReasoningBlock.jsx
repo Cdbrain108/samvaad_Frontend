@@ -183,7 +183,12 @@ export default function ReasoningBlock({
             </span>
 
             <span className="reasoning-title-text">
-              {isThinking ? 'चिंतन प्रक्रिया (Spiritual Deliberation)' : 'चिंतन संपन्न (Thought Process)'}
+              <span className="reasoning-title-desktop">
+                {isThinking ? 'चिंतन प्रक्रिया (Spiritual Deliberation)' : 'चिंतन संपन्न (Thought Process)'}
+              </span>
+              <span className="reasoning-title-mobile">
+                {isThinking ? (isEnglishView ? 'Deliberating' : 'चिंतन प्रक्रिया') : (isEnglishView ? 'Thought Complete' : 'चिंतन संपन्न')}
+              </span>
             </span>
 
             {/* Equalizer animation while thinking */}
@@ -206,38 +211,50 @@ export default function ReasoningBlock({
           </div>
         </button>
 
-        {/* Claude-Style RAG Pill */}
-        {scripture ? (
-          <button
-            type="button"
-            className="claude-rag-pill-btn"
-            onClick={() => setIsScriptureOpen((prev) => !prev)}
-            title="Click to view scripture citation and score"
-          >
-            <span className="claude-rag-pill-icon">📜</span>
-            <span className="claude-rag-pill-text">{scripture.reference}</span>
-            {scripture.score && (
-              <span className="claude-rag-pill-score">
-                {Math.min(99, Math.max(50, Math.round(scripture.score <= 1.0 ? scripture.score * 100 : scripture.score)))}%
-              </span>
-            )}
-            <span className={`claude-rag-pill-chevron ${isScriptureOpen ? 'open' : ''}`}>▾</span>
-          </button>
-        ) : isThinking ? (
-          isRagActive ? (
-            <div className="claude-rag-searching-pill">
-              <span className="claude-shimmer-dot" />
-              <span className="claude-shimmer-text">Searching 150K+ Sacred Verses across 25+ Scriptures...</span>
-            </div>
-          ) : (
-            <div className="claude-rag-searching-pill">
-              <span className="claude-shimmer-dot" />
-              <span className="claude-shimmer-text">
-                {isEnglishView ? 'Contemplating with Fatherly Grace...' : 'पूज्य महाराज जी का पावन चिंतन...'}
-              </span>
-            </div>
-          )
-        ) : null}
+        {/* Claude-Style RAG Pill Slot */}
+        <div className="reasoning-pill-slot">
+          {scripture ? (
+            <button
+              type="button"
+              className="claude-rag-pill-btn"
+              onClick={() => setIsScriptureOpen((prev) => !prev)}
+              title="Click to view scripture citation and score"
+            >
+              <span className="claude-rag-pill-icon">📜</span>
+              <span className="claude-rag-pill-text">{scripture.reference}</span>
+              {scripture.score && (
+                <span className="claude-rag-pill-score">
+                  {Math.min(99, Math.max(50, Math.round(scripture.score <= 1.0 ? scripture.score * 100 : scripture.score)))}%
+                </span>
+              )}
+              <span className={`claude-rag-pill-chevron ${isScriptureOpen ? 'open' : ''}`}>▾</span>
+            </button>
+          ) : isThinking ? (
+            isRagActive ? (
+              <div className="claude-rag-searching-pill">
+                <span className="claude-shimmer-dot" aria-hidden="true" />
+                <span className="claude-shimmer-text">
+                  <span className="shimmer-text-desktop">Searching 150K+ Sacred Verses across 25+ Scriptures...</span>
+                  <span className="shimmer-text-mobile">
+                    {isEnglishView ? 'Searching 25+ Scriptures (150K+ Verses)...' : '२५+ शास्त्रों (१.५L+ श्लोक) में अनुसंधान...'}
+                  </span>
+                </span>
+              </div>
+            ) : (
+              <div className="claude-rag-searching-pill">
+                <span className="claude-shimmer-dot" aria-hidden="true" />
+                <span className="claude-shimmer-text">
+                  <span className="shimmer-text-desktop">
+                    {isEnglishView ? 'Contemplating with Fatherly Grace...' : 'पूज्य महाराज जी का पावन चिंतन...'}
+                  </span>
+                  <span className="shimmer-text-mobile">
+                    {isEnglishView ? 'Contemplating Grace...' : 'पूज्य महाराज जी का पावन चिंतन...'}
+                  </span>
+                </span>
+              </div>
+            )
+          ) : null}
+        </div>
       </div>
 
       {/* Expandable Scripture Detail Drawer */}
@@ -356,11 +373,26 @@ export default function ReasoningBlock({
                     type="button"
                     className="reasoning-expand-toggle-btn"
                     onClick={() => setIsExpanded((prev) => !prev)}
+                    aria-label={isExpanded ? 'Collapse reasoning' : 'Expand full reasoning'}
                   >
                     {isExpanded ? (
-                      <span>संक्षेप में देखें (Show less) ▲</span>
+                      <>
+                        <span className="expand-text-desktop">
+                          {isEnglishView ? 'Show less ▲' : 'संक्षेप में देखें (Show less) ▲'}
+                        </span>
+                        <span className="expand-text-mobile">
+                          {isEnglishView ? 'Show less ▲' : 'संक्षेप में देखें ▲'}
+                        </span>
+                      </>
                     ) : (
-                      <span>विस्तार से चिंतन देखें (Continue reading reasoning) ▼</span>
+                      <>
+                        <span className="expand-text-desktop">
+                          {isEnglishView ? 'Continue reading reasoning ▼' : 'विस्तार से चिंतन देखें (Continue reading reasoning) ▼'}
+                        </span>
+                        <span className="expand-text-mobile">
+                          {isEnglishView ? 'Read reasoning ▼' : 'विस्तार से चिंतन देखें ▼'}
+                        </span>
+                      </>
                     )}
                   </button>
                 </div>

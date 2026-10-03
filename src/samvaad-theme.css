@@ -6208,54 +6208,128 @@ select:focus-visible,
   }
 }
 
-/* ── 7. TOPBAR: Better mobile topbar layout ── */
+/* ── 7. TOPBAR: Standalone Mobile Topbar Layout ── */
 @media (max-width: 640px) {
   .topbar {
-    height: 58px !important;
-    padding-inline: 12px !important;
+    height: 56px !important;
+    padding-inline: 10px !important;
     gap: 8px !important;
-    overflow: visible !important; /* allow mode toast to show */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    overflow: visible !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: rgba(8, 21, 37, 0.92) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
   }
 
-  /* Topbar center — shrink mode toggle label text on narrow */
+  .menu-button {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Topbar center: Clean, balanced Home link + Mode Toggle */
   .topbar-center {
-    gap: 8px !important;
+    gap: 6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
     flex: 1 !important;
     min-width: 0 !important;
     justify-content: center !important;
   }
 
-  .mode-pill-btn-label-text {
-    display: none !important; /* emoji only — save horizontal space */
-  }
-  .mode-pill-btn {
-    padding: 5px 7px !important;
-    font-size: 0.85rem !important; /* bigger emoji */
-    gap: 0 !important;
+  .home-link {
+    width: 34px !important;
+    height: 34px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    background: rgba(245, 158, 11, 0.12) !important;
+    border: 1px solid rgba(245, 158, 11, 0.28) !important;
+    color: #f59e0b !important;
+    flex-shrink: 0 !important;
   }
 
-  /* Mode toggle group tighter */
+  .home-link-text {
+    display: none !important;
+  }
+
+  /* Mode toggle group: Sleek micro-segmented control with clear labels */
   .mode-toggle-group {
-    padding: 2px !important;
-    border-radius: 20px !important;
+    padding: 3px !important;
+    border-radius: 999px !important;
+    gap: 2px !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
   }
 
-  /* Topbar actions — tighter on mobile */
-  .topbar-actions { gap: 5px !important; }
+  .mode-pill-btn {
+    padding: 4px 9px !important;
+    font-size: 0.74rem !important;
+    font-weight: 600 !important;
+    border-radius: 999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    min-height: 28px !important;
+    white-space: nowrap !important;
+  }
+
+  .mode-pill-btn-label-text {
+    display: inline !important;
+    font-size: 0.73rem !important;
+    font-weight: 600 !important;
+  }
+
+  /* Topbar actions: Streamlined touch targets */
+  .topbar-actions {
+    gap: 5px !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+  }
+
   .topbar-actions .icon-button {
     width: 34px !important;
     height: 34px !important;
-    border-radius: 9px !important;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
   }
+
   .user-avatar {
     width: 32px !important;
     height: 32px !important;
     font-size: 12px !important;
-    border-radius: 8px !important;
+    font-weight: 700 !important;
+    border-radius: 9px !important;
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    color: #1e1b4b !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
   }
 }
 
-/* ── 8. SIDEBAR: Better touch targets on mobile ── */
+/* ── 8. SIDEBAR: Mobile Drawer Optimization ── */
 @media (max-width: 640px) {
   .sidebar { width: min(300px, 86vw) !important; }
   .sidebar-header {
@@ -6323,63 +6397,37 @@ select:focus-visible,
     width: 92vw !important;
   }
 
-  /* Topbar — tighten for ultra-narrow screens */
   .topbar {
-    padding-inline: 10px !important;
-    gap: 6px !important;
+    padding-inline: 8px !important;
+    gap: 5px !important;
   }
 
   .topbar .icon-button,
   .user-avatar {
-    width: 32px !important;
-    height: 32px !important;
+    width: 30px !important;
+    height: 30px !important;
   }
 
   .mode-pill-btn {
-    padding: 4px 6px !important;
-    font-size: 0.78rem !important;
+    padding: 4px 7px !important;
+    font-size: 0.72rem !important;
   }
 
-  /* Content area — tighter horizontal padding */
   .content-area {
-    padding: 24px 10px 16px !important;
+    padding: 20px 8px 165px 8px !important;
   }
 
-  /* Composer — full width minus minimal margins */
   .composer-wrap {
-    width: calc(100% - 12px) !important;
-    margin-inline: 6px !important;
-  }
-
-  /* Message avatar — slightly smaller */
-  .message-avatar {
-    width: 28px !important;
-    height: 28px !important;
-    font-size: 10px !important;
-  }
-
-  /* Conversation items — tighter padding */
-  .conversation-item {
-    padding: 10px 8px !important;
-  }
-
-  .conversation-title {
-    font-size: 12px !important;
-  }
-
-  .user-info strong {
-    max-width: 140px !important;
+    padding-inline: 8px !important;
   }
 }
 
-/* ── 9. LANDING PAGE SECTION CARDS: Proper padding on mobile ── */
+/* ── 9. LANDING PAGE SECTION CARDS: Mobile Responsiveness ── */
 @media (max-width: 640px) {
-  /* Video example cards */
   .video-example-card, .scripture-book-card {
     border-radius: 12px !important;
   }
 
-  /* Feature/capability cards */
   .capability-card {
     min-height: auto !important;
     padding: 20px 18px !important;
@@ -6387,24 +6435,709 @@ select:focus-visible,
   .capability-card h3 { font-size: 22px !important; margin-top: 40px !important; }
   .capability-card p { font-size: 13px !important; }
 
-  /* Section headings */
   .section-heading h2, .closing-section h2 {
-    font-size: clamp(36px, 10vw, 52px) !important;
+    font-size: clamp(34px, 9vw, 48px) !important;
   }
 
-  /* Possibilities section padding */
-  .possibilities { padding: 60px 16px 80px !important; }
-
-  /* Closing CTA section */
-  .closing-section { padding: 70px 20px !important; min-height: auto !important; }
+  .possibilities { padding: 50px 16px 70px !important; }
+  .closing-section { padding: 60px 16px !important; min-height: auto !important; }
 }
 
-/* ── 10. REASONING BOX: Compact on mobile ── */
+/* ── 10. REASONING BLOCK: Standalone Mobile Perfection ── */
 @media (max-width: 640px) {
-  .reasoning-container { border-radius: 10px !important; }
-  .reasoning-header-btn { padding: 7px 10px !important; font-size: 0.76rem !important; }
-  .reasoning-text-stream { font-size: 0.78rem !important; }
-  .reasoning-text-stream.stream-expanded { max-height: 220px !important; }
+  .reasoning-container {
+    border-radius: 13px !important;
+    margin-bottom: 14px !important;
+    border-left-width: 3.5px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+    background: rgba(18, 14, 28, 0.85) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-color: rgba(139, 92, 246, 0.28) !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .reasoning-container.thinking-active {
+    border-color: rgba(245, 158, 11, 0.45) !important;
+    border-left-color: #f59e0b !important;
+    box-shadow: 0 4px 22px rgba(245, 158, 11, 0.16), 0 0 14px rgba(139, 92, 246, 0.12) !important;
+  }
+
+  .reasoning-container.thinking-done {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    border-left-color: #10b981 !important;
+    background: rgba(14, 11, 24, 0.65) !important;
+  }
+
+  /* Header Bar: Clean 2-Row or Stacked Layout */
+  .reasoning-header-bar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    width: 100% !important;
+  }
+
+  .reasoning-header-btn {
+    width: 100% !important;
+    padding: 10px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    min-height: 42px !important;
+    background: transparent !important;
+    border: none !important;
+    box-sizing: border-box !important;
+  }
+
+  .reasoning-status-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+  }
+
+  .reasoning-indicator {
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .claude-sparkle-glow {
+    font-size: 1rem !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+  }
+
+  .claude-check-mark {
+    font-size: 0.95rem !important;
+    font-weight: bold !important;
+    color: #10b981 !important;
+  }
+
+  .reasoning-title-text {
+    font-size: 0.81rem !important;
+    font-weight: 600 !important;
+    color: #e5e7eb !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    line-height: 1.2 !important;
+  }
+
+  .reasoning-title-desktop {
+    display: none !important;
+  }
+
+  .reasoning-title-mobile {
+    display: inline !important;
+  }
+
+  .claude-equalizer {
+    display: inline-flex !important;
+    align-items: flex-end !important;
+    gap: 2px !important;
+    height: 13px !important;
+    flex-shrink: 0 !important;
+    margin-left: 2px !important;
+  }
+
+  .claude-timer-badge {
+    margin-left: auto !important;
+    margin-right: 6px !important;
+    flex-shrink: 0 !important;
+    font-size: 0.72rem !important;
+    padding: 2px 7px !important;
+    border-radius: 999px !important;
+    font-weight: 600 !important;
+    font-family: ui-monospace, SFMono-Regular, monospace !important;
+  }
+
+  .reasoning-toggle-icon {
+    width: 22px !important;
+    height: 22px !important;
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .reasoning-chevron {
+    font-size: 0.72rem !important;
+    color: #a1a1aa !important;
+  }
+
+  /* RAG Pill Slot on Mobile */
+  .reasoning-pill-slot {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 12px 10px 12px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .claude-rag-searching-pill {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 5px 10px !important;
+    border-radius: 8px !important;
+    font-size: 0.73rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    box-sizing: border-box !important;
+    background: rgba(139, 92, 246, 0.16) !important;
+    border: 1px solid rgba(139, 92, 246, 0.35) !important;
+  }
+
+  .claude-shimmer-dot {
+    width: 7px !important;
+    height: 7px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .claude-shimmer-text {
+    flex: 1 !important;
+    min-width: 0 !important;
+    font-size: 0.73rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .shimmer-text-desktop {
+    display: none !important;
+  }
+
+  .shimmer-text-mobile {
+    display: inline !important;
+  }
+
+  .claude-rag-pill-btn {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 5px 10px !important;
+    border-radius: 8px !important;
+    font-size: 0.74rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+  }
+
+  .claude-rag-pill-text {
+    flex: 1 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    text-align: left !important;
+  }
+
+  .claude-rag-pill-score {
+    flex-shrink: 0 !important;
+  }
+
+  .claude-rag-pill-chevron {
+    flex-shrink: 0 !important;
+    margin-left: 4px !important;
+  }
+
+  /* Stepper on Mobile: Dedicated Vertical Timeline */
+  .deliberation-stepper {
+    grid-template-columns: 1fr !important;
+    gap: 6px !important;
+    padding: 10px 12px 12px 12px !important;
+    background: rgba(0, 0, 0, 0.28) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .stepper-step {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 7px 11px !important;
+    border-radius: 9px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid transparent !important;
+  }
+
+  .stepper-step.step-active {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(245, 158, 11, 0.16)) !important;
+    border-color: rgba(245, 158, 11, 0.45) !important;
+    color: #fef08a !important;
+    font-weight: 600 !important;
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.15) !important;
+  }
+
+  .stepper-step.step-completed {
+    color: #94a3b8 !important;
+    background: rgba(16, 185, 129, 0.08) !important;
+  }
+
+  .stepper-icon-pill {
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .stepper-check {
+    font-size: 0.85rem !important;
+    color: #10b981 !important;
+    font-weight: bold !important;
+  }
+
+  .stepper-current-dot {
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    background: #f59e0b !important;
+    box-shadow: 0 0 10px #f59e0b !important;
+  }
+
+  .stepper-pending-dot {
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 50% !important;
+    background: #52525b !important;
+  }
+
+  .stepper-label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-size: 0.75rem !important;
+    line-height: 1.35 !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    word-break: break-word !important;
+    color: #cbd5e1 !important;
+  }
+
+  .stepper-emoji {
+    font-size: 0.88rem !important;
+    flex-shrink: 0 !important;
+    margin-right: 2px !important;
+  }
+
+  /* Thought stream in mobile box */
+  .reasoning-content-box.claude-thinking-box {
+    padding: 10px 12px 14px 12px !important;
+  }
+
+  .reasoning-text-stream.claude-thought-stream {
+    font-size: 0.77rem !important;
+    line-height: 1.55 !important;
+    color: #cbd5e1 !important;
+  }
+
+  .reasoning-text-stream.stream-compact {
+    max-height: 96px !important;
+  }
+
+  .reasoning-text-stream.stream-expanded {
+    max-height: 260px !important;
+  }
+
+  .reasoning-expand-bar {
+    padding-top: 8px !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  .reasoning-expand-toggle-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 7px 12px !important;
+    font-size: 0.76rem !important;
+    font-weight: 600 !important;
+    min-height: 38px !important;
+    border-radius: 9px !important;
+    background: rgba(139, 92, 246, 0.12) !important;
+    border: 1px solid rgba(139, 92, 246, 0.3) !important;
+    color: #c4b5fd !important;
+  }
+
+  .expand-text-desktop {
+    display: none !important;
+  }
+
+  .expand-text-mobile {
+    display: inline !important;
+  }
+
+  /* Wisdom pearl card */
+  .deliberation-pearl-card {
+    padding: 10px 12px !important;
+    margin-top: 10px !important;
+    border-radius: 10px !important;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(139, 92, 246, 0.1)) !important;
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  }
+
+  .pearl-header {
+    gap: 6px !important;
+    margin-bottom: 5px !important;
+  }
+
+  .pearl-lotus {
+    font-size: 0.88rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .pearl-title {
+    font-size: 0.67rem !important;
+    color: #fbbf24 !important;
+    font-weight: 700 !important;
+  }
+
+  .pearl-text {
+    font-size: 0.76rem !important;
+    line-height: 1.48 !important;
+  }
+
+  /* Scripture Drawer inside reasoning */
+  .claude-scripture-box {
+    padding: 10px 12px !important;
+  }
+
+  .claude-scripture-header {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+
+  .claude-scripture-shlok {
+    font-size: 0.84rem !important;
+    padding: 7px 10px !important;
+    line-height: 1.55 !important;
+  }
+
+  .claude-scripture-meaning {
+    font-size: 0.76rem !important;
+    line-height: 1.5 !important;
+  }
+
+  /* ── 11. STANDALONE MOBILE CHAT FEED & COMPOSER ── */
+  .content-area {
+    padding: 16px 12px 170px 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .message {
+    padding: 12px 12px 10px 12px !important;
+    border-radius: 14px !important;
+    gap: 10px !important;
+    margin-bottom: 16px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .message.assistant {
+    background: rgba(14, 11, 24, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .message.user {
+    background: rgba(245, 158, 11, 0.12) !important;
+    border: 1px solid rgba(245, 158, 11, 0.25) !important;
+  }
+
+  .message-avatar {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 11px !important;
+    border-radius: 50% !important;
+    flex-shrink: 0 !important;
+  }
+
+  .message-meta {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin-top: 10px !important;
+  }
+
+  .message-action {
+    min-height: 34px !important;
+    padding: 4px 12px !important;
+    font-size: 0.75rem !important;
+    border-radius: 999px !important;
+  }
+
+  .rich-shlok-line {
+    font-size: 0.88rem !important;
+    line-height: 1.65 !important;
+    padding: 10px 12px !important;
+    border-radius: 10px !important;
+    margin: 10px 0 !important;
+  }
+
+  .rich-arthat-line {
+    font-size: 0.82rem !important;
+    line-height: 1.55 !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+  }
+
+  /* Standalone Mobile Bottom Composer Dock */
+  .composer-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 8px 12px max(10px, env(safe-area-inset-bottom)) 12px !important;
+    background: linear-gradient(to top, rgba(8, 21, 37, 0.98) 80%, rgba(8, 21, 37, 0.85) 92%, transparent) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    box-sizing: border-box !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 20 !important;
+  }
+
+  .composer-toolbar {
+    display: flex !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    padding-bottom: 7px !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .composer-toolbar::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .composer-toolbar button {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    font-size: 0.74rem !important;
+    font-weight: 500 !important;
+    padding: 5px 12px !important;
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #f1f5f9 !important;
+    min-height: 29px !important;
+  }
+
+  .composer {
+    display: flex !important;
+    align-items: flex-end !important;
+    gap: 8px !important;
+    padding: 6px 8px 6px 14px !important;
+    border-radius: 22px !important;
+    background: rgba(18, 14, 28, 0.92) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+    box-sizing: border-box !important;
+  }
+
+  .composer textarea {
+    font-size: 16px !important; /* Prevents auto-zoom in mobile Safari */
+    line-height: 1.45 !important;
+    padding: 6px 0 !important;
+    max-height: 120px !important;
+    color: #ffffff !important;
+  }
+
+  .send-button {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    color: #1e1b4b !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.35) !important;
+  }
+
+  .composer-note {
+    font-size: 0.65rem !important;
+    margin: 4px 0 0 0 !important;
+    text-align: center !important;
+    color: rgba(255, 255, 255, 0.45) !important;
+  }
+
+  /* Welcome Screen on Mobile */
+  .welcome {
+    padding-top: 8px !important;
+  }
+
+  .welcome h1 {
+    font-size: clamp(26px, 7.5vw, 34px) !important;
+    line-height: 1.18 !important;
+    margin-bottom: 8px !important;
+  }
+
+  .welcome-copy p {
+    font-size: 0.84rem !important;
+    line-height: 1.5 !important;
+    color: #94a3b8 !important;
+  }
+
+  .suggestion-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    margin-top: 18px !important;
+  }
+
+  .suggestion-card {
+    padding: 11px 13px !important;
+    min-height: 58px !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+}
+
+/* ── 12. DAY THEME (LIGHT MODE) MOBILE OVERRIDES ── */
+@media (max-width: 640px) {
+  :root[data-theme='light'] .topbar {
+    background: rgba(255, 248, 225, 0.94) !important;
+    border-bottom: 1px solid rgba(217, 119, 6, 0.2) !important;
+  }
+  :root[data-theme='light'] .menu-button {
+    background: rgba(217, 119, 6, 0.08) !important;
+    border-color: rgba(217, 119, 6, 0.25) !important;
+    color: #78350f !important;
+  }
+  :root[data-theme='light'] .topbar-actions .icon-button {
+    background: rgba(217, 119, 6, 0.08) !important;
+    border-color: rgba(217, 119, 6, 0.25) !important;
+    color: #78350f !important;
+  }
+  :root[data-theme='light'] .mode-toggle-group {
+    background: rgba(217, 119, 6, 0.1) !important;
+    border-color: rgba(217, 119, 6, 0.3) !important;
+  }
+  :root[data-theme='light'] .mode-pill-btn {
+    color: #78350f !important;
+  }
+  :root[data-theme='light'] .mode-pill-btn.active {
+    color: #ffffff !important;
+  }
+  :root[data-theme='light'] .reasoning-container {
+    background: rgba(254, 252, 246, 0.96) !important;
+    border-color: rgba(217, 119, 6, 0.28) !important;
+    border-left-color: #d97706 !important;
+    box-shadow: 0 4px 18px rgba(180, 83, 9, 0.08) !important;
+  }
+  :root[data-theme='light'] .reasoning-container.thinking-active {
+    border-color: rgba(245, 158, 11, 0.6) !important;
+    border-left-color: #f59e0b !important;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.16) !important;
+  }
+  :root[data-theme='light'] .reasoning-title-text {
+    color: #1e1b4b !important;
+  }
+  :root[data-theme='light'] .claude-timer-badge {
+    background: rgba(217, 119, 6, 0.15) !important;
+    color: #92400e !important;
+  }
+  :root[data-theme='light'] .deliberation-stepper {
+    background: rgba(245, 238, 222, 0.7) !important;
+    border-bottom: 1px solid rgba(217, 119, 6, 0.15) !important;
+  }
+  :root[data-theme='light'] .stepper-step {
+    background: rgba(255, 255, 255, 0.6) !important;
+    color: #4b5563 !important;
+  }
+  :root[data-theme='light'] .stepper-step.step-active {
+    background: linear-gradient(135deg, rgba(254, 243, 199, 0.9), rgba(253, 230, 138, 0.6)) !important;
+    border-color: rgba(217, 119, 6, 0.5) !important;
+    color: #92400e !important;
+  }
+  :root[data-theme='light'] .stepper-label {
+    color: #374151 !important;
+  }
+  :root[data-theme='light'] .reasoning-content-box.claude-thinking-box {
+    background: rgba(254, 252, 246, 0.9) !important;
+  }
+  :root[data-theme='light'] .reasoning-text-stream.claude-thought-stream {
+    color: #4b5563 !important;
+  }
+  :root[data-theme='light'] .reasoning-expand-toggle-btn {
+    background: rgba(217, 119, 6, 0.08) !important;
+    border-color: rgba(217, 119, 6, 0.3) !important;
+    color: #92400e !important;
+  }
+  :root[data-theme='light'] .claude-rag-searching-pill {
+    background: rgba(217, 119, 6, 0.1) !important;
+    border-color: rgba(217, 119, 6, 0.3) !important;
+    color: #78350f !important;
+  }
+  :root[data-theme='light'] .claude-rag-pill-btn {
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(16, 185, 129, 0.1)) !important;
+    border-color: rgba(217, 119, 6, 0.4) !important;
+    color: #78350f !important;
+  }
+  :root[data-theme='light'] .deliberation-pearl-card {
+    background: linear-gradient(135deg, rgba(254, 243, 199, 0.7), rgba(253, 230, 138, 0.4)) !important;
+    border-color: rgba(217, 119, 6, 0.3) !important;
+  }
+  :root[data-theme='light'] .pearl-text {
+    color: #78350f !important;
+  }
+  :root[data-theme='light'] .content-area {
+    background: transparent !important;
+  }
+  :root[data-theme='light'] .message.assistant {
+    background: rgba(255, 252, 247, 0.94) !important;
+    border: 1px solid rgba(217, 119, 6, 0.22) !important;
+    box-shadow: 0 2px 12px rgba(180, 83, 9, 0.06) !important;
+  }
+  :root[data-theme='light'] .message.user {
+    background: rgba(254, 243, 199, 0.85) !important;
+    border: 1px solid rgba(245, 158, 11, 0.4) !important;
+  }
+  :root[data-theme='light'] .message-action {
+    background: rgba(217, 119, 6, 0.08) !important;
+    border-color: rgba(217, 119, 6, 0.25) !important;
+    color: #78350f !important;
+  }
+  :root[data-theme='light'] .composer-wrap {
+    background: linear-gradient(to top, rgba(255, 248, 225, 0.98) 82%, rgba(255, 248, 225, 0.85) 92%, transparent) !important;
+  }
+  :root[data-theme='light'] .composer {
+    background: rgba(255, 252, 247, 0.98) !important;
+    border: 1.5px solid rgba(217, 119, 6, 0.35) !important;
+    box-shadow: 0 4px 18px rgba(180, 83, 9, 0.12) !important;
+  }
+  :root[data-theme='light'] .composer textarea {
+    color: #1e1b4b !important;
+  }
+  :root[data-theme='light'] .composer-toolbar button {
+    background: rgba(217, 119, 6, 0.08) !important;
+    border: 1px solid rgba(217, 119, 6, 0.22) !important;
+    color: #78350f !important;
+  }
+  :root[data-theme='light'] .composer-note {
+    color: rgba(120, 53, 15, 0.6) !important;
+  }
 }
 
 

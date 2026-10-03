@@ -1535,6 +1535,36 @@ html, body { max-width: 100%; overflow-x: hidden; }
   letter-spacing: 0.02em;
 }
 
+.reasoning-title-desktop {
+  display: inline;
+}
+
+.reasoning-title-mobile {
+  display: none;
+}
+
+.reasoning-pill-slot {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.shimmer-text-desktop {
+  display: inline;
+}
+
+.shimmer-text-mobile {
+  display: none;
+}
+
+.expand-text-desktop {
+  display: inline;
+}
+
+.expand-text-mobile {
+  display: none;
+}
+
 .thinking-active .reasoning-title-text {
   color: #e9d5ff;
   font-weight: 600;
