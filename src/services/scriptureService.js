@@ -22,6 +22,28 @@ function normalizeQuery(text) {
 }
 
 /**
+ * Normalizes scripture meaning by converting archaic 'age of Kali' translations to 'Kaliyug' / 'Kaliyuga'
+ * to avoid seeker confusion with Maa Kali (Goddess Kali).
+ */
+export function normalizeScriptureMeaning(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/\b(?:in\s+the\s+age\s+of\s+kali|in\s+the\s+kali\s+age)\b/gi, 'in Kaliyug')
+    .replace(/\b(?:sins\s+of\s+the\s+age\s+of\s+kali|sins\s+of\s+the\s+kali\s+age)\b/gi, 'sins of Kaliyug')
+    .replace(/\b(?:the\s+age\s+of\s+kali|the\s+kali\s+age)\b/gi, 'Kaliyug')
+    .replace(/\b(?:sins\s+of\s+kali)\b/gi, 'sins of Kaliyug')
+    .replace(/\b(?:afflictions\s+of\s+kali)\b/gi, 'afflictions of Kaliyug')
+    .replace(/\b(?:terrors\s+of\s+kali)\b/gi, 'terrors of Kaliyug')
+    .replace(/\b(?:evils\s+of\s+kali)\b/gi, 'evils of Kaliyug')
+    .replace(/\b(?:age\s+of\s+kali)\b/gi, 'Kaliyug')
+    .replace(/\b(?:in\s+kali)\b/gi, 'in Kaliyug')
+    .replace(/\bkali\s+yuga\b/gi, 'Kaliyuga')
+    .replace(/\bkali\s+yug\b/gi, 'Kaliyug')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
  * Casual conversational gating:
  * Returns true if the query is merely a greeting or casual remark
  * that should receive warm natural Satsang discourse WITHOUT forcing an unprompted scripture shlok.
@@ -139,8 +161,8 @@ async function queryOracleVectorRAG(query, originalUserQuery = '') {
       // Rejection floor: only reject if dense vector score is clearly poor
       if (vecScore < 0.60) continue;
 
-      const hindiMean = (c.hindi_meaning || '').trim();
-      const engMean = (c.english_translation || '').trim();
+      const hindiMean = normalizeScriptureMeaning((c.hindi_meaning || '').trim());
+      const engMean = normalizeScriptureMeaning((c.english_translation || '').trim());
       if (hindiMean.length < 6 && engMean.length < 6) continue;
 
       const scriptureId = c.scripture_id || ((c.reference || '').toLowerCase().includes('gita') ? 'bhagavad_gita' : (c.collection || 'sacred_text').replace('scripture_', ''));

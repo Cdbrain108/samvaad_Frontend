@@ -368,7 +368,7 @@ export const SCRIPTURE_DATABASE = [
     reference: 'श्रीरामचरितमानस बालकाण्ड (Ramcharitmanas Balkand)',
     original_text: 'कलिजुग केवल नाम अधारा। सुमिरि सुमिरि नर उतरहिं पारा॥ उलटा नाम जपत जगु जाना। बाल्मीकि भए ब्रह्म समाना॥',
     hindi_meaning: 'कलियुग में योग, यज्ञ या तप नहीं, केवल भगवन्नाम ही उद्धार का एकमात्र आधार है, जिसका निरंतर स्मरण करके मनुष्य भवसागर से पार उतर जाता है। उलटे नाम का जप करके भी वाल्मीकि जी ब्रह्म के समान पूज्य हो गए।',
-    english_translation: 'In the age of Kali, neither austere yoga nor rituals save; the Holy Name alone is the sole anchor. By remembering it continuously, mortals cross the ocean of mundane existence.',
+    english_translation: 'In Kaliyug, neither austere yoga, rituals nor penances save; the Holy Name alone is the sole anchor of liberation. By remembering and chanting it continuously, mortals cross the ocean of mundane existence. Even by chanting the Holy Name in reverse, Maharishi Valmiki became revered like Brahman himself.',
     context_intro_hi: 'जैसे श्रीरामचरितमानस में गोस्वामी तुलसीदास जी कलियुग में नाम-जप की महिमा गाते हुए कहते हैं कि —',
     context_intro_en: 'Just as Goswami Tulsidas sings the supreme power of the Holy Name in Ramcharitmanas —',
     keywords: [
