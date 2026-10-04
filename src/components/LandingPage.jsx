@@ -1062,6 +1062,22 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
               ))}
             </div>
 
+            <div className="hero-cta-action-wrap">
+              <button
+                type="button"
+                className="hero-live-chat-btn"
+                onClick={onEnter}
+                title="Enter Samvaad Live Chat"
+              >
+                <span className="hero-chat-btn-pulse" aria-hidden="true" />
+                <span className="hero-chat-btn-icon" aria-hidden="true">🪷</span>
+                <span className="hero-chat-btn-label">
+                  <strong>Try Samvaad Live</strong>
+                  <small>Ask a Question in Real-Time →</small>
+                </span>
+              </button>
+            </div>
+
             <div className="hero-inspiration-bar">
               <span className="inspiration-icon" aria-hidden="true">🙏</span>
               <p className="inspiration-text">
@@ -1133,6 +1149,26 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
               {scriptures.map((scripture) => <span key={scripture}>{scripture}</span>)}
             </div>
           </div>
+
+          <div className="section-chat-cta inspiration-chat-cta">
+            <div className="section-cta-content">
+              <span className="section-cta-badge">🌸 सम्भाषण एवं समाधान · Real-Time Solace</span>
+              <h3 className="section-cta-title">Have a spiritual or emotional question in your heart?</h3>
+              <p className="section-cta-sub">
+                Seek personalized, compassionate guidance rooted in Pujya Maharaj Ji&apos;s discourses and authentic scriptures.
+              </p>
+            </div>
+            <button
+              className="rust-button cta-button section-cta-launch-btn"
+              onClick={onEnter}
+              type="button"
+              title="Ask your spiritual question in Samvaad"
+            >
+              <span aria-hidden="true">🙏</span>
+              <strong>Ask a Question · Try Samvaad</strong>
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
         </section>
 
         {/* ============================================================
@@ -1203,6 +1239,16 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
                   <span>Explore 5-Stage AI Architecture Pipeline</span>
                   <span aria-hidden="true">→</span>
                 </button>
+                <button
+                  type="button"
+                  className="pipeline-chat-direct-btn"
+                  onClick={onEnter}
+                  title="Try Samvaad Live Chat"
+                >
+                  <span aria-hidden="true">⚡</span>
+                  <strong>Try Samvaad · Ask a Question</strong>
+                  <span aria-hidden="true">→</span>
+                </button>
               </div>
             </div>
           ) : (
@@ -1218,6 +1264,16 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
                 >
                   <span aria-hidden="true">←</span>
                   <span>View Corpus Scale &amp; Milestones</span>
+                </button>
+                <button
+                  type="button"
+                  className="pipeline-chat-direct-btn"
+                  onClick={onEnter}
+                  title="Try Samvaad Live Chat"
+                >
+                  <span aria-hidden="true">⚡</span>
+                  <strong>Try Samvaad · Ask a Question</strong>
+                  <span aria-hidden="true">→</span>
                 </button>
               </div>
             </div>
@@ -1259,6 +1315,15 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
                     <span>Unfurl the Sacred Palm-Leaf Pothi (तालपत्र पोथी)</span>
                     <span className="unfurl-btn-arrow">→</span>
                   </button>
+                  <button
+                    type="button"
+                    className="scripture-chat-launch-btn"
+                    onClick={onEnter}
+                    title="Ask questions grounded in ancient scriptures"
+                  >
+                    <span aria-hidden="true">🪷</span>
+                    <strong>Ask a Question on Scriptures →</strong>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1276,6 +1341,15 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
                   <span>Read Heritage Story</span>
                 </button>
                 <span className="pothi-stage-tag">ॐ तालपत्र पोथी · Palm-Leaf Folios</span>
+                <button
+                  type="button"
+                  className="pothi-chat-cta-btn"
+                  onClick={onEnter}
+                  title="Experience scripture-grounded RAG in live chat"
+                >
+                  <span aria-hidden="true">💬</span>
+                  <strong>Ask Samvaad →</strong>
+                </button>
               </div>
               <ScriptureBook />
             </div>
@@ -1305,6 +1379,24 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
           />
         </section>
       </main>
+
+      {/* Floating Live Samvaad Quick-Access Pill — always accessible while browsing landing page */}
+      {phases[active]?.id !== 'education' && (
+        <button
+          className="floating-try-samvaad-pill"
+          onClick={onEnter}
+          aria-label="Try Samvaad · Ask a question in live chat"
+          title="Start Live Samvaad Chat"
+          type="button"
+        >
+          <span className="floating-pill-glow" aria-hidden="true" />
+          <span className="floating-pill-icon" aria-hidden="true">🪷</span>
+          <span className="floating-pill-text">
+            <strong>Try Samvaad</strong>
+            <small>Ask a Question →</small>
+          </span>
+        </button>
+      )}
     </div>
   )
 }
