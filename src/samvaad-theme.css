@@ -7765,22 +7765,20 @@ select:focus-visible,
     border-radius: 8px !important;
   }
 
-  /* Standalone Mobile Bottom Composer Dock — Claude / ChatGPT Style */
+  /* Standalone Mobile Bottom Composer Dock — Docked cleanly below content area */
   .composer-wrap {
     width: 100% !important;
     max-width: 800px !important;
     margin: 0 auto !important;
-    padding: 10px 14px max(10px, env(safe-area-inset-bottom, 8px)) 14px !important;
+    padding: 8px 12px max(8px, env(safe-area-inset-bottom, 8px)) 12px !important;
     background: linear-gradient(180deg, rgba(9, 18, 35, 0) 0%, rgba(9, 18, 35, 0.72) 20%, rgba(9, 18, 35, 0.94) 55%, rgba(7, 14, 28, 0.98) 100%) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
     box-sizing: border-box !important;
-    position: absolute !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
     z-index: 30 !important;
-    pointer-events: none !important;
+    pointer-events: auto !important;
   }
 
   .composer-wrap > * {
@@ -9312,13 +9310,15 @@ select:focus-visible,
   }
 
   .content-area {
-    padding: 8px 12px 6px 12px !important;
+    padding: 8px 12px 24px 12px !important;
     box-sizing: border-box !important;
     flex: 1 1 0% !important;
     min-height: 0 !important;
     max-height: 100% !important;
     overflow-y: auto !important;
-    overscroll-behavior: contain !important;
+    overscroll-behavior-y: auto !important;
+    overscroll-behavior: auto !important;
+    touch-action: pan-y !important;
     -webkit-overflow-scrolling: touch !important;
   }
 
@@ -9792,24 +9792,51 @@ select:focus-visible,
    CLAUDE-STYLE OPEN CHAT CANVAS & MOBILE SCROLL OPTIMIZATION
    ═════════════════════════════════════════════════════════════════════ */
 
-/* Remove any card/box/border around Assistant messages in ALL themes & screens */
-.message.assistant,
-:root[data-theme='light'] .message.assistant,
-:root[data-theme='dark'] .message.assistant,
-.spiritual-page.night .message.assistant,
-.spiritual-page:not(.night) .message.assistant,
-.message.assistant > div,
-:root[data-theme='light'] .message.assistant > div,
-:root[data-theme='dark'] .message.assistant > div,
+/* Sacred Background Layout Box for Assistant Responses */
 .assistant-message-body {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  border-radius: 20px !important;
+  padding: 20px 22px 18px !important;
+  touch-action: pan-y !important;
+  contain: content !important;
+  background: #FFFDF8 !important;
+  border: 1.5px solid rgba(217, 119, 6, 0.22) !important;
+  border-top: 3px solid rgba(217, 119, 6, 0.6) !important;
+  box-shadow: 0 4px 20px -2px rgba(180, 83, 9, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+  transition: box-shadow 0.2s ease !important;
+}
+
+:root[data-theme='dark'] .assistant-message-body,
+.spiritual-page.night .assistant-message-body {
+  background: rgba(18, 15, 29, 0.94) !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.26) !important;
+  border-top: 3px solid rgba(251, 191, 36, 0.6) !important;
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5), 0 0 16px rgba(245, 158, 11, 0.06) !important;
+}
+
+.message.assistant {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 0 16px 0 !important;
+  padding: 0 !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
+  touch-action: pan-y !important;
+}
+
+.message.assistant.responding .assistant-message-body {
+  padding: 14px 18px !important;
+}
+
+@media (max-width: 600px) {
+  .assistant-message-body {
+    padding: 15px 14px 14px !important;
+    border-radius: 16px !important;
+  }
 }
 
 .message.assistant .message-avatar,
@@ -9862,21 +9889,43 @@ select:focus-visible,
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
 }
 
-/* Content Area & Messages Clearance for Unhindered Scrolling */
+/* Content Area & Messages Clearance for Lag-Free Unhindered Scrolling */
 .content-area {
   padding-top: 16px !important;
-  padding-bottom: 24px !important;
+  padding-bottom: 84px !important;
   overflow-y: auto !important;
   -webkit-overflow-scrolling: touch !important;
-  overscroll-behavior: contain !important;
+  overscroll-behavior-y: auto !important;
+  overscroll-behavior: auto !important;
+  touch-action: pan-y !important;
 }
 
 .content-area .messages {
   padding-top: 56px !important;
-  padding-bottom: 20px !important;
+  padding-bottom: 24px !important;
   display: flex !important;
   flex-direction: column !important;
   gap: 18px !important;
+  touch-action: pan-y !important;
+}
+
+.content-area *,
+.content-area .messages *,
+.assistant-message-body,
+.assistant-message-body *,
+.rich-text,
+.rich-text * {
+  touch-action: pan-y !important;
+}
+
+@media (max-width: 768px) {
+  .content-area {
+    padding-top: 12px !important;
+    padding-bottom: 96px !important;
+    overscroll-behavior-y: auto !important;
+    overscroll-behavior: auto !important;
+    touch-action: pan-y !important;
+  }
 }
 
 /* Assistant Open Typography */

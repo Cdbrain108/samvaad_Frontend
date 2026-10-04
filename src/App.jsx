@@ -580,10 +580,8 @@ export default function App() {
       if (e.touches && e.touches[0]) {
         const deltaY = e.touches[0].clientY - touchStartYRef.current;
         // User swiped downwards with their finger (scrolling upwards to earlier messages)
-        if (deltaY > 6) {
+        if (deltaY > 8) {
           userScrolledUpRef.current = true;
-          setShowScrollBottom(true);
-          showChatTopbarTemporarily(2000);
         }
       }
     };
@@ -603,22 +601,24 @@ export default function App() {
       el.removeEventListener('touchend', onTouchEnd);
       el.removeEventListener('touchcancel', onTouchEnd);
     };
-  }, [showChatTopbarTemporarily]);
+  }, []);
 
   // Track user scroll position so streaming never locks the page or overrides manual scrolling
   const handleContentScroll = useCallback(() => {
     if (!contentAreaRef.current) return;
     const el = contentAreaRef.current;
     const currentScrollTop = el.scrollTop;
-    // Lower threshold: if distance from bottom exceeds 16px, user is reading earlier messages
+    // Lower threshold: if distance from bottom exceeds 24px, user is reading earlier messages
     const distanceFromBottom = el.scrollHeight - currentScrollTop - el.clientHeight;
-    const isUp = distanceFromBottom > 16;
+    const isUp = distanceFromBottom > 24;
     userScrolledUpRef.current = isUp;
-    setShowScrollBottom(isUp);
+    
+    // Only dispatch state update when boolean changes to eliminate scroll lag
+    setShowScrollBottom((prev) => (prev !== isUp ? isUp : prev));
 
     // Only reveal topbar when user scrolls UP towards the top, then auto-hide after 2s if idle
-    const isScrollingUp = currentScrollTop < lastScrollTopRef.current - 8;
-    if (isScrollingUp || currentScrollTop <= 15) {
+    const isScrollingUp = currentScrollTop < lastScrollTopRef.current - 10;
+    if (isScrollingUp || currentScrollTop <= 20) {
       showChatTopbarTemporarily(2000);
     }
 
