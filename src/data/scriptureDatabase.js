@@ -230,10 +230,10 @@ export const SCRIPTURE_DATABASE = [
     context_intro_hi: 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण निष्काम कर्म-सिद्धांत समझाते हुए अर्जुन से कहते हैं कि —',
     context_intro_en: 'Just as Bhagavan Shri Krishna instructs Arjuna on selfless action in the Shrimad Bhagavad Gita —',
     keywords: [
-      'मेहनत', 'परिश्रम', 'कड़ी मेहनत', 'सफलता नहीं मिल रही', 'असफल', 'असफलता', 'कर्म का फल', 'मेहनत का फल', 'सफलता कब मिलेगी', 'निराशा कर्म', 'परीक्षा फल',
-      'hard work', 'working hard', 'work hard', 'no success', 'not getting success', 'failed', 'failure', 'results', 'fruits of action', 'effort', 'struggling career', 'reward', 'unsuccessful',
+      'मेहनत', 'परिश्रम', 'कड़ी मेहनत', 'सफलता नहीं मिल रही', 'असफल', 'असफलता', 'कर्म का फल', 'मेहनत का फल', 'सफलता कब मिलेगी', 'निराशा कर्म', 'परीक्षा फल', 'सफलता', 'सफलता कैसे पाएँ', 'सफल जीवन', 'कामयाबी', 'सफल कैसे बनें',
+      'hard work', 'working hard', 'work hard', 'no success', 'not getting success', 'failed', 'failure', 'results', 'fruits of action', 'effort', 'struggling career', 'reward', 'unsuccessful', 'success', 'successful', 'succesfull', 'success in life', 'successful in life', 'succesfull in life', 'how to become successful', 'become successful', 'how to be successful', 'career growth',
       'కష్టపడి', 'కష్టం', 'పనిచేస్తున్నాను', 'విజయం', 'విజయము', 'ఫలితం', 'సఫలత', 'ఓటమి', 'కష్టానికి ప్రతిఫలం',
-      'mehnat kar raha hu', 'safalta nahi mil rahi', 'fal nahi mil raha', 'hardwork', 'karm fal', 'karm ka phal', 'karm ka fal', 'karm ka phal kab milta hai', 'karm ka fal kab milta hai'
+      'mehnat kar raha hu', 'safalta nahi mil rahi', 'fal nahi mil raha', 'hardwork', 'karm fal', 'karm ka phal', 'karm ka fal', 'karm ka phal kab milta hai', 'karm ka fal kab milta hai', 'kamyaabi', 'safalta kaise paye'
     ]
   },
 

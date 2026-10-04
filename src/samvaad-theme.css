@@ -5299,18 +5299,15 @@ select:focus-visible,
 
 /* content-area scrolls on its own — user can always scroll freely */
 .content-area {
-  /* width:100% + horizontal padding on a content-box element made this box
-     viewport + 24px wide. Centered (align-self:center), it then hung 12px off
-     BOTH edges: chat content was clipped on the left and pushed off-screen on
-     the right on every phone. Padding must live inside the 100% width. */
+  /* KEY: display:block NOT flex — prevents WebKit mobile scroll-boundary lock */
   box-sizing: border-box !important;
+  display: block !important;
   flex: 1 !important;
   overflow-y: auto !important;
-  /* Don't use align-items: center when there are messages — use flex-start so it starts at top */
-  align-items: flex-start !important;
   /* Native fluid touch scroll */
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 /* Welcome screen stays centered */
@@ -9789,54 +9786,259 @@ select:focus-visible,
 }
 
 /* ═════════════════════════════════════════════════════════════════════
-   CLAUDE-STYLE OPEN CHAT CANVAS & MOBILE SCROLL OPTIMIZATION
+   CLAUDE-STYLE OPEN CHAT CANVAS (PC) & DEDICATED MOBILE CARD BOX
    ═════════════════════════════════════════════════════════════════════ */
 
-/* Sacred Background Layout Box for Assistant Responses */
+/* Universal Reset: Assistant message MUST be block (NOT grid 38px 1fr) */
+.message.assistant {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 0 20px 0 !important;
+  padding: 0 !important;
+  touch-action: pan-y !important;
+  box-sizing: border-box !important;
+}
+
+.message.assistant > div,
 .assistant-message-body {
-  position: relative !important;
+  display: block !important;
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
-  border-radius: 20px !important;
-  padding: 20px 22px 18px !important;
-  touch-action: pan-y !important;
-  contain: content !important;
-  background: #FFFDF8 !important;
-  border: 1.5px solid rgba(217, 119, 6, 0.22) !important;
-  border-top: 3px solid rgba(217, 119, 6, 0.6) !important;
-  box-shadow: 0 4px 20px -2px rgba(180, 83, 9, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03) !important;
-  transition: box-shadow 0.2s ease !important;
-}
-
-:root[data-theme='dark'] .assistant-message-body,
-.spiritual-page.night .assistant-message-body {
-  background: rgba(18, 15, 29, 0.94) !important;
-  border: 1.5px solid rgba(245, 158, 11, 0.26) !important;
-  border-top: 3px solid rgba(251, 191, 36, 0.6) !important;
-  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5), 0 0 16px rgba(245, 158, 11, 0.06) !important;
-}
-
-.message.assistant {
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 0 16px 0 !important;
-  padding: 0 !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  touch-action: pan-y !important;
 }
 
 .message.assistant.responding .assistant-message-body {
-  padding: 14px 18px !important;
+  padding: 8px 0 !important;
+}
+
+/* Floating "Return to Home" pill is hidden by default (PC topbar already provides Home link) */
+.floating-back-home-pill {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* ─── DESKTOP / PC OPTIMIZED CANVAS (Previous optimized look from e7e2dee) ─── */
+@media (min-width: 769px) {
+  .content-area {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    padding-top: 16px !important;
+    padding-bottom: 24px !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+  }
+
+  .content-area .messages {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 800px !important;
+    margin: 0 auto !important;
+    padding-top: 56px !important;
+    padding-bottom: 24px !important;
+    gap: 18px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Desktop Assistant Messages: Pure open typography canvas without boxes or borders */
+  .message.assistant,
+  :root[data-theme='light'] .message.assistant,
+  :root[data-theme='dark'] .message.assistant,
+  .spiritual-page.night .message.assistant,
+  .spiritual-page:not(.night) .message.assistant {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 0 20px 0 !important;
+  }
+
+  .message.assistant > div,
+  :root[data-theme='light'] .message.assistant > div,
+  :root[data-theme='dark'] .message.assistant > div,
+  .assistant-message-body {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .floating-back-home-pill {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+}
+
+/* ─── MOBILE VIEWPORT: DEDICATED SACRED CARD BOX & SCROLL CLEARANCE ─── */
+@media (max-width: 768px) {
+  .content-area {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    padding: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+    will-change: scroll-position !important;
+  }
+
+  .content-area .messages {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 74px 14px 120px 14px !important;
+    gap: 16px !important;
+    box-sizing: border-box !important;
+    touch-action: pan-y !important;
+  }
+
+  .message.assistant {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 16px 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Dedicated Sacred Card Box ONLY on Mobile Viewport */
+  .assistant-message-body {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    border-radius: 18px !important;
+    padding: 18px 20px 18px !important;
+    touch-action: pan-y !important;
+    background: #FFFDF8 !important;
+    border: 1.5px solid rgba(217, 119, 6, 0.22) !important;
+    border-top: 3px solid rgba(217, 119, 6, 0.6) !important;
+    box-shadow: 0 4px 20px -2px rgba(180, 83, 9, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+    margin: 0 0 16px 0 !important;
+    overflow: visible !important;
+  }
+
+  :root[data-theme='dark'] .assistant-message-body,
+  .spiritual-page.night .assistant-message-body {
+    background: rgba(18, 15, 29, 0.94) !important;
+    border: 1.5px solid rgba(245, 158, 11, 0.26) !important;
+    border-top: 3px solid rgba(251, 191, 36, 0.6) !important;
+    box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5), 0 0 16px rgba(245, 158, 11, 0.06) !important;
+  }
+
+  /* Floating "Back to Home" pill only for mobile */
+  .floating-back-home-pill {
+    display: inline-flex !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    position: fixed !important;
+    bottom: max(78px, calc(env(safe-area-inset-bottom, 12px) + 68px)) !important;
+    right: 12px !important;
+    z-index: 45 !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 6px 12px !important;
+    border-radius: 999px !important;
+    cursor: pointer !important;
+    border: 1.5px solid rgba(217, 119, 6, 0.28) !important;
+    background: rgba(255, 255, 255, 0.88) !important;
+    color: #78350F !important;
+    box-shadow: 0 4px 18px rgba(180, 83, 9, 0.12), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+    text-decoration: none !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    touch-action: manipulation !important;
+    transition: transform 220ms ease, box-shadow 220ms ease, background 220ms ease, border-color 220ms ease !important;
+  }
+
+  :root[data-theme='dark'] .floating-back-home-pill,
+  .spiritual-page.night .floating-back-home-pill {
+    background: rgba(24, 20, 36, 0.86) !important;
+    border: 1.5px solid rgba(251, 191, 36, 0.26) !important;
+    color: #FDE68A !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 12px rgba(245, 158, 11, 0.08) !important;
+  }
+
+  .floating-back-home-pill:active {
+    transform: scale(0.96) !important;
+  }
+
+  .floating-back-home-pill .floating-pill-icon {
+    font-size: 14px !important;
+    line-height: 1 !important;
+  }
+
+  .floating-back-home-pill .floating-pill-text {
+    display: flex !important;
+    flex-direction: column !important;
+    text-align: left !important;
+    line-height: 1.15 !important;
+  }
+
+  .floating-back-home-pill .floating-pill-text strong {
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.01em !important;
+  }
+
+  .floating-back-home-pill .floating-pill-text small {
+    font-size: 9px !important;
+    opacity: 0.78 !important;
+  }
 }
 
 @media (max-width: 600px) {
+  .content-area .messages {
+    padding: 72px 10px 120px 10px !important;
+  }
+
   .assistant-message-body {
-    padding: 15px 14px 14px !important;
+    padding: 16px 16px 14px !important;
     border-radius: 16px !important;
   }
+}
+
+/* Ensure all child elements stay perfectly contained without colliding with edges */
+.assistant-message-body .rich-text,
+.assistant-message-body .reasoning-container,
+.assistant-message-body .rich-supporting-card,
+.assistant-message-body .rich-shlok-line,
+.assistant-message-body .rich-arthat-line,
+.assistant-message-body .message-meta {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
 }
 
 .message.assistant .message-avatar,
@@ -9889,35 +10091,7 @@ select:focus-visible,
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
 }
 
-/* Content Area & Messages Clearance for Lag-Free Unhindered Scrolling */
-.content-area {
-  display: flex !important;
-  flex-direction: column !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-  flex: 1 1 0% !important;
-  min-height: 0 !important;
-  max-height: 100% !important;
-  padding: 0 !important;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-  overscroll-behavior-y: auto !important;
-  overscroll-behavior: auto !important;
-  touch-action: pan-y !important;
-}
-
-.content-area .messages {
-  display: flex !important;
-  flex-direction: column !important;
-  width: 100% !important;
-  max-width: 860px !important;
-  margin: 0 auto !important;
-  padding: 76px 20px 96px 20px !important;
-  gap: 20px !important;
-  box-sizing: border-box !important;
-  touch-action: pan-y !important;
-}
+/* Touch scrolling rules */
 
 .content-area *,
 .content-area .messages *,
@@ -9926,20 +10100,6 @@ select:focus-visible,
 .rich-text,
 .rich-text * {
   touch-action: pan-y !important;
-}
-
-@media (max-width: 768px) {
-  .content-area .messages {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 74px 10px 96px 10px !important;
-    gap: 16px !important;
-  }
-
-  .assistant-message-body {
-    padding: 16px 15px 14px !important;
-    border-radius: 16px !important;
-  }
 }
 
 /* Assistant Open Typography */
@@ -9958,46 +10118,12 @@ select:focus-visible,
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  margin-top: 8px !important;
+  margin-top: 10px !important;
   justify-content: flex-start !important;
 }
 
 .message-action.home-action {
   gap: 4px !important;
-}
-
-/* Minimal Post-Response "Return to Home" Button */
-.post-response-actions {
-  display: flex !important;
-  align-items: center !important;
-  margin-top: 6px !important;
-  margin-bottom: 2px !important;
-}
-
-.back-to-home-minimal-btn {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  padding: 6px 14px !important;
-  border-radius: 20px !important;
-  font-size: 12.5px !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-  background: rgba(217, 119, 6, 0.08) !important;
-  border: 1px solid rgba(217, 119, 6, 0.25) !important;
-  color: var(--accent-dark, #D97706) !important;
-  transition: all 0.2s ease !important;
-}
-
-.back-to-home-minimal-btn:hover {
-  background: rgba(217, 119, 6, 0.16) !important;
-  transform: translateY(-1px) !important;
-}
-
-:root[data-theme='dark'] .back-to-home-minimal-btn {
-  background: rgba(254, 200, 75, 0.1) !important;
-  border-color: rgba(254, 200, 75, 0.25) !important;
-  color: #FCD34D !important;
 }
 
 /* ═════════════════════════════════════════════════════════════════════

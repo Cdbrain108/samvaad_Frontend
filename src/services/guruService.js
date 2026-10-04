@@ -242,11 +242,11 @@ Speak in clean, serene, deeply compassionate English. Never use dry robotic lang
       repeat_last_n: 256,
       presence_penalty: 0.2,
       frequency_penalty: 0.2,
-      max_tokens: 220,
+      max_tokens: 380,
       stop: ["<end_of_turn>", "<start_of_turn>", "<|im_end|>", "</s>", "\n\nUser:", "User:", "साधक:", "\n\nसाधक:"],
       stream: true
     }),
-    signal: AbortSignal.timeout(22000)
+    signal: AbortSignal.timeout(24000)
   });
 
   if (!res.ok || !res.body) {
@@ -305,7 +305,14 @@ Speak in clean, serene, deeply compassionate English. Never use dry robotic lang
     if (loopDetected) break;
   }
 
-  return { success: Boolean(fullContent.trim()), content: fullContent.trim() };
+  const finalDuration = Math.max(1, Number(((Date.now() - startTime) / 1000).toFixed(1)));
+  return {
+    success: Boolean(fullContent.trim()),
+    content: fullContent.trim(),
+    thought: currentThought,
+    thinkingDuration: finalDuration,
+    scripture
+  };
 }
 
 /**
@@ -431,7 +438,27 @@ export async function streamGuruResponse(
     });
   }
 
-  // 4. Try Backend Streaming API (/api/generate/stream)
+  // 4. In Deep Mode: Query Dedicated Oracle Cloud Fine-Tuned Server Directly
+  if (inferenceMode === 'deep') {
+    try {
+      const oracleRes = await streamDirectFromOracle(
+        userMessage,
+        conversationHistory,
+        scripture,
+        currentThought,
+        startTime,
+        isEnglish,
+        onChunk
+      );
+      if (oracleRes && oracleRes.content && oracleRes.content.trim()) {
+        return oracleRes;
+      }
+    } catch (oracleErr) {
+      console.warn('[Deep Mode] Direct Oracle Cloud stream failed, trying backend / Groq fallback:', oracleErr.message);
+    }
+  }
+
+  // 4.5 Fast Mode or Deep Fallback: Query Backend Streaming API (/api/generate/stream)
   const streamEndpoint = `${API_BASE_URL}/api/generate/stream`;
   let streamedContent = '';
   let backendSuccess = false;
@@ -513,33 +540,10 @@ export async function streamGuruResponse(
     console.warn('[Backend Stream] Server unreachable, trying direct Oracle Cloud stream:', err.message);
   }
 
-  // 5. Direct Oracle Cloud Streaming (if backend is offline, capped strictly within 20s window)
-  const remainingTime = 20000 - (Date.now() - startTime);
-  if ((!backendSuccess || !streamedContent.trim()) && remainingTime > 3000) {
-    try {
-      const oracleRes = await streamDirectFromOracle(
-        userMessage,
-        conversationHistory,
-        scripture,
-        currentThought,
-        startTime,
-        isEnglish,
-        onChunk
-      );
-      if (oracleRes.success && oracleRes.content) {
-        return {
-          content: oracleRes.content,
-          thought: currentThought,
-          thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
-          scripture
-        };
-      }
-    } catch (oracleErr) {
-      console.warn('[Direct Oracle Stream] Error or timeout:', oracleErr.message);
-    }
-  }
-
-  // 6. Graceful Synthesis Fallback (if remote servers unreachable within 20s)
+  // 5. Graceful Synthesis Fallback (if backend is unreachable — show local Radhe Radhe response)
+  // NOTE: Direct Oracle Cloud streaming is intentionally removed from the frontend.
+  // Oracle output should ONLY enter the main chat after Groq polishing in the backend.
+  // Raw Oracle tokens must never stream directly into the chat response from the frontend.
   if (!backendSuccess || !streamedContent.trim()) {
     streamedContent = generateLocalDiscourseFallback(userMessage, seekerName, scripture, false, isEnglish);
     

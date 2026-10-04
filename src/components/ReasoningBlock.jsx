@@ -60,7 +60,9 @@ export default function ReasoningBlock({
   isEnglish = false,
   needsScriptureRag = undefined,
 }) {
-  const [isOpen, setIsOpen] = useState(Boolean(isThinking));
+  // On mobile, default to collapsed. On desktop, open during active thinking.
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const [isOpen, setIsOpen] = useState(!isMobile && Boolean(isThinking));
   const [isExpanded, setIsExpanded] = useState(false);
   const [isScriptureOpen, setIsScriptureOpen] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -91,7 +93,10 @@ export default function ReasoningBlock({
   useEffect(() => {
     let interval = null;
     if (isThinking) {
-      setIsOpen(true);
+      // Only auto-expand on desktop; mobile stays collapsed unless user taps
+      if (window.innerWidth > 768) {
+        setIsOpen(true);
+      }
       if (!startTimeRef.current) {
         startTimeRef.current = Date.now();
       }

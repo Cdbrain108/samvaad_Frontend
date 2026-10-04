@@ -336,6 +336,14 @@ export default function App() {
     return true; // Night theme default for desktop
   });
 
+  const [isMobileScreen, setIsMobileScreen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth <= 768 : false));
+
+  useEffect(() => {
+    const handleResize = () => setIsMobileScreen(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const toggleTheme = useCallback(() => {
     setDarkMode((current) => {
       const next = !current;
@@ -595,9 +603,10 @@ export default function App() {
   // Auto-scroll: ONLY while actively streaming, and ONLY if user is already at the bottom
   useEffect(() => {
     if (!isStreaming || !contentAreaRef.current) return;
+    // NEVER force user back down if they intentionally scrolled up to read previous messages
+    if (userScrolledUpRef.current) return;
     const el = contentAreaRef.current;
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    // If user has scrolled up away from bottom, NEVER force them down!
     if (distanceFromBottom > 40) return;
 
     el.scrollTop = el.scrollHeight;
@@ -1338,7 +1347,7 @@ export default function App() {
         </header>
 
         <div
-          className={`content-area ${voiceModeOpen ? 'voice-mode-active' : ''}`}
+          className={`content-area ${voiceModeOpen ? 'voice-mode-active' : ''}${messages.length > 0 ? ' has-messages' : ''}`}
           ref={contentAreaRef}
           onScroll={handleContentScroll}
         >
@@ -1467,21 +1476,6 @@ export default function App() {
                           );
                         })()}
                       </div>
-
-                      {/* Minimal post-response return button */}
-                      {isLastAssistant && !isStreaming && !message.isThinking && (
-                        <div className="post-response-actions">
-                          <button
-                            type="button"
-                            className="back-to-home-minimal-btn"
-                            onClick={() => setView('landing')}
-                            title="Return to Home · मुख्य पृष्ठ पर वापस जाएं"
-                          >
-                            <Icon name="home" size={14} />
-                            <span>Return to Home · मुख्य पृष्ठ</span>
-                          </button>
-                        </div>
-                      )}
                     </div>
                   </motion.article>
                 );
@@ -1536,6 +1530,23 @@ export default function App() {
             title="Scroll to latest message"
           >
             <span aria-hidden="true">↓</span>
+          </button>
+        )}
+
+        {/* Floating Quick-Access Pill to Return to Home - strictly for Mobile UI */}
+        {isMobileScreen && (
+          <button
+            className="floating-back-home-pill"
+            onClick={() => setView('landing')}
+            aria-label="Return to Home · मुख्य पृष्ठ पर वापस जाएं"
+            title="Return to Home · मुख्य पृष्ठ पर वापस जाएं"
+            type="button"
+          >
+            <span className="floating-pill-icon" aria-hidden="true">🏠</span>
+            <span className="floating-pill-text">
+              <strong>Home</strong>
+              <small>मुख्य पृष्ठ →</small>
+            </span>
           </button>
         )}
 

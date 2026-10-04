@@ -78,8 +78,9 @@ export function categorizeIntroQuery(query) {
 
   // 4. Identity questions ("Who are you") -> ONLY tell what Samvaad project is and what it is for
   if (
-    /\b(?:who\s*are\s*you|who\s*r\s*u|what\s*are\s*you|tell\s*me\s*about\s*yourself|introduce\s*yourself|your\s*name|what\s*is\s*your\s*name)\b/i.test(clean) ||
-    /(?:आप\s*कौन\s*हैं|तुम\s*कौन\s*हो|अपना\s*परिचय|अपने\s*बारे\s*में\s*बताओ|तुम्हारा\s*नाम\s*क्या\s*है|आप\s*क्या\s*हो)/i.test(clean)
+    /\b(?:who\s*(?:are|r)\s*(?:you|u)|what\s*(?:are|r)\s*(?:you|u)|who\s*you\s*are|who\s*are\s*u|who\s*u\s*are|who\s*is\s*this|who\s*am\s*i\s*talking\s*to|who\s*is\s*speaking|are\s*you\s*(?:an?\s*)?(?:ai|bot|premanand|guru|maharaj)|tell\s*me\s*about\s*(?:yourself|you)|introduce\s*yourself|your\s*name|what\s*is\s*your\s*name|who\s*you\b)/i.test(clean) ||
+    /(?:आप\s*कौन\s*(?:हैं|हो)?|तुम\s*कौन\s*(?:हो|हैं)?|तू\s*कौन\s*है|कौन\s*हो\s*तुम|कौन\s*हैं\s*आप|कौन\s*हो\s*भाई|अपना\s*परिचय|अपने\s*बारे\s*में\s*बताओ|तुम्हारा\s*नाम|आपका\s*नाम|आप\s*क्या\s*हो|क्या\s*नाम\s*है)/i.test(clean) ||
+    /\b(?:aap\s*k[ao]n\s*h[ao]|ap\s*k[ao]n\s*h[ao]|k[ao]n\s*h[ao]\s*aap|k[ao]n\s*h[ao]\s*tum|tum\s*k[ao]n\s*h[ao]|apna\s*parichay|aap\s*kya\s*ho|ap\s*kya\s*ho|naam\s*kya\s*hai|kya\s*naam\s*hai)\b/i.test(clean)
   ) {
     return 'identity';
   }
