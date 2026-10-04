@@ -8983,3 +8983,319 @@ select:focus-visible,
   }
 }
 
+/* ==========================================================================
+   CHAT VIEW: PERFECT ALIGNMENT OF RECOMMENDATIONS & CHATBOX COMPOSER
+   Both Recommendations & Chatbox Composer share the exact same 800px column
+   with identical left/right margins and flush alignment on all viewports.
+   ========================================================================== */
+
+.content-area {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 36px 20px 24px 20px !important;
+  overflow-y: auto !important;
+}
+
+.content-area:has(.welcome) {
+  align-items: center !important;
+}
+
+/* Welcome Container — Matches Composer Width (800px) */
+.welcome {
+  width: 100% !important;
+  max-width: 800px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+
+.welcome-copy {
+  width: 100% !important;
+  max-width: 800px !important;
+  margin: 0 0 24px 0 !important;
+  padding: 0 !important;
+  text-align: left !important;
+}
+
+.welcome-kicker {
+  display: inline-block !important;
+  margin-bottom: 10px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #B4560A !important;
+}
+
+:root[data-theme='dark'] .welcome-kicker {
+  color: #FCD34D !important;
+}
+
+.welcome h1 {
+  margin: 0 0 10px 0 !important;
+  font-size: clamp(30px, 3.6vw, 42px) !important;
+  font-weight: 600 !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.welcome-copy p {
+  margin: 0 !important;
+  max-width: 680px !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  color: var(--muted, #6B7280) !important;
+}
+
+:root[data-theme='dark'] .welcome-copy p {
+  color: #94A3B8 !important;
+}
+
+/* Recommendations Grid — Perfectly flush with the 800px Chatbox */
+.suggestion-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  max-width: 800px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  align-items: stretch !important;
+}
+
+/* Individual Recommendation Card */
+.suggestion-card {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 16px 18px !important;
+  min-height: 82px !important;
+  height: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border-radius: 18px !important;
+  border: 1.5px solid rgba(217, 119, 6, 0.22) !important;
+  background: color-mix(in srgb, var(--surface-solid, #FFFDF8) 92%, transparent) !important;
+  box-shadow: 0 4px 16px rgba(120, 70, 10, 0.06) !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease,
+              box-shadow 0.2s ease,
+              background 0.2s ease !important;
+}
+
+:root[data-theme='dark'] .suggestion-card {
+  background: rgba(14, 27, 49, 0.82) !important;
+  border: 1.5px solid rgba(254, 200, 75, 0.22) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
+}
+
+.suggestion-card:hover {
+  transform: translateY(-2px) scale(1.01) !important;
+  border-color: rgba(245, 158, 11, 0.6) !important;
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.16) !important;
+}
+
+:root[data-theme='dark'] .suggestion-card:hover {
+  border-color: rgba(254, 200, 75, 0.6) !important;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.55), 0 0 14px rgba(245, 158, 11, 0.15) !important;
+}
+
+.suggestion-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 44px !important;
+  height: 44px !important;
+  flex: 0 0 44px !important;
+  border-radius: 14px !important;
+  background: rgba(254, 200, 75, 0.16) !important;
+  color: #B4560A !important;
+  transition: transform 0.2s ease !important;
+}
+
+:root[data-theme='dark'] .suggestion-icon {
+  background: rgba(254, 200, 75, 0.12) !important;
+  color: #FCD34D !important;
+}
+
+.suggestion-card:hover .suggestion-icon {
+  transform: scale(1.08) !important;
+}
+
+.suggestion-copy {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  text-align: left !important;
+}
+
+.suggestion-copy small {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #D97706 !important;
+  line-height: 1.2 !important;
+}
+
+:root[data-theme='dark'] .suggestion-copy small {
+  color: #FCD34D !important;
+}
+
+.suggestion-copy strong {
+  font-size: 13.5px !important;
+  line-height: 1.38 !important;
+  font-weight: 600 !important;
+  color: #2D1802 !important;
+  word-break: break-word !important;
+}
+
+:root[data-theme='dark'] .suggestion-copy strong {
+  color: #F3F4F6 !important;
+}
+
+.card-arrow {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-left: auto !important;
+  flex: 0 0 auto !important;
+  font-size: 14px !important;
+  color: #D97706 !important;
+  opacity: 0.6 !important;
+  transition: transform 0.2s ease, opacity 0.2s ease !important;
+}
+
+:root[data-theme='dark'] .card-arrow {
+  color: #FCD34D !important;
+}
+
+.suggestion-card:hover .card-arrow {
+  transform: translateX(3px) !important;
+  opacity: 1 !important;
+}
+
+/* Chatbox Composer Wrap — Perfectly shares the 800px column */
+.composer-wrap {
+  width: 100% !important;
+  max-width: 800px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+  padding: 0 20px 20px 20px !important;
+}
+
+.composer {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.content-area .messages {
+  width: 100% !important;
+  max-width: 800px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+}
+
+/* Mobile Alignment (Phones & Small Tablets) */
+@media (max-width: 768px) {
+  .content-area {
+    padding: 14px 14px calc(140px + env(safe-area-inset-bottom, 12px)) 14px !important;
+  }
+
+  .content-area:has(.welcome) {
+    padding-top: 10px !important;
+    padding-bottom: calc(140px + env(safe-area-inset-bottom, 12px)) !important;
+  }
+
+  .welcome {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+  }
+
+  .welcome-copy {
+    text-align: center !important;
+    margin-bottom: 12px !important;
+    padding: 0 !important;
+  }
+
+  .welcome-kicker {
+    font-size: 10px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .welcome h1 {
+    font-size: clamp(20px, 5.2vw, 24px) !important;
+    line-height: 1.22 !important;
+    margin: 0 0 4px !important;
+  }
+
+  .welcome-copy p {
+    font-size: 11.5px !important;
+    line-height: 1.4 !important;
+    max-width: 320px !important;
+    margin: 0 auto !important;
+  }
+
+  .suggestion-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 8px !important;
+  }
+
+  .suggestion-card {
+    min-height: auto !important;
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .suggestion-icon {
+    width: 36px !important;
+    height: 36px !important;
+    flex: 0 0 36px !important;
+    border-radius: 10px !important;
+  }
+
+  .suggestion-copy small {
+    font-size: 9px !important;
+  }
+
+  .suggestion-copy strong {
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+  }
+
+  .composer-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    padding: 8px 14px max(10px, env(safe-area-inset-bottom, 8px)) 14px !important;
+  }
+
+  .composer {
+    width: 100% !important;
+  }
+}
+
+

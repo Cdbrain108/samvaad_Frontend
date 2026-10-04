@@ -54,7 +54,9 @@ export default function Welcome({ suggestions, onSelectPrompt }) {
               <small>{suggestion.eyebrow}</small>
               <strong>{suggestion.title}</strong>
             </span>
-            <span className="card-arrow" aria-hidden="true">-&gt;</span>
+            <span className="card-arrow" aria-hidden="true">
+              <Icon name="arrow-right" size={16} />
+            </span>
           </motion.button>
         ))}
       </motion.div>
