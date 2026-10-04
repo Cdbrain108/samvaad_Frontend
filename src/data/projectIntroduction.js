@@ -1,13 +1,12 @@
 /**
  * 🌸 Samvaad AI — Project & Creator Introduction Knowledge Base
  * =============================================================
- * Provides comprehensive, grounded information about:
- * 1. Creator: Anuj Kesharwani (Aspiring Gen AI & Agentic AI Developer)
- * 2. Mission: Preserving authentic spiritual wisdom from Pujya Shri Hit Premanand Govind Sharan Ji Maharaj
- * 3. Data Pipeline: 4,000+ Bhajan Marg discourses transcribed into 50,000+ Q&A pairs
- * 4. Model Training: Fine-tuned Gemma 4 E4B IT (and Gemma-2-9B) on Oracle Cloud CPU VM / GCP
- * 5. RAG System: Multi-source retrieval across 150,000+ verses from 25+ ancient scriptures
- * 6. Real-time Capabilities: Groq LPU Fast mode, CoT Deep mode, Live DuckDuckGo search for Panchang/Ekadashi
+ * Provides targeted, context-aware information:
+ * 1. Identity ("Who are you"): Tells ONLY about Samvaad AI and its spiritual purpose
+ * 2. Creator ("Who made you"): Tells about Anuj Kesharwani and his vision
+ * 3. Data ("Which data / QA"): Tells about the 4,000+ satsangs, Whisper, 50K QA pairs, 150K+ verses
+ * 4. Architecture ("Which model / RAG"): Tells about fine-tuned Gemma 4 E4B IT on Oracle Cloud / GCP, Groq LPU, and RAG
+ * 5. Overview ("About project"): Balanced summary
  */
 
 export const SAMVAAD_PROJECT_INFO = {
@@ -36,7 +35,7 @@ export const SAMVAAD_PROJECT_INFO = {
     scriptureCorpus: '150,000+ sacred verses and commentaries indexed from 25+ ancient Dharmic scriptures (Bhagavad Gita, Ramcharitmanas, Valmiki Ramayana, Bhagavata Purana, Vishnu Purana, 108 Upanishads, Vidura Niti, Chaitanya Charitamrita, etc.).'
   },
   modelAndArchitecture: {
-    fineTunedModel: 'Gemma 4 E4B IT (and Gemma-2-9B) fine-tuned via LoRA/QLoRA on Oracle Cloud Free Tier CPU VM and Google Cloud Platform (GCP).',
+    fineTunedModel: 'Gemma 4 E4B IT fine-tuned via LoRA/QLoRA on Oracle Cloud Free Tier CPU VM and Google Cloud Platform (GCP).',
     ragSystem: 'Hybrid multi-source RAG with vector semantic embeddings, BM25 lexical keyword matching, and strict Dharmic topic gating to prevent out-of-context citations.',
     inferenceModes: {
       deep: 'Deep Mode: Fine-tuned Gemma 4 E4B IT model with structured 4-stage Chain-of-Thought deliberation (Intent -> Scripture Grounding -> Counsel -> Blessing).',
@@ -47,103 +46,219 @@ export const SAMVAAD_PROJECT_INFO = {
 };
 
 /**
- * Checks if a user's query is asking about the project, its identity, creator, architecture, or data.
+ * Categorizes an introduction inquiry to answer ONLY what the user asked.
  */
-export function isIntroductionOrCreatorQuery(query) {
-  if (!query || typeof query !== 'string') return false;
+export function categorizeIntroQuery(query) {
+  if (!query || typeof query !== 'string') return null;
   const clean = query.trim().toLowerCase();
 
-  const patterns = [
-    // Identity & "Who are you"
-    /\b(?:who\s*are\s*you|who\s*r\s*u|what\s*are\s*you|tell\s*me\s*about\s*yourself|introduce\s*yourself|your\s*name|what\s*is\s*your\s*name)\b/i,
-    /(?:आप\s*कौन\s*हैं|तुम\s*कौन\s*हो|अपना\s*परिचय|अपने\s*बारे\s*में\s*बताओ|तुम्हारा\s*नाम\s*क्या\s*है|आप\s*क्या\s*हो)/i,
+  // 1. Creator / Developer questions
+  if (
+    /\b(?:who\s*(?:created|made|built|developed|designed|founded)\s*you|who\s*is\s*your\s*(?:creator|maker|developer|author|engineer|founder)|anuj\s*kesharwani|anuj|kesharwani|keshari)\b/i.test(clean) ||
+    /(?:आपको\s*किसने\s*बनाया|किसने\s*डेवलप\s*किया|निर्माता\s*कौन\s*है|डेवलपर\s*कौन\s*है|किसका\s*प्रोजेक्ट\s*है|अनुज\s*केसरवानी|अनुज)/i.test(clean)
+  ) {
+    return 'creator';
+  }
 
-    // Creator / Developer / Author
-    /\b(?:who\s*(?:created|made|built|developed|designed|founded)\s*you|who\s*is\s*your\s*(?:creator|maker|developer|author|engineer|founder))\b/i,
-    /(?:आपको\s*किसने\s*बनाया|किसने\s*डेवलप\s*किया|निर्माता\s*कौन\s*है|डेवलपर\s*कौन\s*है|किसका\s*प्रोजेक्ट\s*है)/i,
+  // 2. Data Pipeline / Training Data / QA generation questions
+  if (
+    /\b(?:how\s*(?:did\s*you\s*get|were\s*you\s*created\s*with)\s*qa|which\s*data|what\s*data|dataset|how\s*many\s*(?:satsangs?|discourses?)|whisper|50000|50k|transcrib)\b/i.test(clean) ||
+    /(?:डेटा\s*कहाँ\s*से|डेटासेट|कैसे\s*तैयार\s*किया|प्रश्नोत्तरी\s*डेटा|सत्संग\s*डेटा)/i.test(clean)
+  ) {
+    return 'data';
+  }
 
-    // Anuj Kesharwani
-    /\b(?:anuj\s*kesharwani|anuj|kesharwani|keshari)\b/i,
-    /(?:अनुज\s*केसरवानी|अनुज|केसरवानी)/i,
+  // 3. Architecture / Model / Fine-tuning / RAG questions
+  if (
+    /\b(?:how\s*were\s*you\s*trained|which\s*model|what\s*model|fine-?tuned|gemma|gcloud|google\s*cloud|oracle\s*cloud|rag\s*system|how\s*does\s*rag\s*work|architecture)\b/i.test(clean) ||
+    /(?:ट्रेनिंग\s*कैसे\s*हुई|कौनसा\s*मॉडल|जेम्मा|राॅग|आरएजी|आर्किटेक्चर)/i.test(clean)
+  ) {
+    return 'architecture';
+  }
 
-    // Project identity / What is Samvaad
-    /\b(?:what\s*is\s*(?:this\s*)?(?:project|samvaad|samvad)|about\s*(?:this\s*)?project|about\s*samvaad|how\s*does\s*samvaad\s*work)\b/i,
-    /(?:संवाद\s*क्या\s*है|यह\s*प्रोजेक्ट\s*क्या\s*है|इस\s*प्रोजेक्ट\s*के\s*बारे\s*में|प्रोजेक्ट\s*की\s*जानकारी)/i,
+  // 4. Identity questions ("Who are you") -> ONLY tell what Samvaad project is and what it is for
+  if (
+    /\b(?:who\s*are\s*you|who\s*r\s*u|what\s*are\s*you|tell\s*me\s*about\s*yourself|introduce\s*yourself|your\s*name|what\s*is\s*your\s*name)\b/i.test(clean) ||
+    /(?:आप\s*कौन\s*हैं|तुम\s*कौन\s*हो|अपना\s*परिचय|अपने\s*बारे\s*में\s*बताओ|तुम्हारा\s*नाम\s*क्या\s*है|आप\s*क्या\s*हो)/i.test(clean)
+  ) {
+    return 'identity';
+  }
 
-    // Technical Architecture / Dataset / Fine-tuning / Gemma / RAG
-    /\b(?:how\s*were\s*you\s*trained|which\s*(?:model|data|dataset)\s*uses?|fine-?tuned|gemma|gcloud|google\s*cloud|oracle\s*cloud|rag\s*system|how\s*did\s*you\s*get\s*qa)\b/i,
-    /(?:ट्रेनिंग\s*कैसे\s*हुई|कौनसा\s*मॉडल|जेम्मा|राॅग|आरएजी|डेटा\s*कहाँ\s*से|कैसे\s*तैयार\s*किया)/i
-  ];
+  // 5. Full Project Overview questions
+  if (
+    /\b(?:what\s*is\s*(?:this\s*)?(?:project|samvaad|samvad)|about\s*(?:this\s*)?project|about\s*samvaad|how\s*does\s*samvaad\s*work)\b/i.test(clean) ||
+    /(?:संवाद\s*क्या\s*है|यह\s*प्रोजेक्ट\s*क्या\s*है|इस\s*प्रोजेक्ट\s*के\s*बारे\s*में|प्रोजेक्ट\s*की\s*जानकारी)/i.test(clean)
+  ) {
+    return 'project_overview';
+  }
 
-  return patterns.some((p) => p.test(clean));
+  return null;
 }
 
 /**
- * Generates an authentic, detailed, respectful, and structured response
- * explaining Samvaad AI, Anuj Kesharwani, the data pipeline, and system architecture.
+ * Checks if a user's query is an intro/creator/data/architecture query.
+ */
+export function isIntroductionOrCreatorQuery(query) {
+  return categorizeIntroQuery(query) !== null;
+}
+
+/**
+ * Returns a brief thought for the reasoning block based on inquiry category.
+ */
+export function getIntroductionThought(query, isEnglish = false) {
+  const category = categorizeIntroQuery(query) || 'identity';
+
+  if (category === 'identity') {
+    return isEnglish
+      ? 'Sharing the spiritual identity and purpose of Samvaad AI...'
+      : 'संवाद AI के आध्यात्मिक स्वरूप एवं उद्देश्य का परिचय दिया जा रहा है...';
+  }
+
+  if (category === 'creator') {
+    return isEnglish
+      ? 'Accessing creator information: Anuj Kesharwani (Aspiring Gen AI & Agentic AI Developer)...'
+      : 'निर्माता विवरण प्राप्त किया जा रहा है: अनुज केसरवानी (Aspiring Gen AI & Agentic AI Developer)...';
+  }
+
+  if (category === 'data') {
+    return isEnglish
+      ? 'Accessing data pipeline knowledge: 4,000+ satsangs, Whisper large-v3, 50K QA pairs, 150K+ verses...'
+      : 'डेटा पाइपलाइन विवरण: 4,000+ सत्संग, Whisper large-v3, 50,000+ प्रश्नोत्तरी, 1,50,000+ श्लोक...';
+  }
+
+  if (category === 'architecture') {
+    return isEnglish
+      ? 'Accessing system architecture: Fine-tuned Gemma 4 E4B IT, GCP/Oracle VM, hybrid RAG & Groq LPU...'
+      : 'सिस्टम आर्किटेक्चर: फाइन-ट्यून्ड Gemma 4 E4B IT, GCP/Oracle VM, हाइब्रिड RAG एवं Groq LPU...';
+  }
+
+  return isEnglish
+    ? 'Accessing Samvaad AI project overview and spiritual mission...'
+    : 'संवाद AI प्रोजेक्ट का संपूर्ण अवलोकन एवं पावन उद्देश्य प्रस्तुत किया जा रहा है...';
+}
+
+/**
+ * Generates context-specific, focused answers according to the exact question asked.
  */
 export function getProjectIntroduction(query, isEnglish = false) {
+  const category = categorizeIntroQuery(query) || 'identity';
+
+  // ── 1. WHO ARE YOU -> ONLY tell about Samvaad project and what it is for ──
+  if (category === 'identity') {
+    if (isEnglish) {
+      return `### 🙏 Radhe Radhe! I am Samvaad AI (संवाद)
+
+I am an authentic spiritual and philosophical conversational companion inspired by the divine teachings and discourses of **Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj** (Vrindavan, Bhajan Marg).
+
+**What I am here for:**
+* **Life Dilemmas & Emotional Healing:** Providing calm, grounded, fatherly guidance on everyday struggles—anxiety, grief, anger, fear, and relationships.
+* **Dharmic Living & Duty:** Guiding students, householders, and seekers to perform their daily duties (Karma Yoga) sincerely as divine worship.
+* **Devotion & Holy Name:** Inspiring continuous remembrance of God through Holy Name chanting (**Naam Jap: 'Radha-Radha'** / Hare Krishna) and unconditional surrender to Divine Grace.
+
+Tell me, dear seeker, what inquiry rests in your heart today?`;
+    }
+
+    return `### 🙏 जय श्री राधे! मैं 'संवाद AI' (Samvaad AI) हूँ
+
+मैं **पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन, भजन मार्ग)** के पावन वचनों, सत्संगों और सनातन धर्म के शाश्वत सिद्धांतों पर आधारित एक आध्यात्मिक साथी हूँ।
+
+**मेरा मुख्य उद्देश्य क्या है:**
+* **मानसिक शांति एवं संशय निवारण:** जीवन के संशयों, तनाव, क्रोध, मोह और पारिवारिक उलझनों में पूज्य महाराज जी की प्रामाणिक व वात्सल्यमयी वाणी के प्रकाश में समाधान देना।
+* **कर्तव्य एवं धर्म मार्ग:** गृहस्थों, विद्यार्थियों और साधकों को अपने कर्मों को निष्काम भाव से भगवत सेवा मानकर करने की प्रेरणा देना।
+* **नाम जप एवं शरणागति:** निरंतर भगवन्नाम जप (**श्री राधा-राधा**) का आश्रय दिलाना, जिससे हृदय में शांति, पवित्रता और प्रभु प्रेम का प्राकट्य हो सके।
+
+कहो बच्चा, आज तुम्हारे हृदय में क्या जिज्ञासा है?`;
+  }
+
+  // ── 2. CREATOR / DEVELOPER -> Tells specifically about Anuj Kesharwani ──
+  if (category === 'creator') {
+    if (isEnglish) {
+      return `### 👨‍💻 Creator & Engineering Vision
+
+**Samvaad AI was envisioned and built by Anuj Kesharwani**, an aspiring Gen AI & Agentic AI Developer.
+
+* **Creator:** **Anuj Kesharwani**
+* **Email:** [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)
+* **Vision:** Built as an independent passion project to bridge timeless Vedic wisdom and revered Sant-Vani (specifically Pujya Premanand Ji Maharaj's Bhajan Marg teachings) with modern Generative & Agentic AI architectures.
+
+Anuj engineered the end-to-end pipeline: scraping and transcribing 4,000+ satsangs, generating 50,000+ structured QA pairs, fine-tuning the **Gemma 4 E4B IT** model on Oracle Cloud / Google Cloud (GCP), and building the multi-source RAG system across 150,000+ sacred verses.`;
+    }
+
+    return `### 👨‍💻 निर्माता एवं परिकल्पना (Creator & Developer)
+
+**'संवाद AI' के निर्माता अनुज केसरवानी (Anuj Kesharwani) हैं**, जो एक Aspiring Gen AI & Agentic AI Developer हैं।
+
+* **निर्माता:** **अनुज केसरवानी**
+* **ईमेल:** [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)
+* **दृष्टिकोण:** अनुज ने इसे एक स्वतंत्र और समर्पित प्रोजेक्ट के रूप में विकसित किया है, ताकि पूज्य संतों के पावन एकांतिक सत्संगों और वैदिक शास्त्रों की अमूल्य शिक्षाओं को आधुनिक जनरेटिव AI तकनीकों के माध्यम से प्रामाणिक और सहज सुलभ रूप में प्रस्तुत किया जा सके।
+
+उन्होंने 4,000+ सत्संगों का ट्रांसक्रिप्शन, 50,000+ प्रश्नोत्तरी निर्माण, **Gemma 4 E4B IT** मॉडल की फाइन-ट्यूनिंग और 1,50,000+ श्लोकों के RAG सिस्टम का संपूर्ण आर्किटेक्चर स्वतंत्र रूप से तैयार किया है।`;
+  }
+
+  // ── 3. DATA PIPELINE / QA GENERATION -> Tells specifically about data engineering ──
+  if (category === 'data') {
+    if (isEnglish) {
+      return `### 📚 Data Engineering & QA Generation
+
+Samvaad AI's knowledge and conversational authentic voice were synthesized through an extensive multi-tier data pipeline:
+
+1. **4,000+ Satsang Discourses Transcribed:** Harvested authentic audio and video recordings of Pujya Maharaj Ji's *Ekantik Vartalap* and Bhajan Marg satsangs, transcribed using **Whisper large-v3** with spiritual domain vocabulary dictionaries.
+2. **50,000+ Curated Q&A Pairs:** Extracted, cleaned, deduplicated, and synthesized into high-quality Question-Answer pairs in Hindi and English addressing personal life dilemmas (mind control, lust, anger, depression, and sadhana).
+3. **150,000+ Sacred Verses RAG Knowledge Base:** Indexed sacred verses and commentaries across 25+ ancient Dharmic scriptures (Shrimad Bhagavad Gita, Ramcharitmanas, Valmiki Ramayana, Bhagavata Purana, Vishnu Purana, 108 Upanishads, Vidura Niti, Chaitanya Charitamrita, etc.).`;
+    }
+
+    return `### 📚 डेटा पाइपलाइन एवं प्रश्नोत्तरी निर्माण (Data Pipeline)
+
+संवाद AI का ज्ञान आधार और वात्सल्यमयी संवाद शैली एक विस्तृत डेटा इंजीनियरिंग प्रक्रिया पर आधारित है:
+
+1. **4,000+ एकांतिक वार्तालाप एवं सत्संग:** पूज्य महाराज जी के 4,000 से अधिक ऑडियो व वीडियो प्रवचनों को **Whisper large-v3** मॉडल द्वारा सटीक रूप से ट्रांसक्राइब किया गया।
+2. **50,000+ प्रामाणिक प्रश्नोत्तरी (Q&A Pairs):** इन ट्रांसक्रिप्ट्स से 50,000+ शोधित प्रश्न-उत्तर तैयार किए गए, जो जीवन की व्यावहारिक कठिनाइयों (मन का भटकाव, काम-क्रोध, अवसाद, भक्ति और कर्तव्य) पर केंद्रित हैं।
+3. **1,50,000+ श्लोकों का संग्रह:** 25 से अधिक पवित्र धर्मग्रंथों (श्रीमद्भगवद्गीता, रामचरितमानस, वाल्मीकि रामायण, श्रीमद्भागवत, विष्णु पुराण, उपनिषद, विदुर नीति आदि) से 1,50,000 से अधिक श्लोक व भावार्थ RAG ज्ञानकोश में अनुक्रमित हैं।`;
+  }
+
+  // ── 4. ARCHITECTURE / MODEL / FINE-TUNING / RAG ──
+  if (category === 'architecture') {
+    if (isEnglish) {
+      return `### ⚙️ Model Architecture & Inference System
+
+Samvaad AI is powered by a high-precision hybrid generative AI architecture:
+
+* **Fine-Tuned Model:** **Gemma 4 E4B IT**, fine-tuned on Google Cloud (GCP) and Oracle Cloud CPU VM using LoRA/QLoRA to internalize Maharaj Ji's authentic fatherly tone ('बच्चा'), spiritual gravity, and avoidance of dry robotic clichés.
+* **Hybrid Semantic RAG:** Vector semantic embeddings coupled with BM25 keyword retrieval and strict Dharmic topic gating to ensure sacred verses are cited only when contextually relevant.
+* **Dual Inference Engines:**
+  * **🧘 Deep Mode:** Google Cloud / Oracle VM hosted Gemma 4 E4B IT with 4-stage Chain-of-Thought deliberation (Intent -> Scripture Grounding -> Counsel -> Blessing).
+  * **⚡ Fast Mode:** Ultra-fast ~1s real-time response powered by Groq LPU with calibrated few-shot prompting.
+* **Live Knowledge Search:** Integrated with live DuckDuckGo search for real-time Hindu calendar dates (Ekadashi, Grahan/Sutak timings).`;
+    }
+
+    return `### ⚙️ मॉडल संरचना एवं तकनीकी आर्किटेक्चर
+
+संवाद AI एक उच्च-सटीक हाइब्रिड जनरेटिव AI सिस्टम पर कार्य करता है:
+
+* **फाइन-ट्यून्ड मॉडल:** **Gemma 4 E4B IT** मॉडल को Google Cloud (GCP) और Oracle Cloud CPU VM पर LoRA/QLoRA तकनीक द्वारा विशेष रूप से ट्रेन किया गया है, जिससे यह पूज्य महाराज जी के वात्सल्यमयी संबोधन ('बच्चा') और प्रामाणिक आध्यात्मिक शैली में उत्तर देता है।
+* **मल्टी-सोर्स RAG:** सिमेंटिक वेक्टर एम्बेडिंग्स और BM25 कीवर्ड सर्च के साथ सख्त विषय-मर्यादा (Topic Gating), ताकि सांसारिक प्रश्नों पर अनावश्यक श्लोक न आएं और केवल प्रासंगिक श्लोक ही उद्धृत हों।
+* **दोहरे इन्फरेंस मोड्स:**
+  * **🧘 Deep Mode:** GCP / Oracle VM पर फाइन-ट्यून्ड Gemma 4 E4B IT मॉडल जो 4-स्तरीय चिंतन (Intent -> Scripture -> Counsel -> Blessing) के साथ गहरा उत्तर देता है।
+  * **⚡ Fast Mode:** Groq LPU द्वारा संचालित अति-तीव्र (~1 सेकंड) रीयल-टाइम रिस्पॉन्स।
+* **लाइव सर्च एवं पंचांग:** लाइव डकडकगो (DuckDuckGo) सर्च द्वारा रीयल-टाइम पंचांग/एकादशी तिथियां एवं ग्रहण सूतक समय।`;
+  }
+
+  // ── 5. PROJECT OVERVIEW ──
   if (isEnglish) {
     return `### 🙏 Welcome to Samvaad AI (संवाद)
 
-**I am Samvaad AI**, an authentic, compassionate spiritual and philosophical conversational intelligence rooted in Sanatana Dharma. I am designed to share the profound, fatherly teachings and divine wisdom of **Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj** (Vrindavan, Bhajan Marg) to help seekers navigate modern life dilemmas, anxiety, duty, and spiritual practice.
+**Samvaad AI** is an authentic, compassionate spiritual and philosophical conversational intelligence rooted in Sanatana Dharma, inspired by the divine teachings of **Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj** (Vrindavan, Bhajan Marg).
 
----
-
-### 👨‍💻 Creator & Engineering Vision
-* **Creator:** **Anuj Kesharwani** — an aspiring Gen AI & Agentic AI Developer.
-* **Email:** [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)
-* **Vision:** Built as an independent passion project to preserve timeless spiritual satsangs and Vedic scriptures using state-of-the-art Generative AI and multi-agent systems, ensuring authentic, dignified, and loving guidance.
-
----
-
-### 📚 Data Engineering & QA Generation
-* **4,000+ Satsang Discourses:** Transcribed from authentic Bhajan Marg *Ekantik Vartalap* audio and video using Whisper large-v3.
-* **50,000+ Q&A Pairs:** Extracted, cleaned, deduplicated, and synthesized into structured devotional Question-Answer pairs addressing everyday struggles (anger, lust, grief, fear, meditation, and karma yoga).
-* **Multi-Source RAG Knowledge Base:** Indexed over **150,000+ sacred verses** from 25+ ancient scriptures (Shrimad Bhagavad Gita, Ramcharitmanas, Valmiki Ramayana, Bhagavata Purana, Upanishads, Vidura Niti, Chaitanya Charitamrita, etc.).
-
----
-
-### ⚙️ Model Training & System Architecture
-* **Fine-Tuned Gemma 4 E4B IT:** Fine-tuned on Google Cloud (GCP) and Oracle Cloud CPU VM using LoRA/QLoRA to faithfully capture Maharaj Ji's fatherly warmth ("बच्चा"), serene cadence, and avoidance of dry robotic clichés.
-* **Hybrid Semantic RAG:** Vector embeddings paired with lexical keyword search and strict Dharmic topic gating to ensure sacred verses are cited only when contextually appropriate.
-* **Dual Inference Engines:**
-  * **🧘 Deep Mode:** Fine-tuned Gemma 4 E4B IT with Chain-of-Thought deliberation (Intent -> Scripture Grounding -> Counsel -> Blessing).
-  * **⚡ Fast Mode:** Ultra-fast ~1s real-time response powered by Groq LPU with few-shot prompting.
-* **Live Knowledge Search:** Integrated with DuckDuckGo live search to fetch real-time Hindu calendar dates (Ekadashi, Grahan/Sutak timings, and Vrat schedules).
-
----
-*Radhe Radhe! If you have any spiritual question or wish to know more about the project, feel free to ask.*`;
+* **Creator:** Built by **Anuj Kesharwani** (Aspiring Gen AI & Agentic AI Developer, [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)) as an independent passion project.
+* **Data & Model:** Built by transcribing 4,000+ satsangs into 50,000+ QA pairs, fine-tuning **Gemma 4 E4B IT** on Google Cloud (GCP) / Oracle Cloud, and grounding responses in a multi-source RAG across 150,000+ verses from 25+ scriptures.
+* **Core Purpose:** To provide fatherly, serene guidance for life's dilemmas, mental peace, righteous duties, and holy name chanting ('Radha-Radha').`;
   }
 
-  return `### 🙏 जय श्री राधे! मैं 'संवाद AI' (Samvaad AI) हूँ
+  return `### 🙏 'संवाद AI' (Samvaad AI) — एक परिचय
 
-**मैं पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन, भजन मार्ग)** के पावन वचनों, सत्संगों और सनातन धर्म के शाश्वत सिद्धांतों पर आधारित एक आध्यात्मिक व दार्शनिक AI साथी हूँ। मेरा उद्देश्य जीवन के संशयों, मानसिक अशांति, कर्तव्य-पालन और भक्ति-मार्ग पर आपको पूज्य महाराज जी की वात्सल्यमयी व प्रामाणिक वाणी के प्रकाश में मार्गदर्शन देना है।
+**संवाद AI** सनातन धर्म और **पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन, भजन मार्ग)** की पावन शिक्षाओं पर आधारित एक प्रामाणिक आध्यात्मिक AI साथी है।
 
----
-
-### 👨‍💻 निर्माता एवं परिकल्पना (Creator & Vision)
-* **निर्माता:** **अनुज केसरवानी (Anuj Kesharwani)** — Aspiring Gen AI & Agentic AI Developer.
-* **ईमेल:** [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)
-* **उद्देश्य:** यह एक स्वतंत्र व समर्पित प्रोजेक्ट है, जिसका उद्देश्य प्राचीन वैदिक शास्त्रों और पूज्य संतों के एकांतिक सत्संगों को आधुनिक जनरेटिव AI तकनीकों से जोड़कर जन-कल्याण हेतु सहज सुलभ बनाना है।
-
----
-
-### 📚 डेटा पाइपलाइन एवं प्रश्नोत्तरी निर्माण (Data Pipeline)
-* **4,000+ एकांतिक वार्तालाप एवं सत्संग:** पूज्य महाराज जी के 4,000 से अधिक ऑडियो व वीडियो प्रवचनों को Whisper large-v3 द्वारा सटीक रूप से ट्रांसक्राइब किया गया।
-* **50,000+ प्रामाणिक प्रश्नोत्तरी (Q&A Pairs):** ट्रांसक्रिप्ट्स से 50,000+ भक्ति, कर्तव्य, मन के नियंत्रण, काम-क्रोध निवारण और पारिवारिक जीवन से जुड़े व्यावहारिक प्रश्नों व उत्तरों का शोधित डेटासेट तैयार किया गया।
-* **मल्टी-सोर्स RAG सिस्टम:** 25+ प्राचीन धर्मग्रंथों (श्रीमद्भगवद्गीता, रामचरितमानस, वाल्मीकि रामायण, श्रीमद्भागवत, विष्णु पुराण, उपनिषद, विदुर नीति, चैतन्य चरितामृत आदि) के **1,50,000+ श्लोकों** का हाइब्रिड सिमेंटिक इंडेक्स।
-
----
-
-### ⚙️ मॉडल प्रशिक्षण एवं तकनीकी संरचना (Architecture)
-* **फाइन-ट्यूनिंग (Gemma 4 E4B IT):** Google Cloud (GCP) और Oracle Cloud CPU VM पर LoRA/QLoRA तकनीक द्वारा **Gemma 4 E4B IT** (तथा Gemma-2-9B) मॉडल को विशेष रूप से ट्रेन किया गया है ताकि वह पूज्य महाराज जी के स्वाभाविक वात्सल्य ("बच्चा") और गंभीर आध्यात्मिक मर्यादा में उत्तर दे सके।
-* **हाइब्रिड RAG एवं विषय मर्यादा:** जब कोई गंभीर आध्यात्मिक प्रश्न पूछा जाता है, तभी उपयुक्त ग्रंथ श्लोक RAG द्वारा खोजे जाते हैं। सांसारिक प्रश्नों पर जबरन श्लोक नहीं थोपे जाते।
-* **दोहरे इन्फरेंस मोड्स:**
-  * **🧘 Deep Mode:** Google Cloud / Oracle VM पर होस्टेड फाइन-ट्यून्ड Gemma 4 E4B IT मॉडल जो 4-स्तरीय चिंतन (Intent -> Scripture -> Counsel -> Blessing) के साथ गहरा उत्तर देता है।
-  * **⚡ Fast Mode:** Groq LPU द्वारा संचालित अति-तीव्र (~1 सेकंड) रीयल-टाइम रिस्पॉन्स।
-* **लाइव पंचांग एवं सर्च (DuckDuckGo Live Search):** एकादशी व्रत, सूर्य/चंद्र ग्रहण का सूतक काल और पर्व-त्योहारों की लाइव सटीक तिथियों के लिए ऑनलाइन सर्च क्षमता।
-
----
-*राधे-राधे बच्चा! आप अपने जीवन अथवा साधना से जुड़ा कोई भी प्रश्न पूछ सकते हैं।*`;
+* **निर्माता:** इसे **अनुज केसरवानी** (Aspiring Gen AI & Agentic AI Developer, [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)) ने एक स्वतंत्र प्रोजेक्ट के रूप में विकसित किया है।
+* **मॉडल एवं डेटा:** 4,000+ एकांतिक सत्संगों से 50,000+ प्रश्नोत्तरी तैयार कर Google Cloud / Oracle VM पर **Gemma 4 E4B IT** मॉडल को फाइन-ट्यून किया गया है, तथा 25+ धर्मग्रंथों के 1,50,000+ श्लोकों का RAG ज्ञानकोश जोड़ा गया है।
+* **उद्देश्य:** साधकों व जिज्ञासुओं को जीवन के संशयों में पूज्य महाराज जी के वात्सल्य भाव से मार्गदर्शन देना और निरंतर नाम जप की प्रेरणा देना।`;
 }

@@ -9,7 +9,7 @@
 
 import { getScriptureGrounding, isCasualConversational } from './scriptureService.js';
 import { analyzeQuery } from './queryIntent.js';
-import { isIntroductionOrCreatorQuery, getProjectIntroduction } from '../data/projectIntroduction.js';
+import { isIntroductionOrCreatorQuery, getProjectIntroduction, getIntroductionThought } from '../data/projectIntroduction.js';
 import { isLiveCalendarQuery, searchDuckDuckGo } from './liveSearchService.js';
 
 export { isCasualConversational, isIntroductionOrCreatorQuery, isLiveCalendarQuery };
@@ -346,9 +346,7 @@ export async function streamGuruResponse(
   // 1.5 Introduction & Creator Knowledge Tool (Who are you, Anuj Kesharwani, architecture, dataset, RAG)
   if (isIntroductionOrCreatorQuery(userMessage)) {
     const introText = getProjectIntroduction(userMessage, isEnglish);
-    const introThought = isEnglish
-      ? "Invoking Samvaad Introduction Tool: Synthesizing details on creator Anuj Kesharwani, fine-tuned Gemma 4 E4B IT, 50K QA dataset, and 150K+ verses RAG..."
-      : "संवाद परिचय ज्ञान उपकरण (Introduction Tool): निर्माता अनुज केसरवानी, फाइन-ट्यून्ड Gemma 4 E4B IT, 50K प्रश्नोत्तरी डेटासेट एवं 150K+ श्लोक RAG की जानकारी प्रस्तुत की जा रही है...";
+    const introThought = getIntroductionThought(userMessage, isEnglish);
     return await streamTextDirectly(
       introText,
       introThought,
