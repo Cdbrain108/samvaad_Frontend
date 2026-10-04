@@ -1044,9 +1044,9 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
           {darkMode ? (
             <>
               <img
-                src={heroNightTempleMobile}
-                className="hero-bg hero-bg-mobile-temple"
-                alt="Sacred Vrindavan Temple at Night"
+                src={heroSunriseMobile}
+                className="hero-bg hero-bg-mobile-sunrise hero-bg-mobile-temple"
+                alt="Sacred Vrindavan"
                 aria-hidden="true"
               />
               <TempleNightCanvas className="hero-bg hero-bg-canvas desktop-only-canvas" />
