@@ -5308,8 +5308,8 @@ select:focus-visible,
   overflow-y: auto !important;
   /* Don't use align-items: center when there are messages — use flex-start so it starts at top */
   align-items: flex-start !important;
-  /* Consistent scroll behavior */
-  scroll-behavior: smooth;
+  /* Native fluid touch scroll */
+  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
 
@@ -7283,7 +7283,7 @@ select:focus-visible,
   }
 
   .content-area {
-    padding: 20px 8px 165px 8px !important;
+    padding: 12px 8px 18px 8px !important;
   }
 
   .composer-wrap {
@@ -9873,10 +9873,10 @@ select:focus-visible,
 
 .content-area .messages {
   padding-top: 56px !important;
-  padding-bottom: 96px !important;
+  padding-bottom: 20px !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 22px !important;
+  gap: 18px !important;
 }
 
 /* Assistant Open Typography */
@@ -9895,7 +9895,7 @@ select:focus-visible,
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  margin-top: 10px !important;
+  margin-top: 8px !important;
   justify-content: flex-start !important;
 }
 
@@ -9907,7 +9907,8 @@ select:focus-visible,
 .post-response-actions {
   display: flex !important;
   align-items: center !important;
-  margin-top: 14px !important;
+  margin-top: 6px !important;
+  margin-bottom: 2px !important;
 }
 
 .back-to-home-minimal-btn {
@@ -10056,6 +10057,7 @@ select:focus-visible,
   -webkit-overflow-scrolling: touch !important;
 }
 
+.rag-verses-dropdown-container,
 .rag-verses-drawer {
   overflow: visible !important;
 }

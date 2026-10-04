@@ -1156,10 +1156,15 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
           <div className="video-example-grid">
             {videoExamples.map((video, index) => (
               <Reveal delay={index * 110} key={video.id} className="video-card-wrap">
-                <button
-                  type="button"
-                  className="video-example-card video-card-button"
-                  onClick={() => setPendingVideo(video)}
+                <a
+                  className="video-example-card"
+                  href={`https://www.youtube.com/watch?v=${video.id}`}
+                  rel="noreferrer"
+                  target="_blank"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPendingVideo(video);
+                  }}
                   aria-label={`पूज्य महाराज जी का सत्संग: ${video.title}`}
                 >
                   <div className="video-thumb-container">
@@ -1171,7 +1176,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
                     <strong className="video-card-title">{video.title}</strong>
                     <span className="video-card-action">Watch Satsang ↗</span>
                   </div>
-                </button>
+                </a>
               </Reveal>
             ))}
           </div>

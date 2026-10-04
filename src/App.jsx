@@ -39,24 +39,24 @@ function CopyButton({ text }) {
 }
 
 const respondingPhrases = [
-  'Reflecting on scriptures and remembered context',
-  'Searching related Bhajan Marg teachings',
-  'Composing a calm, pleasant reply',
+  '🌸 श्री राधा नाम स्मरण एवं पावन चिंतन...',
+  'एकांतिक वार्तालाप एवं पूज्य महाराज जी के वचनों का अनुशीलन...',
+  'साधक के प्रश्न का भावपूर्ण शास्त्रीय समाधान...',
 ];
 
 function RespondingIndicator({ isDeep = false }) {
   const [phraseIndex, setPhraseIndex] = useState(0);
 
-  const phrases = isDeep ? [
-    'Deep Mode: Oracle Cloud 24/7 GGUF server reflecting…',
-    'Contemplating Ekantik Vartalap teachings…',
-    'Polishing discourse with Maharaj Ji’s serene grace…',
-  ] : respondingPhrases;
+  const phrases = [
+    '🌸 श्री राधा नाम स्मरण एवं पावन चिंतन...',
+    'एकांतिक वार्तालाप एवं पूज्य महाराज जी के वचनों का अनुशीलन...',
+    'साधक के प्रश्न का भावपूर्ण शास्त्रीय समाधान...',
+  ];
 
   useEffect(() => {
     const cycle = setInterval(() => {
       setPhraseIndex((current) => (current + 1) % phrases.length);
-    }, 2100);
+    }, 2200);
     return () => clearInterval(cycle);
   }, [phrases.length]);
 
@@ -480,32 +480,45 @@ export default function App() {
     }
   }, [isResponding, isStreaming, hideChatTopbar, messages.length]);
 
-  // Handle Mobile Browser Hardware / Gesture Back Button -> navigate to landing page instead of exiting
+  const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
+
+  // Handle Mobile Browser Hardware / Gesture Back Button
   useEffect(() => {
-    if (view === 'chat') {
-      window.history.pushState({ samvaadView: 'chat' }, '', window.location.href);
-    }
+    // Push state for current view so pressing back button triggers popstate rather than exiting tab
+    window.history.pushState({ samvaadView: view }, '', window.location.href);
 
     const handlePopState = () => {
+      if (showExitConfirmModal) {
+        setShowExitConfirmModal(false);
+        window.history.pushState({ samvaadView: view }, '', window.location.href);
+        return;
+      }
       if (sidebarOpen) {
         setSidebarOpen(false);
-        window.history.pushState({ samvaadView: 'chat' }, '', window.location.href);
+        window.history.pushState({ samvaadView: view }, '', window.location.href);
         return;
       }
       if (voiceCloneModalOpen) {
         setVoiceCloneModalOpen(false);
-        window.history.pushState({ samvaadView: 'chat' }, '', window.location.href);
+        window.history.pushState({ samvaadView: view }, '', window.location.href);
         return;
       }
       if (showGuestLoginModal) {
         setShowGuestLoginModal(false);
-        window.history.pushState({ samvaadView: 'chat' }, '', window.location.href);
+        window.history.pushState({ samvaadView: view }, '', window.location.href);
         return;
       }
 
       // If user was in chat view and pressed mobile back button, return to landing page!
       if (view === 'chat') {
         setView('landing');
+        return;
+      }
+
+      // If user was in landing view and pressed back button, don't just exit! Ask them first.
+      if (view === 'landing') {
+        setShowExitConfirmModal(true);
+        window.history.pushState({ samvaadView: 'landing' }, '', window.location.href);
       }
     };
 
@@ -513,7 +526,7 @@ export default function App() {
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [view, sidebarOpen, voiceCloneModalOpen, showGuestLoginModal]);
+  }, [view, sidebarOpen, voiceCloneModalOpen, showGuestLoginModal, showExitConfirmModal]);
 
   // Clean up hide timer on unmount
   useEffect(() => {
@@ -623,17 +636,18 @@ export default function App() {
     setShowScrollBottom(false);
   }, []);
 
-  // Perform the actual scroll during streaming — only when user is NOT touching and has NOT scrolled up
+  // Perform the actual scroll during streaming — only when actively streaming, NOT touching, and NOT scrolled up
   const doScrollToBottom = useCallback(() => {
     scrollRafRef.current = null;
-    if (!contentAreaRef.current || userScrolledUpRef.current || isUserTouchingRef.current) return;
+    if (!isStreaming || !contentAreaRef.current || userScrolledUpRef.current || isUserTouchingRef.current) return;
     contentAreaRef.current.scrollTop = contentAreaRef.current.scrollHeight;
     lastScrollTimeRef.current = Date.now();
-  }, []);
+  }, [isStreaming]);
 
-  // Auto-scroll: time-throttled so rapid streaming never causes visual shake or touch conflicts
+  // Auto-scroll: time-throttled so rapid streaming never causes visual shake or touch conflicts.
+  // CRITICAL: ONLY run while isStreaming is active. When response completes, NEVER touch or reset scrollTop!
   useEffect(() => {
-    if (!contentAreaRef.current || userScrolledUpRef.current || isUserTouchingRef.current) return;
+    if (!isStreaming || !contentAreaRef.current || userScrolledUpRef.current || isUserTouchingRef.current) return;
 
     const elapsed = Date.now() - lastScrollTimeRef.current;
     const THROTTLE_MS = 100;
@@ -650,9 +664,7 @@ export default function App() {
         }, THROTTLE_MS - elapsed);
       }
     }
-
-    return () => {};
-  }, [messages, doScrollToBottom]);
+  }, [messages, isStreaming, doScrollToBottom]);
 
   // Sync body viewport lock when entering or leaving chat view on mobile
   useEffect(() => {
@@ -1128,6 +1140,7 @@ export default function App() {
   }
 
   return (
+    <>
     <AnimatePresence mode="wait">
       {loading && (
         <motion.div
@@ -1513,16 +1526,6 @@ export default function App() {
                                 <Icon name={isSpeaking ? 'pause' : 'volume'} size={13} />
                                 <span>{isPreparing ? 'तैयार हो रही है...' : isSpeaking ? 'रोकें' : isPaused ? 'सुनें' : 'महाराज जी वाणी'}</span>
                               </button>
-                              <button
-                                className="message-action home-action"
-                                onClick={() => setView('landing')}
-                                type="button"
-                                title="Return to Home · मुख्य पृष्ठ"
-                                aria-label="Return to Home"
-                              >
-                                <Icon name="home" size={13} />
-                                <span>Home</span>
-                              </button>
                             </>
                           );
                         })()}
@@ -1629,5 +1632,66 @@ export default function App() {
         </motion.div>
       )}
     </AnimatePresence>
+
+    {/* Landing Page Mobile Back Exit Confirmation Dialog */}
+    <AnimatePresence>
+      {showExitConfirmModal && (
+        <ExitConfirmModal
+          onConfirm={() => {
+            setShowExitConfirmModal(false);
+            window.history.go(-2);
+          }}
+          onCancel={() => setShowExitConfirmModal(false)}
+        />
+      )}
+    </AnimatePresence>
+    </>
+  );
+}
+
+function ExitConfirmModal({ onConfirm, onCancel }) {
+  return (
+    <div className="video-confirm-backdrop" onClick={onCancel} role="dialog" aria-modal="true">
+      <motion.div
+        className="video-confirm-dialog"
+        onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0, scale: 0.93, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.93, y: 12 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+      >
+        <div className="video-confirm-header">
+          <span className="video-confirm-om" aria-hidden="true">🙏</span>
+          <h3>संवाद (Samvaad)</h3>
+        </div>
+
+        <p className="video-confirm-message">
+          <strong>जय श्री राधे!</strong><br />
+          प्रिय साधक, क्या आप संवाद (Samvaad) से प्रस्थान करना चाहते हैं?
+        </p>
+
+        <p className="video-confirm-quote">
+          <em>“सदा भगवन्नाम स्मरण एवं सत्संग में मन लगाइए, जीवन में परम शांति प्राप्त होगी।”</em>
+        </p>
+
+        <div className="video-confirm-actions">
+          <button
+            type="button"
+            className="video-confirm-btn-primary"
+            onClick={onCancel}
+          >
+            🌸 यहीं रहें (Stay in Samvaad)
+          </button>
+          <button
+            type="button"
+            className="video-confirm-btn-secondary"
+            style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#EF4444' }}
+            onClick={onConfirm}
+          >
+            हाँ, प्रस्थान करें (Exit)
+          </button>
+        </div>
+      </motion.div>
+    </div>
   );
 }

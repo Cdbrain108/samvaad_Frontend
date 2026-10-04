@@ -445,6 +445,9 @@ export async function streamGuruResponse(
       { role: 'user', content: userMessage }
     ];
 
+    const elapsedSoFar = Date.now() - startTime;
+    const backendTimeout = Math.min(10000, Math.max(3000, 20000 - elapsedSoFar));
+
     const response = await fetch(streamEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -454,7 +457,7 @@ export async function streamGuruResponse(
         max_tokens: 1100,
         mode: inferenceMode === 'fast' ? 'fast' : 'deep'
       }),
-      signal: AbortSignal.timeout(15000)
+      signal: AbortSignal.timeout(backendTimeout)
     });
 
     if (response.ok && response.body) {
@@ -510,8 +513,9 @@ export async function streamGuruResponse(
     console.warn('[Backend Stream] Server unreachable, trying direct Oracle Cloud stream:', err.message);
   }
 
-  // 5. Direct Oracle Cloud Streaming (if backend is offline or on GitHub Pages)
-  if (!backendSuccess || !streamedContent.trim()) {
+  // 5. Direct Oracle Cloud Streaming (if backend is offline, capped strictly within 20s window)
+  const remainingTime = 20000 - (Date.now() - startTime);
+  if ((!backendSuccess || !streamedContent.trim()) && remainingTime > 3000) {
     try {
       const oracleRes = await streamDirectFromOracle(
         userMessage,
@@ -531,11 +535,11 @@ export async function streamGuruResponse(
         };
       }
     } catch (oracleErr) {
-      console.warn('[Direct Oracle Stream] Error:', oracleErr.message);
+      console.warn('[Direct Oracle Stream] Error or timeout:', oracleErr.message);
     }
   }
 
-  // 6. Graceful Synthesis Fallback (if both backend and remote Oracle are unreachable)
+  // 6. Graceful Synthesis Fallback (if remote servers unreachable within 20s)
   if (!backendSuccess || !streamedContent.trim()) {
     streamedContent = generateLocalDiscourseFallback(userMessage, seekerName, scripture, false, isEnglish);
     
