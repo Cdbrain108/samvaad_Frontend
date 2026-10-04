@@ -84,13 +84,29 @@ export default function RichText({ content, streaming = false }) {
           (/^[«\*]+[\u0900-\u097F\s,।'॥\-]+[»\*]+$/.test(trimmed) && trimmed.length > 20)
         );
 
+        // Strip outer ** markers and « » guillemets from shlok lines
+        // so they never render as literal asterisks in the verse box
+        const cleanedLine = isShlok
+          ? trimmed
+              .replace(/^\*\*«?\s*/g, '')   // strip leading **« or **
+              .replace(/\s*»?\*\*$/g, '')   // strip trailing »** or **
+              .replace(/^«\s*/g, '')         // strip leading «
+              .replace(/\s*»$/g, '')         // strip trailing »
+              .trim()
+          : trimmed;
+
+        // Strip ** markers from arthat lines too
+        const cleanedArthat = isArthat
+          ? trimmed.replace(/^\*\*\s*/g, '').replace(/\s*\*\*$/g, '').trim()
+          : trimmed;
+
         const lineClasses = ['rich-line'];
         if (isShlok) lineClasses.push('rich-shlok-line');
         if (isArthat) lineClasses.push('rich-arthat-line');
 
         return (
           <span className={lineClasses.join(' ')} key={`p-${index}`}>
-            {renderInline(trimmed, `p${index}`)}{cursor}
+            {renderInline(isShlok ? cleanedLine : (isArthat ? cleanedArthat : trimmed), `p${index}`)}{cursor}
           </span>
         );
       })}
