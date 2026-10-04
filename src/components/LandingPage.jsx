@@ -966,8 +966,10 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
                 </button>
               )
             )}
-            <button className="rust-button cta-button" onClick={onEnter}>
-              <span aria-hidden="true">🙏</span> Start Asking
+            <button className="rust-button cta-button header-ask-cta" onClick={onEnter}>
+              <span aria-hidden="true">🙏</span>
+              <strong>Try Samvaad</strong>
+              <span aria-hidden="true">→</span>
             </button>
           </div>
         </header>
@@ -1048,8 +1050,9 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
                 placeholder="Ask your spiritual or life question..."
                 aria-label="Ask your question"
               />
-              <button className="askbox-send" type="submit" aria-label="Send question">
-                <Icon name="arrow-right" size={18} />
+              <button className="askbox-send" type="submit" aria-label="Ask Samvaad" title="Ask question in Samvaad">
+                <span className="askbox-send-text">Ask</span>
+                <Icon name="arrow-right" size={16} />
               </button>
             </form>
 

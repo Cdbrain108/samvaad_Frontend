@@ -8687,3 +8687,134 @@ select:focus-visible,
   border: 1px solid rgba(245, 158, 11, 0.3) !important;
   color: #FDE68A !important;
 }
+
+/* ============================================================
+   VISUALLY ENHANCED BOLD CTA BUTTONS ACROSS SAMVAAD
+   ============================================================ */
+
+/* Primary CTA & Rust Button Enhancement */
+.cta-button,
+.rust-button.cta-button,
+.header-ask-cta {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 60%, #B45309 100%) !important;
+  border: 1.5px solid rgba(254, 200, 75, 0.75) !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 18px rgba(217, 119, 6, 0.42), 0 0 14px rgba(245, 158, 11, 0.25) !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+.cta-button:hover,
+.rust-button.cta-button:hover,
+.header-ask-cta:hover {
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 0 8px 26px rgba(217, 119, 6, 0.58), 0 0 20px rgba(245, 158, 11, 0.45) !important;
+  border-color: #FEF3C7 !important;
+}
+
+.cta-button:active,
+.rust-button.cta-button:active,
+.header-ask-cta:active {
+  transform: scale(0.97) !important;
+}
+
+/* Header Specific Button Enhancement */
+.spiritual-header .cta-button,
+.header-ask-cta {
+  padding: 8px 20px !important;
+  font-size: 13.5px !important;
+}
+
+/* Hero Askbox Send Button Enhancement — Bold Pill with Ask Label */
+.askbox-send {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: auto !important;
+  min-width: 72px !important;
+  height: 40px !important;
+  padding: 0 18px !important;
+  border-radius: 999px !important;
+  border: 1.5px solid rgba(254, 200, 75, 0.75) !important;
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  letter-spacing: 0.3px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.4), 0 0 12px rgba(245, 158, 11, 0.25) !important;
+  transition: all 0.2s ease !important;
+  flex: none !important;
+}
+
+.askbox-send:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.6), 0 0 18px rgba(245, 158, 11, 0.4) !important;
+  border-color: #FEF3C7 !important;
+}
+
+.askbox-send-text {
+  font-weight: 700 !important;
+  letter-spacing: 0.4px !important;
+}
+
+/* Project Overview Demo CTA Button */
+.chat-demo-footer-action .rust-button {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 60%, #B45309 100%) !important;
+  border: 1.5px solid rgba(254, 200, 75, 0.7) !important;
+  box-shadow: 0 6px 20px rgba(217, 119, 6, 0.45) !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  min-height: 44px !important;
+  letter-spacing: 0.2px !important;
+  transition: all 0.22s ease !important;
+}
+
+.chat-demo-footer-action .rust-button:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 8px 26px rgba(217, 119, 6, 0.6) !important;
+  border-color: #FEF3C7 !important;
+}
+
+/* About Us Section CTA Button */
+.creator-social-actions .rust-button.cta-button {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 60%, #B45309 100%) !important;
+  border: 1.5px solid rgba(254, 200, 75, 0.75) !important;
+  box-shadow: 0 6px 22px rgba(217, 119, 6, 0.48) !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  min-height: 48px !important;
+  transition: all 0.22s ease !important;
+}
+
+.creator-social-actions .rust-button.cta-button:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 10px 28px rgba(217, 119, 6, 0.65) !important;
+  border-color: #FEF3C7 !important;
+}
+
+@media (max-width: 640px) {
+  .spiritual-header .cta-button,
+  .header-ask-cta {
+    padding: 6px 14px !important;
+    font-size: 12px !important;
+  }
+  .phase-hero .askbox-send {
+    width: auto !important;
+    min-width: 60px !important;
+    height: 35px !important;
+    padding: 0 13px !important;
+    font-size: 12.5px !important;
+  }
+}
+
