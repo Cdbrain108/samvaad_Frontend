@@ -1764,6 +1764,20 @@ html, body { max-width: 100%; overflow-x: hidden; }
   scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
 }
 
+/* Always-visible Oracle stream preview — 2-3 lines, always shown below header */
+.reasoning-stream-preview {
+  padding: 8px 14px 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.reasoning-text-stream.stream-preview-always {
+  max-height: 68px;
+  overflow-y: hidden;
+  position: relative;
+  mask-image: linear-gradient(to bottom, black 55%, rgba(0,0,0,0.3) 82%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 55%, rgba(0,0,0,0.3) 82%, transparent 100%);
+}
+
 .reasoning-expand-bar {
   display: flex;
   justify-content: flex-end;

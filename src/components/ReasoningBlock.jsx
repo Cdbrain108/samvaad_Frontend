@@ -329,7 +329,24 @@ export default function ReasoningBlock({
         )}
       </AnimatePresence>
 
-      {/* Thinking Deliberation Body */}
+      {/* Thinking Deliberation Body: Stepper collapses, but stream is always visible */}
+
+      {/* ── Always-Visible Oracle Stream Preview (2-3 lines) ── */}
+      {thought && (
+        <div className="reasoning-stream-preview">
+          <div
+            className={`reasoning-text-stream claude-thought-stream stream-preview-always`}
+            ref={streamRef}
+          >
+            {displayedThought}
+            {(isThinking || displayedThought.length < (thought || '').length) && (
+              <span className="claude-block-cursor" aria-hidden="true">▋</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Expandable Full Deliberation Body (Stepper + Wisdom Pearl) ── */}
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
@@ -369,7 +386,6 @@ export default function ReasoningBlock({
             <div className="reasoning-content-box claude-thinking-box">
               <div
                 className={`reasoning-text-stream claude-thought-stream ${isExpanded ? 'stream-expanded' : 'stream-compact'}`}
-                ref={streamRef}
               >
                 {displayedThought}
                 {(isThinking || displayedThought.length < (thought || '').length) && (

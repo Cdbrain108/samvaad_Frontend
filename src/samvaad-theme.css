@@ -7134,11 +7134,13 @@ select:focus-visible,
     display: none !important;
   }
 
-  /* Mode toggle group: Sleek micro-segmented control with clear labels */
+  }
+
+  /* Mode toggle group: Sleek micro-segmented control — icon only on mobile */
   .mode-toggle-group {
-    padding: 3px !important;
+    padding: 2px !important;
     border-radius: 999px !important;
-    gap: 2px !important;
+    gap: 1px !important;
     background: rgba(0, 0, 0, 0.4) !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
     display: inline-flex !important;
@@ -7147,21 +7149,20 @@ select:focus-visible,
   }
 
   .mode-pill-btn {
-    padding: 4px 9px !important;
-    font-size: 0.74rem !important;
+    padding: 4px 8px !important;
+    font-size: 0.72rem !important;
     font-weight: 600 !important;
     border-radius: 999px !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 4px !important;
-    min-height: 28px !important;
+    gap: 3px !important;
+    min-height: 26px !important;
     white-space: nowrap !important;
   }
 
+  /* Hide text label on mobile — icon only in mode pill */
   .mode-pill-btn-label-text {
-    display: inline !important;
-    font-size: 0.73rem !important;
-    font-weight: 600 !important;
+    display: none !important;
   }
 
   /* Topbar actions: Streamlined touch targets */
