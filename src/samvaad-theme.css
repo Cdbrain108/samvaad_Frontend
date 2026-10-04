@@ -2109,21 +2109,25 @@
   max-width: 690px;
 }
 
-.suggestion-card,
-.message.assistant > div {
+/* Suggestion cards keep the glass surface styling */
+.suggestion-card {
   border: 1px solid var(--line);
   background: color-mix(in srgb, var(--surface-solid) 88%, transparent);
   box-shadow: 0 12px 30px rgba(68, 39, 7, 0.06);
 }
 
-:root[data-theme='dark'] .suggestion-card,
-:root[data-theme='dark'] .message.assistant > div {
+:root[data-theme='dark'] .suggestion-card {
   background: rgba(16, 38, 63, 0.76);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.2);
 }
 
+/* PC assistant message: open canvas — no box, no border */
 .message.assistant > div {
-  border-radius: 16px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
 }
 
 .message.user p {

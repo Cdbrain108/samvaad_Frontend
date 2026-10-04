@@ -929,10 +929,6 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
   align-items: flex-start;
 }
 
-.message.assistant > div {
-  border-radius: 8px;
-}
-
 .message.user {
   grid-template-columns: 1fr 38px;
 }
@@ -1057,7 +1053,6 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
     border-radius: 8px;
   }
 
-  .message.assistant > div,
   .message.user p {
     padding: 13px 14px;
   }
