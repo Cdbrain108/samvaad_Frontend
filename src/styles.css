@@ -177,19 +177,20 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 .card-arrow { position: absolute; top: 16px; right: 17px; color: var(--muted); font-size: 16px; }
 
 .messages { display: grid; width: 100%; max-width: 780px; align-self: flex-start; gap: 24px; margin: auto; padding-bottom: 36px; }
-.message { display: grid; grid-template-columns: 38px 1fr; gap: 14px; animation: reveal 250ms ease both; }
-.message-avatar { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 11px; background: var(--accent-soft); color: var(--accent-dark); font-size: 12px; font-weight: 700; flex-shrink: 0; }
-.message.assistant .message-avatar { background: var(--text); color: var(--panel); font-family: 'Newsreader', serif; font-size: 18px; }
+.message { display: block; width: 100%; animation: reveal 250ms ease both; }
+.message.assistant { display: block; width: 100%; max-width: 100%; }
+.message-avatar { display: none; }
+.message.assistant .message-avatar { display: none; }
 .message strong { display: block; margin: 0 0 6px; font-size: 13px; color: var(--accent-dark); }
 .message.assistant > div {
-  padding: 20px 24px;
-  border-radius: 6px 22px 22px 22px;
-  background: var(--surface-solid);
-  border: 1px solid var(--line);
-  box-shadow: 0 10px 30px rgba(45, 35, 20, 0.06);
-  transition: transform 220ms ease, box-shadow 220ms ease, background-color 0.25s ease, border-color 0.25s ease;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  width: 100%;
 }
-.message.assistant:hover > div { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(45, 35, 20, 0.1); }
+.message.assistant:hover > div { transform: none; box-shadow: none; }
 .message p { margin: 0; color: var(--text); font-size: 15px; line-height: 1.7; white-space: pre-wrap; }
 .message.user p {
   display: inline-block;
