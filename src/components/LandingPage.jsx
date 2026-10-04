@@ -213,7 +213,7 @@ function FlowPipeline() {
 
 /* ---------- interactive animated chatbot demo overview ---------- */
 
-function ChatProjectOverview({ onEnter }) {
+function ChatProjectOverview({ onEnter, headingDismissed, onToggleHeading, onChatStart }) {
   const conversations = [
     {
       id: 'motivation',
@@ -232,10 +232,10 @@ I created Samvaad to make this wisdom effortlessly accessible through conversati
       q: 'How does it turn 4,000+ Bhajan Marg discourses into an intelligent guide?',
       a: `Under the hood, Samvaad works through a dedicated multi-stage pipeline:
 
-1. Transcribe: Audio from 4,000+ public Bhajan Marg discourses is transcribed into Hindi & English with speech AI (Whisper).
-2. Segment & Q&A: Transcripts are curated into 50,000+ clean question-answer pairs capturing Maharaj Ji's gentle, loving voice.
-3. Fine-Tuning: A foundational conversational model is fine-tuned on this dataset to speak with patience and reverence.
-4. Scripture RAG: Crucial verses from Bhagavad Gita, Ramcharitmanas, Upanishads, and Vedas are embedded and retrieved dynamically to support answers with authentic shloka citations.`,
+1. Transcripts Ingestion: Raw YouTube auto-caption video transcripts (.vtt) from ~4,000 public discourses are parsed and cleaned.
+2. Multi-Agent Pipeline: Autonomous agents clean noise, separate seeker questions from discourses, reconstruct natural inquiries, and anchor authentic answers with exact timestamps.
+3. Fine-Tuning: Our custom Gemma 4 E4B IT conversational model is fine-tuned on this dataset on GCP and Oracle VM to speak with fatherly compassion and authentic reverence.
+4. Scripture RAG: 175,000+ sacred verses across 29 Dharmic scriptures (Bhagavad Gita, Ramcharitmanas, Upanishads, etc.) are embedded and retrieved dynamically to support answers.`,
       tag: 'Architecture & RAG',
     },
     {
@@ -295,33 +295,45 @@ Key features for seekers:
     setTypedText('')
     setHasStartedTyping(false)
 
-    // 1. Give seeker time to read the question first (750ms pause)
+    // 1. Give seeker time to read the question first
+    const delayBeforeStart = headingDismissed ? 450 : 800
     timeoutRef.current = setTimeout(() => {
       if (cancelled) return
-      setHasStartedTyping(true)
-      setIsTyping(true)
 
-      const chars = Array.from(selected.a)
-      let idx = 0
-      const step = () => {
-        if (cancelled) return
-        if (idx < chars.length) {
-          idx += 1
-          setTypedText(chars.slice(0, idx).join(''))
-          // Auto-scroll body down smoothly so new text is always visible
-          if (bodyRef.current) {
-            bodyRef.current.scrollTop = bodyRef.current.scrollHeight
-          }
-          const isBreak = chars[idx - 1] === '\n'
-          timeoutRef.current = setTimeout(step, isBreak ? 55 : 24)
-        } else {
-          setTypedText(selected.a)
-          setIsTyping(false)
-          timeoutRef.current = null
-        }
+      // Auto-hide the overview heading smoothly before typing starts
+      if (!headingDismissed && onChatStart) {
+        onChatStart()
       }
-      step()
-    }, 750)
+
+      // Wait 520ms for heading collapse animation, then start calm typing
+      const collapseWait = !headingDismissed ? 520 : 0
+      timeoutRef.current = setTimeout(() => {
+        if (cancelled) return
+        setHasStartedTyping(true)
+        setIsTyping(true)
+
+        const chars = Array.from(selected.a)
+        let idx = 0
+        const step = () => {
+          if (cancelled) return
+          if (idx < chars.length) {
+            idx += 1
+            setTypedText(chars.slice(0, idx).join(''))
+            // Auto-scroll body down smoothly so new text is always visible
+            if (bodyRef.current) {
+              bodyRef.current.scrollTop = bodyRef.current.scrollHeight
+            }
+            const isBreak = chars[idx - 1] === '\n'
+            timeoutRef.current = setTimeout(step, isBreak ? 55 : 24)
+          } else {
+            setTypedText(selected.a)
+            setIsTyping(false)
+            timeoutRef.current = null
+          }
+        }
+        step()
+      }, collapseWait)
+    }, delayBeforeStart)
 
     return () => {
       cancelled = true
@@ -347,6 +359,17 @@ Key features for seekers:
               Grounded in Bhajan Marg &amp; Holy Scriptures
             </span>
           </div>
+          {onToggleHeading && (
+            <button
+              type="button"
+              className="about-heading-toggle-btn"
+              onClick={onToggleHeading}
+              title={headingDismissed ? 'Show Section Heading' : 'Focus Chat View'}
+              aria-label={headingDismissed ? 'Show Section Heading' : 'Focus Chat View'}
+            >
+              {headingDismissed ? '📖 Show Overview' : '✕ Focus'}
+            </button>
+          )}
           <span className="chat-demo-badge">{selected.tag}</span>
         </div>
 
@@ -672,6 +695,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   const [pipelineTab, setPipelineTab] = useState('milestones')
   const [scriptureStage, setScriptureStage] = useState('story')
   const [aboutHeadingDismissed, setAboutHeadingDismissed] = useState(false)
+  const [overviewHeadingDismissed, setOverviewHeadingDismissed] = useState(false)
   const [cueHidden, setCueHidden] = useState(false)
   const cueTimer = useRef(null)
 
@@ -724,6 +748,9 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     }
     if (currentPhase !== 'education') {
       setAboutHeadingDismissed(false)
+    }
+    if (currentPhase !== 'overview') {
+      setOverviewHeadingDismissed(false)
     }
     scheduleFloatingPill()
     return () => {
@@ -1140,17 +1167,24 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         {/* ============================================================
             PAGE 3 · INTERACTIVE ANIMATED CHAT DEMO OVERVIEW (NEW)
             ============================================================ */}
-        <section className="chat-overview-section phase" id="overview">
-          <Reveal className="spiritual-section-heading">
-            <span>प्रकल्प परिचय · Project Overview</span>
-            <h2>What is the Samvaad project really about?</h2>
-            <p>
-              Experience an animated dialogue explaining our personal motivation, spiritual foundation,
-              and how modern AI brings 4,000+ Bhajan Marg discourses to life.
-            </p>
-          </Reveal>
+        <section className={`chat-overview-section phase${overviewHeadingDismissed ? ' heading-hidden' : ''}`} id="overview">
+          <div className={`overview-heading-wrap about-heading-wrap${overviewHeadingDismissed ? ' is-backward-removing' : ''}`}>
+            <Reveal className="spiritual-section-heading">
+              <span>प्रकल्प परिचय · Project Overview</span>
+              <h2>What is the Samvaad project really about?</h2>
+              <p>
+                Experience an animated dialogue explaining our personal motivation, spiritual foundation,
+                and how modern AI brings 4,000+ Bhajan Marg discourses to life.
+              </p>
+            </Reveal>
+          </div>
 
-          <ChatProjectOverview onEnter={onEnter} />
+          <ChatProjectOverview
+            onEnter={onEnter}
+            headingDismissed={overviewHeadingDismissed}
+            onToggleHeading={() => setOverviewHeadingDismissed((prev) => !prev)}
+            onChatStart={() => setOverviewHeadingDismissed(true)}
+          />
         </section>
 
         {/* ============================================================

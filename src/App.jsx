@@ -481,6 +481,7 @@ export default function App() {
     document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
   }, [darkMode]);
 
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
   const userScrolledUpRef = useRef(false);
   const scrollRafRef = useRef(null);       // pending rAF id
   const scrollTimerRef = useRef(null);     // pending setTimeout id for throttle
@@ -490,14 +491,28 @@ export default function App() {
   const handleContentScroll = useCallback(() => {
     if (!contentAreaRef.current) return;
     const el = contentAreaRef.current;
-    // If distance from bottom exceeds 80px, devotee has deliberately scrolled up
+    // If distance from bottom exceeds 45px, user has scrolled up to read earlier question or responses
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    userScrolledUpRef.current = distanceFromBottom > 80;
+    const isUp = distanceFromBottom > 45;
+    userScrolledUpRef.current = isUp;
+    setShowScrollBottom(isUp);
+
     // Immediately bring back taskbar when scrolling up or down
     showChatTopbar();
   }, [showChatTopbar]);
 
-  // Perform the actual scroll — single point of truth
+  // Smooth scroll to bottom button handler (Claude style down arrow)
+  const scrollToBottom = useCallback(() => {
+    if (!contentAreaRef.current) return;
+    contentAreaRef.current.scrollTo({
+      top: contentAreaRef.current.scrollHeight,
+      behavior: 'smooth'
+    });
+    userScrolledUpRef.current = false;
+    setShowScrollBottom(false);
+  }, []);
+
+  // Perform the actual scroll during streaming — single point of truth
   const doScrollToBottom = useCallback(() => {
     scrollRafRef.current = null;
     if (!contentAreaRef.current || userScrolledUpRef.current) return;
@@ -1419,6 +1434,18 @@ export default function App() {
               />
             ))}
           </motion.div>
+        )}
+
+        {messages.length > 0 && showScrollBottom && (
+          <button
+            type="button"
+            className="claude-scroll-down-btn"
+            onClick={scrollToBottom}
+            aria-label="Scroll to latest message"
+            title="Scroll to latest message"
+          >
+            <span aria-hidden="true">↓</span>
+          </button>
         )}
 
         <Composer
