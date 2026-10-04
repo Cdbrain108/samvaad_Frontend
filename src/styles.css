@@ -930,33 +930,65 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 }
 
 .message.user {
-  grid-template-columns: 1fr 38px;
+  display: flex !important;
+  justify-content: flex-end !important;
+  width: 100% !important;
 }
 
 .message.user .message-avatar {
-  grid-column: 2;
-  grid-row: 1;
+  display: none !important;
 }
 
-.message.user > div {
-  grid-column: 1;
-  grid-row: 1;
-  justify-self: end;
-  max-width: min(680px, 100%);
-  text-align: right;
+.message.user .user-message-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  max-width: min(680px, 85%);
 }
 
-.message.user strong,
-.message.user .message-time {
-  padding-right: 4px;
-}
-
-.message.user p {
-  border-radius: 8px;
-  background: #eef6f1;
-  border-color: rgba(31, 122, 104, 0.22);
-  box-shadow: 0 10px 24px rgba(31, 122, 104, 0.08);
+.user-message-bubble {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 20px 20px 4px 20px;
+  background: #EFE8DD;
+  color: #1F2937;
+  border: 1px solid rgba(180, 120, 40, 0.16);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  font-size: 15px;
+  line-height: 1.55;
+  word-break: break-word;
   text-align: left;
+}
+
+:root[data-theme='dark'] .user-message-bubble {
+  background: rgba(255, 255, 255, 0.09);
+  color: #F9FAFB;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.user-message-bubble p {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: inherit !important;
+  font: inherit !important;
+}
+
+.user-message-meta {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 5px;
+  padding-right: 6px;
+}
+
+.user-message-meta .message-time {
+  font-size: 11px;
+  color: var(--muted, #94a3b8);
+  font-weight: 500;
+  line-height: 1;
 }
 
 .message.assistant.responding > div {
@@ -1454,6 +1486,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
    Claude-Inspired Reasoning Window (चिंतन प्रक्रिया / Spiritual Deliberation)
    ============================================================ */
 .reasoning-container {
+  position: relative;
   margin-bottom: 12px;
   border-radius: 12px;
   background: rgba(18, 14, 28, 0.75);
@@ -1838,16 +1871,18 @@ html, body { max-width: 100%; overflow-x: hidden; }
   top: 0;
   left: 0;
   right: 0;
-  height: 2.5px;
-  background: linear-gradient(90deg, #f59e0b, #ec4899, #8b5cf6, #3b82f6, #10b981, #f59e0b);
-  background-size: 300% 100%;
-  animation: energyRibbonFlow 3s linear infinite;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(245, 158, 11, 0.4) 20%, #f59e0b 50%, rgba(245, 158, 11, 0.4) 80%, transparent 100%);
+  background-size: 200% 100%;
+  animation: energyRibbonFlow 2.4s linear infinite;
   z-index: 5;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 }
 
 @keyframes energyRibbonFlow {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 300% 50%; }
+  0% { background-position: -100% 50%; }
+  100% { background-position: 100% 50%; }
 }
 
 .claude-equalizer {

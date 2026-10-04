@@ -413,81 +413,6 @@ export default function App() {
   const contentAreaRef = useRef(null);
   const voice = useVoiceMode();
 
-  // Smart Chat Taskbar Visibility State & 2s Auto-Hide Timer
-  // When messages.length === 0 (new chat), taskbar is VISIBLE so user can access menu & modes.
-  // When messages exist, it stays hidden for open reading canvas, revealing for 2s only on scroll-up.
-  const [chatTopbarVisible, setChatTopbarVisible] = useState(messages.length === 0);
-  const topbarHideTimerRef = useRef(null);
-  const lastScrollTopRef = useRef(0);
-  const isInteractingWithTopbarRef = useRef(false);
-
-  // Sync taskbar state when messages change between empty and active
-  useEffect(() => {
-    if (messages.length === 0) {
-      setChatTopbarVisible(true);
-    } else {
-      setChatTopbarVisible(false);
-    }
-  }, [messages.length]);
-
-  const showChatTopbarTemporarily = useCallback((durationMs = 2000) => {
-    if (isInteractingWithTopbarRef.current) return;
-    setChatTopbarVisible(true);
-    if (topbarHideTimerRef.current) {
-      clearTimeout(topbarHideTimerRef.current);
-    }
-    topbarHideTimerRef.current = setTimeout(() => {
-      if (!isInteractingWithTopbarRef.current) {
-        // If there are messages, auto-hide. If 0 messages, keep visible.
-        if (messages.length > 0) {
-          setChatTopbarVisible(false);
-        }
-      }
-      topbarHideTimerRef.current = null;
-    }, durationMs);
-  }, [messages.length]);
-
-  const keepChatTopbarOpen = useCallback(() => {
-    isInteractingWithTopbarRef.current = true;
-    if (topbarHideTimerRef.current) {
-      clearTimeout(topbarHideTimerRef.current);
-      topbarHideTimerRef.current = null;
-    }
-    setChatTopbarVisible(true);
-  }, []);
-
-  const releaseChatTopbar = useCallback(() => {
-    isInteractingWithTopbarRef.current = false;
-    if (messages.length === 0) return; // keep visible on empty chat
-    if (topbarHideTimerRef.current) {
-      clearTimeout(topbarHideTimerRef.current);
-    }
-    topbarHideTimerRef.current = setTimeout(() => {
-      if (!isInteractingWithTopbarRef.current && messages.length > 0) {
-        setChatTopbarVisible(false);
-      }
-      topbarHideTimerRef.current = null;
-    }, 2000);
-  }, [messages.length]);
-
-  const hideChatTopbar = useCallback(() => {
-    isInteractingWithTopbarRef.current = false;
-    if (messages.length === 0) return; // keep visible on empty chat
-    if (topbarHideTimerRef.current) {
-      clearTimeout(topbarHideTimerRef.current);
-      topbarHideTimerRef.current = null;
-    }
-    setChatTopbarVisible(false);
-  }, [messages.length]);
-
-  // Response generation watcher: keep topbar hidden during and after generation
-  useEffect(() => {
-    const isGenerating = isResponding || isStreaming;
-    if (isGenerating && messages.length > 0) {
-      hideChatTopbar();
-    }
-  }, [isResponding, isStreaming, hideChatTopbar, messages.length]);
-
   const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
 
   // Handle Mobile Browser Hardware / Gesture Back Button
@@ -564,7 +489,6 @@ export default function App() {
     document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
   }, [darkMode]);
 
-  const [showScrollBottom, setShowScrollBottom] = useState(false);
   const userScrolledUpRef = useRef(false);
 
   // Track user scroll position so auto-scroll never locks the page or overrides manual scrolling
@@ -574,30 +498,7 @@ export default function App() {
     const currentScrollTop = el.scrollTop;
     // When distance from bottom exceeds 30px, user has scrolled up to read earlier messages/question
     const distanceFromBottom = el.scrollHeight - currentScrollTop - el.clientHeight;
-    const isUp = distanceFromBottom > 30;
-    userScrolledUpRef.current = isUp;
-    
-    // Only dispatch state update when boolean changes to eliminate scroll lag
-    setShowScrollBottom((prev) => (prev !== isUp ? isUp : prev));
-
-    // Reveal topbar only when user scrolls up towards the top or is near the top
-    const isScrollingUp = currentScrollTop < lastScrollTopRef.current - 10;
-    if (isScrollingUp || currentScrollTop <= 35) {
-      showChatTopbarTemporarily(2000);
-    }
-
-    lastScrollTopRef.current = currentScrollTop;
-  }, [showChatTopbarTemporarily]);
-
-  // Smooth scroll to bottom button handler (Claude style down arrow)
-  const scrollToBottom = useCallback(() => {
-    if (!contentAreaRef.current) return;
-    contentAreaRef.current.scrollTo({
-      top: contentAreaRef.current.scrollHeight,
-      behavior: 'smooth'
-    });
-    userScrolledUpRef.current = false;
-    setShowScrollBottom(false);
+    userScrolledUpRef.current = distanceFromBottom > 30;
   }, []);
 
   // Auto-scroll: ONLY while actively streaming, and ONLY if user is already at the bottom
@@ -1162,72 +1063,25 @@ export default function App() {
       />
 
       <main className="main-panel">
-        {/* Floating Claude-style navigation buttons (menu on left, home on right) — visible when topbar hides */}
-        {messages.length > 0 && !chatTopbarVisible && (
-          <>
+        <header className="topbar topbar-visible">
+          <div className="topbar-left">
             <button
-              type="button"
-              className="claude-floating-menu-btn"
-              onClick={() => setSidebarOpen(true)}
-              aria-label="Open chat history and menu"
-              title="Open chat history and menu"
+              className="icon-button menu-button"
+              aria-label="Toggle navigation"
+              onClick={() => setSidebarOpen((current) => !current)}
             >
-              <Icon name="menu" size={18} />
+              <Icon name="menu" />
             </button>
-            <button
-              type="button"
-              className="claude-floating-home-btn floating-back-home-pill"
-              onClick={() => setView('landing')}
-              aria-label="Return to Home"
-              title="Return to Home"
-            >
-              <Icon name="home" size={18} />
-            </button>
-          </>
-        )}
-
-        <header
-          className={`topbar ${chatTopbarVisible ? 'topbar-visible' : 'topbar-hidden'}`}
-          onMouseEnter={keepChatTopbarOpen}
-          onMouseLeave={releaseChatTopbar}
-          onTouchStart={keepChatTopbarOpen}
-          onTouchEnd={releaseChatTopbar}
-        >
-          <button
-            className="icon-button menu-button"
-            aria-label="Toggle navigation"
-            onClick={() => setSidebarOpen((current) => !current)}
-          >
-            <Icon name="menu" />
-          </button>
+          </div>
 
           <div className="topbar-center">
-            <button className="home-link" onClick={() => setView('landing')} title="Return to Home" aria-label="Return to Home">
-              <Icon name="home" size={15} />
-              <span className="home-link-text">Home</span>
-            </button>
-            <div className="mode-toggle-group" style={{ display: 'inline-flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', borderRadius: '24px', padding: '3px 4px', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="mode-toggle-group">
               <button
                 type="button"
                 className={`mode-pill-btn ${inferenceMode === 'deep' ? 'active' : ''}`}
                 onClick={() => handleModeChange('deep')}
                 aria-label="Deep Mode: Fine-tuned Q8 Oracle model"
                 aria-pressed={inferenceMode === 'deep'}
-                style={{
-                  background: inferenceMode === 'deep' ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : 'transparent',
-                  color: inferenceMode === 'deep' ? '#ffffff' : 'var(--text-muted, #9ca3af)',
-                  border: 'none',
-                  borderRadius: '18px',
-                  padding: '4px 12px',
-                  fontSize: '0.78rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  whiteSpace: 'nowrap'
-                }}
                 title="Dedicated Oracle Cloud Q8 GGUF Server (~12s response)"
               >
                 🧘 <span className="mode-pill-btn-label-text">Deep</span>
@@ -1238,27 +1092,13 @@ export default function App() {
                 onClick={() => handleModeChange('fast')}
                 aria-label="Fast Mode: Ultra-fast LPU inference"
                 aria-pressed={inferenceMode === 'fast'}
-                style={{
-                  background: inferenceMode === 'fast' ? 'linear-gradient(135deg, #d97706, #b45309)' : 'transparent',
-                  color: inferenceMode === 'fast' ? '#ffffff' : 'var(--text-muted, #9ca3af)',
-                  border: 'none',
-                  borderRadius: '18px',
-                  padding: '4px 12px',
-                  fontSize: '0.78rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  whiteSpace: 'nowrap'
-                }}
                 title="Ultra-fast LPU inference (~1s response)"
               >
                 ⚡ <span className="mode-pill-btn-label-text">Fast</span>
               </button>
             </div>
           </div>
+
 
           {modeNotification && (
             <div
@@ -1319,17 +1159,25 @@ export default function App() {
 
           <div className="topbar-actions">
             <button
-              className={`icon-button ${autoSpeak ? 'auto-speak-active' : ''}`}
+              className="icon-button home-topbar-btn"
+              onClick={() => setView('landing')}
+              title="Return to Home"
+              aria-label="Return to Home"
+            >
+              <Icon name="home" size={17} />
+            </button>
+
+            <button
+              className={`icon-button auto-speak-btn ${autoSpeak ? 'auto-speak-active' : ''}`}
               aria-label={autoSpeak ? 'Auto-Voice Enabled: Maharaj Ji speaks replies automatically' : 'Auto-Voice Disabled'}
-              title={autoSpeak ? '🔊 Auto-Voice ON: Maharaj Ji speaks every answer automatically' : '🔇 Auto-Voice OFF: Click to hear Maharaj Ji speak every answer automatically'}
+              title={autoSpeak ? '🔊 Auto-Voice ON' : '🔇 Auto-Voice OFF'}
               onClick={toggleAutoSpeak}
-              style={autoSpeak ? { color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.6)', background: 'rgba(245, 158, 11, 0.15)' } : {}}
             >
               <Icon name={autoSpeak ? 'volume' : 'volume-x'} />
             </button>
 
             <button
-              className={`icon-button ${voiceModeOpen ? 'voice-toggle-active' : ''}`}
+              className={`icon-button voice-mode-btn ${voiceModeOpen ? 'voice-toggle-active' : ''}`}
               aria-label={voiceModeOpen ? 'Close Voice Mode' : 'Open Voice Mode'}
               aria-pressed={voiceModeOpen}
               onClick={() => setVoiceModeOpen((current) => !current)}
@@ -1338,12 +1186,13 @@ export default function App() {
             </button>
 
             <button
-              className="icon-button"
+              className="icon-button theme-toggle-btn"
               aria-label={darkMode ? 'Use light theme' : 'Use dark theme'}
               onClick={toggleTheme}
             >
               <Icon name={darkMode ? 'sun' : 'moon'} />
             </button>
+
             <div
               className="user-avatar"
               role="button"
@@ -1399,16 +1248,18 @@ export default function App() {
                       transition={{ type: 'spring', stiffness: 320, damping: 26 }}
                       style={{ animation: 'none' }}
                     >
-                      <div className="user-message-bubble">
-                        <p>{message.content}</p>
-                      </div>
-                      {message.timestamp && (
-                        <div className="message-meta">
-                          <time className="message-time">
-                            {formatTimestamp(message.timestamp)}
-                          </time>
+                      <div className="user-message-wrap">
+                        <div className="user-message-bubble">
+                          <p>{message.content}</p>
                         </div>
-                      )}
+                        {message.timestamp && (
+                          <div className="message-meta user-message-meta">
+                            <time className="message-time">
+                              {formatTimestamp(message.timestamp)}
+                            </time>
+                          </div>
+                        )}
+                      </div>
                     </motion.article>
                   );
                 }
@@ -1532,17 +1383,7 @@ export default function App() {
           </motion.div>
         )}
 
-        {messages.length > 0 && showScrollBottom && (
-          <button
-            type="button"
-            className="claude-scroll-down-btn"
-            onClick={scrollToBottom}
-            aria-label="Scroll to latest message"
-            title="Scroll to latest message"
-          >
-            <span aria-hidden="true">↓</span>
-          </button>
-        )}
+
 
 
         <Composer
@@ -1552,7 +1393,6 @@ export default function App() {
           isDisabled={isResponding || isStreaming}
           guestLimitReached={getIsGuestLimitReached() && !isResponding && !isStreaming}
           onGuestLimitClick={() => setShowGuestLoginModal(true)}
-          onFocus={hideChatTopbar}
         />
       </main>
 
