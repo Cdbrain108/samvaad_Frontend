@@ -8842,11 +8842,126 @@ select:focus-visible,
   border-color: #FEF3C7 !important;
 }
 
+/* Header User Pill & Sign In Button */
+.landing-user-pill,
+.landing-signin-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 14px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border-radius: 999px !important;
+  cursor: pointer !important;
+  background: rgba(254, 243, 199, 0.95) !important;
+  border: 1px solid rgba(217, 119, 6, 0.4) !important;
+  color: #78350F !important;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.15) !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+.night .landing-user-pill,
+.night .landing-signin-btn {
+  background: rgba(254, 200, 75, 0.16) !important;
+  border: 1px solid rgba(254, 200, 75, 0.45) !important;
+  color: #FEF3C7 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.landing-user-pill:hover,
+.landing-signin-btn:hover {
+  transform: translateY(-1px) scale(1.02) !important;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3) !important;
+  border-color: rgba(245, 158, 11, 0.7) !important;
+}
+
+.landing-user-name {
+  max-width: 95px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hero Ask Box — High Visibility & Crisp Contrast (Day & Night) */
+.hero-askbox {
+  background: rgba(255, 255, 255, 0.97) !important;
+  border: 1.5px solid rgba(217, 119, 6, 0.38) !important;
+  box-shadow: 0 10px 32px rgba(120, 70, 10, 0.14) !important;
+}
+
+.night .hero-askbox {
+  background: rgba(13, 31, 56, 0.96) !important;
+  border: 1.5px solid rgba(254, 200, 75, 0.4) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6) !important;
+}
+
+.hero-askbox input {
+  color: #2D1802 !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+}
+
+.hero-askbox input::placeholder {
+  color: #5A3508 !important;
+  opacity: 1 !important;
+  font-weight: 500 !important;
+  -webkit-text-fill-color: #5A3508 !important;
+}
+
+.night .hero-askbox input {
+  color: #FFFDF7 !important;
+  font-weight: 500 !important;
+}
+
+.night .hero-askbox input::placeholder {
+  color: #F8FAFC !important;
+  opacity: 0.98 !important;
+  font-weight: 500 !important;
+  -webkit-text-fill-color: #F8FAFC !important;
+}
+
 @media (max-width: 640px) {
-  .spiritual-header .cta-button,
-  .header-ask-cta {
-    padding: 6px 14px !important;
-    font-size: 12px !important;
+  .hero-askbox,
+  .phase-hero .hero-askbox {
+    margin-top: 10px !important;
+    padding: 5px 6px 5px 12px !important;
+    border-radius: 999px !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .hero-askbox input,
+  .phase-hero .hero-askbox input {
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    line-height: 1.25 !important;
+  }
+  .hero-askbox input::placeholder {
+    color: #432203 !important;
+    opacity: 1 !important;
+    font-weight: 500 !important;
+    -webkit-text-fill-color: #432203 !important;
+  }
+  .night .hero-askbox input::placeholder,
+  .spiritual-page.night .hero-askbox input::placeholder {
+    color: #FFFFFF !important;
+    opacity: 0.98 !important;
+    font-weight: 500 !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+  }
+  .askbox-lotus {
+    font-size: 16px !important;
+  }
+  .landing-user-pill,
+  .landing-signin-btn {
+    padding: 4px 10px !important;
+    font-size: 11px !important;
+    gap: 4px !important;
+  }
+  .landing-user-name {
+    max-width: 65px;
   }
   .floating-try-samvaad-pill {
     bottom: max(16px, env(safe-area-inset-bottom, 14px)) !important;

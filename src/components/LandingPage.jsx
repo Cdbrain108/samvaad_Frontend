@@ -929,71 +929,31 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
               </span>
             </button>
             {user ? (
-              <div className="landing-user-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <button
-                  className="theme-pill-toggle landing-user-pill"
-                  onClick={onEnter}
-                  style={{
-                    cursor: 'pointer',
-                    padding: '6px 13px',
-                    fontWeight: 600,
-                    fontSize: '0.83rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    color: darkMode ? '#FFE9B8' : '#78350F',
-                    background: darkMode ? 'rgba(254, 200, 75, 0.12)' : 'rgba(254, 243, 199, 0.85)',
-                    border: darkMode ? '1px solid rgba(254, 200, 75, 0.35)' : '1px solid rgba(217, 119, 6, 0.35)',
-                    borderRadius: '999px',
-                  }}
-                  type="button"
-                  title={`Signed in as ${userProfile?.fullName || user.email || 'Devotee'}. Click to enter chat.`}
-                >
-                  <span aria-hidden="true">🙏</span>
-                  <span style={{ maxWidth: '95px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {userProfile?.fullName ? userProfile.fullName.split(' ')[0] : (user.email ? user.email.split('@')[0] : 'Devotee')}
-                  </span>
-                </button>
-                {onLogout && (
-                  <button
-                    className="theme-pill-toggle landing-logout-btn"
-                    onClick={onLogout}
-                    style={{
-                      cursor: 'pointer',
-                      padding: '7px 12px',
-                      fontWeight: 500,
-                      fontSize: '0.8rem',
-                      color: darkMode ? '#FCA5A5' : '#DC2626',
-                      background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(254, 226, 226, 0.7)',
-                      border: darkMode ? '1px solid rgba(239, 68, 68, 0.25)' : '1px solid rgba(239, 68, 68, 0.35)',
-                      borderRadius: '999px',
-                    }}
-                    type="button"
-                    aria-label="Sign out"
-                    title="Sign out of account"
-                  >
-                    Sign Out
-                  </button>
-                )}
-              </div>
+              <button
+                className="landing-user-pill"
+                onClick={onEnter}
+                type="button"
+                title={`Signed in as ${userProfile?.fullName || user.displayName || user.email || 'Devotee'}. Click to enter chat.`}
+              >
+                <span aria-hidden="true">🙏</span>
+                <span className="landing-user-name">
+                  {userProfile?.fullName ? userProfile.fullName.split(' ')[0] : (user.displayName ? user.displayName.split(' ')[0] : (user.email ? user.email.split('@')[0] : 'Devotee'))}
+                </span>
+              </button>
             ) : (
               onSignIn && (
                 <button
-                  className="theme-pill-toggle"
+                  className="landing-signin-btn"
                   onClick={onSignIn}
-                  style={{ cursor: 'pointer', padding: '8px 16px', fontWeight: 600, fontSize: '0.85rem' }}
                   type="button"
                   aria-label="Sign In to account"
+                  title="Sign In to Samvaad"
                 >
-                  Sign In
+                  <span aria-hidden="true">✨</span>
+                  <span>Sign In</span>
                 </button>
               )
             )}
-            <button className="rust-button cta-button header-ask-cta" onClick={onEnter}>
-              <span aria-hidden="true">🙏</span>
-              <strong>Try Samvaad</strong>
-              <span aria-hidden="true">→</span>
-            </button>
           </div>
         </header>
       )}
@@ -1070,8 +1030,8 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
                 ref={askInputRef}
                 value={question}
                 onChange={(event) => setQuestion(event.target.value)}
-                placeholder="Ask your spiritual or life question..."
-                aria-label="Ask your question"
+                placeholder="Ask your spiritual or life questions..."
+                aria-label="Ask your spiritual or life questions"
               />
               <button className="askbox-send" type="submit" aria-label="Send question" title="Ask question in Samvaad">
                 <Icon name="arrow-right" size={18} />

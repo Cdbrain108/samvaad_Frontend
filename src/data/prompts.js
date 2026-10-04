@@ -19,22 +19,22 @@ export const promptSuggestions = [
     prompt: 'आध्यात्मिक उन्नति के लिए भगवान के नाम का निरंतर जप (राधे-राधे) क्यों आवश्यक है?',
   },
   {
-    icon: 'moon',
-    eyebrow: 'माया और परीक्षण',
-    title: 'माया क्या होती है और यह कैसे परीक्षण में डालती है?',
-    prompt: 'माया क्या होती है और यह मनुष्य को किस प्रकार के परीक्षणों में डालती है?',
-  },
-  {
-    icon: 'translate',
-    eyebrow: 'English · Divine love',
-    title: 'How does divine love manifest through chanting the Holy Name?',
-    prompt: 'How does divine love manifest through chanting the Holy Name, and what transformation does it bring to the practitioner?',
-  },
-  {
     icon: 'spark',
     eyebrow: 'प्रारब्ध और कृपा',
     title: 'क्या प्रारब्ध को बदला जा सकता है, और इसमें प्रभु कृपा की क्या भूमिका है?',
     prompt: 'क्या प्रारब्ध को बदला जा सकता है, और जीवन के संकटों में निरंतर नाम जप और प्रभु कृपा से किस प्रकार शांति मिलती है?',
+  },
+  {
+    icon: 'translate',
+    eyebrow: 'Divine Love',
+    title: 'How does divine love manifest through chanting the Holy Name?',
+    prompt: 'How does divine love manifest through chanting the Holy Name, and what transformation does it bring to the practitioner?',
+  },
+  {
+    icon: 'moon',
+    eyebrow: 'Inner Peace',
+    title: 'How can one overcome anxiety and inner restlessness through spiritual practice?',
+    prompt: 'How can one overcome anxiety, fear, and inner restlessness in daily life through regular meditation, prayer, and holy chanting?',
   },
 ]
 
