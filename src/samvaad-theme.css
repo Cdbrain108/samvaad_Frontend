@@ -9848,7 +9848,7 @@ select:focus-visible,
     box-sizing: border-box !important;
   }
 
-  /* Desktop Assistant Messages: Pure open typography canvas without boxes or borders */
+  /* Desktop Assistant Messages: Sacred Card Box with Generous Padding (Zero Edge Collision) */
   .message.assistant,
   :root[data-theme='light'] .message.assistant,
   :root[data-theme='dark'] .message.assistant,
@@ -9861,22 +9861,31 @@ select:focus-visible,
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
-    margin: 0 0 20px 0 !important;
+    margin: 0 0 24px 0 !important;
   }
 
-  .message.assistant > div,
-  :root[data-theme='light'] .message.assistant > div,
-  :root[data-theme='dark'] .message.assistant > div,
   .assistant-message-body {
+    position: relative !important;
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border-radius: 0 !important;
+    box-sizing: border-box !important;
+    border-radius: 20px !important;
+    padding: 24px 28px 22px 28px !important;
+    background: #FFFDF8 !important;
+    border: 1.5px solid rgba(217, 119, 6, 0.22) !important;
+    border-top: 3px solid rgba(217, 119, 6, 0.6) !important;
+    box-shadow: 0 6px 24px -2px rgba(180, 83, 9, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+    margin: 0 0 24px 0 !important;
+    overflow: visible !important;
+  }
+
+  :root[data-theme='dark'] .assistant-message-body,
+  .spiritual-page.night .assistant-message-body {
+    background: rgba(18, 15, 29, 0.94) !important;
+    border: 1.5px solid rgba(245, 158, 11, 0.26) !important;
+    border-top: 3px solid rgba(251, 191, 36, 0.6) !important;
+    box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.5), 0 0 16px rgba(245, 158, 11, 0.06) !important;
   }
 
   .floating-back-home-pill {
@@ -9927,7 +9936,7 @@ select:focus-visible,
     box-shadow: none !important;
   }
 
-  /* Dedicated Sacred Card Box ONLY on Mobile Viewport */
+  /* Dedicated Sacred Card Box ONLY on Mobile Viewport with safe comfortable padding */
   .assistant-message-body {
     position: relative !important;
     display: block !important;
@@ -9935,7 +9944,7 @@ select:focus-visible,
     max-width: 100% !important;
     box-sizing: border-box !important;
     border-radius: 18px !important;
-    padding: 18px 20px 18px !important;
+    padding: 18px 20px 18px 20px !important;
     touch-action: pan-y !important;
     background: #FFFDF8 !important;
     border: 1.5px solid rgba(217, 119, 6, 0.22) !important;
@@ -10102,15 +10111,27 @@ select:focus-visible,
   touch-action: pan-y !important;
 }
 
-/* Assistant Open Typography */
+/* Assistant Typography inside Card Box */
 .message.assistant .rich-text {
   font-size: 15.5px !important;
-  line-height: 1.72 !important;
+  line-height: 1.8 !important;
   color: var(--text, #1F2937) !important;
+  margin-top: 14px !important;
+  margin-bottom: 14px !important;
+  letter-spacing: 0.012em !important;
 }
 
 :root[data-theme='dark'] .message.assistant .rich-text {
   color: #F3F4F6 !important;
+}
+
+.message.assistant .rich-text p {
+  margin: 0 0 14px 0 !important;
+  line-height: 1.8 !important;
+}
+
+.message.assistant .rich-text p:last-child {
+  margin-bottom: 0 !important;
 }
 
 /* Minimal Action Row Under Assistant Message */
@@ -10118,7 +10139,9 @@ select:focus-visible,
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  margin-top: 10px !important;
+  margin-top: 14px !important;
+  padding-top: 10px !important;
+  border-top: 1px solid rgba(245, 158, 11, 0.14) !important;
   justify-content: flex-start !important;
 }
 
