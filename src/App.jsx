@@ -1533,20 +1533,16 @@ export default function App() {
           </button>
         )}
 
-        {/* Floating Quick-Access Pill to Return to Home - strictly for Mobile UI */}
+        {/* Floating Home Icon Button - icon only, matches hamburger style on right */}
         {isMobileScreen && (
           <button
             className="floating-back-home-pill"
             onClick={() => setView('landing')}
-            aria-label="Return to Home · मुख्य पृष्ठ पर वापस जाएं"
-            title="Return to Home · मुख्य पृष्ठ पर वापस जाएं"
+            aria-label="Return to Home"
+            title="Return to Home"
             type="button"
           >
-            <span className="floating-pill-icon" aria-hidden="true">🏠</span>
-            <span className="floating-pill-text">
-              <strong>Home</strong>
-              <small>मुख्य पृष्ठ →</small>
-            </span>
+            <Icon name="home" size={18} />
           </button>
         )}
 
