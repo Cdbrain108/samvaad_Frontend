@@ -40,7 +40,7 @@
    Transitions are now applied only to targeted interactive elements. */
 button, a, input, textarea, select,
 .icon-button, .composer-action, .send-button, .conversation-item, .suggestion-card,
-.new-chat-button, .rust-button, .auth-button, .capability-card, .message.assistant > div {
+.new-chat-button, .rust-button, .auth-button, .capability-card {
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.16s ease, opacity 0.16s ease;
 }
 

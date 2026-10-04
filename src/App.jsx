@@ -558,67 +558,23 @@ export default function App() {
 
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const userScrolledUpRef = useRef(false);
-  const isUserTouchingRef = useRef(false);
-  const touchStartYRef = useRef(0);
-  const scrollRafRef = useRef(null);       // pending rAF id
-  const scrollTimerRef = useRef(null);     // pending setTimeout id for throttle
-  const lastScrollTimeRef = useRef(0);    // timestamp of last actual scroll write
 
-  // Attach touch listeners to contentArea so user touch gestures NEVER get hijacked by streaming
-  useEffect(() => {
-    const el = contentAreaRef.current;
-    if (!el) return;
-
-    const onTouchStart = (e) => {
-      isUserTouchingRef.current = true;
-      if (e.touches && e.touches[0]) {
-        touchStartYRef.current = e.touches[0].clientY;
-      }
-    };
-
-    const onTouchMove = (e) => {
-      if (e.touches && e.touches[0]) {
-        const deltaY = e.touches[0].clientY - touchStartYRef.current;
-        // User swiped downwards with their finger (scrolling upwards to earlier messages)
-        if (deltaY > 8) {
-          userScrolledUpRef.current = true;
-        }
-      }
-    };
-
-    const onTouchEnd = () => {
-      isUserTouchingRef.current = false;
-    };
-
-    el.addEventListener('touchstart', onTouchStart, { passive: true });
-    el.addEventListener('touchmove', onTouchMove, { passive: true });
-    el.addEventListener('touchend', onTouchEnd, { passive: true });
-    el.addEventListener('touchcancel', onTouchEnd, { passive: true });
-
-    return () => {
-      el.removeEventListener('touchstart', onTouchStart);
-      el.removeEventListener('touchmove', onTouchMove);
-      el.removeEventListener('touchend', onTouchEnd);
-      el.removeEventListener('touchcancel', onTouchEnd);
-    };
-  }, []);
-
-  // Track user scroll position so streaming never locks the page or overrides manual scrolling
+  // Track user scroll position so auto-scroll never locks the page or overrides manual scrolling
   const handleContentScroll = useCallback(() => {
     if (!contentAreaRef.current) return;
     const el = contentAreaRef.current;
     const currentScrollTop = el.scrollTop;
-    // Lower threshold: if distance from bottom exceeds 24px, user is reading earlier messages
+    // When distance from bottom exceeds 30px, user has scrolled up to read earlier messages/question
     const distanceFromBottom = el.scrollHeight - currentScrollTop - el.clientHeight;
-    const isUp = distanceFromBottom > 24;
+    const isUp = distanceFromBottom > 30;
     userScrolledUpRef.current = isUp;
     
     // Only dispatch state update when boolean changes to eliminate scroll lag
     setShowScrollBottom((prev) => (prev !== isUp ? isUp : prev));
 
-    // Only reveal topbar when user scrolls UP towards the top, then auto-hide after 2s if idle
+    // Reveal topbar only when user scrolls up towards the top or is near the top
     const isScrollingUp = currentScrollTop < lastScrollTopRef.current - 10;
-    if (isScrollingUp || currentScrollTop <= 20) {
+    if (isScrollingUp || currentScrollTop <= 35) {
       showChatTopbarTemporarily(2000);
     }
 
@@ -636,35 +592,16 @@ export default function App() {
     setShowScrollBottom(false);
   }, []);
 
-  // Perform the actual scroll during streaming — only when actively streaming, NOT touching, and NOT scrolled up
-  const doScrollToBottom = useCallback(() => {
-    scrollRafRef.current = null;
-    if (!isStreaming || !contentAreaRef.current || userScrolledUpRef.current || isUserTouchingRef.current) return;
-    contentAreaRef.current.scrollTop = contentAreaRef.current.scrollHeight;
-    lastScrollTimeRef.current = Date.now();
-  }, [isStreaming]);
-
-  // Auto-scroll: time-throttled so rapid streaming never causes visual shake or touch conflicts.
-  // CRITICAL: ONLY run while isStreaming is active. When response completes, NEVER touch or reset scrollTop!
+  // Auto-scroll: ONLY while actively streaming, and ONLY if user is already at the bottom
   useEffect(() => {
-    if (!isStreaming || !contentAreaRef.current || userScrolledUpRef.current || isUserTouchingRef.current) return;
+    if (!isStreaming || !contentAreaRef.current) return;
+    const el = contentAreaRef.current;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    // If user has scrolled up away from bottom, NEVER force them down!
+    if (distanceFromBottom > 40) return;
 
-    const elapsed = Date.now() - lastScrollTimeRef.current;
-    const THROTTLE_MS = 100;
-
-    if (elapsed >= THROTTLE_MS) {
-      if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
-      scrollRafRef.current = requestAnimationFrame(doScrollToBottom);
-    } else {
-      if (!scrollTimerRef.current) {
-        scrollTimerRef.current = setTimeout(() => {
-          scrollTimerRef.current = null;
-          if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
-          scrollRafRef.current = requestAnimationFrame(doScrollToBottom);
-        }, THROTTLE_MS - elapsed);
-      }
-    }
-  }, [messages, isStreaming, doScrollToBottom]);
+    el.scrollTop = el.scrollHeight;
+  }, [messages, isStreaming]);
 
   // Sync body viewport lock when entering or leaving chat view on mobile
   useEffect(() => {

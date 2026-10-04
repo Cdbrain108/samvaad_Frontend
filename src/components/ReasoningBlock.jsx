@@ -119,6 +119,11 @@ export default function ReasoningBlock({
       return;
     }
 
+    if (!isThinking) {
+      setDisplayedThought(thought);
+      return;
+    }
+
     if (displayedThought === thought) return;
 
     const diff = thought.length - displayedThought.length;

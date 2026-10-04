@@ -6909,15 +6909,15 @@ select:focus-visible,
 
 /* ── 5. CHAT MESSAGES: Fix user bubble layout on narrow screens ── */
 @media (max-width: 640px) {
-  /* Assistant message: left aligned with avatar on left */
+  /* Assistant message: full width unified card layout */
   .message.assistant {
-    grid-template-columns: 30px 1fr !important;
-    gap: 8px !important;
-    align-items: flex-start !important;
-    align-self: flex-start !important;
-    margin-right: auto !important;
-    margin-left: 0 !important;
-    max-width: 94% !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 16px 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
   }
 
   /* User query message: aligned cleanly to the RIGHT side */
@@ -7720,8 +7720,8 @@ select:focus-visible,
   }
 
   .message.assistant {
-    background: rgba(14, 11, 24, 0.7) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: transparent !important;
+    border: none !important;
   }
 
   .message.user {
@@ -9891,8 +9891,15 @@ select:focus-visible,
 
 /* Content Area & Messages Clearance for Lag-Free Unhindered Scrolling */
 .content-area {
-  padding-top: 16px !important;
-  padding-bottom: 84px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  padding: 0 !important;
   overflow-y: auto !important;
   -webkit-overflow-scrolling: touch !important;
   overscroll-behavior-y: auto !important;
@@ -9901,11 +9908,14 @@ select:focus-visible,
 }
 
 .content-area .messages {
-  padding-top: 56px !important;
-  padding-bottom: 24px !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 18px !important;
+  width: 100% !important;
+  max-width: 860px !important;
+  margin: 0 auto !important;
+  padding: 76px 20px 96px 20px !important;
+  gap: 20px !important;
+  box-sizing: border-box !important;
   touch-action: pan-y !important;
 }
 
@@ -9919,12 +9929,16 @@ select:focus-visible,
 }
 
 @media (max-width: 768px) {
-  .content-area {
-    padding-top: 12px !important;
-    padding-bottom: 96px !important;
-    overscroll-behavior-y: auto !important;
-    overscroll-behavior: auto !important;
-    touch-action: pan-y !important;
+  .content-area .messages {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 74px 10px 96px 10px !important;
+    gap: 16px !important;
+  }
+
+  .assistant-message-body {
+    padding: 16px 15px 14px !important;
+    border-radius: 16px !important;
   }
 }
 
