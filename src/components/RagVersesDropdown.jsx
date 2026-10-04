@@ -54,7 +54,7 @@ export default function RagVersesDropdown({ scripture = null, isEnglish = false 
   };
 
   return (
-    <div className="rag-verses-dropdown-container">
+    <div className="rag-verses-dropdown-container" style={{ touchAction: 'pan-y' }}>
 
       {/* ─── Section Header Label (always visible & clickable) ─── */}
       <div
@@ -113,8 +113,9 @@ export default function RagVersesDropdown({ scripture = null, isEnglish = false 
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            style={{ touchAction: 'pan-y' }}
           >
-            <div className="rag-verse-cards-list">
+            <div className="rag-verse-cards-list" style={{ touchAction: 'pan-y' }}>
               {candidates.map((verse, idx) => {
                 const isPrimary = idx === 0 || verse.role === 'primary';
                 const scorePct = formatScore(verse.score);

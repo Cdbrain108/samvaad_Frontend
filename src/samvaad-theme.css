@@ -9964,8 +9964,9 @@ select:focus-visible,
 /* Mobile optimizations for Project Overview Demo Header */
 @media (max-width: 600px) {
   .chat-demo-topbar {
-    padding: 10px 12px !important;
+    padding: 8px 12px !important;
     gap: 8px !important;
+    min-height: 42px !important;
   }
 
   .chat-demo-meta {
@@ -9993,14 +9994,288 @@ select:focus-visible,
   }
 
   .chat-demo-badge {
-    font-size: 8.5px !important;
-    padding: 2px 6px !important;
-    max-width: 100px !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    font-size: 9px !important;
+    padding: 2.5px 7px !important;
+    max-width: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
     white-space: nowrap !important;
+    letter-spacing: 0.02em !important;
   }
 }
+
+/* ═════════════════════════════════════════════════════════════════════
+   CLAUDE-STYLE FLOATING TOP-LEFT HAMBURGER MENU BUTTON
+   ═════════════════════════════════════════════════════════════════════ */
+.claude-floating-menu-btn {
+  position: absolute !important;
+  top: 12px !important;
+  left: 14px !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(180, 120, 40, 0.22) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+  color: #451A03 !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  z-index: 45 !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.claude-floating-menu-btn:hover {
+  transform: scale(1.05) !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.2) !important;
+}
+
+:root[data-theme='dark'] .claude-floating-menu-btn {
+  background: rgba(30, 27, 46, 0.88) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35) !important;
+  color: #FCD34D !important;
+}
+
+:root[data-theme='dark'] .claude-floating-menu-btn:hover {
+  background: rgba(45, 40, 68, 0.95) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+   RAG VERSES DROPDOWN MOBILE TOUCH-SCROLL OPTIMIZATION
+   ═════════════════════════════════════════════════════════════════════ */
+.rag-verses-dropdown-container,
+.rag-verses-drawer,
+.rag-verse-cards-list,
+.rag-verse-card {
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.rag-verses-drawer {
+  overflow: visible !important;
+}
+
+@media (max-width: 600px) {
+  .rag-verses-dropdown-container {
+    border-radius: 12px !important;
+    margin-top: 10px !important;
+  }
+  .rag-verses-toggle-btn {
+    padding: 8px 12px !important;
+  }
+  .rag-verses-toggle-title {
+    font-size: 11.5px !important;
+  }
+  .rag-verses-primary-preview {
+    font-size: 11px !important;
+  }
+  .rag-verses-score-badge {
+    font-size: 9.5px !important;
+    padding: 2px 7px !important;
+  }
+  .rag-verse-cards-list {
+    padding: 10px !important;
+    gap: 10px !important;
+  }
+  .rag-verse-card {
+    padding: 10px 12px !important;
+    border-radius: 10px !important;
+  }
+  .rag-verse-card-ref {
+    font-size: 12.5px !important;
+  }
+  .rag-verse-shlok-text {
+    font-size: 12.5px !important;
+    line-height: 1.55 !important;
+  }
+  .rag-verse-meaning-row {
+    font-size: 11.5px !important;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+   BHAJAN MARG YOUTUBE VIDEO EXIT CONFIRMATION MODAL
+   ═════════════════════════════════════════════════════════════════════ */
+.video-confirm-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(14, 11, 20, 0.72) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  z-index: 1000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+}
+
+.video-confirm-dialog {
+  max-width: 440px !important;
+  width: 100% !important;
+  background: #FFFDF9 !important;
+  border: 1.5px solid rgba(217, 119, 6, 0.32) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28) !important;
+  padding: 22px 20px 18px !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+}
+
+:root[data-theme='dark'] .video-confirm-dialog {
+  background: #181524 !important;
+  border-color: rgba(254, 200, 75, 0.3) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+  color: #F9FAFB !important;
+}
+
+.video-confirm-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin-bottom: 10px !important;
+}
+
+.video-confirm-om {
+  font-size: 20px !important;
+}
+
+.video-confirm-header h3 {
+  margin: 0 !important;
+  font-size: 16.5px !important;
+  font-weight: 700 !important;
+  color: #92400E !important;
+}
+
+:root[data-theme='dark'] .video-confirm-header h3 {
+  color: #FCD34D !important;
+}
+
+.video-confirm-message {
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+  color: #374151 !important;
+  margin: 0 0 12px 0 !important;
+}
+
+:root[data-theme='dark'] .video-confirm-message {
+  color: #E5E7EB !important;
+}
+
+.video-confirm-preview-card {
+  background: rgba(254, 243, 199, 0.45) !important;
+  border: 1px solid rgba(217, 119, 6, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  margin: 0 0 12px 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  text-align: left !important;
+}
+
+:root[data-theme='dark'] .video-confirm-preview-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.video-confirm-tag {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  color: #D97706 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+
+.video-confirm-title {
+  font-size: 13.5px !important;
+  color: #1F2937 !important;
+}
+
+:root[data-theme='dark'] .video-confirm-title {
+  color: #F9FAFB !important;
+}
+
+.video-confirm-source {
+  font-size: 10.5px !important;
+  color: #6B7280 !important;
+}
+
+.video-confirm-quote {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  color: #B45309 !important;
+  margin: 0 0 16px 0 !important;
+  padding: 0 6px !important;
+}
+
+:root[data-theme='dark'] .video-confirm-quote {
+  color: #FBBF24 !important;
+}
+
+.video-confirm-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.video-confirm-btn-primary {
+  width: 100% !important;
+  padding: 11px 16px !important;
+  border-radius: 12px !important;
+  border: none !important;
+  background: linear-gradient(135deg, #EA580C, #D97706) !important;
+  color: #FFFFFF !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3) !important;
+  transition: transform 0.16s ease, box-shadow 0.16s ease !important;
+}
+
+.video-confirm-btn-primary:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.4) !important;
+}
+
+.video-confirm-btn-secondary {
+  width: 100% !important;
+  padding: 9px 16px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(180, 120, 40, 0.25) !important;
+  background: transparent !important;
+  color: #6B7280 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: background 0.16s ease !important;
+}
+
+.video-confirm-btn-secondary:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: #1F2937 !important;
+}
+
+:root[data-theme='dark'] .video-confirm-btn-secondary {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #9CA3AF !important;
+}
+
+.video-card-button {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  width: 100% !important;
+  display: block !important;
+}
+
 
 
 

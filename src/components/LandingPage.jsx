@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Icon from './Icon'
 import ScriptureBook from './ScriptureBook'
 import ParchmentScroll from './ParchmentScroll'
@@ -224,7 +225,7 @@ function ChatProjectOverview({ onEnter, headingDismissed, onToggleHeading, onCha
 As a devotee seeking spiritual strength to quiet a restless mind and lead a righteous life, I realized millions of householders and youth have real, everyday questions about karma, anxiety, bhakti, detachment, and family duties. Maharaj Ji's Ekantik Vartalaap discourses on YouTube address these with boundless compassion and simple clarity.
 
 I created Samvaad to make this wisdom effortlessly accessible through conversational AI — to help myself and fellow seekers clear doubts with humility, warmth, and sacred grounding.`,
-      tag: 'Heart & Inspiration',
+      tag: 'Inspiration',
     },
     {
       id: 'working',
@@ -239,7 +240,7 @@ I created Samvaad to make this wisdom effortlessly accessible through conversati
 3. Compassionate AI Tuning: Custom fine-tuned conversational intelligence trained to converse with fatherly warmth, humility, and authentic reverence.
 
 4. Sacred Scripture RAG: 175,000+ sacred verses across 29 Dharmic scriptures (Bhagavad Gita, Ramcharitmanas, Upanishads) embedded for spiritual grounding.`,
-      tag: 'Architecture & RAG',
+      tag: 'Architecture',
     },
     {
       id: 'devotion',
@@ -256,7 +257,7 @@ Key features for seekers:
 3. Thoughtful Memory: Preserves context across inquiries so your reflection grows with you.
 
 4. Sacred Educational Playground: Dedicated to respectful learning and inner contemplation.`,
-      tag: 'Seeker Experience',
+      tag: 'Seekers',
     },
   ]
 
@@ -463,7 +464,7 @@ I built Samvaad as an independent passion project relying purely on free open-so
 • Designing real-time conversational memory, low-latency voice mode, and a serene bilingual user experience.
 
 Actively seeking full-time opportunities in Gen AI & Agentic AI Engineering, eager to contribute, build, and innovate on cutting-edge generative AI architectures!`,
-      tag: 'Gen AI & Agentic AI Developer',
+      tag: 'Creator',
     },
     {
       id: 'passion',
@@ -474,7 +475,7 @@ Actively seeking full-time opportunities in Gen AI & Agentic AI Engineering, eag
 Every day, countless students, professionals, and householders face deep emotional stress, moral questions, and spiritual longing. The discourses of Pujya Premanand Ji Maharaj in Vrindavan radiate profound peace, fearless truth, and unconditional divine love.
 
 I wanted to explore how cutting-edge generative AI can be sculpted with humility and reverence — delivering grounded solace and authentic scriptural wisdom rather than cold transactional answers. It has been a deeply fulfilling labor of engineering and devotion.`,
-      tag: 'Vision & Motivation',
+      tag: 'Vision',
     },
     {
       id: 'disclaimer',
@@ -485,7 +486,7 @@ I wanted to explore how cutting-edge generative AI can be sculpted with humility
 It is not officially affiliated with, endorsed by, or representing Shri Hit Radha Kripa Trust, Bhajan Marg, or Pujya Premanand Ji Maharaj. All spiritual discourses and sacred scriptures belong to their revered traditions.
 
 This platform serves as an interactive learning playground. Guidance here is reflective and should always be complemented by living masters and personal discrimination.`,
-      tag: 'Project Transparency',
+      tag: 'Disclaimer',
     },
   ]
 
@@ -587,10 +588,10 @@ This platform serves as an interactive learning playground. Guidance here is ref
             <span>AK</span>
           </div>
           <div className="chat-demo-meta">
-            <strong>Anuj Kesharwani · Gen AI &amp; Agentic AI Developer</strong>
+            <strong>Anuj Kesharwani</strong>
             <span className="chat-demo-sub">
               <span className="chat-online-pulse" style={{ background: '#10B981', boxShadow: '0 0 8px #10B981' }} />
-              Aspiring Gen AI &amp; Agentic AI Developer · Independent Project
+              Gen AI Developer · Creator
             </span>
           </div>
           <div className="chat-demo-topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
@@ -716,6 +717,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   const [overviewHeadingDismissed, setOverviewHeadingDismissed] = useState(false)
   const [cueHidden, setCueHidden] = useState(false)
   const cueTimer = useRef(null)
+  const [pendingVideo, setPendingVideo] = useState(null)
 
   // Auto-hide taskbar header state & timer
   const [headerVisible, setHeaderVisible] = useState(true)
@@ -1154,11 +1156,11 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
           <div className="video-example-grid">
             {videoExamples.map((video, index) => (
               <Reveal delay={index * 110} key={video.id} className="video-card-wrap">
-                <a
-                  className="video-example-card"
-                  href={`https://www.youtube.com/watch?v=${video.id}`}
-                  rel="noreferrer"
-                  target="_blank"
+                <button
+                  type="button"
+                  className="video-example-card video-card-button"
+                  onClick={() => setPendingVideo(video)}
+                  aria-label={`पूज्य महाराज जी का सत्संग: ${video.title}`}
                 >
                   <div className="video-thumb-container">
                     <img alt={`${video.title} thumbnail`} loading="lazy" src={`https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`} />
@@ -1169,7 +1171,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
                     <strong className="video-card-title">{video.title}</strong>
                     <span className="video-card-action">Watch Satsang ↗</span>
                   </div>
-                </a>
+                </button>
               </Reveal>
             ))}
           </div>
@@ -1376,7 +1378,76 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
           </span>
         </button>
       )}
+
+      {/* Bhajan Marg YouTube Video Exit Confirmation Modal */}
+      <AnimatePresence>
+        {pendingVideo && (
+          <VideoConfirmModal
+            video={pendingVideo}
+            onConfirm={() => {
+              window.open(`https://www.youtube.com/watch?v=${pendingVideo.id}`, '_blank', 'noopener,noreferrer');
+              setPendingVideo(null);
+            }}
+            onCancel={() => setPendingVideo(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
+
+function VideoConfirmModal({ video, onConfirm, onCancel }) {
+  if (!video) return null;
+
+  return (
+    <div className="video-confirm-backdrop" onClick={onCancel} role="dialog" aria-modal="true">
+      <motion.div
+        className="video-confirm-dialog"
+        onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0, scale: 0.93, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.93, y: 12 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+      >
+        <div className="video-confirm-header">
+          <span className="video-confirm-om" aria-hidden="true">🙏</span>
+          <h3>पूज्य महाराज जी का पावन सत्संग</h3>
+        </div>
+
+        <p className="video-confirm-message">
+          <strong>जय श्री राधे!</strong><br />
+          प्रिय साधक, क्या आप संवाद (Samvaad) से बाहर जाकर YouTube पर पूज्य महाराज जी का यह पावन सत्संग देखना चाहते हैं?
+        </p>
+
+        <div className="video-confirm-preview-card">
+          <span className="video-confirm-tag">{video.label}</span>
+          <strong className="video-confirm-title">{video.title}</strong>
+          <small className="video-confirm-source">YouTube · भजन मार्ग (Bhajan Marg Official)</small>
+        </div>
+
+        <p className="video-confirm-quote">
+          <em>“सत्संग श्रवण से मन निर्मल होता है और ईश्वर के प्रति निष्काम प्रेम जागृत होता है।”</em>
+        </p>
+
+        <div className="video-confirm-actions">
+          <button
+            type="button"
+            className="video-confirm-btn-primary"
+            onClick={onConfirm}
+          >
+            🌸 हाँ, सत्संग देखें (Open YouTube)
+          </button>
+          <button
+            type="button"
+            className="video-confirm-btn-secondary"
+            onClick={onCancel}
+          >
+            🙏 नहीं, यहीं संवाद में रहें
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 

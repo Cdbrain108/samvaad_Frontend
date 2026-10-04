@@ -406,24 +406,38 @@ export default function App() {
   const voice = useVoiceMode();
 
   // Smart Chat Taskbar Visibility State & 2s Auto-Hide Timer
-  // Kept hidden during chat for open reading canvas; reveals for 2s only on scroll-up
-  const [chatTopbarVisible, setChatTopbarVisible] = useState(false);
+  // When messages.length === 0 (new chat), taskbar is VISIBLE so user can access menu & modes.
+  // When messages exist, it stays hidden for open reading canvas, revealing for 2s only on scroll-up.
+  const [chatTopbarVisible, setChatTopbarVisible] = useState(messages.length === 0);
   const topbarHideTimerRef = useRef(null);
   const lastScrollTopRef = useRef(0);
   const isInteractingWithTopbarRef = useRef(false);
 
+  // Sync taskbar state when messages change between empty and active
+  useEffect(() => {
+    if (messages.length === 0) {
+      setChatTopbarVisible(true);
+    } else {
+      setChatTopbarVisible(false);
+    }
+  }, [messages.length]);
+
   const showChatTopbarTemporarily = useCallback((durationMs = 2000) => {
+    if (isInteractingWithTopbarRef.current) return;
     setChatTopbarVisible(true);
     if (topbarHideTimerRef.current) {
       clearTimeout(topbarHideTimerRef.current);
     }
     topbarHideTimerRef.current = setTimeout(() => {
       if (!isInteractingWithTopbarRef.current) {
-        setChatTopbarVisible(false);
+        // If there are messages, auto-hide. If 0 messages, keep visible.
+        if (messages.length > 0) {
+          setChatTopbarVisible(false);
+        }
       }
       topbarHideTimerRef.current = null;
     }, durationMs);
-  }, []);
+  }, [messages.length]);
 
   const keepChatTopbarOpen = useCallback(() => {
     isInteractingWithTopbarRef.current = true;
@@ -436,33 +450,70 @@ export default function App() {
 
   const releaseChatTopbar = useCallback(() => {
     isInteractingWithTopbarRef.current = false;
+    if (messages.length === 0) return; // keep visible on empty chat
     if (topbarHideTimerRef.current) {
       clearTimeout(topbarHideTimerRef.current);
     }
     topbarHideTimerRef.current = setTimeout(() => {
-      if (!isInteractingWithTopbarRef.current) {
+      if (!isInteractingWithTopbarRef.current && messages.length > 0) {
         setChatTopbarVisible(false);
       }
       topbarHideTimerRef.current = null;
     }, 2000);
-  }, []);
+  }, [messages.length]);
 
   const hideChatTopbar = useCallback(() => {
     isInteractingWithTopbarRef.current = false;
+    if (messages.length === 0) return; // keep visible on empty chat
     if (topbarHideTimerRef.current) {
       clearTimeout(topbarHideTimerRef.current);
       topbarHideTimerRef.current = null;
     }
     setChatTopbarVisible(false);
-  }, []);
+  }, [messages.length]);
 
   // Response generation watcher: keep topbar hidden during and after generation
   useEffect(() => {
     const isGenerating = isResponding || isStreaming;
-    if (isGenerating) {
+    if (isGenerating && messages.length > 0) {
       hideChatTopbar();
     }
-  }, [isResponding, isStreaming, hideChatTopbar]);
+  }, [isResponding, isStreaming, hideChatTopbar, messages.length]);
+
+  // Handle Mobile Browser Hardware / Gesture Back Button -> navigate to landing page instead of exiting
+  useEffect(() => {
+    if (view === 'chat') {
+      window.history.pushState({ samvaadView: 'chat' }, '', window.location.href);
+    }
+
+    const handlePopState = () => {
+      if (sidebarOpen) {
+        setSidebarOpen(false);
+        window.history.pushState({ samvaadView: 'chat' }, '', window.location.href);
+        return;
+      }
+      if (voiceCloneModalOpen) {
+        setVoiceCloneModalOpen(false);
+        window.history.pushState({ samvaadView: 'chat' }, '', window.location.href);
+        return;
+      }
+      if (showGuestLoginModal) {
+        setShowGuestLoginModal(false);
+        window.history.pushState({ samvaadView: 'chat' }, '', window.location.href);
+        return;
+      }
+
+      // If user was in chat view and pressed mobile back button, return to landing page!
+      if (view === 'chat') {
+        setView('landing');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [view, sidebarOpen, voiceCloneModalOpen, showGuestLoginModal]);
 
   // Clean up hide timer on unmount
   useEffect(() => {
@@ -494,23 +545,66 @@ export default function App() {
 
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const userScrolledUpRef = useRef(false);
+  const isUserTouchingRef = useRef(false);
+  const touchStartYRef = useRef(0);
   const scrollRafRef = useRef(null);       // pending rAF id
   const scrollTimerRef = useRef(null);     // pending setTimeout id for throttle
   const lastScrollTimeRef = useRef(0);    // timestamp of last actual scroll write
+
+  // Attach touch listeners to contentArea so user touch gestures NEVER get hijacked by streaming
+  useEffect(() => {
+    const el = contentAreaRef.current;
+    if (!el) return;
+
+    const onTouchStart = (e) => {
+      isUserTouchingRef.current = true;
+      if (e.touches && e.touches[0]) {
+        touchStartYRef.current = e.touches[0].clientY;
+      }
+    };
+
+    const onTouchMove = (e) => {
+      if (e.touches && e.touches[0]) {
+        const deltaY = e.touches[0].clientY - touchStartYRef.current;
+        // User swiped downwards with their finger (scrolling upwards to earlier messages)
+        if (deltaY > 6) {
+          userScrolledUpRef.current = true;
+          setShowScrollBottom(true);
+          showChatTopbarTemporarily(2000);
+        }
+      }
+    };
+
+    const onTouchEnd = () => {
+      isUserTouchingRef.current = false;
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: true });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
+    el.addEventListener('touchcancel', onTouchEnd, { passive: true });
+
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+      el.removeEventListener('touchcancel', onTouchEnd);
+    };
+  }, [showChatTopbarTemporarily]);
 
   // Track user scroll position so streaming never locks the page or overrides manual scrolling
   const handleContentScroll = useCallback(() => {
     if (!contentAreaRef.current) return;
     const el = contentAreaRef.current;
     const currentScrollTop = el.scrollTop;
-    // If distance from bottom exceeds 45px, user has scrolled up to read earlier question or responses
+    // Lower threshold: if distance from bottom exceeds 16px, user is reading earlier messages
     const distanceFromBottom = el.scrollHeight - currentScrollTop - el.clientHeight;
-    const isUp = distanceFromBottom > 45;
+    const isUp = distanceFromBottom > 16;
     userScrolledUpRef.current = isUp;
     setShowScrollBottom(isUp);
 
     // Only reveal topbar when user scrolls UP towards the top, then auto-hide after 2s if idle
-    const isScrollingUp = currentScrollTop < lastScrollTopRef.current - 12;
+    const isScrollingUp = currentScrollTop < lastScrollTopRef.current - 8;
     if (isScrollingUp || currentScrollTop <= 15) {
       showChatTopbarTemporarily(2000);
     }
@@ -529,28 +623,25 @@ export default function App() {
     setShowScrollBottom(false);
   }, []);
 
-  // Perform the actual scroll during streaming — single point of truth
+  // Perform the actual scroll during streaming — only when user is NOT touching and has NOT scrolled up
   const doScrollToBottom = useCallback(() => {
     scrollRafRef.current = null;
-    if (!contentAreaRef.current || userScrolledUpRef.current) return;
+    if (!contentAreaRef.current || userScrolledUpRef.current || isUserTouchingRef.current) return;
     contentAreaRef.current.scrollTop = contentAreaRef.current.scrollHeight;
     lastScrollTimeRef.current = Date.now();
   }, []);
 
-  // Auto-scroll: time-throttled (max 10x/sec) so rapid streaming never causes visual shake.
-  // During 30-50 msg updates/sec, we collapse them into at most one DOM write per 100ms.
+  // Auto-scroll: time-throttled so rapid streaming never causes visual shake or touch conflicts
   useEffect(() => {
-    if (!contentAreaRef.current || userScrolledUpRef.current) return;
+    if (!contentAreaRef.current || userScrolledUpRef.current || isUserTouchingRef.current) return;
 
     const elapsed = Date.now() - lastScrollTimeRef.current;
     const THROTTLE_MS = 100;
 
     if (elapsed >= THROTTLE_MS) {
-      // Enough time has passed — schedule immediately via rAF (next vsync)
       if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
       scrollRafRef.current = requestAnimationFrame(doScrollToBottom);
     } else {
-      // Too soon — only schedule a deferred write if none is pending
       if (!scrollTimerRef.current) {
         scrollTimerRef.current = setTimeout(() => {
           scrollTimerRef.current = null;
@@ -560,7 +651,7 @@ export default function App() {
       }
     }
 
-    return () => { /* intentionally don’t cancel on cleanup — let the deferred write fire */ };
+    return () => {};
   }, [messages, doScrollToBottom]);
 
   // Sync body viewport lock when entering or leaving chat view on mobile
@@ -1112,6 +1203,19 @@ export default function App() {
       />
 
       <main className="main-panel">
+        {/* Floating Claude-style hamburger menu button — always lets user access previous chats & sidebar */}
+        {messages.length > 0 && !chatTopbarVisible && (
+          <button
+            type="button"
+            className="claude-floating-menu-btn"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open chat history and menu"
+            title="Open chat history and menu"
+          >
+            <Icon name="menu" size={18} />
+          </button>
+        )}
+
         <header
           className={`topbar ${chatTopbarVisible ? 'topbar-visible' : 'topbar-hidden'}`}
           onMouseEnter={keepChatTopbarOpen}
