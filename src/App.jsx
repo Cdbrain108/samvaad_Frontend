@@ -405,60 +405,71 @@ export default function App() {
   const contentAreaRef = useRef(null);
   const voice = useVoiceMode();
 
-  // Smart Chat Taskbar Visibility State & 5s Inactivity Timer
-  const [chatTopbarVisible, setChatTopbarVisible] = useState(true);
-  const topbarIdleTimerRef = useRef(null);
-  const wasRespondingRef = useRef(false);
+  // Smart Chat Taskbar Visibility State & 2s Auto-Hide Timer
+  // Kept hidden during chat for open reading canvas; reveals for 2s only on scroll-up
+  const [chatTopbarVisible, setChatTopbarVisible] = useState(false);
+  const topbarHideTimerRef = useRef(null);
+  const lastScrollTopRef = useRef(0);
+  const isInteractingWithTopbarRef = useRef(false);
 
-  const showChatTopbar = useCallback(() => {
+  const showChatTopbarTemporarily = useCallback((durationMs = 2000) => {
     setChatTopbarVisible(true);
-    if (topbarIdleTimerRef.current) {
-      clearTimeout(topbarIdleTimerRef.current);
-      topbarIdleTimerRef.current = null;
+    if (topbarHideTimerRef.current) {
+      clearTimeout(topbarHideTimerRef.current);
     }
+    topbarHideTimerRef.current = setTimeout(() => {
+      if (!isInteractingWithTopbarRef.current) {
+        setChatTopbarVisible(false);
+      }
+      topbarHideTimerRef.current = null;
+    }, durationMs);
+  }, []);
+
+  const keepChatTopbarOpen = useCallback(() => {
+    isInteractingWithTopbarRef.current = true;
+    if (topbarHideTimerRef.current) {
+      clearTimeout(topbarHideTimerRef.current);
+      topbarHideTimerRef.current = null;
+    }
+    setChatTopbarVisible(true);
+  }, []);
+
+  const releaseChatTopbar = useCallback(() => {
+    isInteractingWithTopbarRef.current = false;
+    if (topbarHideTimerRef.current) {
+      clearTimeout(topbarHideTimerRef.current);
+    }
+    topbarHideTimerRef.current = setTimeout(() => {
+      if (!isInteractingWithTopbarRef.current) {
+        setChatTopbarVisible(false);
+      }
+      topbarHideTimerRef.current = null;
+    }, 2000);
   }, []);
 
   const hideChatTopbar = useCallback(() => {
+    isInteractingWithTopbarRef.current = false;
+    if (topbarHideTimerRef.current) {
+      clearTimeout(topbarHideTimerRef.current);
+      topbarHideTimerRef.current = null;
+    }
     setChatTopbarVisible(false);
   }, []);
 
-  // Response generation watcher: keep topbar hidden during generation,
-  // then reveal automatically after 5 seconds of inactivity
+  // Response generation watcher: keep topbar hidden during and after generation
   useEffect(() => {
     const isGenerating = isResponding || isStreaming;
     if (isGenerating) {
       hideChatTopbar();
-    } else if (wasRespondingRef.current && !isGenerating) {
-      // Response just finished! If user is inactive for 5 sec, bring taskbar back automatically
-      if (topbarIdleTimerRef.current) clearTimeout(topbarIdleTimerRef.current);
-      topbarIdleTimerRef.current = setTimeout(() => {
-        showChatTopbar();
-      }, 5000);
     }
-    wasRespondingRef.current = isGenerating;
-  }, [isResponding, isStreaming, hideChatTopbar, showChatTopbar]);
+  }, [isResponding, isStreaming, hideChatTopbar]);
 
-  // Clean up idle timer on unmount
+  // Clean up hide timer on unmount
   useEffect(() => {
     return () => {
-      if (topbarIdleTimerRef.current) clearTimeout(topbarIdleTimerRef.current);
+      if (topbarHideTimerRef.current) clearTimeout(topbarHideTimerRef.current);
     };
   }, []);
-
-  // Reveal topbar immediately on any user scroll or touch swipe
-  useEffect(() => {
-    const el = contentAreaRef.current;
-    if (!el) return;
-    const handleUserInteraction = () => {
-      showChatTopbar();
-    };
-    el.addEventListener('touchmove', handleUserInteraction, { passive: true });
-    el.addEventListener('wheel', handleUserInteraction, { passive: true });
-    return () => {
-      el.removeEventListener('touchmove', handleUserInteraction);
-      el.removeEventListener('wheel', handleUserInteraction);
-    };
-  }, [showChatTopbar]);
 
   const handleModeChange = useCallback((newMode) => {
     setInferenceMode(newMode);
@@ -491,15 +502,21 @@ export default function App() {
   const handleContentScroll = useCallback(() => {
     if (!contentAreaRef.current) return;
     const el = contentAreaRef.current;
+    const currentScrollTop = el.scrollTop;
     // If distance from bottom exceeds 45px, user has scrolled up to read earlier question or responses
-    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const distanceFromBottom = el.scrollHeight - currentScrollTop - el.clientHeight;
     const isUp = distanceFromBottom > 45;
     userScrolledUpRef.current = isUp;
     setShowScrollBottom(isUp);
 
-    // Immediately bring back taskbar when scrolling up or down
-    showChatTopbar();
-  }, [showChatTopbar]);
+    // Only reveal topbar when user scrolls UP towards the top, then auto-hide after 2s if idle
+    const isScrollingUp = currentScrollTop < lastScrollTopRef.current - 12;
+    if (isScrollingUp || currentScrollTop <= 15) {
+      showChatTopbarTemporarily(2000);
+    }
+
+    lastScrollTopRef.current = currentScrollTop;
+  }, [showChatTopbarTemporarily]);
 
   // Smooth scroll to bottom button handler (Claude style down arrow)
   const scrollToBottom = useCallback(() => {
@@ -1095,7 +1112,13 @@ export default function App() {
       />
 
       <main className="main-panel">
-        <header className={`topbar ${chatTopbarVisible ? 'topbar-visible' : 'topbar-hidden'}`}>
+        <header
+          className={`topbar ${chatTopbarVisible ? 'topbar-visible' : 'topbar-hidden'}`}
+          onMouseEnter={keepChatTopbarOpen}
+          onMouseLeave={releaseChatTopbar}
+          onTouchStart={keepChatTopbarOpen}
+          onTouchEnd={releaseChatTopbar}
+        >
           <button
             className="icon-button menu-button"
             aria-label="Toggle navigation"
@@ -1291,72 +1314,74 @@ export default function App() {
                 const isLastAssistant =
                   message.role === 'assistant' &&
                   index === messages.length - 1;
+
+                if (message.role === 'user') {
+                  return (
+                    <motion.article
+                      className="message user"
+                      key={`user-${index}`}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+                      style={{ animation: 'none' }}
+                    >
+                      <div className="user-message-bubble">
+                        <p>{message.content}</p>
+                      </div>
+                      {message.timestamp && (
+                        <div className="message-meta">
+                          <time className="message-time">
+                            {formatTimestamp(message.timestamp)}
+                          </time>
+                        </div>
+                      )}
+                    </motion.article>
+                  );
+                }
+
                 return (
                   <motion.article
-                    className={`message ${message.role}`}
-                    key={`${message.role}-${index}`}
-                    initial={{ opacity: 0, y: 20 }}
+                    className="message assistant"
+                    key={`assistant-${index}`}
+                    initial={{ opacity: 0, y: 14 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ type: 'spring', stiffness: 320, damping: 26 }}
                     style={{ animation: 'none' }}
                   >
-                    <span className="message-avatar">
-                      {message.role === 'user' ? 'You' : 'ॐ'}
-                    </span>
-                    <div>
-                      <div className="message-sender-row">
-                        <strong>{message.role === 'user' ? 'You' : 'Samvaad'}</strong>
-                        {message.role === 'assistant' && (
-                          <div className="engine-tags-wrapper">
-                            <span className={`engine-tag ${message.mode === 'deep' ? 'tag-deep' : 'tag-fast'}`}>
-                              {message.mode === 'deep' ? '🧘 Gemma 4 E4B IT' : '⚡ Fast LPU'}
-                            </span>
-                            {message.scripture && (
-                              <span className="rag-verified-badge" title={`Scripture Grounded: ${message.scripture.reference || ''}`}>
-                                📜 RAG Grounded
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      {message.role === 'assistant' ? (
-                        <div className="assistant-message-body">
-                          {/* Reasoning Box is ALWAYS positioned at the top of the message */}
-                          {message.mode === 'deep' && (message.thought || message.isThinking) && (
-                            <ReasoningBlock
-                              thought={message.thought}
-                              isThinking={message.isThinking}
-                              duration={message.thinkingDuration}
-                              scripture={message.scripture}
-                              isEnglish={index > 0 && messages[index - 1] ? detectQueryLanguage(messages[index - 1].content || '') === 'english' : false}
-                            />
-                          )}
-
-                          {/* The entire response flows together in one unbroken, beautiful stream below the reasoning box */}
-                          {message.content && (
-                            <div className="rich-text">
-                              <RichText content={message.content} streaming={isLastAssistant && (isStreaming || message.isThinking)} />
-                            </div>
-                          )}
-
-                          {/* Top RAG Verses Reference Dropdown Card Section just after chat response */}
-                          {message.scripture && !(isLastAssistant && (isStreaming || message.isThinking)) && (
-                            <RagVersesDropdown
-                              scripture={message.scripture}
-                              isEnglish={index > 0 && messages[index - 1] ? !/[\u0900-\u097F]/.test(messages[index - 1].content || '') : false}
-                            />
-                          )}
-                        </div>
-                      ) : (
-                        <p>{message.content}</p>
+                    <div className="assistant-message-body">
+                      {/* Reasoning Box is positioned at the top if in Deep mode */}
+                      {message.mode === 'deep' && (message.thought || message.isThinking) && (
+                        <ReasoningBlock
+                          thought={message.thought}
+                          isThinking={message.isThinking}
+                          duration={message.thinkingDuration}
+                          scripture={message.scripture}
+                          isEnglish={index > 0 && messages[index - 1] ? detectQueryLanguage(messages[index - 1].content || '') === 'english' : false}
+                        />
                       )}
+
+                      {/* Open Typography flowing directly on canvas */}
+                      {message.content && (
+                        <div className="rich-text">
+                          <RichText content={message.content} streaming={isLastAssistant && (isStreaming || message.isThinking)} />
+                        </div>
+                      )}
+
+                      {/* RAG Reference Dropdown Section */}
+                      {message.scripture && !(isLastAssistant && (isStreaming || message.isThinking)) && (
+                        <RagVersesDropdown
+                          scripture={message.scripture}
+                          isEnglish={index > 0 && messages[index - 1] ? !/[\u0900-\u097F]/.test(messages[index - 1].content || '') : false}
+                        />
+                      )}
+
                       <div className="message-meta">
                         {message.timestamp && (
                           <time className="message-time">
                             {formatTimestamp(message.timestamp)}
                           </time>
                         )}
-                        {message.role === 'assistant' && message.content && !isStreaming && (() => {
+                        {message.content && !isStreaming && (() => {
                           const isThisActive = voice.activeSpeech === message.content;
                           const isPreparing = isThisActive && voice.state === 'preparing';
                           const isSpeaking = isThisActive && voice.state === 'speaking';
@@ -1378,17 +1403,41 @@ export default function App() {
                                 }}
                                 aria-label="Listen to Maharaj Ji Vani"
                                 type="button"
-                                title="पूज्य महाराज जी की प्रामाणिक आवाज़ (24/7 Cloned Voice)"
+                                title="पूज्य महाराज जी की प्रामाणिक आवाज़"
                                 style={isThisActive ? { color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.4)' } : {}}
                               >
-                                <Icon name={isSpeaking ? 'pause' : 'volume'} size={14} />
-                                {isPreparing ? '⏳ वाणी तैयार हो रही है...' : isSpeaking ? '⏸️ वाणी रोकें' : isPaused ? '▶️ वाणी सुनें' : '🌸 महाराज जी वाणी'}
+                                <Icon name={isSpeaking ? 'pause' : 'volume'} size={13} />
+                                <span>{isPreparing ? 'तैयार हो रही है...' : isSpeaking ? 'रोकें' : isPaused ? 'सुनें' : 'महाराज जी वाणी'}</span>
+                              </button>
+                              <button
+                                className="message-action home-action"
+                                onClick={() => setView('landing')}
+                                type="button"
+                                title="Return to Home · मुख्य पृष्ठ"
+                                aria-label="Return to Home"
+                              >
+                                <Icon name="home" size={13} />
+                                <span>Home</span>
                               </button>
                             </>
                           );
                         })()}
-
                       </div>
+
+                      {/* Minimal post-response return button */}
+                      {isLastAssistant && !isStreaming && !message.isThinking && (
+                        <div className="post-response-actions">
+                          <button
+                            type="button"
+                            className="back-to-home-minimal-btn"
+                            onClick={() => setView('landing')}
+                            title="Return to Home · मुख्य पृष्ठ पर वापस जाएं"
+                          >
+                            <Icon name="home" size={14} />
+                            <span>Return to Home · मुख्य पृष्ठ</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </motion.article>
                 );
@@ -1397,15 +1446,13 @@ export default function App() {
                 {isResponding && (
                   <motion.article
                     className="message assistant responding"
-                    initial={{ opacity: 0, y: 16 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ type: 'spring', stiffness: 320, damping: 26 }}
                     style={{ animation: 'none' }}
                   >
-                    <span className="message-avatar">ॐ</span>
-                    <div>
-                      <strong>Samvaad Guru</strong>
+                    <div className="assistant-message-body">
                       <RespondingIndicator isDeep={inferenceMode === 'deep'} />
                     </div>
                   </motion.article>

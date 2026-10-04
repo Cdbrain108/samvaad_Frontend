@@ -230,12 +230,15 @@ I created Samvaad to make this wisdom effortlessly accessible through conversati
       id: 'working',
       label: '⚙️ How data & AI work',
       q: 'How does it turn 4,000+ Bhajan Marg discourses into an intelligent guide?',
-      a: `Under the hood, Samvaad works through a dedicated multi-stage pipeline:
+      a: `Under the hood, Samvaad transforms sacred discourses into an enlightened conversational guide:
 
-1. Transcripts Ingestion: Raw YouTube auto-caption video transcripts (.vtt) from ~4,000 public discourses are parsed and cleaned.
-2. Multi-Agent Pipeline: Autonomous agents clean noise, separate seeker questions from discourses, reconstruct natural inquiries, and anchor authentic answers with exact timestamps.
-3. Fine-Tuning: Our custom Gemma 4 E4B IT conversational model is fine-tuned on this dataset on GCP and Oracle VM to speak with fatherly compassion and authentic reverence.
-4. Scripture RAG: 175,000+ sacred verses across 29 Dharmic scriptures (Bhagavad Gita, Ramcharitmanas, Upanishads, etc.) are embedded and retrieved dynamically to support answers.`,
+1. Discourse Ingestion: Raw video transcripts from ~4,000 public discourses and Ekantik Vartalaap are carefully cleaned and chronologically cataloged.
+
+2. Agentic Curation: Multi-agent systems clean noise, separate seeker inquiries from discourses, and anchor answers to exact video timestamps.
+
+3. Compassionate AI Tuning: Custom fine-tuned conversational intelligence trained to converse with fatherly warmth, humility, and authentic reverence.
+
+4. Sacred Scripture RAG: 175,000+ sacred verses across 29 Dharmic scriptures (Bhagavad Gita, Ramcharitmanas, Upanishads) embedded for spiritual grounding.`,
       tag: 'Architecture & RAG',
     },
     {
@@ -245,10 +248,14 @@ I created Samvaad to make this wisdom effortlessly accessible through conversati
       a: `Yes, completely. Samvaad is open for every seeker — whether you are taking your first steps in japa and nama, or seeking clarity during difficult emotional times.
 
 Key features for seekers:
-• Bilingual: Ask freely in Hindi, English, or mixed Hinglish.
-• Scripture-Grounded: Quotes authentic verses when relevant.
-• Persistent Memory: Remembers your questions across sessions so your reflection grows with you.
-• Educational: An honest learning playground; important guidance should always be verified with living teachers.`,
+
+1. Natural Multilingual: Ask freely in Hindi, English, or mixed conversational Hinglish.
+
+2. Authentic Scripture Grounding: Quotes authentic Sanskrit shlokas and chaupais whenever spiritually relevant.
+
+3. Thoughtful Memory: Preserves context across inquiries so your reflection grows with you.
+
+4. Sacred Educational Playground: Dedicated to respectful learning and inner contemplation.`,
       tag: 'Seeker Experience',
     },
   ]
@@ -356,21 +363,23 @@ Key features for seekers:
             <strong>Samvaad AI · संवाद</strong>
             <span className="chat-demo-sub">
               <span className="chat-online-pulse" />
-              Grounded in Bhajan Marg &amp; Holy Scriptures
+              Grounded in Bhajan Marg Wisdom
             </span>
           </div>
-          {onToggleHeading && (
-            <button
-              type="button"
-              className="about-heading-toggle-btn"
-              onClick={onToggleHeading}
-              title={headingDismissed ? 'Show Section Heading' : 'Focus Chat View'}
-              aria-label={headingDismissed ? 'Show Section Heading' : 'Focus Chat View'}
-            >
-              {headingDismissed ? '📖 Show Overview' : '✕ Focus'}
-            </button>
-          )}
-          <span className="chat-demo-badge">{selected.tag}</span>
+          <div className="chat-demo-topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
+            {onToggleHeading && headingDismissed && (
+              <button
+                type="button"
+                className="about-heading-toggle-btn"
+                onClick={onToggleHeading}
+                title="Show Overview Heading"
+                aria-label="Show Overview Heading"
+              >
+                📖 Overview
+              </button>
+            )}
+            <span className="chat-demo-badge">{selected.tag}</span>
+          </div>
         </div>
 
         {/* Chat Messages */}
@@ -393,9 +402,18 @@ Key features for seekers:
                   <small>Compassionate reflection</small>
                 </div>
                 <div className="chat-demo-typed-content">
-                  {typedText.split('\n\n').map((para, i) => (
-                    <p key={i}>{para}</p>
-                  ))}
+                  {typedText.split('\n').map((line, i) => {
+                    const trimmed = line.trim();
+                    if (!trimmed) {
+                      return <div key={i} className="chat-demo-spacer" />;
+                    }
+                    const isNumbered = /^[0-9]+\.\s/.test(trimmed) || /^[•\-\*]\s/.test(trimmed);
+                    return (
+                      <p key={i} className={isNumbered ? 'chat-demo-list-item' : 'chat-demo-para'}>
+                        {line}
+                      </p>
+                    );
+                  })}
                   {isTyping && <span className="term-cursor" aria-hidden="true">▌</span>}
                 </div>
               </div>
