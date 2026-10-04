@@ -19,7 +19,8 @@ const run = (cmd, cwd = root) => {
 try {
   // 1. Remove old worktree if it exists
   if (existsSync(worktreeDir)) {
-    run(`git worktree remove "${worktreeDir}" --force`);
+    try { run(`git worktree remove "${worktreeDir}" --force`); } catch {}
+    try { rmSync(worktreeDir, { recursive: true, force: true }); } catch {}
   }
 
   // 2. Create a fresh worktree for gh-pages

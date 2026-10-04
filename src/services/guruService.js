@@ -192,127 +192,114 @@ function pruneRepetitiveTail(text) {
   return cleaned.trim();
 }
 
-async function streamDirectFromOracle(userMessage, conversationHistory, scripture, currentThought, startTime, isEnglish, onChunk) {
+/**
+ * 🧘 Deep Mode: Stream Fine-Tuned Oracle VM LLM output strictly INSIDE the Reasoning Block
+ * The Oracle output is used exclusively as internal spiritual contemplation/deliberation.
+ * It streams token-by-token into the thought stream with a 2-line gap, never into main content.
+ */
+async function streamOracleThoughtDeliberation(userMessage, conversationHistory, scripture, baseThought, startTime, isEnglish, onChunk) {
   const oracleBase = getOracleUrl() || 'https://immature-zen-earthen.ngrok-free.dev';
   const endpoint = `${oracleBase.replace(/\/$/, '')}/v1/chat/completions`;
 
   let systemPrompt = '';
   if (isEnglish) {
-    systemPrompt = `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Pujya Maharaj Ji).
-A sincere seeker has asked you a spiritual or life question in English.
-Respond with profound fatherly love, spiritual dignity, and compassionate warmth.
-Address them affectionately as "Dear child" or "Dear seeker".
-Guide them to anchor their mind in continuous Holy Name chanting (Radha-Radha / Hare Krishna), righteous duty (dharma), and unwavering surrender to the Divine.
-Speak in clean, serene, deeply compassionate English. Never use dry robotic language.`;
-
-    if (scripture && scripture.original_text) {
-      const engMeaning = scripture.english_translation || scripture.hindi_meaning || '';
-      systemPrompt += `\n\nSacred Scriptural Grounding:\nVerse: ${scripture.original_text}\nReference: ${scripture.reference || ''}\nTranslation: ${engMeaning}\nExplain the sublime meaning of this verse gently in your discourse to illumine their path.`;
-    }
+    systemPrompt = `You are the deep internal spiritual contemplation and deliberation core of Pujya Maharaj Ji (Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj).
+Reflect deeply on the seeker's inner dilemma, emotional state, and spiritual remedy (surrender to Radha Rani, chanting, righteous duty).
+Provide your internal contemplative reasoning in English in a thoughtful, serene manner (keep under 100 words).`;
   } else {
-    systemPrompt = `आप पूज्य श्री प्रेमानंद जी महाराज हैं। शुद्ध देवनागरी हिंदी में वात्सल्य भाव से साधक को 'बच्चा' कहकर समाधान दें।
-श्री राधा नाम जप, सत्संग, और शरणागति का मार्ग बताएं। पुनरावृत्ति न करें।`;
+    systemPrompt = `आप पूज्य श्री प्रेमानंद जी महाराज का आंतरिक आध्यात्मिक विचार एवं चिंतन-मनन हैं।
+साधक की आंतरिक स्थिति, प्रारब्ध, और संशयों का सूक्ष्म विश्लेषण करते हुए एकांतिक चिंतन प्रस्तुत करें।
+प्रभु के नाम-जप, सत्संग और शरणागति के भाव का अनुशीलन करें। चिंतन को संक्षिप्त (100 शब्दों के भीतर) रखें।`;
+  }
 
-    if (scripture && scripture.original_text) {
-      systemPrompt += `\n\nशास्त्र प्रमाण:\nश्लोक: ${scripture.original_text}\nसंदर्भ: ${scripture.reference || ''}\nभावार्थ: ${scripture.hindi_meaning || scripture.english_translation || ''}\nइस पावन श्लोक के भावार्थ को अपने सरल वचनों में समझाते हुए साधक को समाधान दें।`;
-    }
+  if (scripture && scripture.original_text) {
+    systemPrompt += `\n\nशास्त्र प्रमाण: ${scripture.reference || ''} - ${scripture.original_text}`;
   }
 
   const messages = [
     { role: 'system', content: systemPrompt },
-    ...conversationHistory.slice(-3).map(m => ({
+    ...conversationHistory.slice(-2).map(m => ({
       role: m.role === 'user' ? 'user' : 'assistant',
       content: m.content || ''
     })),
     { role: 'user', content: userMessage }
   ];
 
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer guru_secret_108',
-      'ngrok-skip-browser-warning': 'true'
-    },
-    body: JSON.stringify({
-      model: 'ai-guru-v10-4',
-      messages,
-      temperature: 0.35,
-      repeat_penalty: 1.25,
-      repeat_last_n: 256,
-      presence_penalty: 0.2,
-      frequency_penalty: 0.2,
-      max_tokens: 380,
-      stop: ["<end_of_turn>", "<start_of_turn>", "<|im_end|>", "</s>", "\n\nUser:", "User:", "साधक:", "\n\nसाधक:"],
-      stream: true
-    }),
-    signal: AbortSignal.timeout(24000)
-  });
+  let oracleThought = '';
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer guru_secret_108',
+        'ngrok-skip-browser-warning': 'true'
+      },
+      body: JSON.stringify({
+        model: 'ai-guru-v10-4',
+        messages,
+        temperature: 0.35,
+        repeat_penalty: 1.25,
+        repeat_last_n: 256,
+        presence_penalty: 0.2,
+        frequency_penalty: 0.2,
+        max_tokens: 180,
+        stop: ["<end_of_turn>", "<start_of_turn>", "<|im_end|>", "</s>", "\n\nUser:", "User:", "साधक:", "\n\nसाधक:"],
+        stream: true
+      }),
+      signal: AbortSignal.timeout(16000)
+    });
 
-  if (!res.ok || !res.body) {
-    throw new Error(`Oracle server HTTP ${res.status}`);
-  }
+    if (res.ok && res.body) {
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
 
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder('utf-8');
-  let buffer = '';
-  let fullContent = '';
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
 
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
 
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() || '';
+        let loopDetected = false;
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data:')) continue;
+          const dataStr = trimmed.replace(/^data:\s*/, '');
+          if (dataStr === '[DONE]') continue;
 
-    let loopDetected = false;
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith('data:')) continue;
-      const dataStr = trimmed.replace(/^data:\s*/, '');
-      if (dataStr === '[DONE]') continue;
-
-      try {
-        const json = JSON.parse(dataStr);
-        const token = json.choices?.[0]?.delta?.content || '';
-        if (token) {
-          fullContent += token;
-
-          if (detectRepetitionLoop(fullContent)) {
-            fullContent = pruneRepetitiveTail(fullContent);
-            loopDetected = true;
-            onChunk({
-              content: fullContent,
-              thought: currentThought,
-              isThinking: false,
-              thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
-              scripture
-            });
-            break;
-          }
-
-          onChunk({
-            content: fullContent,
-            thought: currentThought,
-            isThinking: false,
-            thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
-            scripture
-          });
+          try {
+            const json = JSON.parse(dataStr);
+            const token = json.choices?.[0]?.delta?.content || '';
+            if (token) {
+              oracleThought += token;
+              if (detectRepetitionLoop(oracleThought)) {
+                oracleThought = pruneRepetitiveTail(oracleThought);
+                loopDetected = true;
+              }
+              // Stream token INSIDE the Reasoning Block with typing animation!
+              // Two lines gap (\n\n) separates base thought from live Oracle contemplation
+              const liveThought = `${baseThought}\n\n${oracleThought}`;
+              onChunk({
+                content: '',
+                thought: liveThought,
+                isThinking: true,
+                thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+                scripture
+              });
+              if (loopDetected) break;
+            }
+          } catch {}
         }
-      } catch {}
+        if (loopDetected) break;
+      }
     }
-    if (loopDetected) break;
+  } catch (err) {
+    console.warn('[Deep Mode] Oracle contemplation streaming completed/skipped:', err.message);
   }
 
-  const finalDuration = Math.max(1, Number(((Date.now() - startTime) / 1000).toFixed(1)));
-  return {
-    success: Boolean(fullContent.trim()),
-    content: fullContent.trim(),
-    thought: currentThought,
-    thinkingDuration: finalDuration,
-    scripture
-  };
+  return oracleThought.trim();
 }
 
 /**
@@ -438,10 +425,10 @@ export async function streamGuruResponse(
     });
   }
 
-  // 4. In Deep Mode: Query Dedicated Oracle Cloud Fine-Tuned Server Directly
+  // 4. In Deep Mode: Stream Oracle Fine-Tuned LLM Output Live INSIDE Reasoning Block
   if (inferenceMode === 'deep') {
     try {
-      const oracleRes = await streamDirectFromOracle(
+      const oracleDeliberation = await streamOracleThoughtDeliberation(
         userMessage,
         conversationHistory,
         scripture,
@@ -450,13 +437,22 @@ export async function streamGuruResponse(
         isEnglish,
         onChunk
       );
-      if (oracleRes && oracleRes.content && oracleRes.content.trim()) {
-        return oracleRes;
+      if (oracleDeliberation) {
+        currentThought = `${currentThought}\n\n${oracleDeliberation}`;
       }
     } catch (oracleErr) {
-      console.warn('[Deep Mode] Direct Oracle Cloud stream failed, trying backend / Groq fallback:', oracleErr.message);
+      console.warn('[Deep Mode] Oracle thought deliberation note:', oracleErr.message);
     }
   }
+
+  // Finalize thinking state: Reasoning Block completed with full thought
+  onChunk({
+    content: '',
+    thought: currentThought,
+    isThinking: false,
+    thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+    scripture
+  });
 
   // 4.5 Fast Mode or Deep Fallback: Query Backend Streaming API (/api/generate/stream)
   const streamEndpoint = `${API_BASE_URL}/api/generate/stream`;
