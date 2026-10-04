@@ -9,6 +9,7 @@ export default function Composer({
   isDisabled = false,
   guestLimitReached = false,
   onGuestLimitClick,
+  onFocus,
 }) {
   const textareaRef = useRef(null)
 
@@ -78,6 +79,8 @@ export default function Composer({
           aria-label="Message Samvaad"
           onChange={(event) => onChange(event.target.value)}
           onKeyDown={handleKeyDown}
+          onFocus={onFocus}
+          onClick={onFocus}
           placeholder={isDisabled ? 'Guru ji is responding...' : 'Ask a devotional question, or continue your learning journey...'}
           ref={textareaRef}
           rows="1"

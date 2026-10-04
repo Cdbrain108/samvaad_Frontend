@@ -405,6 +405,60 @@ export default function App() {
   const contentAreaRef = useRef(null);
   const voice = useVoiceMode();
 
+  // Smart Chat Taskbar Visibility State & 5s Inactivity Timer
+  const [chatTopbarVisible, setChatTopbarVisible] = useState(true);
+  const topbarIdleTimerRef = useRef(null);
+  const wasRespondingRef = useRef(false);
+
+  const showChatTopbar = useCallback(() => {
+    setChatTopbarVisible(true);
+    if (topbarIdleTimerRef.current) {
+      clearTimeout(topbarIdleTimerRef.current);
+      topbarIdleTimerRef.current = null;
+    }
+  }, []);
+
+  const hideChatTopbar = useCallback(() => {
+    setChatTopbarVisible(false);
+  }, []);
+
+  // Response generation watcher: keep topbar hidden during generation,
+  // then reveal automatically after 5 seconds of inactivity
+  useEffect(() => {
+    const isGenerating = isResponding || isStreaming;
+    if (isGenerating) {
+      hideChatTopbar();
+    } else if (wasRespondingRef.current && !isGenerating) {
+      // Response just finished! If user is inactive for 5 sec, bring taskbar back automatically
+      if (topbarIdleTimerRef.current) clearTimeout(topbarIdleTimerRef.current);
+      topbarIdleTimerRef.current = setTimeout(() => {
+        showChatTopbar();
+      }, 5000);
+    }
+    wasRespondingRef.current = isGenerating;
+  }, [isResponding, isStreaming, hideChatTopbar, showChatTopbar]);
+
+  // Clean up idle timer on unmount
+  useEffect(() => {
+    return () => {
+      if (topbarIdleTimerRef.current) clearTimeout(topbarIdleTimerRef.current);
+    };
+  }, []);
+
+  // Reveal topbar immediately on any user scroll or touch swipe
+  useEffect(() => {
+    const el = contentAreaRef.current;
+    if (!el) return;
+    const handleUserInteraction = () => {
+      showChatTopbar();
+    };
+    el.addEventListener('touchmove', handleUserInteraction, { passive: true });
+    el.addEventListener('wheel', handleUserInteraction, { passive: true });
+    return () => {
+      el.removeEventListener('touchmove', handleUserInteraction);
+      el.removeEventListener('wheel', handleUserInteraction);
+    };
+  }, [showChatTopbar]);
 
   const handleModeChange = useCallback((newMode) => {
     setInferenceMode(newMode);
@@ -439,7 +493,9 @@ export default function App() {
     // If distance from bottom exceeds 80px, devotee has deliberately scrolled up
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
     userScrolledUpRef.current = distanceFromBottom > 80;
-  }, []);
+    // Immediately bring back taskbar when scrolling up or down
+    showChatTopbar();
+  }, [showChatTopbar]);
 
   // Perform the actual scroll — single point of truth
   const doScrollToBottom = useCallback(() => {
@@ -1011,7 +1067,7 @@ export default function App() {
       />
 
       <main className="main-panel">
-        <header className="topbar">
+        <header className={`topbar ${chatTopbarVisible ? 'topbar-visible' : 'topbar-hidden'}`}>
           <button
             className="icon-button menu-button"
             aria-label="Toggle navigation"
@@ -1359,6 +1415,7 @@ export default function App() {
           isDisabled={isResponding || isStreaming}
           guestLimitReached={getIsGuestLimitReached() && !isResponding && !isStreaming}
           onGuestLimitClick={() => setShowGuestLoginModal(true)}
+          onFocus={hideChatTopbar}
         />
       </main>
 

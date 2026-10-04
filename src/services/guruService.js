@@ -9,8 +9,10 @@
 
 import { getScriptureGrounding, isCasualConversational } from './scriptureService.js';
 import { analyzeQuery } from './queryIntent.js';
+import { isIntroductionOrCreatorQuery, getProjectIntroduction } from '../data/projectIntroduction.js';
+import { isLiveCalendarQuery, searchDuckDuckGo } from './liveSearchService.js';
 
-export { isCasualConversational };
+export { isCasualConversational, isIntroductionOrCreatorQuery, isLiveCalendarQuery };
 
 const API_BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL)
   ? import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '')
@@ -341,6 +343,45 @@ export async function streamGuruResponse(
     );
   }
 
+  // 1.5 Introduction & Creator Knowledge Tool (Who are you, Anuj Kesharwani, architecture, dataset, RAG)
+  if (isIntroductionOrCreatorQuery(userMessage)) {
+    const introText = getProjectIntroduction(userMessage, isEnglish);
+    const introThought = isEnglish
+      ? "Invoking Samvaad Introduction Tool: Synthesizing details on creator Anuj Kesharwani, fine-tuned Gemma 4 E4B IT, 50K QA dataset, and 150K+ verses RAG..."
+      : "संवाद परिचय ज्ञान उपकरण (Introduction Tool): निर्माता अनुज केसरवानी, फाइन-ट्यून्ड Gemma 4 E4B IT, 50K प्रश्नोत्तरी डेटासेट एवं 150K+ श्लोक RAG की जानकारी प्रस्तुत की जा रही है...";
+    return await streamTextDirectly(
+      introText,
+      introThought,
+      startTime,
+      null,
+      onChunk
+    );
+  }
+
+  // 1.8 DuckDuckGo Live Search for dynamic Hindu Calendar, Ekadashi & Grahan Sutak timings
+  if (isLiveCalendarQuery(userMessage)) {
+    onChunk({
+      content: '',
+      thought: isEnglish
+        ? "Initiating live DuckDuckGo search for real-time Hindu calendar dates, Ekadashi schedule & Grahan sutak timings..."
+        : "डकडकगो (DuckDuckGo) लाइव सर्च द्वारा रीयल-टाइम हिंदू पंचांग, एकादशी तिथि एवं ग्रहण सूतक समय प्राप्त किया जा रहा है...",
+      isThinking: true,
+      thinkingDuration: 0.8,
+      scripture: null
+    });
+    const searchRes = await searchDuckDuckGo(userMessage);
+    const searchThought = isEnglish
+      ? "Live DuckDuckGo search completed. Presenting verified scriptural guidance and exact timings..."
+      : "डकडकगो लाइव पंचांग सर्च पूर्ण। प्रामाणिक शास्त्रीय विधि एवं सटीक समय प्रस्तुत किया जा रहा है...";
+    return await streamTextDirectly(
+      searchRes.formattedDiscourse,
+      searchThought,
+      startTime,
+      null,
+      onChunk
+    );
+  }
+
   // 2. Check Gating: Skip Oracle for Irrelevant / Off-topic queries
   const isOfftopic = isOfftopicQuery(userMessage);
   if (isOfftopic) {
@@ -530,6 +571,10 @@ export async function streamGuruResponse(
  * Clean offline fallback generating authentic Maharaj Ji voice (Hindi & English)
  */
 function generateLocalDiscourseFallback(query, seekerName, scripture, isGreeting, isEnglish = false) {
+  if (isIntroductionOrCreatorQuery(query)) {
+    return getProjectIntroduction(query, isEnglish);
+  }
+
   if (isEnglish) {
     const address = seekerName ? `Dear child ${seekerName}` : 'Dear child';
 

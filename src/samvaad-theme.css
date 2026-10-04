@@ -6815,19 +6815,19 @@ select:focus-visible,
     opacity: 0.82 !important;
   }
 
-  /* Compact Suggestion Cards Grid */
+  /* Compact 2-Column Suggestion Cards Grid (Fits all 6 cards cleanly on mobile) */
   .suggestion-grid {
     display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 7px !important;
-    margin-top: 10px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    margin-top: 8px !important;
     width: 100% !important;
   }
   .suggestion-card {
     min-height: auto !important;
-    padding: 9px 12px !important;
-    border-radius: 12px !important;
-    gap: 10px !important;
+    padding: 6px 8px !important;
+    border-radius: 10px !important;
+    gap: 6px !important;
     align-items: center !important;
     text-align: left !important;
     cursor: pointer !important;
@@ -6835,27 +6835,27 @@ select:focus-visible,
   }
   :root[data-theme='light'] .suggestion-card {
     background: #FFFFFF !important;
-    border: 1.2px solid rgba(217, 119, 6, 0.25) !important;
-    box-shadow: 0 2px 8px rgba(180, 83, 9, 0.06) !important;
+    border: 1px solid rgba(217, 119, 6, 0.22) !important;
+    box-shadow: 0 2px 6px rgba(180, 83, 9, 0.05) !important;
   }
   :root[data-theme='dark'] .suggestion-card {
     background: rgba(15, 28, 52, 0.72) !important;
-    border: 1.2px solid rgba(245, 158, 11, 0.22) !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid rgba(245, 158, 11, 0.22) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22) !important;
   }
   .suggestion-icon {
-    width: 32px !important;
-    height: 32px !important;
-    min-width: 32px !important;
-    border-radius: 9px !important;
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    border-radius: 7px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     flex-shrink: 0 !important;
   }
   .suggestion-icon svg {
-    width: 16px !important;
-    height: 16px !important;
+    width: 13px !important;
+    height: 13px !important;
   }
   .suggestion-copy {
     display: flex !important;
@@ -6866,9 +6866,10 @@ select:focus-visible,
     flex: 1 1 auto !important;
   }
   .suggestion-copy small {
-    font-size: 9px !important;
+    font-size: 8px !important;
+    line-height: 1 !important;
     font-weight: 700 !important;
-    letter-spacing: 0.06em !important;
+    letter-spacing: 0.05em !important;
     text-transform: uppercase !important;
     color: #D97706 !important;
   }
@@ -6876,17 +6877,18 @@ select:focus-visible,
     color: #FCD34D !important;
   }
   .suggestion-copy strong {
-    font-size: 12px !important;
-    line-height: 1.35 !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
     font-weight: 600 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
     white-space: normal !important;
     word-break: break-word !important;
   }
   .card-arrow {
-    font-size: 13px !important;
-    opacity: 0.55 !important;
-    margin-left: auto !important;
-    flex-shrink: 0 !important;
+    display: none !important; /* Hide arrow on mobile 2-col to give maximum room to text */
   }
 
 /* ── 4. CHAT VIEW: Diya row & chat moon — clean mobile layout ── */
@@ -6903,32 +6905,93 @@ select:focus-visible,
 
 /* ── 5. CHAT MESSAGES: Fix user bubble layout on narrow screens ── */
 @media (max-width: 640px) {
-  /* Both user & assistant messages use single column, avatar left */
-  .message,
-  .message.user {
+  /* Assistant message: left aligned with avatar on left */
+  .message.assistant {
     grid-template-columns: 30px 1fr !important;
     gap: 8px !important;
     align-items: flex-start !important;
+    align-self: flex-start !important;
+    margin-right: auto !important;
+    margin-left: 0 !important;
+    max-width: 94% !important;
   }
 
-  /* User avatar — restore to column 1 for clean left-to-right reading */
+  /* User query message: aligned cleanly to the RIGHT side */
+  .message.user {
+    display: flex !important;
+    flex-direction: row-reverse !important;
+    align-self: flex-end !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    max-width: 86% !important;
+    gap: 8px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* User avatar on right */
   .message.user .message-avatar {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    font-size: 10px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #d97706, #b45309) !important;
+    color: #ffffff !important;
+    display: grid !important;
+    place-items: center !important;
+    flex-shrink: 0 !important;
+    margin-top: 2px !important;
   }
 
-  /* User message bubble — right of the avatar, full available width */
+  /* User message bubble wrapper */
   .message.user > div {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    justify-self: stretch !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
     max-width: 100% !important;
-    text-align: left !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
   }
 
-  /* User bubble pill corners */
+  .message.user .message-sender-row {
+    display: flex !important;
+    justify-content: flex-end !important;
+    margin-bottom: 2px !important;
+  }
+
+  .message.user strong {
+    font-size: 11px !important;
+    color: var(--accent-dark, #b45309) !important;
+    text-align: right !important;
+  }
+
+  /* User bubble with tasteful warm highlight */
   .message.user p {
-    border-radius: 6px 18px 18px 6px !important;
+    display: inline-block !important;
+    padding: 9px 14px !important;
+    border-radius: 16px 16px 4px 16px !important;
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+    text-align: left !important;
+    word-break: break-word !important;
+  }
+
+  :root[data-theme='light'] .message.user p {
+    background: #FFF7ED !important;
+    border: 1.2px solid rgba(245, 158, 11, 0.38) !important;
+    color: #431407 !important;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.08) !important;
+  }
+
+  :root[data-theme='dark'] .message.user p {
+    background: rgba(245, 158, 11, 0.14) !important;
+    border: 1.2px solid rgba(245, 158, 11, 0.32) !important;
+    color: #FEF3C7 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
   }
 
   /* Avatars */
@@ -9209,15 +9272,19 @@ select:focus-visible,
   box-sizing: border-box !important;
 }
 
-/* Mobile Alignment (Phones & Small Tablets) */
+/* ── Mobile Layout & Screen Fitting (Phones & Small Tablets) ── */
 @media (max-width: 768px) {
   .content-area {
-    padding: 14px 14px calc(140px + env(safe-area-inset-bottom, 12px)) 14px !important;
+    padding: 10px 12px 12px 12px !important;
+    box-sizing: border-box !important;
   }
 
   .content-area:has(.welcome) {
-    padding-top: 10px !important;
-    padding-bottom: calc(140px + env(safe-area-inset-bottom, 12px)) !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
   }
 
   .welcome {
@@ -9229,73 +9296,202 @@ select:focus-visible,
 
   .welcome-copy {
     text-align: center !important;
-    margin-bottom: 12px !important;
+    margin-bottom: 6px !important;
     padding: 0 !important;
   }
 
   .welcome-kicker {
-    font-size: 10px !important;
-    margin-bottom: 4px !important;
+    font-size: 9px !important;
+    margin-bottom: 2px !important;
+    letter-spacing: 0.08em !important;
   }
 
   .welcome h1 {
-    font-size: clamp(20px, 5.2vw, 24px) !important;
-    line-height: 1.22 !important;
-    margin: 0 0 4px !important;
+    font-size: clamp(19px, 5vw, 24px) !important;
+    line-height: 1.2 !important;
+    margin: 0 0 2px !important;
   }
 
+  /* Hide long intro paragraph on small screens so all 6 suggestions fit compactly on screen */
   .welcome-copy p {
-    font-size: 11.5px !important;
-    line-height: 1.4 !important;
-    max-width: 320px !important;
-    margin: 0 auto !important;
+    display: none !important;
   }
 
+  /* Compact 2-column suggestions grid so all 6 fit on screen without vertical overflow */
   .suggestion-grid {
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
     width: 100% !important;
     max-width: 100% !important;
-    margin-top: 8px !important;
+    margin-top: 6px !important;
   }
 
   .suggestion-card {
     min-height: auto !important;
-    padding: 10px 12px !important;
-    border-radius: 14px !important;
-    gap: 10px !important;
-    width: 100% !important;
+    padding: 6px 8px !important;
+    border-radius: 10px !important;
+    gap: 6px !important;
+    align-items: center !important;
   }
 
   .suggestion-icon {
-    width: 36px !important;
-    height: 36px !important;
-    flex: 0 0 36px !important;
-    border-radius: 10px !important;
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    flex: 0 0 26px !important;
+    border-radius: 7px !important;
+  }
+
+  .suggestion-icon svg {
+    width: 13px !important;
+    height: 13px !important;
   }
 
   .suggestion-copy small {
-    font-size: 9px !important;
+    font-size: 8px !important;
+    line-height: 1 !important;
   }
 
   .suggestion-copy strong {
-    font-size: 12px !important;
-    line-height: 1.35 !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
   }
 
+  .card-arrow {
+    display: none !important;
+  }
+
+  /* Dynamic Chatbar: docks naturally in flex column, expands upward without covering content */
   .composer-wrap {
-    width: 100% !important;
+    position: relative !important;
+    width: min(840px, calc(100% - 20px)) !important;
     max-width: 100% !important;
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    padding: 8px 14px max(10px, env(safe-area-inset-bottom, 8px)) 14px !important;
+    margin: 0 auto !important;
+    padding: 4px 0 max(10px, env(safe-area-inset-bottom, 8px)) !important;
+    flex-shrink: 0 !important;
+    z-index: 30 !important;
   }
 
   .composer {
     width: 100% !important;
   }
 }
+
+/* ── Smart Taskbar (Topbar) Hide / Reveal Transitions ── */
+.topbar {
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease, margin-top 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: transform, opacity, margin-top;
+}
+
+.topbar.topbar-hidden {
+  transform: translateY(-100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  margin-top: -62px !important;
+}
+
+.topbar.topbar-visible {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  margin-top: 0 !important;
+}
+
+/* ── Unified Message Alignment: User Query on Right, AI Response on Left ── */
+.message.assistant {
+  align-self: flex-start !important;
+  margin-right: auto !important;
+  margin-left: 0 !important;
+  max-width: 92% !important;
+}
+
+.message.user {
+  display: flex !important;
+  flex-direction: row-reverse !important;
+  align-self: flex-end !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  max-width: 82% !important;
+  gap: 10px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.message.user .message-avatar {
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+  color: #ffffff !important;
+  display: grid !important;
+  place-items: center !important;
+  flex-shrink: 0 !important;
+  margin-top: 4px !important;
+}
+
+.message.user > div {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  max-width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.message.user .message-sender-row {
+  display: flex !important;
+  justify-content: flex-end !important;
+  margin-bottom: 4px !important;
+}
+
+.message.user strong {
+  font-size: 12px !important;
+  color: var(--accent-dark, #b45309) !important;
+  text-align: right !important;
+}
+
+.message.user p {
+  display: inline-block !important;
+  padding: 11px 16px !important;
+  border-radius: 18px 18px 4px 18px !important;
+  font-size: 14.5px !important;
+  line-height: 1.58 !important;
+  text-align: left !important;
+  word-break: break-word !important;
+  transition: all 0.2s ease !important;
+}
+
+:root[data-theme='light'] .message.user p {
+  background: #FFF7ED !important;
+  border: 1.2px solid rgba(245, 158, 11, 0.4) !important;
+  color: #431407 !important;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.08) !important;
+}
+
+:root[data-theme='dark'] .message.user p {
+  background: rgba(245, 158, 11, 0.14) !important;
+  border: 1.2px solid rgba(245, 158, 11, 0.35) !important;
+  color: #FEF3C7 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.message.user .message-meta {
+  display: flex !important;
+  justify-content: flex-end !important;
+  margin-top: 4px !important;
+}
+
+
 
 

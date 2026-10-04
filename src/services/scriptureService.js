@@ -64,8 +64,8 @@ export function isCasualConversational(query) {
   const pureGreetings = /^(?:राधे\s*राधे|जय\s*श्री\s*(?:कृष्णा?|राम|राधे)|प्रणाम|चरण\s*स्पर्श|नमस्ते|नमस्कार|राम\s*राम|हेलो|हाय|hello|hi|hey|good\s*(?:morning|evening|afternoon)|hare\s*krishna|radhe\s*radhe|radhey?\s*radhey?|jai\s*shree?\s*(?:krishna|ram|radhe)|namaste|pranam|charan\s*sparsh|hare\s*(?:krishna|rama?)|ram\s*ram|hey\s*there|hello\s*there|hi\s*there)$/i;
   if (!stripped || pureGreetings.test(stripped) || pureGreetings.test(clean)) return true;
 
-  // Simple routine queries like 'how are you'
-  const casualQuestions = /^(?:आप\s*कैसे\s*हैं|कैसे\s*हो|सब\s*ठीक\s*है|हाल\s*चाल|how\s*are\s*you|who\s*are\s*you|how\s*r\s*u|how\s*do\s*you\s*do)$/i;
+  // Simple routine queries like 'how are you' (exclude 'who are you' which has its own full introduction)
+  const casualQuestions = /^(?:आप\s*कैसे\s*हैं|कैसे\s*हो|सब\s*ठीक\s*है|हाल\s*चाल|how\s*are\s*you|how\s*r\s*u|how\s*do\s*you\s*do)$/i;
   if (casualQuestions.test(stripped) || casualQuestions.test(clean)) return true;
 
   return false;
