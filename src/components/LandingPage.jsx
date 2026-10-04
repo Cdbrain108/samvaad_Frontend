@@ -295,7 +295,7 @@ Key features for seekers:
     setTypedText('')
     setHasStartedTyping(false)
 
-    // 1. Give seeker time to read the question first (420ms pause)
+    // 1. Give seeker time to read the question first (750ms pause)
     timeoutRef.current = setTimeout(() => {
       if (cancelled) return
       setHasStartedTyping(true)
@@ -306,13 +306,14 @@ Key features for seekers:
       const step = () => {
         if (cancelled) return
         if (idx < chars.length) {
-          idx += 4
+          idx += 1
           setTypedText(chars.slice(0, idx).join(''))
           // Auto-scroll body down smoothly so new text is always visible
           if (bodyRef.current) {
             bodyRef.current.scrollTop = bodyRef.current.scrollHeight
           }
-          timeoutRef.current = setTimeout(step, 14)
+          const isBreak = chars[idx - 1] === '\n'
+          timeoutRef.current = setTimeout(step, isBreak ? 55 : 24)
         } else {
           setTypedText(selected.a)
           setIsTyping(false)
@@ -320,7 +321,7 @@ Key features for seekers:
         }
       }
       step()
-    }, 420)
+    }, 750)
 
     return () => {
       cancelled = true
@@ -488,31 +489,44 @@ This platform serves as an interactive learning playground. Guidance here is ref
     setTypedText('')
     setHasStartedTyping(false)
 
-    // 1. Give seeker time to read the question first (420ms pause)
+    // 1. Give seeker time to read the question bubble first
+    const delayBeforeStart = headingDismissed ? 450 : 800
     timeoutRef.current = setTimeout(() => {
       if (cancelled) return
-      setHasStartedTyping(true)
-      setIsTyping(true)
 
-      const chars = Array.from(selected.a)
-      let idx = 0
-      const step = () => {
-        if (cancelled) return
-        if (idx < chars.length) {
-          idx += 4
-          setTypedText(chars.slice(0, idx).join(''))
-          if (bodyRef.current) {
-            bodyRef.current.scrollTop = bodyRef.current.scrollHeight
-          }
-          timeoutRef.current = setTimeout(step, 14)
-        } else {
-          setTypedText(selected.a)
-          setIsTyping(false)
-          timeoutRef.current = null
-        }
+      // Auto-hide the overview heading smoothly before typing starts
+      if (!headingDismissed && onChatStart) {
+        onChatStart()
       }
-      step()
-    }, 420)
+
+      // Wait 520ms for heading collapse animation, then start calm typing
+      const collapseWait = !headingDismissed ? 520 : 0
+      timeoutRef.current = setTimeout(() => {
+        if (cancelled) return
+        setHasStartedTyping(true)
+        setIsTyping(true)
+
+        const chars = Array.from(selected.a)
+        let idx = 0
+        const step = () => {
+          if (cancelled) return
+          if (idx < chars.length) {
+            idx += 1
+            setTypedText(chars.slice(0, idx).join(''))
+            if (bodyRef.current) {
+              bodyRef.current.scrollTop = bodyRef.current.scrollHeight
+            }
+            const isBreak = chars[idx - 1] === '\n'
+            timeoutRef.current = setTimeout(step, isBreak ? 55 : 24)
+          } else {
+            setTypedText(selected.a)
+            setIsTyping(false)
+            timeoutRef.current = null
+          }
+        }
+        step()
+      }, collapseWait)
+    }, delayBeforeStart)
 
     return () => {
       cancelled = true
@@ -539,15 +553,15 @@ This platform serves as an interactive learning playground. Guidance here is ref
             </span>
           </div>
           <div className="chat-demo-topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
-            {onToggleHeading && (
+            {onToggleHeading && headingDismissed && (
               <button
                 type="button"
                 className="about-heading-toggle-btn"
                 onClick={onToggleHeading}
-                title={headingDismissed ? 'Show About Us overview heading' : 'Hide overview heading'}
-                aria-label={headingDismissed ? 'Show About Us overview heading' : 'Hide overview heading'}
+                title="Show About Us overview heading"
+                aria-label="Show About Us overview heading"
               >
-                {headingDismissed ? '📖 Overview' : '✕ Hide'}
+                📖 Overview
               </button>
             )}
             <span className="chat-demo-badge">{selected.tag}</span>
@@ -707,6 +721,9 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       if (headerTimerRef.current) clearTimeout(headerTimerRef.current)
     } else {
       showHeaderTemporarily(1800)
+    }
+    if (currentPhase !== 'education') {
+      setAboutHeadingDismissed(false)
     }
     scheduleFloatingPill()
     return () => {

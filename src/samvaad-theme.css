@@ -8978,5 +8978,8 @@ select:focus-visible,
   .floating-pill-text small {
     font-size: 9.5px !important;
   }
+  .about-heading-toggle-btn {
+    display: none !important;
+  }
 }
 
