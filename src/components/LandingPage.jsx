@@ -665,6 +665,25 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   const [headerVisible, setHeaderVisible] = useState(true)
   const headerTimerRef = useRef(null)
 
+  // Floating "Try Samvaad" pill state & timer (appears after staying >1.5s in a section)
+  const [showFloatingPill, setShowFloatingPill] = useState(false)
+  const floatingTimerRef = useRef(null)
+
+  const scheduleFloatingPill = () => {
+    if (floatingTimerRef.current) clearTimeout(floatingTimerRef.current)
+    const currentPhase = phases[activeRef.current]?.id
+    if (currentPhase === 'education') {
+      setShowFloatingPill(false)
+      return
+    }
+    setShowFloatingPill(false)
+    floatingTimerRef.current = setTimeout(() => {
+      if (phases[activeRef.current]?.id !== 'education') {
+        setShowFloatingPill(true)
+      }
+    }, 1500)
+  }
+
   const showHeaderTemporarily = (duration = 1800) => {
     const currentPhase = phases[activeRef.current]?.id
     if (currentPhase === 'overview' || currentPhase === 'education') {
@@ -680,6 +699,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   }
 
   // Auto-hide taskbar within 1.8s & IMMEDIATELY in project overview & about me
+  // Also start 1.5s timer for floating "Try Samvaad" button when entering a section
   useEffect(() => {
     const currentPhase = phases[active]?.id
     if (currentPhase === 'overview' || currentPhase === 'education') {
@@ -688,8 +708,10 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     } else {
       showHeaderTemporarily(1800)
     }
+    scheduleFloatingPill()
     return () => {
       if (headerTimerRef.current) clearTimeout(headerTimerRef.current)
+      if (floatingTimerRef.current) clearTimeout(floatingTimerRef.current)
     }
   }, [active])
 
@@ -768,6 +790,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
 
     const onScroll = () => {
       showHeaderTemporarily(1800)
+      scheduleFloatingPill()
       if (!ticking) {
         ticking = true
         requestAnimationFrame(update)
@@ -1050,9 +1073,8 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
                 placeholder="Ask your spiritual or life question..."
                 aria-label="Ask your question"
               />
-              <button className="askbox-send" type="submit" aria-label="Ask Samvaad" title="Ask question in Samvaad">
-                <span className="askbox-send-text">Ask</span>
-                <Icon name="arrow-right" size={16} />
+              <button className="askbox-send" type="submit" aria-label="Send question" title="Ask question in Samvaad">
+                <Icon name="arrow-right" size={18} />
               </button>
             </form>
 
@@ -1308,6 +1330,23 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
           />
         </section>
       </main>
+
+      {/* Floating Live Samvaad Quick-Access Pill — appears after staying >1.5s in a section */}
+      {phases[active]?.id !== 'education' && (
+        <button
+          className={`floating-try-samvaad-pill ${showFloatingPill ? 'is-visible' : ''}`}
+          onClick={onEnter}
+          aria-label="Try Samvaad · Ask a question in live chat"
+          title="Start Live Samvaad Chat"
+          type="button"
+        >
+          <span className="floating-pill-icon" aria-hidden="true">🪷</span>
+          <span className="floating-pill-text">
+            <strong>Try Samvaad</strong>
+            <small>Ask a Question →</small>
+          </span>
+        </button>
+      )}
     </div>
   )
 }

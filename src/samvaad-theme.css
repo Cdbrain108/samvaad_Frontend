@@ -8734,38 +8734,77 @@ select:focus-visible,
   font-size: 13.5px !important;
 }
 
-/* Hero Askbox Send Button Enhancement — Bold Pill with Ask Label */
-.askbox-send {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  width: auto !important;
-  min-width: 72px !important;
-  height: 40px !important;
-  padding: 0 18px !important;
-  border-radius: 999px !important;
-  border: 1.5px solid rgba(254, 200, 75, 0.75) !important;
-  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
-  color: #FFFFFF !important;
-  font-weight: 700 !important;
-  font-size: 13.5px !important;
-  letter-spacing: 0.3px !important;
-  cursor: pointer !important;
-  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.4), 0 0 12px rgba(245, 158, 11, 0.25) !important;
-  transition: all 0.2s ease !important;
-  flex: none !important;
+/* Floating Live Samvaad Quick-Access Pill (appears after >1.5s in a section) */
+.floating-try-samvaad-pill {
+  position: fixed;
+  bottom: max(22px, env(safe-area-inset-bottom, 20px));
+  right: 22px;
+  z-index: 95;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1.5px solid rgba(254, 200, 75, 0.65);
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%);
+  color: #FFFFFF;
+  box-shadow: 0 8px 28px rgba(217, 119, 6, 0.45), 0 0 18px rgba(245, 158, 11, 0.3);
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  touch-action: manipulation;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(16px) scale(0.95);
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1), transform 320ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 250ms ease;
 }
 
-.askbox-send:hover {
-  transform: scale(1.05) !important;
-  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.6), 0 0 18px rgba(245, 158, 11, 0.4) !important;
-  border-color: #FEF3C7 !important;
+.floating-try-samvaad-pill.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
 }
 
-.askbox-send-text {
-  font-weight: 700 !important;
-  letter-spacing: 0.4px !important;
+.spiritual-page:not(.night) .floating-try-samvaad-pill {
+  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+  border: 1.5px solid rgba(254, 243, 199, 0.7);
+  box-shadow: 0 8px 24px rgba(180, 83, 9, 0.35), 0 0 14px rgba(217, 119, 6, 0.25);
+}
+
+.floating-try-samvaad-pill:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 34px rgba(217, 119, 6, 0.6), 0 0 24px rgba(245, 158, 11, 0.45);
+  border-color: #FEF3C7;
+}
+
+.floating-try-samvaad-pill:active {
+  transform: scale(0.97);
+}
+
+.floating-pill-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.floating-pill-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.floating-pill-text strong {
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+
+.floating-pill-text small {
+  font-size: 10.5px;
+  font-weight: 600;
+  opacity: 0.92;
+  line-height: 1.2;
 }
 
 /* Project Overview Demo CTA Button */
@@ -8809,12 +8848,20 @@ select:focus-visible,
     padding: 6px 14px !important;
     font-size: 12px !important;
   }
-  .phase-hero .askbox-send {
-    width: auto !important;
-    min-width: 60px !important;
-    height: 35px !important;
-    padding: 0 13px !important;
+  .floating-try-samvaad-pill {
+    bottom: max(16px, env(safe-area-inset-bottom, 14px)) !important;
+    right: 14px !important;
+    padding: 8px 14px !important;
+    gap: 8px !important;
+  }
+  .floating-pill-icon {
+    font-size: 18px !important;
+  }
+  .floating-pill-text strong {
     font-size: 12.5px !important;
+  }
+  .floating-pill-text small {
+    font-size: 9.5px !important;
   }
 }
 
