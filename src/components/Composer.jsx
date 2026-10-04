@@ -2,12 +2,6 @@ import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import Icon from './Icon'
 
-const quickPrompts = [
-  { label: 'Make it gentle', prompt: 'Please answer in a calm and pleasant tone: ' },
-  { label: 'Hindi + English', prompt: 'Explain this in simple Hindi and English: ' },
-  { label: 'Give practice', prompt: 'Give me one small reflection practice for this question: ' },
-]
-
 export default function Composer({
   value,
   onChange,
@@ -52,14 +46,6 @@ export default function Composer({
     }
   }
 
-  function addQuickPrompt(prompt) {
-    if (isDisabled) return
-    if (guestLimitReached) { onGuestLimitClick && onGuestLimitClick(); return }
-    const nextValue = value.trim() ? `${value.trim()} ${prompt}` : prompt
-    onChange(nextValue)
-    requestAnimationFrame(() => textareaRef.current?.focus())
-  }
-
   // Guest limit reached: replace composer with a locked sign-in CTA bar
   if (guestLimitReached) {
     return (
@@ -87,21 +73,6 @@ export default function Composer({
 
   return (
     <div className="composer-wrap">
-      <div className="composer-toolbar" aria-label="Quick prompt helpers">
-        {quickPrompts.map((item) => (
-          <motion.button
-            key={item.label}
-            type="button"
-            onClick={() => addQuickPrompt(item.prompt)}
-            disabled={isDisabled}
-            whileHover={isDisabled ? {} : { scale: 1.03, y: -1 }}
-            whileTap={isDisabled ? {} : { scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-          >
-            {item.label}
-          </motion.button>
-        ))}
-      </div>
       <form className="composer" onSubmit={handleSend}>
         <textarea
           aria-label="Message Samvaad"

@@ -5416,18 +5416,22 @@ select:focus-visible,
   .hero-bg-mobile-temple{ display:block !important; }
   .desktop-only-canvas{ display:none !important; }
   /* numbers */
-  .numbers-section{ padding:68px 16px 28px !important; }
+  .numbers-section{ padding:68px 12px 28px !important; }
   .parchment-scroll-wrapper{ width:100% !important; margin:12px auto 0 !important; }
   .parchment-unfurl-stage{ min-height:180px !important; }
-  .parchment-sheet{ min-height:170px !important; padding:12px 16px !important; }
-  .parchment-metrics-grid{ grid-template-columns:1fr 1fr !important; gap:10px !important; }
+  .parchment-roller{ width:38px !important; }
+  .roller-spindle{ width:30px !important; }
+  .roller-finial{ width:26px !important; height:18px !important; }
+  .parchment-sheet{ min-height:170px !important; padding:14px 44px !important; }
+  .parchment-frame-border{ inset:6px 36px !important; }
+  .parchment-metrics-grid{ grid-template-columns:1fr 1fr !important; gap:12px 8px !important; }
   /* 2-col rows are [1,2] [3,4] [5]: dividers between a pair stay, the ones
      hanging at the end of rows 1 and 2 (items 2 and 4) would float near the
      sheet edge, so drop those. */
   .parchment-metric-item:nth-child(2n) .metric-vertical-divider{ display:none; }
-  .parchment-metric-item:nth-child(5){ grid-column:1 / -1; max-width:50%; margin:0 auto; }
-  .metric-digit{ font-size:24px !important; }
-  .metric-text-label{ font-size:10px !important; }
+  .parchment-metric-item:nth-child(5){ grid-column:1 / -1; max-width:65%; margin:0 auto; }
+  .metric-digit{ font-size:23px !important; }
+  .metric-text-label{ font-size:10.5px !important; line-height:1.25 !important; text-align:center !important; word-break:normal !important; }
   /* pipeline */
   .story-section{ padding:68px 16px 28px !important; }
   .flow-pipeline{ grid-template-columns:1fr !important; gap:0 !important; width:100% !important; margin:12px auto 0 !important; }
@@ -5882,9 +5886,7 @@ select:focus-visible,
 
   /* Full-Screen Chat Demo View for Mobile (Overview & About Us) */
   .spiritual-page .phase#overview,
-  .spiritual-page .phase#education,
-  .chat-overview-section,
-  .about-us-section {
+  .chat-overview-section {
     height: 100svh !important;
     height: 100dvh !important;
     min-height: 100dvh !important;
@@ -5895,6 +5897,21 @@ select:focus-visible,
     flex-direction: column !important;
     justify-content: flex-start !important;
     box-sizing: border-box !important;
+  }
+
+  .about-us-section,
+  .spiritual-page .phase#education {
+    height: auto !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 8px 8px calc(env(safe-area-inset-bottom, 24px) + 72px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    box-sizing: border-box !important;
+    scroll-snap-align: start !important;
   }
 
   .chat-overview-section .spiritual-section-heading,
@@ -5924,8 +5941,7 @@ select:focus-visible,
     display: none !important;
   }
 
-  .chat-demo-container,
-  .about-us-section .chat-demo-container {
+  .chat-demo-container {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
@@ -5936,6 +5952,29 @@ select:focus-visible,
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
+  }
+
+  .about-us-section .chat-demo-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto 16px !important;
+    flex: 0 0 auto !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+  }
+  .about-us-section .chat-demo-window {
+    height: auto !important;
+    max-height: none !important;
+  }
+  .about-us-section .chat-demo-body {
+    max-height: 38vh !important;
+    min-height: 170px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
   .chat-demo-window {
     width: 100% !important;
@@ -6115,21 +6154,41 @@ select:focus-visible,
     border-radius: 999px !important;
   }
   .creator-social-actions {
-    margin-top: 4px !important;
+    margin-top: 8px !important;
     padding-top: 0 !important;
-    gap: 6px !important;
+    gap: 8px !important;
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     width: 100% !important;
   }
   .creator-action-btn {
     width: 100% !important;
-    padding: 6px 8px !important;
-    font-size: 11px !important;
+    min-height: 42px !important;
+    padding: 8px 10px !important;
+    font-size: 11.5px !important;
     font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center !important;
     justify-content: center !important;
     border-radius: 999px !important;
     box-sizing: border-box !important;
+    touch-action: manipulation !important;
+  }
+  .creator-social-actions .rust-button.cta-button {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-height: 48px !important;
+    padding: 12px 18px !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    border-radius: 999px !important;
+    margin-top: 2px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    box-shadow: 0 6px 18px rgba(217, 119, 6, 0.4) !important;
   }
 
   /* Themes in Mobile Chat Demo */
@@ -6710,31 +6769,125 @@ select:focus-visible,
   }
 }
 
-/* ── 3. CHAT VIEW: Welcome screen not clipped under topbar ── */
+/* ── 3. CHAT VIEW: Welcome screen & Suggestion Cards Optimized ── */
 @media (max-width: 640px) {
-  /* Main chat content area — ensure it starts below the 60px sticky topbar */
+  /* Main chat content area — full height with generous bottom clearance for static composer dock */
   .content-area {
-    padding-top: 20px !important;
-    padding-bottom: max(120px, env(safe-area-inset-bottom, 0px) + 120px) !important;
+    padding-top: 14px !important;
+    padding-bottom: calc(130px + env(safe-area-inset-bottom, 14px)) !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
-  /* The welcome block is taller than the scroll area, so vertical centering
-     pushed it (and the <h1>) above the topbar where it could not be seen and
-     could not be scrolled to. On a phone it always starts at the top. */
   .content-area:has(.welcome) {
     align-items: safe flex-start !important;
   }
 
-  /* Welcome screen heading */
-  .welcome h1 {
-    font-size: clamp(26px, 7vw, 36px) !important;
-    line-height: 1.15 !important;
+  /* Welcome screen compact layout */
+  .welcome {
+    padding: 6px 12px 14px !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
-  .welcome-copy p { font-size: 13px !important; line-height: 1.6 !important; }
-  .suggestion-grid { margin-top: 20px !important; gap: 10px !important; }
-  .suggestion-card { min-height: 80px !important; padding: 14px !important; border-radius: 14px !important; }
-  .suggestion-icon { width: 40px !important; height: 40px !important; border-radius: 11px !important; }
-}
+  .welcome-copy {
+    text-align: center !important;
+    margin-bottom: 12px !important;
+  }
+  .welcome-kicker {
+    font-size: 10.5px !important;
+    padding: 2.5px 10px !important;
+    margin-bottom: 6px !important;
+    letter-spacing: 0.05em !important;
+    display: inline-block !important;
+  }
+  .welcome h1 {
+    font-size: clamp(20px, 5.2vw, 25px) !important;
+    line-height: 1.2 !important;
+    margin: 0 0 4px !important;
+  }
+  .welcome-copy p {
+    font-size: 11.5px !important;
+    line-height: 1.4 !important;
+    max-width: 330px !important;
+    margin: 0 auto !important;
+    opacity: 0.82 !important;
+  }
+
+  /* Compact Suggestion Cards Grid */
+  .suggestion-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+    margin-top: 10px !important;
+    width: 100% !important;
+  }
+  .suggestion-card {
+    min-height: auto !important;
+    padding: 9px 12px !important;
+    border-radius: 12px !important;
+    gap: 10px !important;
+    align-items: center !important;
+    text-align: left !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+  }
+  :root[data-theme='light'] .suggestion-card {
+    background: #FFFFFF !important;
+    border: 1.2px solid rgba(217, 119, 6, 0.25) !important;
+    box-shadow: 0 2px 8px rgba(180, 83, 9, 0.06) !important;
+  }
+  :root[data-theme='dark'] .suggestion-card {
+    background: rgba(15, 28, 52, 0.72) !important;
+    border: 1.2px solid rgba(245, 158, 11, 0.22) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+  }
+  .suggestion-icon {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    border-radius: 9px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+  .suggestion-icon svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .suggestion-copy {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1px !important;
+    text-align: left !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+  .suggestion-copy small {
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: #D97706 !important;
+  }
+  :root[data-theme='dark'] .suggestion-copy small {
+    color: #FCD34D !important;
+  }
+  .suggestion-copy strong {
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    font-weight: 600 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+  .card-arrow {
+    font-size: 13px !important;
+    opacity: 0.55 !important;
+    margin-left: auto !important;
+    flex-shrink: 0 !important;
+  }
 
 /* ── 4. CHAT VIEW: Diya row & chat moon — clean mobile layout ── */
 @media (max-width: 640px) {
@@ -7545,65 +7698,46 @@ select:focus-visible,
     border-radius: 8px !important;
   }
 
-  /* Standalone Mobile Bottom Composer Dock */
+  /* Standalone Mobile Bottom Composer Dock — Claude / ChatGPT Style */
   .composer-wrap {
     width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 8px 12px max(10px, env(safe-area-inset-bottom)) 12px !important;
-    background: linear-gradient(to top, rgba(8, 21, 37, 0.98) 80%, rgba(8, 21, 37, 0.85) 92%, transparent) !important;
+    max-width: 800px !important;
+    margin: 0 auto !important;
+    padding: 10px 14px max(10px, env(safe-area-inset-bottom, 8px)) 14px !important;
+    background: linear-gradient(180deg, rgba(9, 18, 35, 0) 0%, rgba(9, 18, 35, 0.72) 20%, rgba(9, 18, 35, 0.94) 55%, rgba(7, 14, 28, 0.98) 100%) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
     box-sizing: border-box !important;
-    position: sticky !important;
+    position: absolute !important;
     bottom: 0 !important;
-    z-index: 20 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 30 !important;
+    pointer-events: none !important;
+  }
+
+  .composer-wrap > * {
+    pointer-events: auto !important;
   }
 
   .composer-toolbar {
-    display: flex !important;
-    overflow-x: auto !important;
-    flex-wrap: nowrap !important;
-    gap: 6px !important;
-    padding-bottom: 7px !important;
-    -webkit-overflow-scrolling: touch !important;
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-
-  .composer-toolbar::-webkit-scrollbar {
     display: none !important;
-  }
-
-  .composer-toolbar button {
-    flex-shrink: 0 !important;
-    white-space: nowrap !important;
-    font-size: 0.74rem !important;
-    font-weight: 500 !important;
-    padding: 5px 12px !important;
-    border-radius: 999px !important;
-    background: rgba(255, 255, 255, 0.06) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    color: #f1f5f9 !important;
-    min-height: 29px !important;
   }
 
   .composer {
     display: flex !important;
     align-items: flex-end !important;
     gap: 8px !important;
-    padding: 6px 8px 6px 14px !important;
-    border-radius: 22px !important;
-    background: rgba(18, 14, 28, 0.92) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+    padding: 7px 8px 7px 14px !important;
+    border-radius: 24px !important;
+    background: rgba(15, 28, 52, 0.96) !important;
+    border: 1.5px solid rgba(245, 158, 11, 0.35) !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6), 0 0 16px rgba(245, 158, 11, 0.1) !important;
     box-sizing: border-box !important;
   }
 
   .composer textarea {
-    font-size: 16px !important; /* Prevents auto-zoom in mobile Safari */
+    font-size: 15px !important;
     line-height: 1.45 !important;
     padding: 6px 0 !important;
     max-height: 120px !important;
@@ -7615,51 +7749,22 @@ select:focus-visible,
     height: 38px !important;
     min-width: 38px !important;
     min-height: 38px !important;
-    border-radius: 50% !important;
+    border-radius: 12px !important;
     background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-    color: #1e1b4b !important;
+    color: #ffffff !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     box-shadow: 0 2px 10px rgba(245, 158, 11, 0.35) !important;
+    border: none !important;
+    flex-shrink: 0 !important;
   }
 
   .composer-note {
-    font-size: 0.65rem !important;
-    margin: 4px 0 0 0 !important;
+    font-size: 10px !important;
+    margin: 5px 0 0 0 !important;
     text-align: center !important;
-    color: rgba(255, 255, 255, 0.45) !important;
-  }
-
-  /* Welcome Screen on Mobile */
-  .welcome {
-    padding-top: 8px !important;
-  }
-
-  .welcome h1 {
-    font-size: clamp(26px, 7.5vw, 34px) !important;
-    line-height: 1.18 !important;
-    margin-bottom: 8px !important;
-  }
-
-  .welcome-copy p {
-    font-size: 0.84rem !important;
-    line-height: 1.5 !important;
-    color: #94a3b8 !important;
-  }
-
-  .suggestion-grid {
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
-    margin-top: 18px !important;
-  }
-
-  .suggestion-card {
-    padding: 11px 13px !important;
-    min-height: 58px !important;
-    border-radius: 12px !important;
-    background: rgba(255, 255, 255, 0.04) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: rgba(254, 243, 199, 0.55) !important;
   }
 }
 
@@ -7769,23 +7874,22 @@ select:focus-visible,
     color: #78350f !important;
   }
   :root[data-theme='light'] .composer-wrap {
-    background: linear-gradient(to top, rgba(255, 248, 225, 0.98) 82%, rgba(255, 248, 225, 0.85) 92%, transparent) !important;
+    background: linear-gradient(180deg, rgba(255, 252, 246, 0) 0%, rgba(255, 252, 246, 0.72) 20%, rgba(255, 250, 242, 0.94) 55%, rgba(255, 248, 238, 0.98) 100%) !important;
   }
   :root[data-theme='light'] .composer {
-    background: rgba(255, 252, 247, 0.98) !important;
-    border: 1.5px solid rgba(217, 119, 6, 0.35) !important;
-    box-shadow: 0 4px 18px rgba(180, 83, 9, 0.12) !important;
+    background: #FFFFFF !important;
+    border: 1.5px solid rgba(217, 119, 6, 0.32) !important;
+    box-shadow: 0 6px 24px rgba(180, 83, 9, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+    border-radius: 24px !important;
+    padding: 7px 8px 7px 14px !important;
   }
   :root[data-theme='light'] .composer textarea {
     color: #1e1b4b !important;
-  }
-  :root[data-theme='light'] .composer-toolbar button {
-    background: rgba(217, 119, 6, 0.08) !important;
-    border: 1px solid rgba(217, 119, 6, 0.22) !important;
-    color: #78350f !important;
+    font-size: 15px !important;
   }
   :root[data-theme='light'] .composer-note {
-    color: rgba(120, 53, 15, 0.6) !important;
+    color: rgba(120, 53, 15, 0.65) !important;
+    font-size: 10px !important;
   }
 }
 
