@@ -236,11 +236,12 @@ Speak in clean, serene, deeply compassionate English. Never use dry robotic lang
       model: 'ai-guru-v10-4',
       messages,
       temperature: 0.35,
-      repeat_penalty: 1.18,
+      repeat_penalty: 1.25,
       repeat_last_n: 256,
-      presence_penalty: 0.3,
-      frequency_penalty: 0.3,
-      max_tokens: 650,
+      presence_penalty: 0.2,
+      frequency_penalty: 0.2,
+      max_tokens: 220,
+      stop: ["<end_of_turn>", "<start_of_turn>", "<|im_end|>", "</s>", "\n\nUser:", "User:", "साधक:", "\n\nसाधक:"],
       stream: true
     }),
     signal: AbortSignal.timeout(22000)
