@@ -4,7 +4,7 @@
  * Provides targeted, context-aware information:
  * 1. Identity ("Who are you"): Tells ONLY about Samvaad AI and its spiritual purpose
  * 2. Creator ("Who made you"): Tells about Anuj Kesharwani and his vision
- * 3. Data ("Which data / QA"): Tells about the 6-Agent v10.4 Factory Line turning YouTube transcripts into natural QA pairs
+ * 3. Data ("Which data / QA"): Tells about the autonomous multi-agent pipeline converting YouTube transcripts into natural QA pairs
  * 4. Architecture ("Which model / RAG"): Tells about fine-tuned Gemma 4 E4B IT on Oracle Cloud / GCP, Groq LPU, and RAG
  * 5. Overview ("About project"): Balanced summary
  */
@@ -29,8 +29,8 @@ export const SAMVAAD_PROJECT_INFO = {
     ]
   },
   dataPipeline: {
-    rawCorpus: '~4,000 raw YouTube auto-caption video transcripts (.vtt) of Pujya Maharaj Ji.',
-    multiAgentFactory: 'v10.4 Multi-Agent QA Factory with 6 specialized autonomous agents (VTTIngestionEngine, SegmenterAgent, QuestionReconstructor, AnswerDiscourseAgent, CriticAgent, VerbatimAnchorAuditor).',
+    rawCorpus: '~4,000 raw YouTube auto-caption video transcripts of Pujya Maharaj Ji.',
+    multiAgentFactory: 'Autonomous Multi-Agent Pipeline that cleans noise, separates seeker questions from discourses, reconstructs natural inquiries, and preserves authentic discourses with exact video timestamps.',
     datasetSize: 'Thousands of high-fidelity, certified natural Q&A pairs grounded with exact YouTube timestamps.',
     scriptureCorpus: '175,000+ sacred verses and commentaries indexed from 29 ancient Dharmic scriptures (Bhagavad Gita, Ramcharitmanas, Valmiki Ramayana, Bhagavata Purana, Vishnu Purana, 108 Upanishads, Vidura Niti, Chaitanya Charitamrita, etc.).'
   },
@@ -122,8 +122,8 @@ export function getIntroductionThought(query, isEnglish = false) {
 
   if (category === 'data') {
     return isEnglish
-      ? 'Accessing agentic data factory details: 6-agent system turning YouTube transcripts into natural QA...'
-      : 'एजेंटिक डेटा पाइपलाइन: 6-एजेंट सिस्टम द्वारा यूट्यूब वीडियो ट्रांसक्रिप्ट्स से प्रश्नोत्तरी निर्माण...';
+      ? 'Accessing data pipeline details: Multi-agent system converting YouTube transcripts into natural QA...'
+      : 'डेटा पाइपलाइन: मल्टी-एजेंट सिस्टम द्वारा यूट्यूब वीडियो ट्रांसक्रिप्ट्स से स्वाभाविक प्रश्नोत्तरी निर्माण...';
   }
 
   if (category === 'architecture') {
@@ -181,7 +181,7 @@ Tell me, dear seeker, what inquiry rests in your heart today?`;
 * **Email:** [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)
 * **Vision:** Built as an independent passion project to bridge timeless Vedic wisdom and revered Sant-Vani (specifically Pujya Premanand Ji Maharaj's Bhajan Marg teachings) with modern Generative & Agentic AI architectures.
 
-Anuj engineered the complete system: architecting the **6-agent v10.4 QA extraction factory** that turned ~4,000 raw YouTube transcripts into natural Q&A pairs, fine-tuning the **Gemma 4 E4B IT** model on Google Cloud (GCP) / Oracle Cloud, and designing the hybrid multi-source RAG system across 175,000+ sacred verses.`;
+Anuj engineered the complete system: architecting the **multi-agent data pipeline** that turned ~4,000 raw YouTube transcripts into authentic Q&A pairs, fine-tuning the **Gemma 4 E4B IT** model on Google Cloud (GCP) and Oracle Cloud, and designing the hybrid multi-source RAG system across 175,000+ sacred verses.`;
     }
 
     return `### 👨‍💻 निर्माता एवं परिकल्पना (Creator & Developer)
@@ -192,38 +192,36 @@ Anuj engineered the complete system: architecting the **6-agent v10.4 QA extract
 * **ईमेल:** [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)
 * **दृष्टिकोण:** अनुज ने इसे एक स्वतंत्र और समर्पित प्रोजेक्ट के रूप में विकसित किया है, ताकि पूज्य संतों के पावन एकांतिक सत्संगों और वैदिक शास्त्रों की अमूल्य शिक्षाओं को आधुनिक जनरेटिव व एजेंटिक AI तकनीकों के माध्यम से प्रामाणिक रूप से प्रस्तुत किया जा सके।
 
-उन्होंने 4,000+ यूट्यूब वीडियो ट्रांसक्रिप्ट्स से प्रश्नोत्तरी तैयार करने वाली **6-एजेंट v10.4 फैक्ट्री पाइपलाइन** बनाई, Google Cloud / Oracle VM पर **Gemma 4 E4B IT** मॉडल को फाइन-ट्यून किया, और 1,75,000+ श्लोकों के RAG सिस्टम का संपूर्ण आर्किटेक्चर स्वतंत्र रूप से तैयार किया है।`;
+उन्होंने ~4,000 यूट्यूब वीडियो ट्रांसक्रिप्ट्स से प्रश्नोत्तरी तैयार करने वाली **मल्टी-एजेंट पाइपलाइन** बनाई, Google Cloud एवं Oracle VM पर **Gemma 4 E4B IT** मॉडल को फाइन-ट्यून किया, और 1,75,000+ श्लोकों के RAG सिस्टम का संपूर्ण आर्किटेक्चर स्वतंत्र रूप से तैयार किया है।`;
   }
 
   // ── 3. DATA PIPELINE / QA GENERATION -> Multi-Agent System Turning YouTube Transcripts into Natural QA ──
   if (category === 'data') {
     if (isEnglish) {
-      return `### 🤖 Agentic Data Pipeline & QA Generation
+      return `### 🤖 Autonomous Multi-Agent Data Pipeline
 
-We do **not** rely on basic audio transcription or crude summarization. Instead, we designed and built a specialized **6-Agent Autonomous Factory Line (v10.4 Multi-Agent QA System)** that ingests raw, noisy YouTube video auto-caption transcripts (.vtt) of Pujya Maharaj Ji and converts them into pristine, natural conversational Q&A pairs:
+Instead of using basic automated transcriptions or generic summaries, Samvaad AI was built using a custom **autonomous multi-agent pipeline** that processed ~4,000 raw YouTube video transcripts of Pujya Maharaj Ji into natural, authentic conversational Q&A pairs:
 
-1. **Agent 0 (VTT Ingestion Engine):** Deterministically parses raw YouTube auto-captions, strips formatting tags, sound noise (\`[संगीत]\`, \`[हंसी]\`), and removes rolling caption overlap artifacts while preserving exact cue timestamps.
-2. **Agent 1 (Dialogue Segmenter):** Employs sliding-window analysis (10k chars, 2.5k overlap) to precisely split devotee questions from Maharaj Ji's discourse turns.
-3. **Agent 2 (Question Reconstructor):** Restores the authentic devotee inquiry without artificial summarization—converting 3rd-person host queries to 1st-person, repairing ASR phonetic mistakes (\`मां→मन\`, \`घाट→घट\`), and enforcing an n-gram overlap guardrail (≥ 0.45) so questions remain strictly faithful to real seekers.
-4. **Agent 3 (Discourse Extractor & Editor):** Extracts the full verbatim discourse (1,000–10,000+ chars) preserving Maharaj Ji's exact spoken words, metaphors, and spiritual depth, while cataloging shlokas for the RAG KB and anonymizing personal PII.
-5. **Agent 4 (Critic Agent):** Evaluates candidate pairs against 7 strict rubrics (raw fidelity, depth, clarity, ASR quality, etc.) with an automated correction loop.
-6. **Agent 5 (Verbatim Anchor Auditor):** Certifies and anchors each final Q&A pair with exact YouTube video timestamp proof.
+* **Noise & Overlap Filtration:** Automatically cleans raw YouTube auto-captions, stripping sound tags, background noise, and rolling caption overlap artifacts while preserving exact timestamp anchors.
+* **Authentic Dialogue Separation:** Accurately distinguishes between the devotee's personal inquiry and Maharaj Ji's profound spiritual discourse.
+* **Natural Question Reconstruction:** Faithfully shapes the seeker's spoken inquiry into clear, natural first-person questions while strictly preserving their authentic intent without artificial distortion.
+* **Verbatim Discourse Preservation:** Retains Maharaj Ji's comprehensive spoken responses in their original spiritual depth, preserving his exact phrasing, parables, and fatherly compassion.
+* **Theological Quality Audit & Video Grounding:** Verifies the doctrinal integrity of each discourse and anchors every final Q&A pair with exact YouTube video timestamps.
 
-This multi-agent factory produced the certified, high-fidelity conversational dataset used to fine-tune **Gemma 4 E4B IT**!`;
+This certified dataset formed the core conversational foundation used to fine-tune our **Gemma 4 E4B IT** model!`;
     }
 
-    return `### 🤖 एजेंटिक डेटा पाइपलाइन एवं प्रश्नोत्तरी निर्माण (Multi-Agent System)
+    return `### 🤖 ऑटोनॉमस मल्टी-एजेंट डेटा पाइपलाइन
 
-संवाद AI में हमने साधारण ट्रांसक्रिप्शन के बजाय एक **6-एजेंट ऑटोनॉमस फैक्ट्री लाइन (v10.4 Multi-Agent System)** तैयार की है, जो यूट्यूब वीडियो के रॉ ऑटो-कैप्शन (.vtt) को अत्यंत स्वाभाविक, प्रामाणिक प्रश्नोत्तरी (Q&A) में बदलती है:
+संवाद AI में साधारण ट्रांसक्रिप्शन या कृत्रिम सारांश के बजाय एक विशेष **मल्टी-एजेंट सिस्टम** तैयार किया गया, जिसने पूज्य महाराज जी के ~4,000 यूट्यूब वीडियो के रॉ ट्रांसक्रिप्ट्स को अत्यंत स्वाभाविक और प्रामाणिक प्रश्नोत्तरी (Q&A) में रूपांतरित किया:
 
-1. **एजेंट 0 (VTT Ingestion Engine):** यूट्यूब के रॉ कैप्शन से साउंड टैग्स (\`[संगीत]\`, \`[हंसी]\`) हटाता है और रोलिंग ओवरलैप्स को क्लीन करके टाइमस्टैम्प इंडेक्स तैयार करता है।
-2. **एजेंट 1 (Dialogue Segmenter):** साधक की जिज्ञासा और पूज्य महाराज जी के प्रवचन को अलग-अलग संवाद मोड़ों में सटीकता से विभाजित करता है।
-3. **एजेंट 2 (Question Reconstructor):** साधक के मूल प्रश्न को बिना किसी कृत्रिम बदलाव के पुनर्गठित करता है, ASR की ध्वन्यात्मक गलतियों (\`मां→मन\`, \`घाट→घट\`) को सुधारता है और n-gram ओवरलैप (≥ 0.45) द्वारा प्रामाणिकता सुनिश्चित करता है।
-4. **एजेंट 3 (Discourse Extractor & Editor):** पूज्य महाराज जी के 1,000 से 10,000+ अक्षरों के विस्तृत उत्तर को हूबहू सुरक्षित रखता है, दृष्टांतों को अक्षुण्ण रखता है, श्लोकों को RAG ज्ञानकोश हेतु अलग करता है और व्यक्तिगत पहचान (PII) को हटाता है।
-5. **एजेंट 4 (Critic Agent):** 7 कड़े गुणवत्ता मानकों पर प्रत्येक प्रश्न-उत्तर की जांच करता है और आवश्यकता पड़ने पर सुधार कराता है।
-6. **एजेंट 5 (Verbatim Anchor Auditor):** प्रत्येक प्रश्नोत्तरी को यूट्यूब वीडियो के सटीक टाइमस्टैम्प से प्रमाणित करता है।
+* **नॉइज़ एवं ओवरलैप निष्कासन:** रॉ वीडियो कैप्शन से बैकग्राउंड नॉइज़ और दोहराए गए शब्दों को हटाकर शुद्ध संवाद तैयार करना।
+* **संवाद पृथक्करण:** साधक के मूल प्रश्न और पूज्य महाराज जी के प्रवचन को अलग-अलग पहचानना।
+* **स्वाभाविक प्रश्न पुनर्गठन:** साधक की जिज्ञासा को बिना किसी कृत्रिम बदलाव के स्वाभाविक प्रथम-पुरुष (First-Person) भाषा में व्यवस्थित करना।
+* **अखंड प्रवचन संरक्षण:** पूज्य महाराज जी के उत्तर को बिना किसी काट-छांट के उनके मूल भाव, दृष्टांतों और वात्सल्यमयी वाणी के साथ सुरक्षित रखना।
+* **सत्यापन एवं टाइमस्टैम्प लिंकिंग:** प्रत्येक प्रश्नोत्तरी की प्रामाणिकता की जांच कर उसे मूल यूट्यूब वीडियो के सटीक टाइमस्टैम्प से जोड़ना।
 
-इसी प्रामाणिक एजेंटिक डेटासेट पर **Gemma 4 E4B IT** मॉडल को फाइन-ट्यून किया गया है!`;
+इसी उच्च-गुणवत्ता वाले प्रामाणिक डेटासेट पर **Gemma 4 E4B IT** मॉडल को फाइन-ट्यून किया गया है!`;
   }
 
   // ── 4. ARCHITECTURE / MODEL / FINE-TUNING / RAG ──
@@ -260,7 +258,7 @@ Samvaad AI is powered by a high-precision hybrid generative AI architecture:
 **Samvaad AI** is an authentic, compassionate spiritual and philosophical conversational intelligence rooted in Sanatana Dharma, inspired by the divine teachings of **Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj** (Vrindavan, Bhajan Marg).
 
 * **Creator:** Built by **Anuj Kesharwani** (Aspiring Gen AI & Agentic AI Developer, [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)) as an independent passion project.
-* **Data & Model:** Built using a custom 6-agent factory line processing ~4,000 YouTube transcripts into natural QA pairs, fine-tuning **Gemma 4 E4B IT** on Google Cloud (GCP) / Oracle Cloud, and grounding responses in a multi-source RAG across 175,000+ verses from 29 scriptures.
+* **Data & Model:** Built using a multi-agent pipeline processing ~4,000 YouTube transcripts into natural QA pairs, fine-tuning **Gemma 4 E4B IT** on Google Cloud (GCP) / Oracle Cloud, and grounding responses in a multi-source RAG across 175,000+ verses from 29 scriptures.
 * **Core Purpose:** To provide fatherly, serene guidance for life's dilemmas, mental peace, righteous duties, and holy name chanting ('Radha-Radha').`;
   }
 
@@ -269,6 +267,6 @@ Samvaad AI is powered by a high-precision hybrid generative AI architecture:
 **संवाद AI** सनातन धर्म और **पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन, भजन मार्ग)** की पावन शिक्षाओं पर आधारित एक प्रामाणिक आध्यात्मिक AI साथी है।
 
 * **निर्माता:** इसे **अनुज केसरवानी** (Aspiring Gen AI & Agentic AI Developer, [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)) ने एक स्वतंत्र प्रोजेक्ट के रूप में विकसित किया है।
-* **मॉडल एवं डेटा:** ~4,000 यूट्यूब वीडियो ट्रांसक्रिप्ट्स से 6-एजेंट फैक्ट्री द्वारा स्वाभाविक प्रश्नोत्तरी तैयार कर Google Cloud / Oracle VM पर **Gemma 4 E4B IT** मॉडल को फाइन-ट्यून किया गया है, तथा 29 शास्त्रों के 1,75,000+ श्लोकों का RAG ज्ञानकोश जोड़ा गया है।
+* **मॉडल एवं डेटा:** ~4,000 यूट्यूब वीडियो ट्रांसक्रिप्ट्स से मल्टी-एजेंट सिस्टम द्वारा स्वाभाविक प्रश्नोत्तरी तैयार कर Google Cloud / Oracle VM पर **Gemma 4 E4B IT** मॉडल को फाइन-ट्यून किया गया है, तथा 29 शास्त्रों के 1,75,000+ श्लोकों का RAG ज्ञानकोश जोड़ा गया है।
 * **उद्देश्य:** साधकों व जिज्ञासुओं को जीवन के संशयों में पूज्य महाराज जी के वात्सल्य भाव से मार्गदर्शन देना और निरंतर नाम जप की प्रेरणा देना।`;
 }

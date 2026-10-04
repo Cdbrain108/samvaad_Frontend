@@ -531,6 +531,19 @@ export default function App() {
     return () => { /* intentionally don’t cancel on cleanup — let the deferred write fire */ };
   }, [messages, doScrollToBottom]);
 
+  // Sync body viewport lock when entering or leaving chat view on mobile
+  useEffect(() => {
+    if (view === 'chat') {
+      window.scrollTo(0, 0);
+      document.body.classList.add('in-chat-view');
+    } else {
+      document.body.classList.remove('in-chat-view');
+    }
+    return () => {
+      document.body.classList.remove('in-chat-view');
+    };
+  }, [view]);
+
   // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChange(async (currentUser) => {
