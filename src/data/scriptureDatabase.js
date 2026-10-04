@@ -372,10 +372,8 @@ export const SCRIPTURE_DATABASE = [
     context_intro_hi: 'जैसे श्रीरामचरितमानस में गोस्वामी तुलसीदास जी कलियुग में नाम-जप की महिमा गाते हुए कहते हैं कि —',
     context_intro_en: 'Just as Goswami Tulsidas sings the supreme power of the Holy Name in Ramcharitmanas —',
     keywords: [
-      'नाम जप', 'राधा नाम', 'राम नाम', 'नाम की महिमा', 'जप कैसे करें', 'नाम जप का फल', 'मंत्र जप', 'राधा राधा', 'भगवान का नाम',
-      'chanting', 'naam jap', 'holy name', 'power of chanting', 'radha radha', 'mantra chanting', 'repetition of name',
-      'నామ జపం', 'రామ నామం',
-      'naam jap kaise kare', 'radha naam mahima', 'jap karne ka tarika'
+      'कलियुग में नाम जप', 'कलिजुग केवल नाम अधारा', 'नाम जप का फल', 'नाम की महिमा बालकाण्ड',
+      'holy name in kaliyug', 'power of chanting in kaliyug', 'kalijug keval naam adhara', 'वाल्मीकि नाम जप', 'उलटा नाम जपत'
     ]
   },
 
@@ -872,8 +870,9 @@ export const SCRIPTURE_DATABASE = [
     context_intro_hi: 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण कर्म और प्रारब्ध की गूढ़ गति पर कहते हैं कि —',
     context_intro_en: 'Just as Bhagavan Shri Krishna reveals the unfathomable depth of destiny and karma in the Bhagavad Gita —',
     keywords: [
-      'प्रारब्ध', 'भाग्य', 'कर्म की गति', 'मेरे साथ ही ऐसा क्यों', 'किस्मत', 'पूर्व जन्म के कर्म',
-      'destiny', 'past karma', 'prarabdha', 'fate', 'why do bad things happen to good people', 'bad luck',
+      'क्या प्रारब्ध को बदला जा सकता है', 'प्रारब्ध को बदला जा सकता है', 'प्रारब्ध', 'प्रारब्ध और कृपा', 'कर्म और प्रारब्ध', 'प्रारब्ध कर्म',
+      'भाग्य', 'कर्म की गति', 'मेरे साथ ही ऐसा क्यों', 'किस्मत', 'पूर्व जन्म के कर्म', 'पुरुषार्थ और प्रारब्ध',
+      'destiny', 'past karma', 'prarabdha', 'fate', 'can prarabdha be changed', 'why do bad things happen to good people', 'bad luck',
       'ప్రారబ్ధం', 'కర్మ'
     ]
   },
@@ -990,7 +989,7 @@ export const SCRIPTURE_DATABASE = [
     context_intro_hi: 'जैसे श्रीरामचरितमानस में लक्ष्मण जी निषादराज को कर्म-गति का बोध कराते हुए कहते हैं —',
     context_intro_en: 'As Shri Lakshmana reveals the deep spiritual science of karma in Ramcharitmanas —',
     keywords: [
-      'काहु न कोउ सुख दुख कर दाता', 'sukha dukha', 'karma bhoga', 'hard work frustration', 'blaming others',
+      'काहु न कोउ सुख दुख कर दाता', 'निज कृत करम भोग', 'प्रारब्ध और कर्म', 'प्रारब्ध और सुख दुख', 'sukha dukha', 'karma bhoga', 'hard work frustration', 'blaming others',
       'fate', 'destiny', 'प्रारब्ध', 'पुरुषार्थ', 'disappointment'
     ]
   },

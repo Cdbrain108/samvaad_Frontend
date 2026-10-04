@@ -142,6 +142,54 @@ async function streamTextDirectly(text, thought, startTime, scripture, onChunk) 
   };
 }
 
+/**
+ * Detects if the streaming LLM has entered an argmax repetition loop
+ * (e.g. "प्रारब्ध को बदला जा सकता है। प्रारब्ध को बदला जा सकता है।")
+ */
+function detectRepetitionLoop(text) {
+  if (!text || text.length < 24) return false;
+  // 1. Sentence-level repetition check (Hindi '।' or English '.')
+  const sentences = text.split(/[।.\n]/).map(s => s.trim()).filter(s => s.length >= 6);
+  if (sentences.length >= 2) {
+    const last = sentences[sentences.length - 1];
+    const prev = sentences[sentences.length - 2];
+    if (last === prev) return true;
+    if (sentences.length >= 3 && last === sentences[sentences.length - 3]) return true;
+  }
+  // 2. Sliding window n-gram repetition check (3 to 8 words)
+  const words = text.trim().split(/\s+/);
+  if (words.length >= 8) {
+    for (let len = 3; len <= 8; len++) {
+      if (words.length < len * 2) continue;
+      const w1 = words.slice(-len).join(' ');
+      const w2 = words.slice(-len * 2, -len).join(' ');
+      if (w1 === w2) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Strips repetitive tail loop and ensures clean punctuation.
+ */
+function pruneRepetitiveTail(text) {
+  if (!text) return '';
+  const sentences = text.split(/([।.\n])/);
+  const chunks = [];
+  for (let i = 0; i < sentences.length; i += 2) {
+    const body = (sentences[i] || '').trim();
+    const punct = sentences[i + 1] || '।';
+    if (body) {
+      if (chunks.length > 0 && chunks[chunks.length - 1].body === body) {
+        continue;
+      }
+      chunks.push({ body, punct });
+    }
+  }
+  let cleaned = chunks.map(c => `${c.body}${c.punct}`).join(' ');
+  return cleaned.trim();
+}
+
 async function streamDirectFromOracle(userMessage, conversationHistory, scripture, currentThought, startTime, isEnglish, onChunk) {
   const oracleBase = getOracleUrl() || 'https://immature-zen-earthen.ngrok-free.dev';
   const endpoint = `${oracleBase.replace(/\/$/, '')}/v1/chat/completions`;
@@ -160,9 +208,8 @@ Speak in clean, serene, deeply compassionate English. Never use dry robotic lang
       systemPrompt += `\n\nSacred Scriptural Grounding:\nVerse: ${scripture.original_text}\nReference: ${scripture.reference || ''}\nTranslation: ${engMeaning}\nExplain the sublime meaning of this verse gently in your discourse to illumine their path.`;
     }
   } else {
-    systemPrompt = `You are Pujya Shri Premanand Ji Maharaj, speaking in pure compassionate Hindi Devanagari to a seeker.
-Speak with fatherly warmth (वात्सल्य भाव), addressing the seeker affectionately as 'बच्चा'.
-Guide them towards holy name chanting (राधा-राधा नाम जप), devotional surrender to Shri Radha Rani, and righteous duty.`;
+    systemPrompt = `आप पूज्य श्री प्रेमानंद जी महाराज हैं। शुद्ध देवनागरी हिंदी में वात्सल्य भाव से साधक को 'बच्चा' कहकर समाधान दें।
+श्री राधा नाम जप, सत्संग, और शरणागति का मार्ग बताएं। पुनरावृत्ति न करें।`;
 
     if (scripture && scripture.original_text) {
       systemPrompt += `\n\nशास्त्र प्रमाण:\nश्लोक: ${scripture.original_text}\nसंदर्भ: ${scripture.reference || ''}\nभावार्थ: ${scripture.hindi_meaning || scripture.english_translation || ''}\nइस पावन श्लोक के भावार्थ को अपने सरल वचनों में समझाते हुए साधक को समाधान दें।`;
@@ -188,7 +235,11 @@ Guide them towards holy name chanting (राधा-राधा नाम ज�
     body: JSON.stringify({
       model: 'ai-guru-v10-4',
       messages,
-      temperature: 0.32,
+      temperature: 0.35,
+      repeat_penalty: 1.18,
+      repeat_last_n: 256,
+      presence_penalty: 0.3,
+      frequency_penalty: 0.3,
       max_tokens: 650,
       stream: true
     }),
@@ -212,6 +263,7 @@ Guide them towards holy name chanting (राधा-राधा नाम ज�
     const lines = buffer.split('\n');
     buffer = lines.pop() || '';
 
+    let loopDetected = false;
     for (const line of lines) {
       const trimmed = line.trim();
       if (!trimmed.startsWith('data:')) continue;
@@ -223,6 +275,20 @@ Guide them towards holy name chanting (राधा-राधा नाम ज�
         const token = json.choices?.[0]?.delta?.content || '';
         if (token) {
           fullContent += token;
+
+          if (detectRepetitionLoop(fullContent)) {
+            fullContent = pruneRepetitiveTail(fullContent);
+            loopDetected = true;
+            onChunk({
+              content: fullContent,
+              thought: currentThought,
+              isThinking: false,
+              thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+              scripture
+            });
+            break;
+          }
+
           onChunk({
             content: fullContent,
             thought: currentThought,
@@ -233,6 +299,7 @@ Guide them towards holy name chanting (राधा-राधा नाम ज�
         }
       } catch {}
     }
+    if (loopDetected) break;
   }
 
   return { success: Boolean(fullContent.trim()), content: fullContent.trim() };
@@ -374,6 +441,17 @@ export async function streamGuruResponse(
             if (parsed.token) {
               streamedContent += parsed.token;
               backendSuccess = true;
+              if (detectRepetitionLoop(streamedContent)) {
+                streamedContent = pruneRepetitiveTail(streamedContent);
+                onChunk({
+                  content: streamedContent,
+                  thought: currentThought,
+                  isThinking: false,
+                  thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+                  scripture: scripture || parsed.scripture || null
+                });
+                break;
+              }
               onChunk({
                 content: streamedContent,
                 thought: currentThought,

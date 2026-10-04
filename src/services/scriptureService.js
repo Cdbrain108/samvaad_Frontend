@@ -410,17 +410,24 @@ export function getLocalScriptureMatches(query) {
           return hay.includes(needle);
         }
       };
+      const CORE_DILEMMA_TERMS = new Set([
+        'प्रारब्ध', 'कर्म', 'कर्मफल', 'भाग्य', 'किस्मत', 'मृत्यु', 'शोक', 'काम', 'वासना',
+        'क्रोध', 'लोभ', 'मोह', 'अहंकार', 'घमंड', 'मोक्ष', 'मुक्ति', 'शरणागति', 'पुनर्जन्म',
+        'संन्यास', 'वैराग्य', 'सत्संग', 'कुसंग', 'विश्वासघात', 'धोखा', 'तितिक्षा', 'सहनशीलता',
+        'prarabdha', 'destiny', 'fate', 'karma', 'death', 'grief', 'anger', 'lust', 'ego', 'surrender'
+      ]);
+
       if (cleanQ === kw) {
         kwScore = 15.0;
       } else if (isWholeWordHit(cleanQ, kw)) {
         const wordCount = kw.split(' ').length;
         if (wordCount >= 3) {
-          kwScore = 8.0;
+          kwScore = 10.0;
         } else if (wordCount === 2) {
-          kwScore = 6.0;
+          kwScore = CORE_DILEMMA_TERMS.has(kw) ? 9.0 : 6.5;
         } else {
-          // Standalone foundational concept keyword (e.g. 'माया', 'कर्म', 'क्रोध', 'anger', 'peace')
-          kwScore = kw.length >= 4 ? 5.5 : 3.5;
+          // Standalone foundational concept keyword
+          kwScore = CORE_DILEMMA_TERMS.has(kw) ? 8.5 : (kw.length >= 4 ? 5.5 : 3.5);
         }
       } else {
         const kwTokens = kw.split(' ').filter(t => t.length >= 3 && !SCRIPTURE_STOP_WORDS.has(t));
