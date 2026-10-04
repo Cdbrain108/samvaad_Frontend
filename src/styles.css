@@ -1218,6 +1218,13 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
   box-sizing: border-box;
 }
 
+.rich-shlok-verse-row {
+  margin-bottom: 6px;
+}
+.rich-shlok-verse-row:last-child {
+  margin-bottom: 0;
+}
+
 :root[data-theme='dark'] .rich-shlok-line,
 .night .rich-shlok-line {
   background: linear-gradient(135deg, rgba(254, 200, 75, 0.12) 0%, rgba(35, 25, 12, 0.8) 100%);
@@ -1764,18 +1771,26 @@ html, body { max-width: 100%; overflow-x: hidden; }
   scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
 }
 
-/* Always-visible Oracle stream preview — 2-3 lines, always shown below header */
+/* Always-visible Oracle stream preview — 2-3 lines buffer space */
 .reasoning-stream-preview {
-  padding: 8px 14px 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 8px 14px 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.reasoning-stream-preview:hover {
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .reasoning-text-stream.stream-preview-always {
-  max-height: 68px;
+  max-height: 62px;
   overflow-y: hidden;
   position: relative;
-  mask-image: linear-gradient(to bottom, black 55%, rgba(0,0,0,0.3) 82%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 55%, rgba(0,0,0,0.3) 82%, transparent 100%);
+  font-size: 0.77rem;
+  line-height: 1.55;
+  mask-image: linear-gradient(to bottom, black 55%, rgba(0,0,0,0.35) 82%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 55%, rgba(0,0,0,0.35) 82%, transparent 100%);
 }
 
 .reasoning-expand-bar {

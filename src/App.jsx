@@ -1162,17 +1162,28 @@ export default function App() {
       />
 
       <main className="main-panel">
-        {/* Floating Claude-style hamburger menu button — always lets user access previous chats & sidebar */}
+        {/* Floating Claude-style navigation buttons (menu on left, home on right) — visible when topbar hides */}
         {messages.length > 0 && !chatTopbarVisible && (
-          <button
-            type="button"
-            className="claude-floating-menu-btn"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open chat history and menu"
-            title="Open chat history and menu"
-          >
-            <Icon name="menu" size={18} />
-          </button>
+          <>
+            <button
+              type="button"
+              className="claude-floating-menu-btn"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open chat history and menu"
+              title="Open chat history and menu"
+            >
+              <Icon name="menu" size={18} />
+            </button>
+            <button
+              type="button"
+              className="claude-floating-home-btn floating-back-home-pill"
+              onClick={() => setView('landing')}
+              aria-label="Return to Home"
+              title="Return to Home"
+            >
+              <Icon name="home" size={18} />
+            </button>
+          </>
         )}
 
         <header
@@ -1533,18 +1544,6 @@ export default function App() {
           </button>
         )}
 
-        {/* Floating Home Icon Button - icon only, matches hamburger style on right */}
-        {isMobileScreen && (
-          <button
-            className="floating-back-home-pill"
-            onClick={() => setView('landing')}
-            aria-label="Return to Home"
-            title="Return to Home"
-            type="button"
-          >
-            <Icon name="home" size={18} />
-          </button>
-        )}
 
         <Composer
           value={draft}

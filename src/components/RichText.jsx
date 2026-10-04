@@ -4,53 +4,133 @@ import { renderInline, intelligentSegmentResponse } from '../utils/formatters';
 /**
  * RichText Component:
  * Renders spiritual discourse cleanly and instantaneously with 0 lag.
- * Uses intelligent segmentation for bullet points, shlokas, and bold styling.
+ * Uses intelligent segmentation and multi-line verse grouping.
  */
 export default function RichText({ content, streaming = false }) {
-  const lines = useMemo(() => {
+  const blocks = useMemo(() => {
     if (!content) return [];
     const segmentedText = intelligentSegmentResponse(content);
-    return (segmentedText || '').split('\n');
+    const rawLines = (segmentedText || '').split('\n');
+
+    const grouped = [];
+    let currentShlok = null;
+
+    for (let i = 0; i < rawLines.length; i++) {
+      const line = rawLines[i];
+      const trimmed = line.trim();
+
+      if (!trimmed) {
+        if (currentShlok) {
+          grouped.push(currentShlok);
+          currentShlok = null;
+        }
+        grouped.push({ type: 'spacer' });
+        continue;
+      }
+
+      // Check if line is arthat/meaning
+      const isArthat = /^(?:\*\*|\*|\b)?(?:अर्थात्|भावार्थ|अर्थ|meaning)\b/i.test(trimmed);
+
+      // Check if line is shlok
+      const isShlok = !isArthat && (
+        (trimmed.includes('«') && trimmed.includes('»')) ||
+        (trimmed.includes('॥') && (trimmed.startsWith('**') || trimmed.endsWith('**') || trimmed.startsWith('«'))) ||
+        (/^[«\*]+[\u0900-\u097F\s,।'॥\-]+[»\*]+$/.test(trimmed) && trimmed.length > 20) ||
+        (currentShlok !== null && (trimmed.includes('॥') || trimmed.endsWith('»**') || trimmed.endsWith('»') || trimmed.endsWith('**') || /^[\u0900-\u097F\s,।'॥\-]+$/.test(trimmed)))
+      );
+
+      if (isShlok) {
+        if (!currentShlok) {
+          currentShlok = { type: 'shlok', lines: [trimmed] };
+        } else {
+          currentShlok.lines.push(trimmed);
+        }
+        continue;
+      }
+
+      if (currentShlok) {
+        grouped.push(currentShlok);
+        currentShlok = null;
+      }
+
+      // Horizontal divider
+      if (/^(?:---|───|\*\*\*)$/.test(trimmed)) {
+        grouped.push({ type: 'divider' });
+        continue;
+      }
+
+      // Supporting Scriptural References Header
+      if (/^📖\s*(?:\*\*)?(?:Supporting Scriptural References|पूरक शास्त्र प्रमाण)/i.test(trimmed)) {
+        const titleText = trimmed.replace(/^[📖*_\s]+/, '').replace(/[*_\s]+$/, '');
+        grouped.push({ type: 'supporting-header', titleText });
+        continue;
+      }
+
+      // Bullet points
+      if (/^[-•*]\s+/.test(trimmed)) {
+        const rawBullet = trimmed.replace(/^[-•*]\s+/, '');
+        const isSupportingCard = rawBullet.includes('«') || rawBullet.includes('॥') || /^(?:\*\*|\*)[^\*]+(?:\*\*|\*)\s*:\s*\*/.test(rawBullet);
+        grouped.push({ type: 'bullet', rawBullet, isSupportingCard });
+        continue;
+      }
+
+      // Numbered points
+      if (/^\d+[.)]\s+/.test(trimmed)) {
+        const number = trimmed.match(/^\d+[.)]/)[0];
+        const text = trimmed.replace(/^\d+[.)]\s+/, '');
+        grouped.push({ type: 'numbered', number: number.replace(/[.)]/, ''), text });
+        continue;
+      }
+
+      // Arthat block
+      if (isArthat) {
+        grouped.push({ type: 'arthat', text: trimmed });
+        continue;
+      }
+
+      // Standard paragraph
+      grouped.push({ type: 'paragraph', text: trimmed });
+    }
+
+    if (currentShlok) {
+      grouped.push(currentShlok);
+    }
+
+    return grouped;
   }, [content]);
 
   if (!content) return null;
 
   return (
     <>
-      {lines.map((line, index) => {
-        const trimmed = line.trim();
-        const isLast = index === lines.length - 1;
+      {blocks.map((block, index) => {
+        const isLast = index === blocks.length - 1;
         const cursor = streaming && isLast ? <span className="stream-cursor chat-cursor" aria-hidden="true" /> : null;
 
-        if (!trimmed) {
+        if (block.type === 'spacer') {
           return <span className="rich-paragraph-spacer" key={`br-${index}`} aria-hidden="true" />;
         }
 
-        // Horizontal divider (---)
-        if (/^(?:---|───|\*\*\*)$/.test(trimmed)) {
+        if (block.type === 'divider') {
           return <hr className="rich-divider" key={`hr-${index}`} />;
         }
 
-        // Supporting Scriptural References Header
-        if (/^📖\s*(?:\*\*)?(?:Supporting Scriptural References|पूरक शास्त्र प्रमाण)/i.test(trimmed)) {
-          const titleText = trimmed.replace(/^[📖*_\s]+/, '').replace(/[*_\s]+$/, '');
+        if (block.type === 'supporting-header') {
           return (
             <div className="rich-supporting-header" key={`supp-hdr-${index}`}>
               <span className="rich-supporting-icon">📖</span>
-              <span className="rich-supporting-title">{titleText}</span>
+              <span className="rich-supporting-title">{block.titleText}</span>
               {cursor}
             </div>
           );
         }
 
-        if (/^[-•*]\s+/.test(trimmed)) {
-          const rawBullet = trimmed.replace(/^[-•*]\s+/, '');
-          const isSupportingCard = rawBullet.includes('«') || rawBullet.includes('॥') || /^(?:\*\*|\*)[^\*]+(?:\*\*|\*)\s*:\s*\*/.test(rawBullet);
-          if (isSupportingCard) {
+        if (block.type === 'bullet') {
+          if (block.isSupportingCard) {
             return (
               <div className="rich-supporting-card" key={`supp-card-${index}`}>
                 <span className="rich-bullet-content">
-                  {renderInline(rawBullet, `supp${index}`)}{cursor}
+                  {renderInline(block.rawBullet, `supp${index}`)}{cursor}
                 </span>
               </div>
             );
@@ -59,54 +139,62 @@ export default function RichText({ content, streaming = false }) {
             <span className="rich-bullet" key={`li-${index}`}>
               <i aria-hidden="true" />
               <span className="rich-bullet-content">
-                {renderInline(rawBullet, `li${index}`)}{cursor}
+                {renderInline(block.rawBullet, `li${index}`)}{cursor}
               </span>
             </span>
           );
         }
 
-        if (/^\d+[.)]\s+/.test(trimmed)) {
-          const number = trimmed.match(/^\d+[.)]/)[0];
+        if (block.type === 'numbered') {
           return (
             <span className="rich-bullet numbered" key={`nli-${index}`}>
-              <i aria-hidden="true">{number.replace(/[.)]/, '')}</i>
+              <i aria-hidden="true">{block.number}</i>
               <span className="rich-bullet-content">
-                {renderInline(trimmed.replace(/^\d+[.)]\s+/, ''), `nli${index}`)}{cursor}
+                {renderInline(block.text, `nli${index}`)}{cursor}
               </span>
             </span>
           );
         }
 
-        const isArthat = /^(?:\*\*|\*|\b)?(?:अर्थात्|भावार्थ|अर्थ|meaning)\b/i.test(trimmed);
-        const isShlok = !isArthat && (
-          (trimmed.includes('«') && trimmed.includes('»')) ||
-          (trimmed.includes('॥') && (trimmed.startsWith('**') || trimmed.endsWith('**') || trimmed.startsWith('«'))) ||
-          (/^[«\*]+[\u0900-\u097F\s,।'॥\-]+[»\*]+$/.test(trimmed) && trimmed.length > 20)
-        );
+        if (block.type === 'shlok') {
+          // Strip outer ** markers, « », and loose asterisks so verse is 100% clean
+          const cleanedVerses = block.lines
+            .map((l) =>
+              l
+                .replace(/^\*\*«?\s*/g, '')
+                .replace(/\s*»?\*\*$/g, '')
+                .replace(/^«\s*/g, '')
+                .replace(/\s*»$/g, '')
+                .replace(/^\*\*\s*/g, '')
+                .replace(/\s*\*\*$/g, '')
+                .trim()
+            )
+            .filter(Boolean);
 
-        // Strip outer ** markers and « » guillemets from shlok lines
-        // so they never render as literal asterisks in the verse box
-        const cleanedLine = isShlok
-          ? trimmed
-              .replace(/^\*\*«?\s*/g, '')   // strip leading **« or **
-              .replace(/\s*»?\*\*$/g, '')   // strip trailing »** or **
-              .replace(/^«\s*/g, '')         // strip leading «
-              .replace(/\s*»$/g, '')         // strip trailing »
-              .trim()
-          : trimmed;
+          return (
+            <div className="rich-shlok-line" key={`shlok-${index}`}>
+              {cleanedVerses.map((verseLine, vIdx) => (
+                <div className="rich-shlok-verse-row" key={`vl-${vIdx}`}>
+                  {renderInline(verseLine, `shlok-${index}-${vIdx}`)}
+                </div>
+              ))}
+              {cursor}
+            </div>
+          );
+        }
 
-        // Strip ** markers from arthat lines too
-        const cleanedArthat = isArthat
-          ? trimmed.replace(/^\*\*\s*/g, '').replace(/\s*\*\*$/g, '').trim()
-          : trimmed;
-
-        const lineClasses = ['rich-line'];
-        if (isShlok) lineClasses.push('rich-shlok-line');
-        if (isArthat) lineClasses.push('rich-arthat-line');
+        if (block.type === 'arthat') {
+          const cleanedArthat = block.text.replace(/^\*\*\s*/g, '').replace(/\s*\*\*$/g, '').trim();
+          return (
+            <div className="rich-arthat-line" key={`arthat-${index}`}>
+              {renderInline(cleanedArthat, `arthat-${index}`)}{cursor}
+            </div>
+          );
+        }
 
         return (
-          <span className={lineClasses.join(' ')} key={`p-${index}`}>
-            {renderInline(isShlok ? cleanedLine : (isArthat ? cleanedArthat : trimmed), `p${index}`)}{cursor}
+          <span className="rich-line" key={`p-${index}`}>
+            {renderInline(block.text, `p${index}`)}{cursor}
           </span>
         );
       })}

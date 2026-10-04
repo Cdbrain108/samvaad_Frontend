@@ -7134,35 +7134,38 @@ select:focus-visible,
     display: none !important;
   }
 
-  }
-
-  /* Mode toggle group: Sleek micro-segmented control — icon only on mobile */
+  /* Mode toggle group: Sleek micro-segmented token control on mobile */
   .mode-toggle-group {
-    padding: 2px !important;
+    padding: 3px !important;
     border-radius: 999px !important;
-    gap: 1px !important;
-    background: rgba(0, 0, 0, 0.4) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    gap: 3px !important;
+    background: rgba(0, 0, 0, 0.45) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
     display: inline-flex !important;
     align-items: center !important;
     flex-shrink: 0 !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3) !important;
   }
 
   .mode-pill-btn {
-    padding: 4px 8px !important;
+    padding: 4px 10px !important;
     font-size: 0.72rem !important;
     font-weight: 600 !important;
     border-radius: 999px !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 3px !important;
+    justify-content: center !important;
+    gap: 4px !important;
     min-height: 26px !important;
     white-space: nowrap !important;
+    line-height: 1 !important;
   }
 
-  /* Hide text label on mobile — icon only in mode pill */
+  /* Tokens have clean visible labels that fit comfortably on mobile */
   .mode-pill-btn-label-text {
-    display: none !important;
+    display: inline !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
   }
 
   /* Topbar actions: Streamlined touch targets */
@@ -7185,18 +7188,9 @@ select:focus-visible,
     flex-shrink: 0 !important;
   }
 
-  .user-avatar {
-    width: 32px !important;
-    height: 32px !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    border-radius: 9px !important;
-    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-    color: #1e1b4b !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
+  /* Hide redundant avatar in topbar on mobile — hamburger already opens profile */
+  .topbar-actions .user-avatar {
+    display: none !important;
   }
 }
 
@@ -9972,60 +9966,6 @@ select:focus-visible,
     box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5), 0 0 16px rgba(245, 158, 11, 0.06) !important;
   }
 
-  /* Floating "Back to Home" pill only for mobile */
-  .floating-back-home-pill {
-    display: grid !important;
-    place-items: center !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    position: fixed !important;
-    top: 12px !important;
-    right: 14px !important;
-    bottom: auto !important;
-    width: 38px !important;
-    height: 38px !important;
-    border-radius: 50% !important;
-    z-index: 45 !important;
-    padding: 0 !important;
-    gap: 0 !important;
-    cursor: pointer !important;
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid rgba(180, 120, 40, 0.22) !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
-    color: #451A03 !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    touch-action: manipulation !important;
-    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease !important;
-  }
-
-  :root[data-theme='dark'] .floating-back-home-pill,
-  .spiritual-page.night .floating-back-home-pill {
-    background: rgba(30, 27, 46, 0.88) !important;
-    border: 1px solid rgba(255, 255, 255, 0.14) !important;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35) !important;
-    color: #FCD34D !important;
-  }
-
-  .floating-back-home-pill:hover {
-    transform: scale(1.05) !important;
-    background: #FFFFFF !important;
-    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.2) !important;
-  }
-
-  :root[data-theme='dark'] .floating-back-home-pill:hover {
-    background: rgba(45, 40, 68, 0.95) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
-  }
-
-  .floating-back-home-pill:active {
-    transform: scale(0.96) !important;
-  }
-
-  .floating-back-home-pill .floating-pill-icon,
-  .floating-back-home-pill .floating-pill-text {
-    display: none !important;
-  }
 }
 
 @media (max-width: 600px) {
@@ -10223,12 +10163,13 @@ select:focus-visible,
 }
 
 /* ═════════════════════════════════════════════════════════════════════
-   CLAUDE-STYLE FLOATING TOP-LEFT HAMBURGER MENU BUTTON
+   CLAUDE-STYLE FLOATING BUTTONS: MENU (LEFT) & HOME (RIGHT)
    ═════════════════════════════════════════════════════════════════════ */
-.claude-floating-menu-btn {
+.claude-floating-menu-btn,
+.claude-floating-home-btn,
+.floating-back-home-pill {
   position: absolute !important;
   top: 12px !important;
-  left: 14px !important;
   width: 38px !important;
   height: 38px !important;
   border-radius: 50% !important;
@@ -10245,20 +10186,43 @@ select:focus-visible,
   transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease !important;
 }
 
-.claude-floating-menu-btn:hover {
+.claude-floating-menu-btn {
+  left: 14px !important;
+  right: auto !important;
+}
+
+.claude-floating-home-btn,
+.floating-back-home-pill {
+  right: 14px !important;
+  left: auto !important;
+}
+
+.claude-floating-menu-btn:hover,
+.claude-floating-home-btn:hover,
+.floating-back-home-pill:hover {
   transform: scale(1.05) !important;
   background: #FFFFFF !important;
   box-shadow: 0 4px 14px rgba(217, 119, 6, 0.2) !important;
 }
 
-:root[data-theme='dark'] .claude-floating-menu-btn {
+:root[data-theme='dark'] .claude-floating-menu-btn,
+:root[data-theme='dark'] .claude-floating-home-btn,
+:root[data-theme='dark'] .floating-back-home-pill,
+.spiritual-page.night .claude-floating-menu-btn,
+.spiritual-page.night .claude-floating-home-btn,
+.spiritual-page.night .floating-back-home-pill {
   background: rgba(30, 27, 46, 0.88) !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35) !important;
   color: #FCD34D !important;
 }
 
-:root[data-theme='dark'] .claude-floating-menu-btn:hover {
+:root[data-theme='dark'] .claude-floating-menu-btn:hover,
+:root[data-theme='dark'] .claude-floating-home-btn:hover,
+:root[data-theme='dark'] .floating-back-home-pill:hover,
+.spiritual-page.night .claude-floating-menu-btn:hover,
+.spiritual-page.night .claude-floating-home-btn:hover,
+.spiritual-page.night .floating-back-home-pill:hover {
   background: rgba(45, 40, 68, 0.95) !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
 }

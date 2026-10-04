@@ -60,14 +60,14 @@ export default function ReasoningBlock({
   isEnglish = false,
   needsScriptureRag = undefined,
 }) {
-  // On mobile, default to collapsed. On desktop, open during active thinking.
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-  const [isOpen, setIsOpen] = useState(!isMobile && Boolean(isThinking));
+  // Default to collapsed 2-3 line buffer preview on both mobile and PC
+  const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isScriptureOpen, setIsScriptureOpen] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [pearlIndex, setPearlIndex] = useState(0);
-  const streamRef = useRef(null);
+  const previewStreamRef = useRef(null);
+  const fullStreamRef = useRef(null);
   const startTimeRef = useRef(null);
 
   const isEnglishView = Boolean(isEnglish) || (thought && /^(?:🔍\s*Query Intent|Contemplating|Searching|Analyzing)/i.test(thought));
@@ -93,10 +93,6 @@ export default function ReasoningBlock({
   useEffect(() => {
     let interval = null;
     if (isThinking) {
-      // Only auto-expand on desktop; mobile stays collapsed unless user taps
-      if (window.innerWidth > 768) {
-        setIsOpen(true);
-      }
       if (!startTimeRef.current) {
         startTimeRef.current = Date.now();
       }
@@ -110,12 +106,11 @@ export default function ReasoningBlock({
         setElapsed(duration);
       }
       startTimeRef.current = null;
-      setIsOpen(false);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isThinking]);
+  }, [isThinking, duration]);
 
   // Progressive typewriter effect for thought stream
   useEffect(() => {
@@ -145,12 +140,15 @@ export default function ReasoningBlock({
     }, speed);
 
     return () => clearTimeout(timer);
-  }, [thought, displayedThought]);
+  }, [thought, displayedThought, isThinking]);
 
-  // Auto-scroll stream to bottom as thoughts are typed
+  // Auto-scroll stream to bottom as thoughts are typed (both preview and full view)
   useEffect(() => {
-    if (streamRef.current && isThinking && !isExpanded) {
-      streamRef.current.scrollTop = streamRef.current.scrollHeight;
+    if (previewStreamRef.current && isThinking) {
+      previewStreamRef.current.scrollTop = previewStreamRef.current.scrollHeight;
+    }
+    if (fullStreamRef.current && isThinking && !isExpanded) {
+      fullStreamRef.current.scrollTop = fullStreamRef.current.scrollHeight;
     }
   }, [displayedThought, isThinking, isExpanded]);
 
@@ -331,12 +329,18 @@ export default function ReasoningBlock({
 
       {/* Thinking Deliberation Body: Stepper collapses, but stream is always visible */}
 
-      {/* ── Always-Visible Oracle Stream Preview (2-3 lines) ── */}
-      {thought && (
-        <div className="reasoning-stream-preview">
+      {/* ── Always-Visible Oracle Stream Preview (2-3 lines buffer space) when collapsed ── */}
+      {thought && !isOpen && (
+        <div
+          className="reasoning-stream-preview"
+          onClick={() => setIsOpen(true)}
+          role="button"
+          tabIndex={0}
+          title={isEnglishView ? 'Click to expand full deliberation' : 'क्लिक करके पूर्ण चिंतन देखें'}
+        >
           <div
-            className={`reasoning-text-stream claude-thought-stream stream-preview-always`}
-            ref={streamRef}
+            className="reasoning-text-stream claude-thought-stream stream-preview-always"
+            ref={previewStreamRef}
           >
             {displayedThought}
             {(isThinking || displayedThought.length < (thought || '').length) && (
@@ -346,7 +350,7 @@ export default function ReasoningBlock({
         </div>
       )}
 
-      {/* ── Expandable Full Deliberation Body (Stepper + Wisdom Pearl) ── */}
+      {/* ── Expandable Full Deliberation Body (Stepper + Full Thoughts + Wisdom Pearl) ── */}
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
@@ -386,6 +390,7 @@ export default function ReasoningBlock({
             <div className="reasoning-content-box claude-thinking-box">
               <div
                 className={`reasoning-text-stream claude-thought-stream ${isExpanded ? 'stream-expanded' : 'stream-compact'}`}
+                ref={fullStreamRef}
               >
                 {displayedThought}
                 {(isThinking || displayedThought.length < (thought || '').length) && (
