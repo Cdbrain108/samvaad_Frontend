@@ -9740,7 +9740,7 @@ select:focus-visible,
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-left: 2px solid #D97706 !important;
-  border-radius: 10px !important;
+  border-radius: 16px !important;
   box-shadow: none !important;
   margin-bottom: 12px !important;
 }
