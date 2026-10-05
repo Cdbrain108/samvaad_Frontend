@@ -822,25 +822,21 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 
 .user-avatar {
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   place-items: center;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-  color: #fff;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  border: 2px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-  transition: box-shadow 160ms ease, transform 160ms ease;
-  letter-spacing: 0;
-  user-select: none;
+  border: 1px solid var(--line);
 }
 
 .user-avatar:hover {
-  box-shadow: 0 4px 16px rgba(231, 99, 54, 0.4);
-  transform: scale(1.06);
+  background: var(--accent);
+  color: white;
 }
 
 .message-time {
@@ -1437,7 +1433,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .topbar-center .home-link .home-link-text { display: none; }
   .topbar-actions { gap: 4px; }
   .topbar .icon-button, .topbar .user-avatar { width: 34px; height: 34px; }
-  .topbar .user-avatar { display: grid; }
+  .topbar .user-avatar { display: none; }
   .content-area { padding-inline: 12px; }
   .welcome h1 { font-size: clamp(37px, 12vw, 45px); }
   .voice-mode { padding: 16px 14px; border-radius: 18px; }
