@@ -1691,24 +1691,7 @@
 }
 
 :root[data-theme='dark'] .main-panel::before {
-  content: '';
-  position: absolute;
-  top: 92px;
-  right: 6%;
-  z-index: 0;
-  width: 92px;
-  height: 92px;
-  border-radius: 50%;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 62% 60%, rgba(148, 143, 116, 0.45) 0 7%, transparent 8%),
-    radial-gradient(circle at 38% 68%, rgba(148, 143, 116, 0.35) 0 5%, transparent 6%),
-    radial-gradient(circle at 30% 32%, #FFFDF0, #EFE8CC 58%, #D9D2B2 100%);
-  box-shadow:
-    0 0 30px 8px rgba(244, 239, 214, 0.4),
-    0 0 90px 40px rgba(224, 236, 255, 0.16),
-    0 0 220px 120px rgba(224, 236, 255, 0.08);
-  animation: moon-breathe 7s ease-in-out infinite; will-change: opacity;
+  display: none !important;
 }
 
 :root[data-theme='dark'] .content-area { position: relative; z-index: 1; }

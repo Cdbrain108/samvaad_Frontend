@@ -10,7 +10,6 @@ import Login from './components/Login';
 import Welcome from './components/Welcome';
 import OnboardingModal from './components/OnboardingModal';
 import { promptSuggestions } from './data/prompts';
-import VoiceMode from './components/VoiceMode/VoiceMode';
 import VoiceCloneModal from './components/VoiceMode/VoiceCloneModal';
 import useVoiceMode from './hooks/useVoiceMode';
 import ReasoningBlock from './components/ReasoningBlock';
@@ -803,8 +802,7 @@ export default function App() {
       }
     });
 
-    // Automatically play default opening audio blessing ONLY if autoSpeak or explicit voice response is requested
-    if (autoSpeak || speakResponse) {
+    if (speakResponse) {
       try {
         voice.playDefaultGreeting();
       } catch (e) {
@@ -903,7 +901,7 @@ export default function App() {
       };
       setMessages([...updatedMessagesWithUser, finalizedAssistantMsg]);
 
-      if ((speakResponse || autoSpeak) && finalCleanContent) {
+      if (speakResponse && finalCleanContent) {
         voice.speak(finalCleanContent);
       }
 
@@ -1225,42 +1223,14 @@ export default function App() {
             </div>
           )}
 
-          <div className="topbar-actions">
-            <button
-              className={`icon-button auto-speak-btn ${autoSpeak ? 'auto-speak-active' : ''}`}
-              aria-label={autoSpeak ? 'Auto-Voice Enabled: Maharaj Ji speaks replies automatically' : 'Auto-Voice Disabled'}
-              title={autoSpeak ? '🔊 Auto-Voice ON' : '🔇 Auto-Voice OFF'}
-              onClick={toggleAutoSpeak}
-            >
-              <Icon name={autoSpeak ? 'volume' : 'volume-x'} />
-            </button>
-
-            <button
-              className={`icon-button voice-mode-btn ${voiceModeOpen ? 'voice-toggle-active' : ''}`}
-              aria-label={voiceModeOpen ? 'Close Voice Mode' : 'Open Voice Mode'}
-              aria-pressed={voiceModeOpen}
-              onClick={() => setVoiceModeOpen((current) => !current)}
-            >
-              <Icon name="mic" />
-            </button>
-          </div>
         </header>
 
         <div
-          className={`content-area ${voiceModeOpen ? 'voice-mode-active' : ''}${messages.length > 0 ? ' has-messages' : ''}`}
+          className={`content-area${messages.length > 0 ? ' has-messages' : ''}`}
           ref={contentAreaRef}
           onScroll={handleContentScroll}
           onWheel={handleContentWheel}
         >
-          <VoiceMode
-            open={voiceModeOpen}
-            onClose={() => setVoiceModeOpen(false)}
-            value={draft}
-            onChange={setDraft}
-            onAsk={() => submitMessage(undefined, true)}
-            isResponding={isResponding}
-            voice={voice}
-          />
           {messages.length === 0 ? (
             <Welcome
               suggestions={promptSuggestions}
