@@ -1072,6 +1072,14 @@ export default function App() {
             >
               <Icon name="menu" />
             </button>
+            <button
+              className="icon-button home-topbar-btn"
+              onClick={() => setView('landing')}
+              title="Return to Home"
+              aria-label="Return to Home"
+            >
+              <Icon name="home" size={17} />
+            </button>
           </div>
 
           <div className="topbar-center">
@@ -1158,14 +1166,6 @@ export default function App() {
           )}
 
           <div className="topbar-actions">
-            <button
-              className="icon-button home-topbar-btn"
-              onClick={() => setView('landing')}
-              title="Return to Home"
-              aria-label="Return to Home"
-            >
-              <Icon name="home" size={17} />
-            </button>
 
             <button
               className={`icon-button auto-speak-btn ${autoSpeak ? 'auto-speak-active' : ''}`}

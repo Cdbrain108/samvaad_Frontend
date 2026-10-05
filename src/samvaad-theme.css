@@ -3202,9 +3202,7 @@ select:focus-visible,
     padding: 3px 6px !important;
     font-size: 0.65rem !important;
   }
-  .topbar-actions .icon-button:not([aria-label*="dark"]):not([aria-label*="light"]) {
-    display: none !important;
-  }
+
   .user-avatar {
     width: 30px !important;
     height: 30px !important;
@@ -7083,7 +7081,7 @@ select:focus-visible,
   .topbar {
     height: 56px !important;
     padding-inline: 12px !important;
-    gap: 0 !important;
+    gap: 8px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
@@ -7105,15 +7103,17 @@ select:focus-visible,
     border-bottom: 1px solid rgba(217, 119, 6, 0.16) !important;
   }
 
-  /* Left Anchor (76px width): Symmetrically matches right actions */
+  /* Left Anchor: Menu Button (≡) + Home Button (🏠) */
   .topbar-left {
-    flex: 0 0 76px !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-start !important;
+    gap: 6px !important;
+    flex-shrink: 0 !important;
   }
 
-  .menu-button {
+  .topbar-left .icon-button,
+  .topbar-left .menu-button,
+  .topbar-left .home-topbar-btn {
     width: 36px !important;
     height: 36px !important;
     border-radius: 10px !important;
@@ -7124,9 +7124,12 @@ select:focus-visible,
     align-items: center !important;
     justify-content: center !important;
     flex-shrink: 0 !important;
+    cursor: pointer !important;
   }
 
-  :root[data-theme='light'] .menu-button {
+  :root[data-theme='light'] .topbar-left .icon-button,
+  :root[data-theme='light'] .topbar-left .menu-button,
+  :root[data-theme='light'] .topbar-left .home-topbar-btn {
     background: rgba(245, 158, 11, 0.08) !important;
     border: 1px solid rgba(217, 119, 6, 0.22) !important;
     color: #78350f !important;
@@ -7179,13 +7182,13 @@ select:focus-visible,
     font-weight: 600 !important;
   }
 
-  /* Right Anchor (76px width): Symmetrically matches left menu button */
+  /* Right Anchor: Theme toggle (🌙 / ☀️) */
   .topbar-actions {
-    flex: 0 0 76px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
     gap: 6px !important;
+    flex-shrink: 0 !important;
   }
 
   .topbar-actions .icon-button {
@@ -7199,6 +7202,7 @@ select:focus-visible,
     align-items: center !important;
     justify-content: center !important;
     flex-shrink: 0 !important;
+    cursor: pointer !important;
   }
 
   :root[data-theme='light'] .topbar-actions .icon-button {
@@ -7334,7 +7338,7 @@ select:focus-visible,
   .reasoning-container {
     position: relative !important;
     border-radius: 13px !important;
-    margin-bottom: 14px !important;
+    margin-bottom: 20px !important;
     border-left-width: 3.5px !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
     background: rgba(18, 14, 28, 0.85) !important;
@@ -7744,22 +7748,33 @@ select:focus-visible,
   }
 
   .message {
-    padding: 12px 12px 10px 12px !important;
-    border-radius: 14px !important;
-    gap: 10px !important;
-    margin-bottom: 16px !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    gap: 0 !important;
+    margin-bottom: 20px !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   .message.assistant {
     background: transparent !important;
     border: none !important;
+    padding: 0 !important;
+    margin-bottom: 24px !important;
   }
 
   .message.user {
-    background: rgba(245, 158, 11, 0.12) !important;
-    border: 1px solid rgba(245, 158, 11, 0.25) !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 0 20px auto !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: flex-end !important;
   }
 
   .message-avatar {
@@ -9971,20 +9986,20 @@ button.scroll-to-bottom,
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-    border-radius: 18px !important;
-    padding: 18px 18px 16px 18px !important;
+    border-radius: 20px !important;
+    padding: 22px 20px 20px 20px !important;
     touch-action: pan-y !important;
-    background: #FFFFFF !important;
-    border: 1px solid rgba(217, 119, 6, 0.22) !important;
-    box-shadow: 0 4px 20px -2px rgba(180, 83, 9, 0.08), 0 1px 3px rgba(0, 0, 0, 0.03) !important;
-    margin: 0 0 16px 0 !important;
+    background: #FFFDF9 !important;
+    border: 1px solid rgba(217, 119, 6, 0.18) !important;
+    box-shadow: 0 4px 24px -2px rgba(180, 83, 9, 0.07), 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+    margin: 0 0 20px 0 !important;
     overflow: visible !important;
   }
 
   :root[data-theme='dark'] .assistant-message-body,
   .spiritual-page.night .assistant-message-body {
     background: rgba(18, 15, 29, 0.95) !important;
-    border: 1px solid rgba(245, 158, 11, 0.22) !important;
+    border: 1px solid rgba(245, 158, 11, 0.20) !important;
     box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5), 0 0 16px rgba(245, 158, 11, 0.06) !important;
   }
 
@@ -9992,12 +10007,19 @@ button.scroll-to-bottom,
 
 @media (max-width: 600px) {
   .content-area .messages {
-    padding: 72px 10px 120px 10px !important;
+    padding: 74px 14px 220px 14px !important;
+    gap: 22px !important;
   }
 
   .assistant-message-body {
-    padding: 16px 16px 14px !important;
-    border-radius: 16px !important;
+    padding: 20px 18px 18px 18px !important;
+    border-radius: 18px !important;
+  }
+
+  .messages-anchor {
+    display: block !important;
+    height: 100px !important;
+    flex-shrink: 0 !important;
   }
 }
 
@@ -10126,12 +10148,13 @@ button.scroll-to-bottom,
 
 /* Assistant Typography inside Card Box */
 .message.assistant .rich-text {
-  font-size: 15.5px !important;
+  font-size: 15px !important;
   line-height: 1.8 !important;
   color: var(--text, #1F2937) !important;
-  margin-top: 14px !important;
-  margin-bottom: 14px !important;
-  letter-spacing: 0.012em !important;
+  margin-top: 0 !important;
+  margin-bottom: 18px !important;
+  letter-spacing: 0.008em !important;
+  padding: 0 2px !important;
 }
 
 :root[data-theme='dark'] .message.assistant .rich-text {
@@ -10139,7 +10162,7 @@ button.scroll-to-bottom,
 }
 
 .message.assistant .rich-text p {
-  margin: 0 0 14px 0 !important;
+  margin: 0 0 16px 0 !important;
   line-height: 1.8 !important;
 }
 
@@ -10152,8 +10175,8 @@ button.scroll-to-bottom,
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  margin-top: 14px !important;
-  padding-top: 10px !important;
+  margin-top: 18px !important;
+  padding-top: 12px !important;
   border-top: 1px solid rgba(245, 158, 11, 0.14) !important;
   justify-content: flex-start !important;
 }
