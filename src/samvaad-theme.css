@@ -1674,7 +1674,7 @@
 .welcome-kicker { color: #B4560A; }
 .welcome h1 span { color: #E68A00; }
 
-.message.user p { background: #FFF3D6; border-color: rgba(230, 138, 0, 0.3); color: #4A2E14; }
+.message.user p { background: transparent; border: none; }
 
 .message.assistant .message-avatar {
   background: linear-gradient(135deg, #FFB300, #FEC84B);
@@ -1717,7 +1717,7 @@
 
 :root[data-theme='dark'] .composer-wrap { background: linear-gradient(180deg, rgba(10, 26, 47, 0), #0A1A2F 30%); }
 
-:root[data-theme='dark'] .message.user p { background: #14304F; border-color: rgba(254, 200, 75, 0.3); color: #F4E9D4; }
+:root[data-theme='dark'] .message.user p { background: transparent; border: none; }
 
 /* ---------- animated diyas under the chat ---------- */
 
@@ -2131,7 +2131,7 @@
 }
 
 .message.user p {
-  border-radius: 16px 4px 16px 16px;
+  border-radius: 0;
 }
 
 .composer-wrap {
@@ -6972,29 +6972,19 @@ select:focus-visible,
     text-align: right !important;
   }
 
-  /* User bubble with tasteful warm highlight */
-  .message.user p {
-    display: inline-block !important;
-    padding: 9px 14px !important;
-    border-radius: 16px 16px 4px 16px !important;
-    font-size: 14px !important;
-    line-height: 1.55 !important;
-    text-align: left !important;
-    word-break: break-word !important;
-  }
-
-  :root[data-theme='light'] .message.user p {
-    background: #FFF7ED !important;
-    border: 1.2px solid rgba(245, 158, 11, 0.38) !important;
-    color: #431407 !important;
-    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.08) !important;
-  }
-
+  /* User bubble: strip all styling from inner paragraph to eliminate nested box */
+  .message.user p,
+  :root[data-theme='light'] .message.user p,
   :root[data-theme='dark'] .message.user p {
-    background: rgba(245, 158, 11, 0.14) !important;
-    border: 1.2px solid rgba(245, 158, 11, 0.32) !important;
-    color: #FEF3C7 !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: inherit !important;
+    font: inherit !important;
+    line-height: inherit !important;
   }
 
   /* Avatars */
@@ -7983,8 +7973,9 @@ select:focus-visible,
     box-shadow: 0 2px 12px rgba(180, 83, 9, 0.06) !important;
   }
   :root[data-theme='light'] .message.user {
-    background: rgba(254, 243, 199, 0.85) !important;
-    border: 1px solid rgba(245, 158, 11, 0.4) !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
   :root[data-theme='light'] .message-action {
     background: rgba(217, 119, 6, 0.08) !important;
@@ -10082,31 +10073,43 @@ button.scroll-to-bottom,
   box-sizing: border-box !important;
 }
 
-:root[data-theme='light'] .user-message-bubble {
-  background: #EFE8DD !important;
-  color: #1F2937 !important;
-  border: 1px solid rgba(180, 120, 40, 0.18) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+:root[data-theme='light'] .user-message-bubble,
+:root[data-theme='light'] .message.user .user-message-bubble {
+  background: #FFF7ED !important;
+  color: #2D1807 !important;
+  border: 1.2px solid rgba(245, 158, 11, 0.35) !important;
+  box-shadow: 0 3px 12px rgba(217, 119, 6, 0.08) !important;
 }
 
-:root[data-theme='dark'] .user-message-bubble {
-  background: rgba(255, 255, 255, 0.09) !important;
-  color: #F9FAFB !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+:root[data-theme='dark'] .user-message-bubble,
+:root[data-theme='dark'] .message.user .user-message-bubble {
+  background: rgba(245, 158, 11, 0.14) !important;
+  color: #FEF3C7 !important;
+  border: 1px solid rgba(245, 158, 11, 0.28) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
 }
 
-.user-message-bubble p,
-.message.user .user-message-bubble p {
+/* Strip all styling from inner paragraph to ensure user query is ONE clean single bubble */
+:root .message.user p,
+:root[data-theme='light'] .message.user p,
+:root[data-theme='dark'] .message.user p,
+:root .user-message-bubble p,
+:root[data-theme='light'] .user-message-bubble p,
+:root[data-theme='dark'] .user-message-bubble p,
+:root .message.user .user-message-bubble p,
+:root[data-theme='light'] .message.user .user-message-bubble p,
+:root[data-theme='dark'] .message.user .user-message-bubble p {
   display: block !important;
   margin: 0 !important;
   padding: 0 !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  outline: none !important;
   color: inherit !important;
   font: inherit !important;
   line-height: inherit !important;
+  border-radius: 0 !important;
 }
 
 /* User timestamp cleanly separated below bubble with breathing room */
@@ -10146,39 +10149,80 @@ button.scroll-to-bottom,
   touch-action: pan-y !important;
 }
 
-/* Assistant Typography inside Card Box */
-.message.assistant .rich-text {
+/* Assistant Typography: Match the exact internal alignment (14px inset) of the reasoning block */
+.message.assistant .rich-text,
+.assistant-message-body .rich-text {
   font-size: 15px !important;
   line-height: 1.8 !important;
   color: var(--text, #1F2937) !important;
   margin-top: 0 !important;
   margin-bottom: 18px !important;
   letter-spacing: 0.008em !important;
-  padding: 0 2px !important;
+  padding: 0 14px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
-:root[data-theme='dark'] .message.assistant .rich-text {
+:root[data-theme='dark'] .message.assistant .rich-text,
+:root[data-theme='dark'] .assistant-message-body .rich-text {
   color: #F3F4F6 !important;
 }
 
-.message.assistant .rich-text p {
+.message.assistant .rich-text p,
+.assistant-message-body .rich-text p,
+.message.assistant .rich-text .rich-line,
+.assistant-message-body .rich-text .rich-line {
   margin: 0 0 16px 0 !important;
   line-height: 1.8 !important;
+  text-align: left !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
 }
 
-.message.assistant .rich-text p:last-child {
+.message.assistant .rich-text p:last-child,
+.assistant-message-body .rich-text .rich-line:last-child {
   margin-bottom: 0 !important;
 }
 
-/* Minimal Action Row Under Assistant Message */
-.message.assistant .message-meta {
+/* Bullets also adhere to the same clean alignment */
+.message.assistant .rich-text .rich-bullet,
+.assistant-message-body .rich-text .rich-bullet {
+  padding-left: 0 !important;
+}
+
+/* Shloka and Arthat cards span full container width matching reasoning container */
+.message.assistant .rich-text .rich-shlok-line,
+.assistant-message-body .rich-text .rich-shlok-line {
+  margin-left: -14px !important;
+  margin-right: -14px !important;
+  width: calc(100% + 28px) !important;
+  max-width: calc(100% + 28px) !important;
+  box-sizing: border-box !important;
+}
+
+.message.assistant .rich-text .rich-arthat-line,
+.assistant-message-body .rich-text .rich-arthat-line {
+  margin-left: -14px !important;
+  margin-right: -14px !important;
+  width: calc(100% + 28px) !important;
+  max-width: calc(100% + 28px) !important;
+  box-sizing: border-box !important;
+}
+
+/* Minimal Action Row Under Assistant Message follows the same 14px horizontal inset */
+.message.assistant .message-meta,
+.assistant-message-body .message-meta {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
   margin-top: 18px !important;
   padding-top: 12px !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
   border-top: 1px solid rgba(245, 158, 11, 0.14) !important;
   justify-content: flex-start !important;
+  box-sizing: border-box !important;
 }
 
 .message-action.home-action {

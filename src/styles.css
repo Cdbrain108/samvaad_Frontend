@@ -193,19 +193,21 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 .message.assistant:hover > div { transform: none; box-shadow: none; }
 .message p { margin: 0; color: var(--text); font-size: 15px; line-height: 1.7; white-space: pre-wrap; }
 .message.user p {
-  display: inline-block;
-  padding: 14px 18px;
-  border-radius: 20px 20px 4px 20px;
-  background: #fff8f3;
-  color: #2e211a;
-  border: 1px solid rgba(231, 99, 54, 0.2);
-  box-shadow: 0 6px 20px rgba(231, 99, 54, 0.08);
+  display: block;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
 }
 :root[data-theme='dark'] .message.user p {
-  background: #382c24;
-  color: #fcefe6;
-  border: 1px solid rgba(240, 124, 80, 0.35);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: inherit;
 }
 
 .composer-wrap { width: min(840px, calc(100% - 60px)); align-self: center; padding: 0 0 18px; }
