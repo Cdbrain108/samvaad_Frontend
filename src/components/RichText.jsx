@@ -59,6 +59,15 @@ export default function RichText({ content, streaming = false }) {
         continue;
       }
 
+      // Markdown Headings (#, ##, ###, ####)
+      const headingMatch = trimmed.match(/^(#{1,4})\s+(.+)$/);
+      if (headingMatch) {
+        const level = headingMatch[1].length;
+        const headingText = headingMatch[2].trim();
+        grouped.push({ type: 'heading', level, text: headingText });
+        continue;
+      }
+
       // Supporting Scriptural References Header
       if (/^📖\s*(?:\*\*)?(?:Supporting Scriptural References|पूरक शास्त्र प्रमाण)/i.test(trimmed)) {
         const titleText = trimmed.replace(/^[📖*_\s]+/, '').replace(/[*_\s]+$/, '');
@@ -113,6 +122,14 @@ export default function RichText({ content, streaming = false }) {
 
         if (block.type === 'divider') {
           return <hr className="rich-divider" key={`hr-${index}`} />;
+        }
+
+        if (block.type === 'heading') {
+          return (
+            <div className={`rich-heading rich-h${block.level}`} key={`h-${index}`}>
+              {renderInline(block.text, `h${index}`)}{cursor}
+            </div>
+          );
         }
 
         if (block.type === 'supporting-header') {

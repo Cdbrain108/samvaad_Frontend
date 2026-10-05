@@ -2301,6 +2301,27 @@ select:focus-visible,
   outline-offset: 2px;
 }
 
+/* Explicitly exempt composer textarea from rectangular focus rings */
+.composer textarea,
+.composer textarea:focus,
+.composer textarea:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.composer:focus-within {
+  border-color: rgba(245, 158, 11, 0.6) !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.22), 0 8px 28px rgba(0, 0, 0, 0.4) !important;
+}
+
+:root[data-theme='light'] .composer:focus-within {
+  border-color: rgba(217, 119, 6, 0.65) !important;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18), 0 6px 24px rgba(180, 83, 9, 0.12) !important;
+}
+
 /* ============================================================
    BEAUTY PASS — cohesive saffron/gold polish across every page
    (appended last so it refines all phases without rewrites)
@@ -7366,12 +7387,11 @@ select:focus-visible,
     position: relative !important;
     border-radius: 20px !important;
     margin-bottom: 20px !important;
-    border-left-width: 3.5px !important;
+    border: 1.5px solid rgba(139, 92, 246, 0.28) !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
     background: rgba(18, 14, 28, 0.85) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
-    border-color: rgba(139, 92, 246, 0.28) !important;
     max-width: 100% !important;
     overflow: hidden !important;
   }
@@ -7392,14 +7412,12 @@ select:focus-visible,
   }
 
   .reasoning-container.thinking-active {
-    border-color: rgba(245, 158, 11, 0.45) !important;
-    border-left-color: #f59e0b !important;
+    border-color: rgba(245, 158, 11, 0.5) !important;
     box-shadow: 0 4px 22px rgba(245, 158, 11, 0.16), 0 0 14px rgba(139, 92, 246, 0.12) !important;
   }
 
   .reasoning-container.thinking-done {
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    border-left-color: #10b981 !important;
+    border-color: rgba(16, 185, 129, 0.35) !important;
     background: rgba(14, 11, 24, 0.65) !important;
   }
 
@@ -7887,6 +7905,10 @@ select:focus-visible,
     padding: 6px 0 !important;
     max-height: 120px !important;
     color: #ffffff !important;
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
 
   .send-button {
@@ -7941,14 +7963,16 @@ select:focus-visible,
   }
   :root[data-theme='light'] .reasoning-container {
     background: rgba(254, 252, 246, 0.96) !important;
-    border-color: rgba(217, 119, 6, 0.28) !important;
-    border-left-color: #d97706 !important;
+    border: 1.5px solid rgba(217, 119, 6, 0.28) !important;
     box-shadow: 0 4px 18px rgba(180, 83, 9, 0.08) !important;
   }
   :root[data-theme='light'] .reasoning-container.thinking-active {
     border-color: rgba(245, 158, 11, 0.6) !important;
-    border-left-color: #f59e0b !important;
     box-shadow: 0 4px 20px rgba(245, 158, 11, 0.16) !important;
+  }
+  :root[data-theme='light'] .reasoning-container.thinking-done {
+    border-color: rgba(16, 185, 129, 0.4) !important;
+    background: #ffffff !important;
   }
   :root[data-theme='light'] .reasoning-title-text {
     color: #1e1b4b !important;
@@ -8032,6 +8056,10 @@ select:focus-visible,
   :root[data-theme='light'] .composer textarea {
     color: #1e1b4b !important;
     font-size: 15px !important;
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
   :root[data-theme='light'] .composer-note {
     color: rgba(120, 53, 15, 0.65) !important;
@@ -9619,7 +9647,7 @@ select:focus-visible,
 .message.user .user-message-bubble {
   display: inline-block !important;
   padding: 12px 18px !important;
-  border-radius: 20px 20px 4px 20px !important;
+  border-radius: 20px !important;
   font-size: 15px !important;
   line-height: 1.55 !important;
   word-break: break-word !important;
@@ -9775,17 +9803,15 @@ select:focus-visible,
 /* Claude-Style Minimal Reasoning Container */
 .reasoning-container {
   background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-left: 2px solid #D97706 !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
   border-radius: 20px !important;
   box-shadow: none !important;
   margin-bottom: 12px !important;
 }
 
 :root[data-theme='light'] .reasoning-container {
-  background: rgba(180, 120, 40, 0.05) !important;
-  border: 1px solid rgba(180, 120, 40, 0.14) !important;
-  border-left: 2px solid #D97706 !important;
+  background: rgba(254, 252, 246, 0.96) !important;
+  border: 1.5px solid rgba(217, 119, 6, 0.22) !important;
 }
 
 /* Floating Scroll-to-Bottom Down-Arrow Button Permanently Disabled */

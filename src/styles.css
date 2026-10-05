@@ -957,7 +957,7 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 .user-message-bubble {
   display: inline-block;
   padding: 12px 18px;
-  border-radius: 20px 20px 4px 20px;
+  border-radius: 20px;
   background: #EFE8DD;
   color: #1F2937;
   border: 1px solid rgba(180, 120, 40, 0.16);
@@ -1502,21 +1502,18 @@ html, body { max-width: 100%; overflow-x: hidden; }
   background: rgba(18, 14, 28, 0.75);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(139, 92, 246, 0.22);
-  border-left: 3px solid #8b5cf6;
+  border: 1.5px solid rgba(139, 92, 246, 0.25);
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .reasoning-container.thinking-active {
-  border-color: rgba(167, 139, 250, 0.45);
-  border-left-color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.5);
   box-shadow: 0 4px 24px rgba(124, 58, 237, 0.16), inset 0 0 16px rgba(167, 139, 250, 0.06);
 }
 
 .reasoning-container.thinking-done {
-  border-color: rgba(255, 255, 255, 0.08);
-  border-left-color: #10b981;
+  border-color: rgba(16, 185, 129, 0.35);
   background: rgba(14, 11, 22, 0.55);
 }
 
@@ -3451,20 +3448,17 @@ html, body { max-width: 100%; overflow-x: hidden; }
   background: rgba(254, 252, 246, 0.96) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
-  border: 1px solid rgba(217, 119, 6, 0.28) !important;
-  border-left: 3px solid #d97706 !important;
+  border: 1.5px solid rgba(217, 119, 6, 0.25) !important;
   box-shadow: 0 4px 20px rgba(180, 83, 9, 0.08) !important;
 }
 
 :root[data-theme='light'] .reasoning-container.thinking-active {
   border-color: rgba(245, 158, 11, 0.55) !important;
-  border-left-color: #f59e0b !important;
   box-shadow: 0 6px 24px rgba(245, 158, 11, 0.16), inset 0 0 16px rgba(254, 243, 199, 0.5) !important;
 }
 
 :root[data-theme='light'] .reasoning-container.thinking-done {
-  border-color: rgba(217, 119, 6, 0.2) !important;
-  border-left-color: #059669 !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
   background: rgba(255, 255, 255, 0.95) !important;
 }
 
@@ -3659,4 +3653,50 @@ html, body { max-width: 100%; overflow-x: hidden; }
   border: 1.5px solid #f59e0b !important;
   color: #78350f !important;
   font-weight: 600 !important;
+}
+
+/* ── RichText Markdown Heading Support ── */
+.rich-heading {
+  font-family: inherit;
+  font-weight: 700;
+  margin: 12px 0 6px 0;
+  line-height: 1.4;
+  color: var(--text);
+  word-break: break-word;
+}
+.rich-h1, .rich-h2 {
+  font-size: 1.22rem;
+}
+.rich-h3 {
+  font-size: 1.1rem;
+}
+.rich-h4 {
+  font-size: 1rem;
+}
+:root[data-theme='light'] .rich-heading {
+  color: #1e1b4b !important;
+}
+:root[data-theme='dark'] .rich-heading {
+  color: #f9fafb !important;
+}
+
+/* ── Eliminate rectangular focus ring inside rounded composer pill ── */
+.composer textarea,
+.composer textarea:focus,
+.composer textarea:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.composer:focus-within {
+  border-color: rgba(245, 158, 11, 0.6) !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.22), 0 8px 28px rgba(0, 0, 0, 0.4) !important;
+}
+
+:root[data-theme='light'] .composer:focus-within {
+  border-color: rgba(217, 119, 6, 0.65) !important;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18), 0 6px 24px rgba(180, 83, 9, 0.12) !important;
 }

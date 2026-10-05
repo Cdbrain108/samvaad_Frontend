@@ -14,8 +14,11 @@ export function formatTimestamp(timestamp) {
  * Renders inline **bold** and `code` spans inside text.
  */
 export function renderInline(text, keyPrefix) {
+  if (!text) return null;
+  // Clean any leading markdown heading hashes that might slip into inline text
+  const cleanText = typeof text === 'string' ? text.replace(/^#{1,4}\s+/, '') : text;
   const nodes = [];
-  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  const parts = String(cleanText).split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
   parts.forEach((part, index) => {
     if (!part) return;
     if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
@@ -43,7 +46,7 @@ export function intelligentSegmentResponse(text) {
   processed = processed.replace(/\n\s*([.,;!?।])/g, '$1');
 
   // Collapse soft single newlines within narrative prose
-  processed = processed.replace(/([^\n])\n(?!\n|[•\-*]\s|\d+[.)]\s|[«📖─\-]|\*\*[«📖]|(?:\*\*|\*)*(?:Meaning|अर्थात्|भावार्थ))/g, '$1 ');
+  processed = processed.replace(/([^\n])\n(?!\n|#{1,4}\s|[•\-*]\s|\d+[.)]\s|[«📖─\-]|\*\*[«📖]|(?:\*\*|\*)*(?:Meaning|अर्थात्|भावार्थ))/g, '$1 ');
 
   // Separate horizontal rules and supporting references
   processed = processed.replace(/\s*(?:---|───|\*\*\*)\s*(?=📖|\*\*📖|$)/g, '\n\n---\n\n');
