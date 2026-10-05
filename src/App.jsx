@@ -1091,7 +1091,7 @@ export default function App() {
 
       <main className="main-panel">
         <header className="topbar topbar-visible">
-          <div className="topbar-left">
+          <div className={`topbar-left ${sidebarOpen ? 'sidebar-is-open' : ''}`}>
             <button
               className="icon-button menu-button"
               aria-label="Toggle navigation"
