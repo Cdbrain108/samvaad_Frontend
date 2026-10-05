@@ -1226,7 +1226,6 @@ export default function App() {
           )}
 
           <div className="topbar-actions">
-
             <button
               className={`icon-button auto-speak-btn ${autoSpeak ? 'auto-speak-active' : ''}`}
               aria-label={autoSpeak ? 'Auto-Voice Enabled: Maharaj Ji speaks replies automatically' : 'Auto-Voice Disabled'}
@@ -1244,25 +1243,6 @@ export default function App() {
             >
               <Icon name="mic" />
             </button>
-
-            <button
-              className="icon-button theme-toggle-btn"
-              aria-label={darkMode ? 'Use light theme' : 'Use dark theme'}
-              onClick={toggleTheme}
-            >
-              <Icon name={darkMode ? 'sun' : 'moon'} />
-            </button>
-
-            <div
-              className="user-avatar"
-              role="button"
-              tabIndex={0}
-              aria-label="Open navigation"
-              onClick={() => setSidebarOpen(true)}
-              onKeyDown={(e) => e.key === 'Enter' && setSidebarOpen(true)}
-            >
-              {user.email?.charAt(0).toUpperCase() || 'U'}
-            </div>
           </div>
         </header>
 

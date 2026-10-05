@@ -10015,12 +10015,12 @@ select:focus-visible,
     flex: 1 1 0% !important;
     min-height: 0 !important;
     max-height: 100% !important;
-    padding-top: 16px !important;
-    padding-bottom: 24px !important;
+    padding: 32px 24px 60px 24px !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    overscroll-behavior-y: contain !important;
-    scroll-behavior: smooth !important;
+    overscroll-behavior-y: auto !important;
+    scroll-behavior: auto !important;
+    touch-action: auto !important;
   }
 
   .content-area .messages {
@@ -10029,9 +10029,9 @@ select:focus-visible,
     width: 100% !important;
     max-width: 820px !important;
     margin: 0 auto !important;
-    padding-top: 24px !important;
-    padding-bottom: 80px !important;
-    gap: 22px !important;
+    padding-top: 10px !important;
+    padding-bottom: 70px !important;
+    gap: 24px !important;
     box-sizing: border-box !important;
   }
 
@@ -10292,15 +10292,16 @@ select:focus-visible,
   padding: 0 !important;
 }
 
-/* Touch scrolling rules */
-
-.content-area *,
-.content-area .messages *,
-.assistant-message-body,
-.assistant-message-body *,
-.rich-text,
-.rich-text * {
-  touch-action: pan-y !important;
+/* Mobile Touch scrolling rules (isolated strictly to mobile touchscreens) */
+@media (max-width: 768px) {
+  .content-area *,
+  .content-area .messages *,
+  .assistant-message-body,
+  .assistant-message-body *,
+  .rich-text,
+  .rich-text * {
+    touch-action: pan-y !important;
+  }
 }
 
 /* Assistant Typography: Calm, Serene, Perfectly Formatted on Mobile & Desktop */
@@ -11263,21 +11264,31 @@ select:focus-visible,
    - Contained Chintan Prakriya & Shlok cards with elegant typography
    ═════════════════════════════════════════════════════════════════════ */
 @media (min-width: 769px) {
+  /* PC Topbar: Strictly in natural flex document flow above content-area */
+  .topbar {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    height: 70px !important;
+    flex-shrink: 0 !important;
+    z-index: 20 !important;
+  }
+
   .content-area {
-    display: flex !important;
-    flex-direction: column !important;
+    display: block !important;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
     flex: 1 1 0% !important;
     min-height: 0 !important;
     max-height: 100% !important;
-    padding-top: 16px !important;
-    padding-bottom: 24px !important;
+    padding: 32px 24px 60px 24px !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    overscroll-behavior-y: contain !important;
-    scroll-behavior: smooth !important;
+    overscroll-behavior-y: auto !important;
+    scroll-behavior: auto !important;
+    touch-action: auto !important;
   }
 
   .content-area .messages {
@@ -11286,9 +11297,9 @@ select:focus-visible,
     width: 100% !important;
     max-width: 820px !important;
     margin: 0 auto !important;
-    padding-top: 16px !important;
-    padding-bottom: 50px !important;
-    gap: 20px !important;
+    padding-top: 10px !important;
+    padding-bottom: 70px !important;
+    gap: 24px !important;
     box-sizing: border-box !important;
   }
 
