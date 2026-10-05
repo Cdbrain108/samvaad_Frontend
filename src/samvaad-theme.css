@@ -11254,12 +11254,15 @@ select:focus-visible,
     left: auto !important;
     right: auto !important;
     height: 70px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
     flex-shrink: 0 !important;
     z-index: 20 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    padding: 0 32px !important;
+    padding: 0 28px !important;
   }
 
   .topbar-left {
@@ -11268,6 +11271,7 @@ select:focus-visible,
     display: flex !important;
     align-items: center !important;
     gap: 10px !important;
+    flex-shrink: 0 !important;
   }
 
   /* Chat Taskbar Center: Deep / Fast Mode toggle placed exactly in the middle of the taskbar */
@@ -11293,6 +11297,7 @@ select:focus-visible,
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
+    flex-shrink: 0 !important;
   }
 
   /* Chat taskbar Day/Night toggle pill on PC */
@@ -11305,6 +11310,7 @@ select:focus-visible,
     backdrop-filter: blur(14px) !important;
     -webkit-backdrop-filter: blur(14px) !important;
     transition: all 0.25s ease !important;
+    flex-shrink: 0 !important;
   }
 
   :root[data-theme='dark'] .chat-theme-toggle {
