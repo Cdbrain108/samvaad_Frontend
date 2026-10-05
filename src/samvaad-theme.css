@@ -5910,7 +5910,9 @@ select:focus-visible,
 
   /* Full-Screen Chat Demo View for Mobile (Overview & About Us) */
   .spiritual-page .phase#overview,
-  .chat-overview-section {
+  .chat-overview-section,
+  .spiritual-page .phase#education,
+  .about-us-section {
     height: 100svh !important;
     height: 100dvh !important;
     min-height: 100dvh !important;
@@ -5921,21 +5923,6 @@ select:focus-visible,
     flex-direction: column !important;
     justify-content: flex-start !important;
     box-sizing: border-box !important;
-  }
-
-  .about-us-section,
-  .spiritual-page .phase#education {
-    height: auto !important;
-    min-height: 100dvh !important;
-    max-height: none !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    padding: 8px 8px calc(env(safe-area-inset-bottom, 24px) + 72px) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: flex-start !important;
-    box-sizing: border-box !important;
-    scroll-snap-align: start !important;
   }
 
   .chat-overview-section .spiritual-section-heading,
@@ -5976,29 +5963,6 @@ select:focus-visible,
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
-  }
-
-  .about-us-section .chat-demo-container {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 auto 16px !important;
-    flex: 0 0 auto !important;
-    height: auto !important;
-    max-height: none !important;
-    min-height: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: flex-start !important;
-  }
-  .about-us-section .chat-demo-window {
-    height: auto !important;
-    max-height: none !important;
-  }
-  .about-us-section .chat-demo-body {
-    max-height: 38vh !important;
-    min-height: 170px !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
   }
   .chat-demo-window {
     width: 100% !important;
@@ -9876,7 +9840,9 @@ button.scroll-to-bottom,
 
 @media (max-width: 768px) {
   .chat-overview-section.heading-hidden .overview-heading-wrap,
-  .chat-overview-section.heading-hidden .overview-heading-wrap.is-backward-removing {
+  .chat-overview-section.heading-hidden .overview-heading-wrap.is-backward-removing,
+  .about-us-section.heading-hidden .about-heading-wrap,
+  .about-us-section.heading-hidden .about-heading-wrap.is-backward-removing {
     display: none !important;
     max-height: 0 !important;
     margin: 0 !important;

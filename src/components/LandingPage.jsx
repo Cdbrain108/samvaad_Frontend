@@ -320,6 +320,9 @@ Key features for seekers:
         setHasStartedTyping(true)
         setIsTyping(true)
 
+        const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+        const charDelay = isMobile ? 24 : 10
+        const breakDelay = isMobile ? 55 : 22
         const chars = Array.from(selected.a)
         let idx = 0
         const step = () => {
@@ -332,7 +335,7 @@ Key features for seekers:
               bodyRef.current.scrollTop = bodyRef.current.scrollHeight
             }
             const isBreak = chars[idx - 1] === '\n'
-            timeoutRef.current = setTimeout(step, isBreak ? 55 : 24)
+            timeoutRef.current = setTimeout(step, isBreak ? breakDelay : charDelay)
           } else {
             setTypedText(selected.a)
             setIsTyping(false)
@@ -548,6 +551,9 @@ This platform serves as an interactive learning playground. Guidance here is ref
         setHasStartedTyping(true)
         setIsTyping(true)
 
+        const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+        const charDelay = isMobile ? 24 : 10
+        const breakDelay = isMobile ? 55 : 22
         const chars = Array.from(selected.a)
         let idx = 0
         const step = () => {
@@ -559,7 +565,7 @@ This platform serves as an interactive learning playground. Guidance here is ref
               bodyRef.current.scrollTop = bodyRef.current.scrollHeight
             }
             const isBreak = chars[idx - 1] === '\n'
-            timeoutRef.current = setTimeout(step, isBreak ? 55 : 24)
+            timeoutRef.current = setTimeout(step, isBreak ? breakDelay : charDelay)
           } else {
             setTypedText(selected.a)
             setIsTyping(false)
