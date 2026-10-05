@@ -258,8 +258,10 @@ Provide your internal contemplative reasoning in English in a thoughtful, serene
         repeat_last_n: 256,
         presence_penalty: 0.2,
         frequency_penalty: 0.2,
+        cache_prompt: false,
+        slot_id: -1,
         max_tokens: 180,
-        stop: ["<end_of_turn>", "<start_of_turn>", "<|im_end|>", "</s>", "\n\nUser:", "User:", "साधक:", "\n\nसाधक:"],
+        stop: ["<end_of_turn>", "<start_of_turn>", "<|im_end|>", "</s>", "\n\nUser:", "User:", "साधक:", "\n\nसाधक:", "\nSeeker:", "Seeker:", "\nHuman:", "Human:"],
         stream: true
       }),
       signal: AbortSignal.timeout(16000)
