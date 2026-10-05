@@ -1138,8 +1138,8 @@ export default function App() {
           </div>
 
           <div className="topbar-center">
-            {/* Desktop: show Deep/Fast mode toggle */}
-            <div className="mode-toggle-group desktop-only-mode-toggle">
+            {/* Unified Deep/Fast mode toggle */}
+            <div className="mode-toggle-group" role="group" aria-label="Select inference mode">
               <button
                 type="button"
                 className={`mode-pill-btn ${inferenceMode === 'deep' ? 'active' : ''}`}
@@ -1161,30 +1161,6 @@ export default function App() {
                 ⚡ <span className="mode-pill-btn-label-text">Fast</span>
               </button>
             </div>
-
-            {/* Mobile: Day/Night segmented theme option in center */}
-            <div className="mobile-theme-switch-group">
-              <button
-                type="button"
-                className={`mobile-theme-btn ${!darkMode ? 'active' : ''}`}
-                onClick={() => { if (darkMode) toggleTheme(); }}
-                aria-label="Day theme"
-                aria-pressed={!darkMode}
-                title="Day theme"
-              >
-                ☀️ <span className="mobile-theme-btn-text">Day</span>
-              </button>
-              <button
-                type="button"
-                className={`mobile-theme-btn ${darkMode ? 'active' : ''}`}
-                onClick={() => { if (!darkMode) toggleTheme(); }}
-                aria-label="Night theme"
-                aria-pressed={darkMode}
-                title="Night theme"
-              >
-                🌙 <span className="mobile-theme-btn-text">Night</span>
-              </button>
-            </div>
           </div>
 
           <div className="topbar-actions">
@@ -1201,7 +1177,7 @@ export default function App() {
                 aria-pressed={!darkMode}
                 title="Switch to Day theme"
               >
-                Day ☀️
+                <span className="theme-pill-text">Day </span>☀️
               </button>
               <button
                 type="button"
@@ -1211,7 +1187,7 @@ export default function App() {
                 aria-pressed={darkMode}
                 title="Switch to Night theme"
               >
-                Night 🌙
+                <span className="theme-pill-text">Night </span>🌙
               </button>
             </div>
           </div>

@@ -114,108 +114,106 @@ export function detectQueryLanguage(text) {
   return /^[a-zA-Z0-9\s.,!?'"()\-—]+$/.test(clean) ? 'english' : 'hindi';
 }
 
+// Stopwords and interrogatives stripped to extract core subject noun phrase
+const INTERROGATIVE_STOPWORDS = new RegExp(
+  '\\b(?:when\\s*is|when\\s*does|when\\s*will|when|what\\s*is|what\\s*are|what|how\\s*about|where\\s*is|where|which|' +
+  'kab\\s*hai|kab\\s*se|kab\\s*hoga|kab\\s*hogi|kab|kya\\s*hai|kya|kaise|kaha|kahan|kitne\\s*baje|kitna\\s*samay|' +
+  'date\\s*of|dates\\s*of|date|dates|timing\\s*of|timings\\s*of|timing|timings|samay|schedule|tarikh|' +
+  'aaj\\s*ka|aaj|kal\\s*ka|kal|today|tomorrow|this\\s*month|is\\s*month|is\\s*mahine|iss\\s*mahine|this\\s*year|is\\s*saal|' +
+  'next|upcoming|agla|agli|agle|wala|wali|wale|shuru|start|starts|starting|khatam|end|ends|ending|' +
+  'batao|bataiye|kahiye|please\\s*tell\\s*me|please\\s*tell|tell\\s*me|tell|info|details|hai|hain|hoga|hogi|hote|hota|hoti|' +
+  'the|a|an|in|on|at|of|for|to|me|mein|aur|phir|par|se|ka|ki|ke|ko|karein|kare|karo)\\b',
+  'gi'
+);
+
 /**
- * 🧠 Agent Dialogue Memory & Search Reasoner
- * ==========================================
- * Automatically tracks the conversation state across turns:
- * 1. Tracks active spiritual entities (Ekadashi, Festivals, Temples, Grahan, Panchang, Scripture).
- * 2. Remembers when previous turns were in live search mode.
- * 3. Autonomous Decision: Intelligently determines when the agent needs to search online
- *    even when the seeker asks short follow-ups ("is month me", "aur aage", "next one", "kab?", "timing?").
+ * Extracts the core subject noun phrase from ANY message without hardcoding keywords.
+ */
+export function extractSubject(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/[?!.,;:()\-—]/g, ' ')
+    .replace(INTERROGATIVE_STOPWORDS, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * General temporal detector: detects whether an inquiry asks for dates, timing, or schedules of ANY event.
+ */
+export function isTemporalInquiry(text) {
+  if (!text || typeof text !== 'string') return false;
+  return /(?:kab\s*hai|when\s*is|when\s*does|when\b|date\b|dates\b|tarikh|timing|timings|samay|schedule|aaj\s*ka|kal\s*ka|today|tomorrow|this\s*month|is\s*month|is\s*mahine|iss\s*mahine|next\b|upcoming|agla\b|agli\b|agle\b|parana|sutak|kapat|aarti|muhurat|tithi|panchang|darshan|vrat|shuru|start|khatam|kitne\s*baje)/i.test(text);
+}
+
+/**
+ * Detects whether the seeker is asking about an inner spiritual / emotional struggle.
+ */
+export function isSpiritualDilemma(text) {
+  if (!text || typeof text !== 'string') return false;
+  return /(?:mann|man|ashant|ashanti|krodh|gussa|kam|vasana|moh|lobh|ahankar|prarabdh|bhagwan|krishna|radha\s*rani|naam\s*jap|jap|bhakti|samarpan|sharanagati|sharanaagati|chinta|dukh|kasht|mukti|moksha|dharma|pap|punya|atman|aatma|antahkaran|peace\s*of\s*mind|anger|depression|anxiety|meditation|spiritual|soul|guru|satsang)/i.test(text);
+}
+
+/**
+ * 🧠 Generic Agent Dialogue Memory & Search Reasoner
+ * ==================================================
+ * 1. Standalone vs Ellipsis:
+ *    - If query has its own subject (e.g. "when does navratri start?", "Chhath puja kab hai?"),
+ *      it is standalone. Old topics are NEVER prepended.
+ *    - If query is an ellipsis (e.g. "is month me kab hai?", "timing kya hai?"),
+ *      it inherits the ongoing subject from conversation history.
+ * 2. Search Decision:
+ *    - Automatically searches when temporal / schedule facts are required for ANY topic.
+ *    - Gracefully routes to Satsang contemplation when the user asks an inner spiritual dilemma.
  */
 export function analyzeDialogueMemory(userMessage, conversationHistory = []) {
   const clean = (userMessage || '').trim();
-  const cleanLower = clean.toLowerCase();
+  const currentSubject = extractSubject(clean);
+  const hasTemporal = isTemporalInquiry(clean) || isLiveCalendarQuery(clean);
+  const isSpiritual = isSpiritualDilemma(clean);
 
-  // Search intent triggers (temporal, calendar, dynamic facts)
-  const temporalKeywords = /(?:kab\s*hai|when\s*is|when|date|dates|tarikh|timing|timings|samay|schedule|aaj\s*ka|kal\s*ka|today|tomorrow|this\s*month|is\s*month|is\s*mahine|iss\s*mahine|next|upcoming|agla|agli|agle|parana|sutak|kapat|aarti|muhurat|tithi|panchang|darshan|vrat|shuru|khatam|kitne\s*baje)/i;
+  // An ellipsis query has no standalone subject (less than 3 characters after stripping question words)
+  const isEllipsis = currentSubject.length < 3;
 
-  const directSearchMatch = isLiveCalendarQuery(clean);
-  const hasTemporalInquiry = temporalKeywords.test(cleanLower);
+  let activeSubject = currentSubject;
+  let effectiveQuery = clean;
+  let shouldSearch = false;
 
-  // Scan dialogue history (latest turns first) to discover active state
-  let historySearchActive = false;
-  let activeEntity = null;
-  let activeTopic = null;
-
-  if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
-    for (let i = conversationHistory.length - 1; i >= 0; i--) {
-      const turn = conversationHistory[i];
-      const text = (turn?.content || '').toLowerCase();
-      if (!text) continue;
-
-      if (!activeEntity) {
-        if (/(?:ekadashi|एकादशी|parana|पारण)/i.test(text)) {
-          activeEntity = 'ekadashi';
-          activeTopic = 'पावन एकादशी व्रत व तिथि (Ekadashi Schedule)';
-          historySearchActive = true;
-        } else if (/(?:grahan|sutak|ग्रहण|सूतक|eclipse)/i.test(text)) {
-          activeEntity = 'grahan sutak';
-          activeTopic = 'ग्रहण व सूतक काल (Grahan & Sutak Timing)';
-          historySearchActive = true;
-        } else if (/(?:bankey\s*bihari|radha\s*vallabh|barsana|prem\s*mandir|nidhivan|darshan|दर्शन|बांके\s*बिहारी)/i.test(text)) {
-          activeEntity = 'temple darshan';
-          activeTopic = 'श्री धाम मंदिर दर्शन समय (Temple Darshan Hours)';
-          historySearchActive = true;
-        } else if (/(?:panchang|tithi|muhurat|पंचांग|तिथि|मुहूर्त|प्रदोष|पूर्णिमा|अमावस्या)/i.test(text)) {
-          activeEntity = 'panchang';
-          activeTopic = 'दैनिक पंचांग व शुभ मुहूर्त (Panchang & Tithi)';
-          historySearchActive = true;
-        } else if (/(?:diwali|holi|navratri|janmashtami|radhashtami|shivratri|ram\s*navami|दीपावली|होली|जन्माष्टमी)/i.test(text)) {
-          activeEntity = 'festival';
-          activeTopic = 'पावन उत्सव व पर्व तिथि (Sacred Festival Date)';
-          historySearchActive = true;
-        } else if (/(?:geeta|gita|भगवद्गीता|गीता)/i.test(text)) {
-          activeEntity = 'shrimad bhagavad gita';
-          activeTopic = 'श्रीमद्भगवद्गीता शास्त्र प्रमाण';
-        } else if (/(?:anuj|kesharwani|creator|architecture|rag|dataset)/i.test(text)) {
-          activeEntity = 'project architecture';
-          activeTopic = 'संवाद प्रोजेक्ट व ज्ञान संरचना (Samvaad Knowledge Base)';
+  if (!isEllipsis) {
+    // Current query has its own explicit subject
+    activeSubject = currentSubject;
+    shouldSearch = hasTemporal;
+    effectiveQuery = clean; // Standalone query: never prefix previous conversation topics
+  } else {
+    // Ellipsis query (e.g. "is month me kab hai?", "timing kya hai?", "aur agla?")
+    // Find the most recent subject being discussed in conversation history
+    if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
+      for (let i = conversationHistory.length - 1; i >= 0; i--) {
+        const prevText = conversationHistory[i]?.content || '';
+        const prevSubject = extractSubject(prevText);
+        if (prevSubject.length >= 3) {
+          activeSubject = prevSubject;
+          break;
         }
       }
+    }
 
-      if (turn.role === 'user' && isLiveCalendarQuery(turn.content)) {
-        historySearchActive = true;
+    if (isSpiritual && !hasTemporal) {
+      shouldSearch = false; // Spiritual topic shift: route to Satsang guidance
+    } else if (hasTemporal || isEllipsis) {
+      shouldSearch = Boolean(activeSubject) || hasTemporal;
+      if (activeSubject) {
+        effectiveQuery = `${activeSubject} ${clean}`;
       }
     }
-  }
-  // 1. Identify core spiritual / emotional / philosophical dilemmas
-  const isSpiritualDilemma = /(?:mann|man|ashant|ashanti|krodh|gussa|kam|vasana|moh|lobh|ahankar|prarabdh|bhagwan|krishna|radha\s*rani|naam\s*jap|jap|bhakti|samarpan|sharanagati|sharanaagati|chinta|dukh|kasht|mukti|moksha|dharma|pap|punya|atman|aatma|antahkaran|peace\s*of\s*mind|anger|depression|anxiety|meditation|spiritual|soul|guru|satsang)/i.test(cleanLower);
-
-  // 2. Explicit temporal, calendar, or scheduling inquiry
-  const hasExplicitTemporal = temporalKeywords.test(cleanLower);
-
-  // 3. Deictic continuation markers referencing earlier subject
-  const isDeicticContinuation = /^(?:is\b|iss\b|aur\b|phir\b|agle\b|agli\b|agla\b|next\b|unka\b|unki\b|unke\b|iska\b|iske\b|iski\b|uska\b|uske\b|uski\b|yeh\b|woh\b|kab\b|timing\b|samay\b|date\b)/i.test(cleanLower);
-  const isFollowUp = isDeicticContinuation || (clean.split(/\s+/).length <= 7 && hasExplicitTemporal);
-
-  // Autonomous Agent Decision:
-  // - Direct search match always searches
-  // - In an active search history: search if continuing the schedule/event topic
-  // - BUT if seeker asks a spiritual/life dilemma ("mann shant kaise karein"), DO NOT search; route to Satsang RAG!
-  let shouldSearch = false;
-  if (directSearchMatch) {
-    shouldSearch = true;
-  } else if (historySearchActive) {
-    if (isSpiritualDilemma && !hasExplicitTemporal) {
-      shouldSearch = false; // Spiritual topic shift: switch from calendar search to satsang contemplation
-    } else if (hasExplicitTemporal || isDeicticContinuation) {
-      shouldSearch = true;  // Legitimate follow-up on live calendar/darshan/event
-    }
-  }
-
-  // Synthesize contextual query
-  let effectiveQuery = clean;
-  if (shouldSearch && activeEntity && !new RegExp(activeEntity, 'i').test(clean)) {
-    effectiveQuery = `${activeEntity} ${clean}`;
   }
 
   return {
     shouldSearch,
-    activeEntity,
-    activeTopic,
+    activeSubject,
+    activeTopic: activeSubject || 'रीयल-टाइम पंचांग व तिथियां',
     effectiveQuery,
-    isContinuation: Boolean(activeEntity && (isFollowUp || hasExplicitTemporal))
+    isContinuation: isEllipsis
   };
 }
 

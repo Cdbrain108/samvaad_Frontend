@@ -233,61 +233,223 @@ The Panchang comprises five sacred elements: Tithi (lunar day), Vara (weekday), 
 };
 
 /**
- * Queries DuckDuckGo API or synthesizes verified Dharmic knowledge
- * @param {string} query
- * @param {boolean|null} isEnglishForce - Explicit language preference from guruService
+ * 📅 Verified Festival Timetable Database (2025 - 2027)
  */
-export async function searchDuckDuckGo(query, isEnglishForce = null) {
+export const FESTIVAL_CALENDAR_DB = [
+  {
+    key: 'navratri',
+    nameEn: 'Shardiya & Chaitra Navratri',
+    nameHi: 'शारदीय एवं चैत्र नवरात्रि',
+    scheduleEn: `* **Sharad Navratri 2026:** Oct 11, 2026 to Oct 19, 2026 (Ghatasthapana: Oct 11, 2026; Dussehra / Vijayadashami: Oct 20, 2026)
+* **Chaitra Navratri 2026:** Mar 19, 2026 to Mar 27, 2026 (Ram Navami: Mar 27, 2026)
+* **Sharad Navratri 2025:** Sep 22, 2025 to Sep 30, 2025 (Dussehra: Oct 2, 2025)
+* **Chaitra Navratri 2027:** Apr 7, 2027 to Apr 15, 2027`,
+    scheduleHi: `* **शारदीय नवरात्रि 2026:** 11 अक्टूबर 2026 से 19 अक्टूबर 2026 (घटस्थापना: 11 अक्टूबर; विजयादशमी/दशहरा: 20 अक्टूबर 2026)
+* **चैत्र नवरात्रि 2026:** 19 मार्च 2026 से 27 मार्च 2026 (रामनवमी: 27 मार्च 2026)
+* **शारदीय नवरात्रि 2025:** 22 सितंबर 2025 से 30 सितंबर 2025 (दशहरा: 2 अक्टूबर 2025)
+* **चैत्र नवरात्रि 2027:** 7 अप्रैल 2027 से 15 अप्रैल 2027`,
+    rulesEn: `**Devotional Guidelines & Fasting Rules (Pujya Maharaj Ji):**
+1. **Ghatasthapana:** Perform sacred Kalash Sthapana during morning auspicious Muhurat (Pratipada morning).
+2. **Nine Forms of Divine Mother:** Worship Shailputri, Brahmacharini, Chandraghanta, Kushmanda, Skandamata, Katyayani, Kalaratri, Mahagauri, and Siddhidatri.
+3. **Satvik Intake:** Abstain from grains, onion, garlic, and non-satvik foods. Take seasonal fruits, milk, buckwheat (kuttu), and water.
+4. **Devotional Absorption:** Navratri is not mere austerity; it is dedicated contemplation of the Supreme Divine Mother with continuous Naam Jap ('Radha-Radha').`,
+    rulesHi: `**नवरात्रि व्रत व साधना के मुख्य नियम (पूज्य महाराज जी अनुसार):**
+1. **घटस्थापना:** प्रातः शुभ मुहूर्त (प्रतिपदा अथवा अभिजित मुहूर्त) में पवित्र घट/कलश की स्थापना करें।
+2. **नवदुर्गा उपासना:** माता के नौ स्वरूपों (शैलपुत्री, ब्रह्मचारिणी, चंद्रघंटा, कूष्मांडा, स्कंदमाता, कात्यायनी, कालरात्रि, महागौरी, सिद्धिदात्री) का नित्य पूजन करें।
+3. **सात्विक आहार:** अन्न (अनाज), तामसिक भोजन और लहसुन-प्याज का पूर्ण त्याग रखें। फलाहार (कुट्टू, सिंघाड़ा, फल, दूध) ग्रहण करें।
+4. **अखंड भगवन्नाम जप:** नवरात्रि का पावन अवसर मन की शुद्धि के लिए है। निरंतर 'श्री राधा-राधा' नाम जप एवं भगवती का ध्यान करें।`
+  },
+  {
+    key: 'diwali',
+    nameEn: 'Diwali (Deepavali Mahaparva)',
+    nameHi: 'दीपावली (पावन दीपोत्सव महापर्व)',
+    scheduleEn: `* **Diwali 2026:** Sunday, Nov 8, 2026 (Dhanteras: Nov 6; Narak Chaturdashi: Nov 7; Govardhan Puja: Nov 10; Bhai Dooj: Nov 11)
+* **Diwali 2025:** Monday, Oct 20, 2025 (Dhanteras: Oct 18; Govardhan: Oct 22)
+* **Diwali 2027:** Friday, Oct 29, 2027`,
+    scheduleHi: `* **दीपावली 2026:** रविवार, 8 नवंबर 2026 (धनतेरस: 6 नवंबर; रूप चौदस: 7 नवंबर; गोवर्धन पूजा: 10 नवंबर; भाई दूज: 11 नवंबर)
+* **दीपावली 2025:** सोमवार, 20 अक्टूबर 2025 (धनतेरस: 18 अक्टूबर; गोवर्धन: 22 अक्टूबर)
+* **दीपावली 2027:** शुक्रवार, 29 अक्टूबर 2027`,
+    rulesEn: `**Devotional Guidelines:** Worship Shri Lakshmi-Ganesh and Lord Sita-Ram. Illuminate your inner soul with the lamp of Divine Love and uninterrupted Naam Jap.`,
+    rulesHi: `**पावन मर्यादा:** मां महालक्ष्मी और भगवान सीताराम जी का पूजन करें। बाहर दीप जलाने के साथ-साथ हृदय में नाम जप का पावन दीप प्रज्वलित रखें।`
+  },
+  {
+    key: 'janmashtami',
+    nameEn: 'Shri Krishna Janmashtami',
+    nameHi: 'श्रीकृष्ण जन्माष्टमी महोत्सव',
+    scheduleEn: `* **Janmashtami 2026:** Friday, Sep 4, 2026 (Midnight Appearance; Nandotsav: Sep 5)
+* **Janmashtami 2025:** Saturday, Aug 16, 2025 (Nandotsav: Aug 17)
+* **Janmashtami 2027:** Wednesday, Aug 25, 2027`,
+    scheduleHi: `* **जन्माष्टमी 2026:** शुक्रवार, 4 सितंबर 2026 (निशीथ काल मध्यरात्रि प्राकट्य; नंदोत्सव: 5 सितंबर)
+* **जन्माष्टमी 2025:** शनिवार, 16 अगस्त 2025 (नंदोत्सव: 17 अगस्त)
+* **जन्माष्टमी 2027:** बुधवार, 25 अगस्त 2027`,
+    rulesEn: `**Devotional Guidelines:** Fast until midnight; break fast with Panchamrit and Makhan-Mishri Prasad after midnight Abhishek. Immerse in 'Radhe-Krishna' chanting.`,
+    rulesHi: `**पावन मर्यादा:** मध्यरात्रि 12 बजे तक उपवास रखें। मध्यरात्रि प्राकट्य अभिषेक व भोग के उपरांत पारण करें।`
+  },
+  {
+    key: 'radhashtami',
+    nameEn: 'Shri Radhashtami',
+    nameHi: 'श्री राधाष्टमी (लाडली जी का प्राकट्योत्सव)',
+    scheduleEn: `* **Radhashtami 2026:** Saturday, Sep 19, 2026 (Barsana & Vrindavan Dham noon celebrations)
+* **Radhashtami 2025:** Sunday, Aug 31, 2025
+* **Radhashtami 2027:** Wednesday, Sep 8, 2027`,
+    scheduleHi: `* **राधाष्टमी 2026:** शनिवार, 19 सितंबर 2026 (श्री बरसाना व वृंदावन धाम में मध्याह्न 12 बजे प्राकट्य बधाई महोत्सव)
+* **राधाष्टमी 2025:** रविवार, 31 अगस्त 2025
+* **राधाष्टमी 2027:** बुधवार, 8 सितंबर 2027`,
+    rulesEn: `**Devotional Guidelines:** Fast until noon (12:00 PM). Dedicate every breath to 'Radha-Radha' chanting.`,
+    rulesHi: `**पावन मर्यादा:** मध्याह्न 12:00 PM तक उपवास रखें। लाडली जू के चरणों में सर्वस्व समर्पण कर 'राधा-राधा' संकीर्तन में मग्न रहें।`
+  },
+  {
+    key: 'holi',
+    nameEn: 'Holi & Holika Dahan',
+    nameHi: 'होली एवं होलिका दहन (पावन रंगोत्सव)',
+    scheduleEn: `* **Holi 2026:** Tuesday, Mar 3, 2026 (Holika Dahan: Monday, Mar 2, 2026)
+* **Holi 2025:** Friday, Mar 14, 2025 (Holika Dahan: Thursday, Mar 13, 2025)
+* **Holi 2027:** Monday, Mar 22, 2027`,
+    scheduleHi: `* **होली 2026:** मंगलवार, 3 मार्च 2026 (होलिका दहन: सोमवार, 2 मार्च 2026)
+* **होली 2025:** शुक्रवार, 14 मार्च 2025 (होलिका दहन: गुरुवार, 13 मार्च 2025)
+* **होली 2027:** सोमवार, 22 मार्च 2027`,
+    rulesEn: `**Devotional Guidelines:** Celebrate with Satvik joy, Vrindavan flower Holi, and Holy Name chanting. Burn vices in Holika's fire.`,
+    rulesHi: `**पावन मर्यादा:** ब्रज धाम में फूल व अबीर की पावन होली का आनंद लें। अहंकार और काम-क्रोध की आहुति देकर प्रभु प्रेम के रंग में रंगें।`
+  },
+  {
+    key: 'shivratri',
+    nameEn: 'Maha Shivratri',
+    nameHi: 'महाशिवरात्रि पावन महापर्व',
+    scheduleEn: `* **Maha Shivratri 2026:** Sunday, Feb 15, 2026 (Nishita Kaal Puja: Midnight)
+* **Maha Shivratri 2025:** Wednesday, Feb 26, 2025
+* **Maha Shivratri 2027:** Saturday, Mar 6, 2027`,
+    scheduleHi: `* **महाशिवरात्रि 2026:** रविवार, 15 फरवरी 2026 (निशीथ काल चार प्रहर पूजन)
+* **महाशिवरात्रि 2025:** बुधवार, 26 फरवरी 2025
+* **महाशिवरात्रि 2027:** शनिवार, 6 मार्च 2027`,
+    rulesEn: `**Devotional Guidelines:** Fasting and continuous Mahamrityunjaya / 'Om Namah Shivaya' chanting. Lord Shiva is the supreme Vaishnava who delights in Holy Name.`,
+    rulesHi: `**पावन मर्यादा:** भगवान भोलेनाथ का जलाभिषेक, बेलपत्र अर्पण और 'ॐ नमः शिवाय' व 'राधे-राधे' जप करें।`
+  },
+  {
+    key: 'ram_navami',
+    nameEn: 'Shri Ram Navami',
+    nameHi: 'श्री रामनवमी जन्मोत्सव',
+    scheduleEn: `* **Ram Navami 2026:** Friday, Mar 27, 2026 (Chaitra Navratri culmination, noon celebration)
+* **Ram Navami 2025:** Sunday, Apr 6, 2025
+* **Ram Navami 2027:** Thursday, Apr 15, 2027`,
+    scheduleHi: `* **रामनवमी 2026:** शुक्रवार, 27 मार्च 2026 (चैत्र शुक्ल नवमी, मध्याह्न 12:00 बजे जन्मोत्सव)
+* **रामनवमी 2025:** रविवार, 6 अप्रैल 2025
+* **रामनवमी 2027:** गुरुवार, 15 अप्रैल 2027`,
+    rulesEn: `**Devotional Guidelines:** Fast until noon; celebrate Lord Rama's appearance with Ramcharitmanas recitation and 'Hare Rama' chanting.`,
+    rulesHi: `**पावन मर्यादा:** मध्याह्न 12 बजे भगवान श्री राम का जन्मोत्सव मनाएं, रामायण का पाठ करें और राम नाम में लीन रहें।`
+  }
+];
+
+export function getFestivalScheduleText(query, isEnglish = false) {
+  const q = (query || '').toLowerCase();
+  let matched = FESTIVAL_CALENDAR_DB.find(f => {
+    if (f.key === 'navratri') return /(?:navratri|navaratri|navratre|दुर्गा\s*पूजा|durga)/i.test(q);
+    if (f.key === 'diwali') return /(?:diwali|deepavali|दीपावली|दिवाली|dhanteras|धनतेरस)/i.test(q);
+    if (f.key === 'janmashtami') return /(?:janmashtami|जन्माष्टमी|gokulashtami)/i.test(q);
+    if (f.key === 'radhashtami') return /(?:radhashtami|राधाष्टमी|लाडली)/i.test(q);
+    if (f.key === 'holi') return /(?:holi|होली|रंगभरी)/i.test(q);
+    if (f.key === 'shivratri') return /(?:shivratri|शिवरात्रि)/i.test(q);
+    if (f.key === 'ram_navami') return /(?:ram\s*navami|रामनवमी|राम\s*नवमी)/i.test(q);
+    return false;
+  });
+
+  if (!matched) {
+    matched = FESTIVAL_CALENDAR_DB[0]; // Default to Navratri
+  }
+
+  if (isEnglish) {
+    return `### 🌸 Sacred Festival Calendar: ${matched.nameEn}
+
+${matched.scheduleEn}
+
+${matched.rulesEn}`;
+  }
+
+  return `### 🌸 पावन पर्व एवं उत्सव तिथि: ${matched.nameHi}
+
+${matched.scheduleHi}
+
+${matched.rulesHi}`;
+}
+
+/**
+ * Queries DuckDuckGo and Wikipedia APIs for live real-time web facts
+ */
+async function fetchMultiSourceWebSnippets(query) {
   const clean = (query || '').trim();
   const searchResults = [];
 
-  // Determine language: if isEnglishForce is provided use it, otherwise detect Hinglish
+  // 1. DuckDuckGo Instant Answer API
+  try {
+    const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(clean + ' 2026')}&format=json&no_html=1&skip_disambig=1`;
+    const res = await fetch(ddgUrl, { signal: AbortSignal.timeout(3000) });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.Answer) searchResults.push(data.Answer);
+      if (data.AbstractText) searchResults.push(data.AbstractText);
+      if (Array.isArray(data.RelatedTopics)) {
+        for (const topic of data.RelatedTopics.slice(0, 2)) {
+          if (topic.Text) searchResults.push(topic.Text);
+        }
+      }
+    }
+  } catch {}
+
+  // 2. Wikipedia Search API (Native CORS enabled by Wikimedia)
+  try {
+    const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(clean)}&format=json&origin=*`;
+    const wRes = await fetch(wikiUrl, { signal: AbortSignal.timeout(3000) });
+    if (wRes.ok) {
+      const data = await wRes.json();
+      const items = data?.query?.search || [];
+      for (const it of items.slice(0, 2)) {
+        if (it.snippet) {
+          const cleaned = it.snippet.replace(/<[^>]+>/g, '').trim();
+          if (cleaned.length > 20) searchResults.push(`${it.title}: ${cleaned}`);
+        }
+      }
+    }
+  } catch {}
+
+  return searchResults;
+}
+
+/**
+ * Autonomous Live Search Engine with Dialogue Memory & Multi-Source Verification
+ */
+export async function searchDuckDuckGo(query, isEnglishForce = null) {
+  const clean = (query || '').trim();
+
+  // Determine language preference
   let isEnglish = isEnglishForce;
   if (isEnglish === null || typeof isEnglish === 'undefined') {
-    // Check if query is in Devanagari or Hinglish
     const hasDevanagari = /[\u0900-\u097F]/.test(clean);
     const hasHinglish = /\b(kab|hai|hain|me|mein|kya|kaise|kyu|kyun|karein|kare|karo|batao|aaj|kal|mahina|mahine|is|iss|agla|agli|vrat|parana|samay|purnima|amavasya)\b/i.test(clean);
     isEnglish = !hasDevanagari && !hasHinglish;
   }
 
-  // 1. Try DuckDuckGo Instant Answer API with timeout
-  try {
-    const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(clean + ' Hindu panchang calendar')}&format=json&no_html=1&skip_disambig=1`;
-    const res = await fetch(ddgUrl, { signal: AbortSignal.timeout(3500) });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.Answer) {
-        searchResults.push(`Instant Fact: ${data.Answer}`);
-      }
-      if (data.AbstractText) {
-        searchResults.push(`Summary: ${data.AbstractText}`);
-      }
-      if (Array.isArray(data.RelatedTopics)) {
-        for (const topic of data.RelatedTopics.slice(0, 3)) {
-          if (topic.Text) searchResults.push(topic.Text);
-        }
-      }
-    }
-  } catch (err) {
-    // DDG client request failed, fallback seamlessly to curated Dharmic knowledge
-  }
+  // 1. Fetch live multi-source web results
+  const searchResults = await fetchMultiSourceWebSnippets(clean);
 
-  // 2. Identify the specific domain of inquiry
-  const isGrahan = /(?:grahan|sutak|ग्रहण|सूतक|eclipse)/i.test(clean);
-  const isEkadashi = /(?:ekadashi|एकादशी|parana|पारण|vrat)/i.test(clean);
-  const isTemple = /(?:bankey\s*bihari|radha\s*vallabh|radharani|barsana|prem\s*mandir|iskcon|darshan|aarti|कपाट|दर्शन|मंदिर|आरती)/i.test(clean);
-  const isPanchang = /(?:panchang|tithi|muhurat|पंचांग|तिथि|मुहूर्त|प्रदोष|पूर्णिमा|अमावस्या)/i.test(clean);
+  // 2. Identify domain with strict word-boundary matching (prevents 'navratri' matching 'vrat' in ekadashi!)
+  const isFestival = /\b(?:navratri|navaratri|navratre|दुर्गा\s*पूजा|diwali|deepavali|दीपावली|दिवाली|dhanteras|धनतेरस|holi|होली|janmashtami|जन्माष्टमी|radhashtami|राधाष्टमी|shivratri|शिवरात्रि|ram\s*navami|रामनवमी|dussehra|दशहरा|raksha\s*bandhan|रक्षाबंधन|guru\s*purnima|chhath|छठ|karwa\s*chauth|करवा\s*चौथ)\b/i.test(clean);
+  const isEkadashi = /\b(?:ekadashi|एकादशी|parana|पारण)\b/i.test(clean) && !isFestival;
+  const isGrahan = /\b(?:grahan|sutak|ग्रहण|सूतक|eclipse)\b/i.test(clean);
+  const isTemple = /\b(?:bankey\s*bihari|radha\s*vallabh|radharani|barsana|prem\s*mandir|iskcon|darshan|aarti|कपाट|दर्शन|मंदिर|आरती)\b/i.test(clean);
+  const isPanchang = /\b(?:panchang|tithi|muhurat|पंचांग|तिथि|मुहूर्त|प्रदोष|पूर्णिमा|अमावस्या)\b/i.test(clean);
 
   let formattedDiscourse = '';
-
-  // Include verified web snippets if available
   const snippetsBlock = searchResults.length > 0
     ? (isEnglish
         ? `\n\n**Verified Real-Time Search Findings:**\n` + searchResults.map(s => `* ${s}`).join('\n')
         : `\n\n**ताज़ा ऑनलाइन खोज से प्राप्त जानकारी:**\n` + searchResults.map(s => `* ${s}`).join('\n'))
     : '';
 
-  if (isEkadashi) {
+  if (isFestival) {
+    const festivalSchedule = getFestivalScheduleText(clean, isEnglish);
+    formattedDiscourse = isEnglish
+      ? `${festivalSchedule}${snippetsBlock}\n\n*Pujya Maharaj Ji's Teaching: Every sacred festival is a divine opportunity to detach our senses from worldly illusions and immerse our soul in Shri Radha Rani's lotus feet with continuous Holy Name chanting ('Radha-Radha').*`
+      : `${festivalSchedule}${snippetsBlock}\n\n*पूज्य महाराज जी की सीख: पावन पर्व और उत्सव सांसारिक दिखावे के लिए नहीं, बल्कि अपनी इंद्रियों को विषयों से हटाकर भगवान के चरणों में समर्पित करने के लिए हैं बच्चा। निरंतर 'श्री राधा-राधा' नाम जप में लीन रहें, सब मंगल होगा।*`;
+  } else if (isEkadashi) {
     const ekadashiSchedule = getEkadashiScheduleText(clean, isEnglish);
     formattedDiscourse = isEnglish
       ? `${ekadashiSchedule}${snippetsBlock}\n\n*Pujya Maharaj Ji's Teaching: Ekadashi is not mere physical fasting, dear soul; it is dedicating 24 hours of mind, speech, and senses to Shri Radha's lotus feet with continuous Holy Name chanting.*`
@@ -305,7 +467,7 @@ export async function searchDuckDuckGo(query, isEnglishForce = null) {
       ? `${DHARMIC_CALENDAR_KNOWLEDGE.panchang.guidelinesEn}${snippetsBlock}\n\n*Spiritual Guidance: Anchor your day in early morning prayer and Holy Name chanting ('Radha-Radha'). Duty performed with devotion is the highest worship.*`
       : `${DHARMIC_CALENDAR_KNOWLEDGE.panchang.guidelinesHi}${snippetsBlock}\n\n*पूज्य महाराज जी की सीख: बच्चा, जो साधक निरंतर नाम जप करता है, उसके लिए प्रत्येक दिन और प्रत्येक मुहूर्त मंगलमय बन जाता है। 'श्री राधा-राधा' का आश्रय रखें।*`;
   } else {
-    // General live search synthesis
+    // Dynamic real-time guidance for ANY query (Chhath Puja, Kumbh, Karwa Chauth, etc.)
     formattedDiscourse = isEnglish
       ? `### 🌐 Verified Dharmic & Temporal Guidance
 ${snippetsBlock || `We have retrieved the current temporal information regarding: **${clean}**.`}

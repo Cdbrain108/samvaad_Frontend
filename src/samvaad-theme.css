@@ -7110,62 +7110,57 @@ select:focus-visible,
     justify-content: center !important;
   }
 
-  /* Hide Deep/Fast mode toggle on mobile — replaced by Day/Night switch */
-  .topbar-center .desktop-only-mode-toggle,
+  /* Center: Deep/Fast mode toggle pill on mobile */
   .topbar-center .mode-toggle-group {
-    display: none !important;
-  }
-
-  /* Mobile-only Day/Night segmented theme switch in center */
-  .mobile-theme-switch-group {
     display: inline-flex !important;
     align-items: center !important;
     gap: 3px !important;
     padding: 3px !important;
-    background: rgba(0, 0, 0, 0.45) !important;
-    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    background: rgba(15, 23, 42, 0.65) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
     border-radius: 999px !important;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35) !important;
     flex-shrink: 0 !important;
+    backdrop-filter: blur(8px) !important;
   }
 
-  :root[data-theme='light'] .mobile-theme-switch-group {
-    background: rgba(245, 158, 11, 0.1) !important;
-    border: 1px solid rgba(217, 119, 6, 0.24) !important;
+  :root[data-theme='light'] .topbar-center .mode-toggle-group {
+    background: rgba(245, 158, 11, 0.12) !important;
+    border: 1px solid rgba(217, 119, 6, 0.28) !important;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
   }
 
-  .mobile-theme-btn {
+  .topbar-center .mode-pill-btn {
     border: none !important;
     background: transparent !important;
-    padding: 5px 12px !important;
+    padding: 4px 10px !important;
     border-radius: 999px !important;
-    font-size: 0.78rem !important;
+    font-size: 0.76rem !important;
     font-weight: 600 !important;
-    color: rgba(255, 255, 255, 0.6) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 4px !important;
+    gap: 3px !important;
     cursor: pointer !important;
     transition: all 0.18s ease !important;
     white-space: nowrap !important;
     line-height: 1 !important;
   }
 
-  :root[data-theme='light'] .mobile-theme-btn {
+  :root[data-theme='light'] .topbar-center .mode-pill-btn {
     color: #92400e !important;
   }
 
-  .mobile-theme-btn.active {
-    background: rgba(255, 255, 255, 0.18) !important;
+  .topbar-center .mode-pill-btn.active {
+    background: rgba(255, 255, 255, 0.22) !important;
     color: #ffffff !important;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3) !important;
   }
 
-  :root[data-theme='light'] .mobile-theme-btn.active {
+  :root[data-theme='light'] .topbar-center .mode-pill-btn.active {
     background: #d97706 !important;
     color: #ffffff !important;
-    box-shadow: 0 1px 4px rgba(217, 119, 6, 0.35) !important;
+    box-shadow: 0 1px 5px rgba(217, 119, 6, 0.35) !important;
   }
 
   /* Right Anchor: Action buttons (🔊 Auto-speak + 🎤 Voice) - perfectly spaced */
@@ -11057,19 +11052,121 @@ select:focus-visible,
   .topbar-actions {
     display: flex !important;
     align-items: center !important;
-    gap: 8px !important;
+    gap: 6px !important;
     margin-left: auto !important;
     min-width: 0 !important;
     z-index: 6 !important;
   }
-  .mobile-theme-switch-group {
+
+  /* Mobile Mode Toggle Group in Topbar Center */
+  .topbar-center .mode-toggle-group,
+  .mode-toggle-group {
     display: inline-flex !important;
     align-items: center !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
+    gap: 2px !important;
+    padding: 2px !important;
+    background: rgba(15, 23, 42, 0.72) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: 999px !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35) !important;
+    flex-shrink: 0 !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
   }
-  .mobile-theme-btn { flex-shrink: 0 !important; min-width: 0 !important; }
-  .mobile-theme-btn-text { white-space: nowrap !important; }
+
+  :root[data-theme='light'] .topbar-center .mode-toggle-group,
+  :root[data-theme='light'] .mode-toggle-group {
+    background: rgba(254, 243, 199, 0.75) !important;
+    border: 1px solid rgba(217, 119, 6, 0.28) !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .mode-pill-btn {
+    border: none !important;
+    background: transparent !important;
+    padding: 5px 10px !important;
+    border-radius: 999px !important;
+    font-size: 0.76rem !important;
+    font-weight: 600 !important;
+    color: rgba(255, 255, 255, 0.68) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    cursor: pointer !important;
+    transition: all 0.18s ease !important;
+    white-space: nowrap !important;
+    line-height: 1 !important;
+  }
+
+  :root[data-theme='light'] .mode-pill-btn {
+    color: #92400e !important;
+  }
+
+  .mode-pill-btn.active {
+    background: rgba(255, 255, 255, 0.22) !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  :root[data-theme='light'] .mode-pill-btn.active {
+    background: #d97706 !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 5px rgba(217, 119, 6, 0.35) !important;
+  }
+
+  /* Mobile Day/Night Theme Pill in Topbar Actions */
+  .chat-theme-toggle {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 2px !important;
+    padding: 2px !important;
+    background: rgba(15, 23, 42, 0.72) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: 999px !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35) !important;
+    flex-shrink: 0 !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
+  :root[data-theme='light'] .chat-theme-toggle {
+    background: rgba(254, 243, 199, 0.75) !important;
+    border: 1px solid rgba(217, 119, 6, 0.28) !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .theme-pill-opt {
+    border: none !important;
+    background: transparent !important;
+    padding: 5px 8px !important;
+    border-radius: 999px !important;
+    font-size: 0.74rem !important;
+    font-weight: 600 !important;
+    color: rgba(255, 255, 255, 0.65) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    cursor: pointer !important;
+    transition: all 0.18s ease !important;
+    white-space: nowrap !important;
+    line-height: 1 !important;
+  }
+
+  :root[data-theme='light'] .theme-pill-opt {
+    color: #92400e !important;
+  }
+
+  .theme-pill-opt.is-active {
+    background: rgba(255, 255, 255, 0.22) !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  :root[data-theme='light'] .theme-pill-opt.is-active {
+    background: #d97706 !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 4px rgba(217, 119, 6, 0.35) !important;
+  }
 
   /* B. Chatpage Response Message Box: Perfect dedicated card container with safe internal breathing room */
   .content-area {
@@ -11226,18 +11323,56 @@ select:focus-visible,
   }
 }
 
-/* Very small phones: shrink topbar so centered Day/Night never overlaps */
-@media (max-width: 380px) {
+/* Responsive Topbar on Phones (<= 480px) */
+@media (max-width: 480px) {
   .topbar { padding-inline: 10px !important; }
   .topbar-left { gap: 6px !important; }
   .topbar-actions { gap: 6px !important; }
   .topbar-left .icon-button,
   .topbar-left .menu-button,
   .topbar-left .home-topbar-btn { width: 34px !important; height: 34px !important; }
-  .topbar-actions .icon-button { width: 34px !important; height: 34px !important; }
-  .mobile-theme-switch-group { gap: 2px !important; padding: 2px !important; }
-  .mobile-theme-btn { padding: 4px 8px !important; font-size: 0.72rem !important; }
-  .assistant-message-body { padding: 14px 14px 12px 14px !important; border-radius: 16px !important; }
+  .theme-pill-text { display: none !important; } /* On <= 480px, display ☀️ and 🌙 directly for maximum breathing space */
+  .mode-pill-btn { padding: 4px 8px !important; font-size: 0.72rem !important; }
+  .theme-pill-opt { padding: 4px 7px !important; font-size: 0.72rem !important; }
+
+  /* Dynamic Chatbar on mobile: securely anchored, thumb-friendly, immune to iOS zoom */
+  .composer-wrap {
+    width: calc(100% - 16px) !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+    padding: 4px 0 max(8px, env(safe-area-inset-bottom, 8px)) !important;
+  }
+  .composer textarea {
+    font-size: 16px !important; /* CRITICAL: Prevents iOS Safari unwanted zoom */
+    line-height: 1.4 !important;
+    padding: 10px 46px 10px 14px !important;
+    min-height: 42px !important;
+    border-radius: 22px !important;
+  }
+  .composer .send-button {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    border-radius: 50% !important;
+  }
+}
+
+/* Very small phones (<= 380px): ultra-compact layout */
+@media (max-width: 380px) {
+  .topbar { padding-inline: 8px !important; }
+  .topbar-left { gap: 4px !important; }
+  .topbar-actions { gap: 4px !important; }
+  .topbar-left .icon-button,
+  .topbar-left .menu-button,
+  .topbar-left .home-topbar-btn { width: 32px !important; height: 32px !important; }
+  .mode-pill-btn { padding: 3px 6px !important; font-size: 0.70rem !important; gap: 2px !important; }
+  .theme-pill-opt { padding: 3px 6px !important; font-size: 0.70rem !important; }
+  .assistant-message-body { padding: 14px 12px 12px 12px !important; border-radius: 16px !important; }
+}
+
+@media (max-width: 330px) {
+  .mode-pill-btn-label-text { display: none !important; } /* Only show 🧘 and ⚡ on ultra-narrow screens */
 }
 
 /* ═════════════════════════════════════════════════════════════════════
@@ -11585,9 +11720,7 @@ select:focus-visible,
    MOBILE VIEWPORT: DEDICATED SACRED CARD BOX (PRESERVED AS PRAISED)
    ═════════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  .chat-theme-toggle {
-    display: none !important;
-  }
+  /* chat-theme-toggle is kept visible and styled in topbar-actions */
 
   html:root[data-theme] .main-panel .messages .message.assistant,
   html:root .main-panel .messages .message.assistant {
