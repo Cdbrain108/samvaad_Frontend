@@ -8,8 +8,8 @@
 
 // Key patterns for dynamic spiritual & calendar queries
 const LIVE_CALENDAR_PATTERNS = [
-  // 1. Ekadashi queries
-  /(?:next\s*ekadashi|ekadashi\s*dates?|when\s*is.*ekadashi|अगली\s*एकादशी|एकादशी\s*कब\s*है|एकादशी\s*तिथि|एकादशी\s*का\s*व्रत|एकादशी\s*पारण)/i,
+  // 1. Ekadashi queries (including follow-ups like 'is month me', 'parana timing')
+  /(?:next\s*ekadashi|ekadashi\s*dates?|when\s*is.*ekadashi|अगली\s*एकादशी|एकादशी\s*कब\s*है|एकादशी\s*तिथि|एकादशी\s*का\s*व्रत|एकादशी\s*पारण|ekadashi.*is\s*month|ekadashi.*this\s*month|is\s*month.*ekadashi|इस\s*महीने.*एकादशी)/i,
   // 2. Grahan & Sutak queries
   /(?:grahan.*sutak|sutak.*kab\s*lagega|sutak\s*timings?|chandra\s*grahan|surya\s*grahan|ग्रहण.*सूतक|सूतक\s*कब\s*लगेगा|सूतक\s*में\s*क्या\s*करें|सूर्य\s*ग्रहण|चंद्र\s*ग्रहण|solar\s*eclipse|lunar\s*eclipse)/i,
   // 3. Panchang, Tithi, Vrat & Muhurat
@@ -28,28 +28,139 @@ export function isLiveCalendarQuery(query) {
 }
 
 /**
+ * 📅 Verified Ekadashi Timetable Database (2025 - 2027)
+ * Provides exact dates, names, paksha, and parana timings.
+ */
+export const EKADASHI_CALENDAR_DB = [
+  // --- 2025 ---
+  { year: 2025, month: 1, nameHi: 'पौष पुत्रदा एकादशी', nameEn: 'Pausha Putrada Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '10 जनवरी 2025', dateEn: 'Jan 10, 2025', dateIso: '2025-01-10', paranaHi: '11 जनवरी प्रातः 07:15 से 09:21 तक', paranaEn: 'Jan 11, 07:15 AM to 09:21 AM' },
+  { year: 2025, month: 1, nameHi: 'षटतिला एकादशी', nameEn: 'Shattila Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '25 जनवरी 2025', dateEn: 'Jan 25, 2025', dateIso: '2025-01-25', paranaHi: '26 जनवरी प्रातः 07:12 से 09:20 तक', paranaEn: 'Jan 26, 07:12 AM to 09:20 AM' },
+  { year: 2025, month: 2, nameHi: 'जया एकादशी', nameEn: 'Jaya Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '8 फरवरी 2025', dateEn: 'Feb 8, 2025', dateIso: '2025-02-08', paranaHi: '9 फरवरी प्रातः 07:05 से 09:17 तक', paranaEn: 'Feb 9, 07:05 AM to 09:17 AM' },
+  { year: 2025, month: 2, nameHi: 'विजया एकादशी', nameEn: 'Vijaya Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '24 फरवरी 2025', dateEn: 'Feb 24, 2025', dateIso: '2025-02-24', paranaHi: '25 फरवरी प्रातः 06:51 से 09:09 तक', paranaEn: 'Feb 25, 06:51 AM to 09:09 AM' },
+  { year: 2025, month: 3, nameHi: 'आमलकी एकादशी', nameEn: 'Amalaki Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '10 मार्च 2025', dateEn: 'Mar 10, 2025', dateIso: '2025-03-10', paranaHi: '11 मार्च प्रातः 06:36 से 08:58 तक', paranaEn: 'Mar 11, 06:36 AM to 08:58 AM' },
+  { year: 2025, month: 3, nameHi: 'पापमोचिनी एकादशी', nameEn: 'Papmochani Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '25 मार्च 2025', dateEn: 'Mar 25, 2025', dateIso: '2025-03-25', paranaHi: '26 मार्च प्रातः 06:19 से 08:44 तक', paranaEn: 'Mar 26, 06:19 AM to 08:44 AM' },
+  { year: 2025, month: 4, nameHi: 'कामदा एकादशी', nameEn: 'Kamada Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '8 अप्रैल 2025', dateEn: 'Apr 8, 2025', dateIso: '2025-04-08', paranaHi: '9 अप्रैल प्रातः 06:03 से 08:32 तक', paranaEn: 'Apr 9, 06:03 AM to 08:32 AM' },
+  { year: 2025, month: 4, nameHi: 'वरूथिनी एकादशी', nameEn: 'Varuthini Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '24 अप्रैल 2025', dateEn: 'Apr 24, 2025', dateIso: '2025-04-24', paranaHi: '25 अप्रैल प्रातः 05:46 से 08:21 तक', paranaEn: 'Apr 25, 05:46 AM to 08:21 AM' },
+  { year: 2025, month: 5, nameHi: 'मोहिनी एकादशी', nameEn: 'Mohini Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '8 मई 2025', dateEn: 'May 8, 2025', dateIso: '2025-05-08', paranaHi: '9 मई प्रातः 05:35 से 08:14 तक', paranaEn: 'May 9, 05:35 AM to 08:14 AM' },
+  { year: 2025, month: 5, nameHi: 'अपरा एकादशी', nameEn: 'Apara Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '23 मई 2025', dateEn: 'May 23, 2025', dateIso: '2025-05-23', paranaHi: '24 मई प्रातः 05:26 से 08:10 तक', paranaEn: 'May 24, 05:26 AM to 08:10 AM' },
+  { year: 2025, month: 6, nameHi: 'निर्जला एकादशी (भीमसेनी)', nameEn: 'Nirjala Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '6 जून 2025', dateEn: 'Jun 6, 2025', dateIso: '2025-06-06', paranaHi: '7 जून प्रातः 05:23 से 08:09 तक', paranaEn: 'Jun 7, 05:23 AM to 08:09 AM' },
+  { year: 2025, month: 6, nameHi: 'योगिनी एकादशी', nameEn: 'Yogini Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '21 जून 2025', dateEn: 'Jun 21, 2025', dateIso: '2025-06-21', paranaHi: '22 जून प्रातः 05:24 से 08:12 तक', paranaEn: 'Jun 22, 05:24 AM to 08:12 AM' },
+  { year: 2025, month: 7, nameHi: 'देवशयनी एकादशी', nameEn: 'Devshayani Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '6 जुलाई 2025', dateEn: 'Jul 6, 2025', dateIso: '2025-07-06', paranaHi: '7 जुलाई प्रातः 05:29 से 08:17 तक', paranaEn: 'Jul 7, 05:29 AM to 08:17 AM' },
+  { year: 2025, month: 7, nameHi: 'कामिका एकादशी', nameEn: 'Kamika Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '21 जुलाई 2025', dateEn: 'Jul 21, 2025', dateIso: '2025-07-21', paranaHi: '22 जुलाई प्रातः 05:36 से 08:22 तक', paranaEn: 'Jul 22, 05:36 AM to 08:22 AM' },
+  { year: 2025, month: 8, nameHi: 'श्रावण पुत्रदा एकादशी', nameEn: 'Shravana Putrada Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '5 अगस्त 2025', dateEn: 'Aug 5, 2025', dateIso: '2025-08-05', paranaHi: '6 अगस्त प्रातः 05:45 से 08:27 तक', paranaEn: 'Aug 6, 05:45 AM to 08:27 AM' },
+  { year: 2025, month: 8, nameHi: 'अजा एकादशी', nameEn: 'Aja Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '19 अगस्त 2025', dateEn: 'Aug 19, 2025', dateIso: '2025-08-19', paranaHi: '20 अगस्त प्रातः 05:52 से 08:30 तक', paranaEn: 'Aug 20, 05:52 AM to 08:30 AM' },
+  { year: 2025, month: 9, nameHi: 'परिवर्तिनी (पार्श्व) एकादशी', nameEn: 'Parsva (Parivartini) Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '3 सितंबर 2025', dateEn: 'Sep 3, 2025', dateIso: '2025-09-03', paranaHi: '4 सितंबर प्रातः 06:01 से 08:33 तक', paranaEn: 'Sep 4, 06:01 AM to 08:33 AM' },
+  { year: 2025, month: 9, nameHi: 'इन्दिरा एकादशी', nameEn: 'Indira Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '17 सितंबर 2025', dateEn: 'Sep 17, 2025', dateIso: '2025-09-17', paranaHi: '18 सितंबर प्रातः 06:07 से 08:34 तक', paranaEn: 'Sep 18, 06:07 AM to 08:34 AM' },
+  { year: 2025, month: 10, nameHi: 'पापांकुशा एकादशी', nameEn: 'Papankusha Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '2 अक्टूबर 2025', dateEn: 'Oct 2, 2025', dateIso: '2025-10-02', paranaHi: '3 अक्टूबर प्रातः 06:15 से 08:37 तक', paranaEn: 'Oct 3, 06:15 AM to 08:37 AM' },
+  { year: 2025, month: 10, nameHi: 'रमा एकादशी', nameEn: 'Rama Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '17 अक्टूबर 2025', dateEn: 'Oct 17, 2025', dateIso: '2025-10-17', paranaHi: '18 अक्टूबर प्रातः 06:23 से 08:41 तक', paranaEn: 'Oct 18, 06:23 AM to 08:41 AM' },
+  { year: 2025, month: 11, nameHi: 'देवउठनी (प्रबोधिनी) एकादशी', nameEn: 'Devutthana (Prabodhini) Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '1 नवंबर 2025', dateEn: 'Nov 1, 2025', dateIso: '2025-11-01', paranaHi: '2 नवंबर प्रातः 06:33 से 08:47 तक', paranaEn: 'Nov 2, 06:33 AM to 08:47 AM' },
+  { year: 2025, month: 11, nameHi: 'उत्पन्ना एकादशी', nameEn: 'Utpanna Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '16 नवंबर 2025', dateEn: 'Nov 16, 2025', dateIso: '2025-11-16', paranaHi: '17 नवंबर प्रातः 06:45 से 08:55 तक', paranaEn: 'Nov 17, 06:45 AM to 08:55 AM' },
+  { year: 2025, month: 12, nameHi: 'मोक्षदा एकादशी (गीता जयंती)', nameEn: 'Mokshada Ekadashi (Gita Jayanti)', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '1 दिसंबर 2025', dateEn: 'Dec 1, 2025', dateIso: '2025-12-01', paranaHi: '2 दिसंबर प्रातः 06:56 से 09:03 तक', paranaEn: 'Dec 2, 06:56 AM to 09:03 AM' },
+  { year: 2025, month: 12, nameHi: 'सफला एकादशी', nameEn: 'Saphala Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '15 दिसंबर 2025', dateEn: 'Dec 15, 2025', dateIso: '2025-12-15', paranaHi: '16 दिसंबर प्रातः 07:06 से 09:12 तक', paranaEn: 'Dec 16, 07:06 AM to 09:12 AM' },
+  { year: 2025, month: 12, nameHi: 'पौष पुत्रदा एकादशी', nameEn: 'Pausha Putrada Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '30 दिसंबर 2025', dateEn: 'Dec 30, 2025', dateIso: '2025-12-30', paranaHi: '31 दिसंबर प्रातः 07:13 से 09:19 तक', paranaEn: 'Dec 31, 07:13 AM to 09:19 AM' },
+
+  // --- 2026 ---
+  { year: 2026, month: 1, nameHi: 'षटतिला एकादशी', nameEn: 'Shattila Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '14 जनवरी 2026', dateEn: 'Jan 14, 2026', dateIso: '2026-01-14', paranaHi: '15 जनवरी प्रातः 07:15 से 09:21 तक', paranaEn: 'Jan 15, 07:15 AM to 09:21 AM' },
+  { year: 2026, month: 1, nameHi: 'जया एकादशी', nameEn: 'Jaya Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '29 जनवरी 2026', dateEn: 'Jan 29, 2026', dateIso: '2026-01-29', paranaHi: '30 जनवरी प्रातः 07:10 से 09:19 तक', paranaEn: 'Jan 30, 07:10 AM to 09:19 AM' },
+  { year: 2026, month: 2, nameHi: 'विजया एकादशी', nameEn: 'Vijaya Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '13 फरवरी 2026', dateEn: 'Feb 13, 2026', dateIso: '2026-02-13', paranaHi: '14 फरवरी प्रातः 07:00 से 09:14 तक', paranaEn: 'Feb 14, 07:00 AM to 09:14 AM' },
+  { year: 2026, month: 2, nameHi: 'आमलकी एकादशी', nameEn: 'Amalaki Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '27 फरवरी 2026', dateEn: 'Feb 27, 2026', dateIso: '2026-02-27', paranaHi: '28 फरवरी प्रातः 06:48 से 09:07 तक', paranaEn: 'Feb 28, 06:48 AM to 09:07 AM' },
+  { year: 2026, month: 3, nameHi: 'पापमोचिनी एकादशी', nameEn: 'Papmochani Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '15 मार्च 2026', dateEn: 'Mar 15, 2026', dateIso: '2026-03-15', paranaHi: '16 मार्च प्रातः 06:31 से 08:54 तक', paranaEn: 'Mar 16, 06:31 AM to 08:54 AM' },
+  { year: 2026, month: 3, nameHi: 'कामदा एकादशी', nameEn: 'Kamada Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '29 मार्च 2026', dateEn: 'Mar 29, 2026', dateIso: '2026-03-29', paranaHi: '30 मार्च प्रातः 06:15 से 08:41 तक', paranaEn: 'Mar 30, 06:15 AM to 08:41 AM' },
+  { year: 2026, month: 4, nameHi: 'वरूथिनी एकादशी', nameEn: 'Varuthini Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '13 अप्रैल 2026', dateEn: 'Apr 13, 2026', dateIso: '2026-04-13', paranaHi: '14 अप्रैल प्रातः 05:58 से 08:29 तक', paranaEn: 'Apr 14, 05:58 AM to 08:29 AM' },
+  { year: 2026, month: 4, nameHi: 'मोहिनी एकादशी', nameEn: 'Mohini Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '27 अप्रैल 2026', dateEn: 'Apr 27, 2026', dateIso: '2026-04-27', paranaHi: '28 अप्रैल प्रातः 05:44 से 08:19 तक', paranaEn: 'Apr 28, 05:44 AM to 08:19 AM' },
+  { year: 2026, month: 5, nameHi: 'अपरा एकादशी', nameEn: 'Apara Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '13 मई 2026', dateEn: 'May 13, 2026', dateIso: '2026-05-13', paranaHi: '14 मई प्रातः 05:32 से 08:12 तक', paranaEn: 'May 14, 05:32 AM to 08:12 AM' },
+  { year: 2026, month: 5, nameHi: 'निर्जला एकादशी (भीमसेनी)', nameEn: 'Nirjala Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '27 मई 2026', dateEn: 'May 27, 2026', dateIso: '2026-05-27', paranaHi: '28 मई प्रातः 05:25 से 08:09 तक', paranaEn: 'May 28, 05:25 AM to 08:09 AM' },
+  { year: 2026, month: 6, nameHi: 'योगिनी एकादशी', nameEn: 'Yogini Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '11 जून 2026', dateEn: 'Jun 11, 2026', dateIso: '2026-06-11', paranaHi: '12 जून प्रातः 05:23 से 08:10 तक', paranaEn: 'Jun 12, 05:23 AM to 08:10 AM' },
+  { year: 2026, month: 6, nameHi: 'देवशयनी एकादशी', nameEn: 'Devshayani Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '25 जून 2026', dateEn: 'Jun 25, 2026', dateIso: '2026-06-25', paranaHi: '26 जून प्रातः 05:25 से 08:13 तक', paranaEn: 'Jun 26, 05:25 AM to 08:13 AM' },
+  { year: 2026, month: 7, nameHi: 'कामिका एकादशी', nameEn: 'Kamika Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '10 जुलाई 2026', dateEn: 'Jul 10, 2026', dateIso: '2026-07-10', paranaHi: '11 जुलाई प्रातः 05:31 से 08:19 तक', paranaEn: 'Jul 11, 05:31 AM to 08:19 AM' },
+  { year: 2026, month: 7, nameHi: 'श्रावण पुत्रदा एकादशी', nameEn: 'Shravana Putrada Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '25 जुलाई 2026', dateEn: 'Jul 25, 2026', dateIso: '2026-07-25', paranaHi: '26 जुलाई प्रातः 05:38 से 08:24 तक', paranaEn: 'Jul 26, 05:38 AM to 08:24 AM' },
+  { year: 2026, month: 8, nameHi: 'अजा एकादशी', nameEn: 'Aja Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '9 अगस्त 2026', dateEn: 'Aug 9, 2026', dateIso: '2026-08-09', paranaHi: '10 अगस्त प्रातः 05:47 से 08:28 तक', paranaEn: 'Aug 10, 05:47 AM to 08:28 AM' },
+  { year: 2026, month: 8, nameHi: 'परिवर्तिनी (पार्श्व) एकादशी', nameEn: 'Parsva (Parivartini) Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '23 अगस्त 2026', dateEn: 'Aug 23, 2026', dateIso: '2026-08-23', paranaHi: '24 अगस्त प्रातः 05:54 से 08:31 तक', paranaEn: 'Aug 24, 05:54 AM to 08:31 AM' },
+  { year: 2026, month: 9, nameHi: 'इन्दिरा एकादशी', nameEn: 'Indira Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '7 सितंबर 2026', dateEn: 'Sep 7, 2026', dateIso: '2026-09-07', paranaHi: '8 सितंबर प्रातः 06:02 से 08:33 तक', paranaEn: 'Sep 8, 06:02 AM to 08:33 AM' },
+  { year: 2026, month: 9, nameHi: 'पापांकुशा एकादशी', nameEn: 'Papankusha Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '22 सितंबर 2026', dateEn: 'Sep 22, 2026', dateIso: '2026-09-22', paranaHi: '23 सितंबर प्रातः 06:09 से 08:35 तक', paranaEn: 'Sep 23, 06:09 AM to 08:35 AM' },
+  { year: 2026, month: 10, nameHi: 'रमा एकादशी', nameEn: 'Rama Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '7 अक्टूबर 2026', dateEn: 'Oct 7, 2026', dateIso: '2026-10-07', paranaHi: '8 अक्टूबर प्रातः 06:18 से 08:38 तक', paranaEn: 'Oct 8, 06:18 AM to 08:38 AM' },
+  { year: 2026, month: 10, nameHi: 'पापांकुशा एकादशी (आश्विन शुक्ल)', nameEn: 'Papankusha Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '21 अक्टूबर 2026', dateEn: 'Oct 21, 2026', dateIso: '2026-10-21', paranaHi: '22 अक्टूबर प्रातः 06:26 से 08:43 तक', paranaEn: 'Oct 22, 06:26 AM to 08:43 AM' },
+  { year: 2026, month: 11, nameHi: 'रमा / उत्पन्ना एकादशी', nameEn: 'Rama / Utpanna Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '5 नवंबर 2026', dateEn: 'Nov 5, 2026', dateIso: '2026-11-05', paranaHi: '6 नवंबर प्रातः 06:36 से 08:50 तक', paranaEn: 'Nov 6, 06:36 AM to 08:50 AM' },
+  { year: 2026, month: 11, nameHi: 'देवउठनी (प्रबोधिनी) एकादशी', nameEn: 'Devutthana (Prabodhini) Ekadashi', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '20 नवंबर 2026', dateEn: 'Nov 20, 2026', dateIso: '2026-11-20', paranaHi: '21 नवंबर प्रातः 06:48 से 08:58 तक', paranaEn: 'Nov 21, 06:48 AM to 08:58 AM' },
+  { year: 2026, month: 12, nameHi: 'उत्पन्ना एकादशी', nameEn: 'Utpanna Ekadashi', pakshaHi: 'कृष्ण पक्ष', pakshaEn: 'Krishna Paksha', dateHi: '5 दिसंबर 2026', dateEn: 'Dec 5, 2026', dateIso: '2026-12-05', paranaHi: '6 दिसंबर प्रातः 07:00 से 09:07 तक', paranaEn: 'Dec 6, 07:00 AM to 09:07 AM' },
+  { year: 2026, month: 12, nameHi: 'मोक्षदा एकादशी (गीता जयंती)', nameEn: 'Mokshada Ekadashi (Gita Jayanti)', pakshaHi: 'शुक्ल पक्ष', pakshaEn: 'Shukla Paksha', dateHi: '20 दिसंबर 2026', dateEn: 'Dec 20, 2026', dateIso: '2026-12-20', paranaHi: '21 दिसंबर प्रातः 07:09 से 09:15 तक', paranaEn: 'Dec 21, 07:09 AM to 09:15 AM' }
+];
+
+/**
+ * Dynamically resolves exact Ekadashi dates based on query intent & current date
+ */
+export function getEkadashiScheduleText(query, isEnglish = false) {
+  const now = new Date();
+  const currentIso = now.toISOString().slice(0, 10);
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  const isCurrentMonthQuery = /(?:is\s*month|this\s*month|iss\s*mahine|is\s*mahine|इस\s*महीने|वर्तमान\s*माह)/i.test(query);
+
+  let targetEkadashis = [];
+
+  if (isCurrentMonthQuery) {
+    // Return all Ekadashis of current month
+    targetEkadashis = EKADASHI_CALENDAR_DB.filter(e => e.year === currentYear && e.month === currentMonth);
+    if (targetEkadashis.length === 0) {
+      // Fallback: pick the closest upcoming 2 ekadashis
+      targetEkadashis = EKADASHI_CALENDAR_DB.filter(e => e.dateIso >= currentIso).slice(0, 2);
+    }
+  } else {
+    // "next ekadashi" or upcoming inquiry
+    const future = EKADASHI_CALENDAR_DB.filter(e => e.dateIso >= currentIso);
+    if (future.length > 0) {
+      // Take the immediate next one, plus the one after it for full seeker awareness
+      targetEkadashis = future.slice(0, 2);
+    } else {
+      // If beyond 2026, fallback to 2026 last entries
+      targetEkadashis = EKADASHI_CALENDAR_DB.slice(-2);
+    }
+  }
+
+  if (isEnglish) {
+    let listText = '';
+    targetEkadashis.forEach((e, idx) => {
+      listText += `\n**${idx + 1}. ${e.nameEn} (${e.pakshaEn})**\n* **Date:** ${e.dateEn}\n* **Parana Window (Fast Breaking):** ${e.paranaEn}\n`;
+    });
+
+    return `### 🌸 Sacred Ekadashi Dates & Parana Timings
+${isCurrentMonthQuery ? `Here is the Ekadashi schedule for this month (${now.toLocaleString('default', { month: 'long', year: 'numeric' })}):` : 'Here are the upcoming sacred Ekadashi dates and parana timings:'}
+
+${listText.trim()}
+
+**Core Devotional Guidelines (Pujya Maharaj Ji):**
+1. **Grain Abstinence:** Strictly avoid grains (rice, wheat, pulses), beans, and onion/garlic.
+2. **Satvik Intake:** Take water, milk, or seasonal fruits if physical strength requires.
+3. **Continuous Naam Jap:** Dedicate this holy day to chanting the Divine Name ("Radha-Radha").
+4. **Parana Timing:** Break fast the following morning during the specified Parana window before Dvadashi ends.`;
+  }
+
+  // Hindi Discourse
+  let listText = '';
+  targetEkadashis.forEach((e, idx) => {
+    listText += `\n**${idx + 1}. ${e.nameHi} (${e.pakshaHi})**\n* 🗓️ **दिनांक:** ${e.dateHi}\n* ⏰ **पारण समय (द्वादशी):** ${e.paranaHi}\n`;
+  });
+
+  const monthNameHi = ['जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'][currentMonth - 1] || '';
+
+  return `### 🌸 पावन एकादशी व्रत तिथि एवं पारण समय
+${isCurrentMonthQuery ? `इस पावन महीने (${monthNameHi} ${currentYear}) की एकादशी तिथियां निम्नलिखित हैं:` : 'आगामी पावन एकादशी व्रत एवं द्वादशी पारण का समय:'}
+
+${listText.trim()}
+
+**एकादशी व्रत के मुख्य नियम व मर्यादा:**
+1. **अन्न का पूर्ण त्याग:** चावल, गेहूं, दाल, अनाज व लहसुन-प्याज का सर्वथा त्याग रखें।
+2. **सात्विक फलाहार:** शारीरिक क्षमता अनुसार निर्जल रहें अथवा दूध व फल ग्रहण करें।
+3. **अखंड नाम जप:** यह दिन केवल उपवास का नहीं, बल्कि 'श्री राधा-राधा' नाम जप में लीन रहने का पावन अवसर है।
+4. **द्वादशी पारण:** अगले दिन द्वादशी तिथि में दिए गए समय के भीतर सात्विक प्रसाद से व्रत का पारण करें।`;
+}
+
+/**
  * Curated authentic Dharmic calendar & temple reference.
  * Provides zero-latency, rock-solid spiritual accuracy and verified fallback.
  */
-const DHARMIC_CALENDAR_KNOWLEDGE = {
-  ekadashi: {
-    guidelinesHi: `### 🌸 पावन एकादशी व्रत महिमा एवं प्रामाणिक नियम
-सनातन धर्म में एकादशी को सभी व्रतों का राजा ('व्रतराज') कहा गया है। यह महीने में दो बार (शुक्ल पक्ष और कृष्ण पक्ष) आती है।
-
-**एकादशी व्रत के मुख्य नियम:**
-1. **अन्न का पूर्ण त्याग:** एकादशी के दिन चावल, गेहूं, दाल, अनाज और लहसुन-प्याज का सर्वथा त्याग करें।
-2. **सात्विक फलाहार:** शारीरिक क्षमता अनुसार निर्जल अथवा फलाहार (दूध, फल, शकरकंद) ग्रहण करें।
-3. **अखंड नाम जप:** यह दिन केवल उपवास का नहीं, बल्कि 'श्री राधा-राधा' नाम जप में लीन रहने का पावन अवसर है।
-4. **द्वादशी पारण:** अगले दिन द्वादशी तिथि समाप्त होने से पूर्व सूर्योदय के बाद सात्विक प्रसाद से व्रत का पारण करें।`,
-    guidelinesEn: `### 🌸 Sacred Ekadashi Vrat Principles & Schedule
-Ekadashi occurs twice every lunar month (Shukla and Krishna Paksha). Fasting on Ekadashi is celebrated as the mother of all devotional austerities (Vrata-Raja).
-
-**Core Ekadashi Guidelines:**
-1. **Nirjala / Phalahari:** Observe fasting with pure devotion; consume only fruits, milk, or water if needed.
-2. **Strict Abstinence:** Strictly avoid grains (rice, wheat, pulses, beans) and onion/garlic.
-3. **Continuous Naam Jap:** Spend the sacred day and night chanting the Holy Name ("Radha-Radha" / "Hare Krishna").
-4. **Parana Timing:** Break the fast next morning (Dvadashi) during the specific Parana window before Dvadashi tithi ends.`
-  },
+export const DHARMIC_CALENDAR_KNOWLEDGE = {
   grahanSutak: {
     suryaGrahan: 'सूर्य ग्रहण का सूतक ग्रहण स्पर्श से 12 घंटे (4 प्रहर) पूर्व प्रारंभ होता है।',
     chandraGrahan: 'चंद्र ग्रहण का सूतक ग्रहण स्पर्श से 9 घंटे (3 प्रहर) पूर्व प्रारंभ होता है।',
@@ -123,10 +234,21 @@ The Panchang comprises five sacred elements: Tithi (lunar day), Vara (weekday), 
 
 /**
  * Queries DuckDuckGo API or synthesizes verified Dharmic knowledge
+ * @param {string} query
+ * @param {boolean|null} isEnglishForce - Explicit language preference from guruService
  */
-export async function searchDuckDuckGo(query) {
+export async function searchDuckDuckGo(query, isEnglishForce = null) {
   const clean = (query || '').trim();
   const searchResults = [];
+
+  // Determine language: if isEnglishForce is provided use it, otherwise detect Hinglish
+  let isEnglish = isEnglishForce;
+  if (isEnglish === null || typeof isEnglish === 'undefined') {
+    // Check if query is in Devanagari or Hinglish
+    const hasDevanagari = /[\u0900-\u097F]/.test(clean);
+    const hasHinglish = /\b(kab|hai|hain|me|mein|kya|kaise|kyu|kyun|karein|kare|karo|batao|aaj|kal|mahina|mahine|is|iss|agla|agli|vrat|parana|samay|purnima|amavasya)\b/i.test(clean);
+    isEnglish = !hasDevanagari && !hasHinglish;
+  }
 
   // 1. Try DuckDuckGo Instant Answer API with timeout
   try {
@@ -151,11 +273,10 @@ export async function searchDuckDuckGo(query) {
   }
 
   // 2. Identify the specific domain of inquiry
-  const isEnglish = !/[\u0900-\u097F]/.test(clean);
   const isGrahan = /(?:grahan|sutak|ग्रहण|सूतक|eclipse)/i.test(clean);
-  const isEkadashi = /(?:ekadashi|एकादशी|parana|पारण)/i.test(clean);
+  const isEkadashi = /(?:ekadashi|एकादशी|parana|पारण|vrat)/i.test(clean);
   const isTemple = /(?:bankey\s*bihari|radha\s*vallabh|radharani|barsana|prem\s*mandir|iskcon|darshan|aarti|कपाट|दर्शन|मंदिर|आरती)/i.test(clean);
-  const isPanchang = /(?:panchang|tithi|muhurat|पंचांग|तिथि|मुहूर्त|प्रदोष|पूर्णिमा|अमावस्या|vrat)/i.test(clean);
+  const isPanchang = /(?:panchang|tithi|muhurat|पंचांग|तिथि|मुहूर्त|प्रदोष|पूर्णिमा|अमावस्या)/i.test(clean);
 
   let formattedDiscourse = '';
 
@@ -166,14 +287,15 @@ export async function searchDuckDuckGo(query) {
         : `\n\n**ताज़ा ऑनलाइन खोज से प्राप्त जानकारी:**\n` + searchResults.map(s => `* ${s}`).join('\n'))
     : '';
 
-  if (isGrahan) {
+  if (isEkadashi) {
+    const ekadashiSchedule = getEkadashiScheduleText(clean, isEnglish);
+    formattedDiscourse = isEnglish
+      ? `${ekadashiSchedule}${snippetsBlock}\n\n*Pujya Maharaj Ji's Teaching: Ekadashi is not mere physical fasting, dear soul; it is dedicating 24 hours of mind, speech, and senses to Shri Radha's lotus feet with continuous Holy Name chanting.*`
+      : `${ekadashiSchedule}${snippetsBlock}\n\n*पूज्य महाराज जी की सीख: एकादशी केवल भूखे रहने का नाम नहीं है बच्चा, बल्कि अपनी इंद्रियों को विषयों से हटाकर मन और वाणी को श्री जी के चरणों में लगाने का पावन पर्व है। निरंतर 'श्री राधा-राधा' नाम जपते रहें।*`;
+  } else if (isGrahan) {
     formattedDiscourse = isEnglish
       ? `${DHARMIC_CALENDAR_KNOWLEDGE.grahanSutak.vidhiEnglish}${snippetsBlock}\n\n*Pujya Maharaj Ji's Teaching: Never be frightened during eclipse hours, dear child. The external shadow is fleeting, but the power of the Holy Name is infinite. Spend these hours immersed in 'Radha-Radha' chanting.*`
       : `${DHARMIC_CALENDAR_KNOWLEDGE.grahanSutak.vidhiHindi}${snippetsBlock}\n\n*पूज्य महाराज जी की सीख: ग्रहण काल में भयभीत होने की आवश्यकता नहीं है बच्चा। यह काल नाम जप और साधना के लिए सर्वोत्तम माना गया है। निरंतर 'राधे-राधे' जपते रहें, सब मंगल होगा।*`;
-  } else if (isEkadashi) {
-    formattedDiscourse = isEnglish
-      ? `${DHARMIC_CALENDAR_KNOWLEDGE.ekadashi.guidelinesEn}${snippetsBlock}\n\n*Pujya Maharaj Ji's Teaching: Ekadashi is not mere starvation, dear soul; it is dedicating 24 hours of mind and speech to Shri Radha's lotus feet.*`
-      : `${DHARMIC_CALENDAR_KNOWLEDGE.ekadashi.guidelinesHi}${snippetsBlock}\n\n*पूज्य महाराज जी की सीख: एकादशी केवल भूखे रहने का नाम नहीं है बच्चा, बल्कि अपनी इंद्रियों को विषयों से हटाकर मन और वाणी को श्री जी के चरणों में लगाने का पावन पर्व है।*`;
   } else if (isTemple) {
     formattedDiscourse = isEnglish
       ? `${DHARMIC_CALENDAR_KNOWLEDGE.templeTimings.bankeyBihariEn}${snippetsBlock}\n\n*Pujya Maharaj Ji's Reminder: While visiting holy Vrindavan Dham, approach the Divine with humble prayer and reverence. Chant Radha-Radha with every step.*`

@@ -10,9 +10,9 @@
 import { getScriptureGrounding, isCasualConversational } from './scriptureService.js';
 import { analyzeQuery } from './queryIntent.js';
 import { isIntroductionOrCreatorQuery, getProjectIntroduction, getIntroductionThought } from '../data/projectIntroduction.js';
-import { isLiveCalendarQuery, searchDuckDuckGo } from './liveSearchService.js';
+import { isLiveCalendarQuery, searchDuckDuckGo, getEkadashiScheduleText } from './liveSearchService.js';
 
-export { isCasualConversational, isIntroductionOrCreatorQuery, isLiveCalendarQuery };
+export { isCasualConversational, isIntroductionOrCreatorQuery, isLiveCalendarQuery, getEkadashiScheduleText };
 
 const API_BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL)
   ? import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '')
@@ -90,21 +90,138 @@ export function detectQueryLanguage(text) {
   if (/[\u0900-\u097F]/.test(clean)) {
     return 'hindi';
   }
-  // 2. English syntax & vocabulary markers
+
+  // 2. Strong Hinglish vocabulary & grammar markers
+  // Common Hinglish words used in spiritual, calendar, and everyday inquiries:
+  const hinMarkers = clean.match(
+    /\b(kab|hai|hain|me|mein|kya|kaise|kyu|kyun|karein|kare|karte|karti|karta|ho|hun|hoon|nahi|nahin|mat|hota|hoti|hote|mera|meri|mere|mujhe|mujhko|hum|humko|hamein|aap|apka|apki|apke|batao|bataiye|samjhaiye|kahiye|chahiye|raha|rahi|rahe|karo|dekho|suno|pranam|namaste|radhe|krishna|ram|aaj|kal|parso|kitne|kitna|konsi|kaun|kaha|kahan|kise|kis|kisko|aur|agla|agli|agle|wale|wali|wala|mahina|mahine|shuru|khatam|samay|purnima|amavasya|vrat|parana|bhajan|naam|jap|bhakti|bhagwan|mandir|darshan)\b/gi
+  );
+
+  // If there are explicit Hinglish markers present, treat as Hindi
+  if (hinMarkers && hinMarkers.length > 0) {
+    return 'hindi';
+  }
+
+  // 3. English syntax & vocabulary markers
   const engMarkers = clean.match(
     /\b(hi|hello|hey|greetings|morning|evening|the|is|are|am|was|were|how|what|why|when|where|which|who|can|could|should|would|will|do|does|did|in|to|for|of|and|with|about|my|your|our|their|his|her|its|have|has|had|be|been|being|if|that|this|these|those|from|by|at|on|so|no|not|please|tell|give|life|mind|peace|death|soul|god|lord|devotion|meditation|prayer|divine|love|manifest|chanting|holy|name|transformation|practitioner|bring|satsang|dharma)\b/gi
   );
-  // 3. Hinglish grammar markers
-  const hinMarkers = clean.match(
-    /\b(kya|kaise|kyu|kyun|karein|kare|karte|karti|karta|hai|hain|ho|hun|hoon|nahi|nahin|mat|hota|hoti|hote|mera|meri|mere|mujhe|mujhko|hum|humko|hamein|aap|apka|apki|apke|batao|bataiye|samjhaiye|kahiye|chahiye|raha|rahi|rahe|karo|dekho|suno|pranam|namaste|radhe|krishna|ram)\b/gi
-  );
 
-  const engCount = engMarkers ? engMarkers.length : 0;
-  const hinCount = hinMarkers ? hinMarkers.length : 0;
+  if (engMarkers && engMarkers.length > 0) {
+    return 'english';
+  }
 
-  if (engCount > 0 && engCount >= hinCount) return 'english';
-  if (hinCount > 0) return 'hindi';
   return /^[a-zA-Z0-9\s.,!?'"()\-—]+$/.test(clean) ? 'english' : 'hindi';
+}
+
+/**
+ * 🧠 Agent Dialogue Memory & Search Reasoner
+ * ==========================================
+ * Automatically tracks the conversation state across turns:
+ * 1. Tracks active spiritual entities (Ekadashi, Festivals, Temples, Grahan, Panchang, Scripture).
+ * 2. Remembers when previous turns were in live search mode.
+ * 3. Autonomous Decision: Intelligently determines when the agent needs to search online
+ *    even when the seeker asks short follow-ups ("is month me", "aur aage", "next one", "kab?", "timing?").
+ */
+export function analyzeDialogueMemory(userMessage, conversationHistory = []) {
+  const clean = (userMessage || '').trim();
+  const cleanLower = clean.toLowerCase();
+
+  // Search intent triggers (temporal, calendar, dynamic facts)
+  const temporalKeywords = /(?:kab\s*hai|when\s*is|when|date|dates|tarikh|timing|timings|samay|schedule|aaj\s*ka|kal\s*ka|today|tomorrow|this\s*month|is\s*month|is\s*mahine|iss\s*mahine|next|upcoming|agla|agli|agle|parana|sutak|kapat|aarti|muhurat|tithi|panchang|darshan|vrat|shuru|khatam|kitne\s*baje)/i;
+
+  const directSearchMatch = isLiveCalendarQuery(clean);
+  const hasTemporalInquiry = temporalKeywords.test(cleanLower);
+
+  // Scan dialogue history (latest turns first) to discover active state
+  let historySearchActive = false;
+  let activeEntity = null;
+  let activeTopic = null;
+
+  if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
+    for (let i = conversationHistory.length - 1; i >= 0; i--) {
+      const turn = conversationHistory[i];
+      const text = (turn?.content || '').toLowerCase();
+      if (!text) continue;
+
+      if (!activeEntity) {
+        if (/(?:ekadashi|एकादशी|parana|पारण)/i.test(text)) {
+          activeEntity = 'ekadashi';
+          activeTopic = 'पावन एकादशी व्रत व तिथि (Ekadashi Schedule)';
+          historySearchActive = true;
+        } else if (/(?:grahan|sutak|ग्रहण|सूतक|eclipse)/i.test(text)) {
+          activeEntity = 'grahan sutak';
+          activeTopic = 'ग्रहण व सूतक काल (Grahan & Sutak Timing)';
+          historySearchActive = true;
+        } else if (/(?:bankey\s*bihari|radha\s*vallabh|barsana|prem\s*mandir|nidhivan|darshan|दर्शन|बांके\s*बिहारी)/i.test(text)) {
+          activeEntity = 'temple darshan';
+          activeTopic = 'श्री धाम मंदिर दर्शन समय (Temple Darshan Hours)';
+          historySearchActive = true;
+        } else if (/(?:panchang|tithi|muhurat|पंचांग|तिथि|मुहूर्त|प्रदोष|पूर्णिमा|अमावस्या)/i.test(text)) {
+          activeEntity = 'panchang';
+          activeTopic = 'दैनिक पंचांग व शुभ मुहूर्त (Panchang & Tithi)';
+          historySearchActive = true;
+        } else if (/(?:diwali|holi|navratri|janmashtami|radhashtami|shivratri|ram\s*navami|दीपावली|होली|जन्माष्टमी)/i.test(text)) {
+          activeEntity = 'festival';
+          activeTopic = 'पावन उत्सव व पर्व तिथि (Sacred Festival Date)';
+          historySearchActive = true;
+        } else if (/(?:geeta|gita|भगवद्गीता|गीता)/i.test(text)) {
+          activeEntity = 'shrimad bhagavad gita';
+          activeTopic = 'श्रीमद्भगवद्गीता शास्त्र प्रमाण';
+        } else if (/(?:anuj|kesharwani|creator|architecture|rag|dataset)/i.test(text)) {
+          activeEntity = 'project architecture';
+          activeTopic = 'संवाद प्रोजेक्ट व ज्ञान संरचना (Samvaad Knowledge Base)';
+        }
+      }
+
+      if (turn.role === 'user' && isLiveCalendarQuery(turn.content)) {
+        historySearchActive = true;
+      }
+    }
+  }
+  // 1. Identify core spiritual / emotional / philosophical dilemmas
+  const isSpiritualDilemma = /(?:mann|man|ashant|ashanti|krodh|gussa|kam|vasana|moh|lobh|ahankar|prarabdh|bhagwan|krishna|radha\s*rani|naam\s*jap|jap|bhakti|samarpan|sharanagati|sharanaagati|chinta|dukh|kasht|mukti|moksha|dharma|pap|punya|atman|aatma|antahkaran|peace\s*of\s*mind|anger|depression|anxiety|meditation|spiritual|soul|guru|satsang)/i.test(cleanLower);
+
+  // 2. Explicit temporal, calendar, or scheduling inquiry
+  const hasExplicitTemporal = temporalKeywords.test(cleanLower);
+
+  // 3. Deictic continuation markers referencing earlier subject
+  const isDeicticContinuation = /^(?:is\b|iss\b|aur\b|phir\b|agle\b|agli\b|agla\b|next\b|unka\b|unki\b|unke\b|iska\b|iske\b|iski\b|uska\b|uske\b|uski\b|yeh\b|woh\b|kab\b|timing\b|samay\b|date\b)/i.test(cleanLower);
+  const isFollowUp = isDeicticContinuation || (clean.split(/\s+/).length <= 7 && hasExplicitTemporal);
+
+  // Autonomous Agent Decision:
+  // - Direct search match always searches
+  // - In an active search history: search if continuing the schedule/event topic
+  // - BUT if seeker asks a spiritual/life dilemma ("mann shant kaise karein"), DO NOT search; route to Satsang RAG!
+  let shouldSearch = false;
+  if (directSearchMatch) {
+    shouldSearch = true;
+  } else if (historySearchActive) {
+    if (isSpiritualDilemma && !hasExplicitTemporal) {
+      shouldSearch = false; // Spiritual topic shift: switch from calendar search to satsang contemplation
+    } else if (hasExplicitTemporal || isDeicticContinuation) {
+      shouldSearch = true;  // Legitimate follow-up on live calendar/darshan/event
+    }
+  }
+
+  // Synthesize contextual query
+  let effectiveQuery = clean;
+  if (shouldSearch && activeEntity && !new RegExp(activeEntity, 'i').test(clean)) {
+    effectiveQuery = `${activeEntity} ${clean}`;
+  }
+
+  return {
+    shouldSearch,
+    activeEntity,
+    activeTopic,
+    effectiveQuery,
+    isContinuation: Boolean(activeEntity && (isFollowUp || hasExplicitTemporal))
+  };
+}
+
+// Keep resolveConversationContext for backward-compatibility
+export function resolveConversationContext(userMessage, conversationHistory = []) {
+  return analyzeDialogueMemory(userMessage, conversationHistory).effectiveQuery;
 }
 
 export function isOfftopicQuery(query) {
@@ -338,7 +455,12 @@ export async function streamGuruResponse(
 ) {
   const startTime = Date.now();
   const seekerName = userProfile?.fullName ? userProfile.fullName.trim().split(/\s+/)[0] : '';
-  const queryLang = detectQueryLanguage(userMessage);
+  
+  // 0. Agent Dialogue Memory: Tracks active topic, search state, and resolves contextual queries
+  const dialogueMemory = analyzeDialogueMemory(userMessage, conversationHistory);
+  const effectiveQuery = dialogueMemory.effectiveQuery;
+  const shouldSearch = dialogueMemory.shouldSearch;
+  const queryLang = detectQueryLanguage(effectiveQuery);
   const isEnglish = queryLang === 'english';
 
   // 1. Check Gating: Skip Oracle for Casual Greetings & Chitchat
@@ -360,9 +482,9 @@ export async function streamGuruResponse(
   }
 
   // 1.5 Introduction & Creator Knowledge Tool (Who are you, Anuj Kesharwani, architecture, dataset, RAG)
-  if (isIntroductionOrCreatorQuery(userMessage)) {
-    const introText = getProjectIntroduction(userMessage, isEnglish);
-    const introThought = getIntroductionThought(userMessage, isEnglish);
+  if (isIntroductionOrCreatorQuery(effectiveQuery)) {
+    const introText = getProjectIntroduction(effectiveQuery, isEnglish);
+    const introThought = getIntroductionThought(effectiveQuery, isEnglish);
     return await streamTextDirectly(
       introText,
       introThought,
@@ -373,7 +495,7 @@ export async function streamGuruResponse(
   }
 
   // 2. Check Gating: Skip Oracle and Web Search for Irrelevant / Off-topic queries
-  const isOfftopic = isOfftopicQuery(userMessage);
+  const isOfftopic = isOfftopicQuery(effectiveQuery);
   if (isOfftopic) {
     const redirectText = isEnglish
       ? "Dear child, our guidance is centered on spiritual inquiry, Satsang, and devotion to God. Perform your daily duties honestly as sacred seva, and dedicate your mind to chanting the Holy Name. All will be auspicious."
@@ -390,21 +512,21 @@ export async function streamGuruResponse(
     );
   }
 
-  // 2.5 LAST RESORT: Live Web Search strictly for real-time Dharmic calendar, Ekadashi, Panchang & Grahan Sutak
-  if (isLiveCalendarQuery(userMessage)) {
+  // 2.5 Agent Autonomous Decision: Live Search with Dialogue Memory
+  if (shouldSearch) {
     onChunk({
       content: '',
       thought: isEnglish
-        ? "Initiating live DuckDuckGo search for real-time Hindu calendar dates, Ekadashi schedule & Grahan sutak timings..."
-        : "डकडकगो (DuckDuckGo) लाइव सर्च द्वारा रीयल-टाइम हिंदू पंचांग, एकादशी तिथि एवं ग्रहण सूतक समय प्राप्त किया जा रहा है...",
+        ? `Dialogue memory engaged (${dialogueMemory.activeTopic || 'Live Calendar'}). Initiating real-time search for verified schedule & timings...`
+        : `संवाद स्मृति सक्रिय (${dialogueMemory.activeTopic || 'रीयल-टाइम पंचांग व तिथियां'})। प्रामाणिक रीयल-टाइम पंचांग, तिथि एवं समय प्राप्त किया जा रहा है...`,
       isThinking: true,
       thinkingDuration: 0.8,
       scripture: null
     });
-    const searchRes = await searchDuckDuckGo(userMessage);
+    const searchRes = await searchDuckDuckGo(effectiveQuery, isEnglish);
     const searchThought = isEnglish
-      ? "Live DuckDuckGo search completed. Presenting verified scriptural guidance and exact timings..."
-      : "डकडकगो लाइव पंचांग सर्च पूर्ण। प्रामाणिक शास्त्रीय विधि एवं सटीक समय प्रस्तुत किया जा रहा है...";
+      ? `Live calendar lookup completed. Presenting verified scriptural guidance, dates, and exact timings...`
+      : `लाइव पंचांग व सारिणी प्राप्त। प्रामाणिक शास्त्रीय विधि एवं सटीक समय प्रस्तुत किया जा रहा है...`;
     return await streamTextDirectly(
       searchRes.formattedDiscourse,
       searchThought,
@@ -429,7 +551,7 @@ export async function streamGuruResponse(
 
   let scripture = null;
   try {
-    scripture = await getCachedScriptureGrounding(userMessage);
+    scripture = await getCachedScriptureGrounding(effectiveQuery);
   } catch (e) {
     console.warn('[RAG Client] Grounding lookup skipped:', e.message);
   }
@@ -451,7 +573,7 @@ export async function streamGuruResponse(
   if (inferenceMode === 'deep') {
     try {
       const oracleDeliberation = await streamOracleThoughtDeliberation(
-        userMessage,
+        effectiveQuery,
         conversationHistory,
         scripture,
         currentThought,
@@ -483,11 +605,11 @@ export async function streamGuruResponse(
 
   try {
     const formattedMessages = [
-      ...conversationHistory.slice(-4).map(m => ({
+      ...conversationHistory.slice(-6).map(m => ({
         role: m.role === 'user' ? 'user' : 'assistant',
         content: m.content || ''
       })),
-      { role: 'user', content: userMessage }
+      { role: 'user', content: effectiveQuery !== userMessage ? `${effectiveQuery} (${userMessage})` : userMessage }
     ];
 
     const elapsedSoFar = Date.now() - startTime;
@@ -567,7 +689,12 @@ export async function streamGuruResponse(
   // Oracle output should ONLY enter the main chat after Groq polishing in the backend.
   // Raw Oracle tokens must never stream directly into the chat response from the frontend.
   if (!backendSuccess || !streamedContent.trim()) {
-    streamedContent = generateLocalDiscourseFallback(userMessage, seekerName, scripture, false, isEnglish);
+    if (shouldSearch || isLiveCalendarQuery(effectiveQuery)) {
+      const liveRes = await searchDuckDuckGo(effectiveQuery, isEnglish);
+      streamedContent = liveRes.formattedDiscourse;
+    } else {
+      streamedContent = generateLocalDiscourseFallback(effectiveQuery, seekerName, scripture, false, isEnglish);
+    }
     
     const words = streamedContent.split(/(\s+)/);
     let animatedText = '';
@@ -601,6 +728,9 @@ export async function streamGuruResponse(
 function generateLocalDiscourseFallback(query, seekerName, scripture, isGreeting, isEnglish = false) {
   if (isIntroductionOrCreatorQuery(query)) {
     return getProjectIntroduction(query, isEnglish);
+  }
+  if (isLiveCalendarQuery(query)) {
+    return getEkadashiScheduleText(query, isEnglish);
   }
 
   if (isEnglish) {
