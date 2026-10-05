@@ -411,6 +411,7 @@ export default function App() {
 
   const messagesEndRef = useRef(null);
   const contentAreaRef = useRef(null);
+  const activeAbortControllerRef = useRef(null);
   const voice = useVoiceMode();
 
   const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
@@ -682,6 +683,11 @@ export default function App() {
       setShowGuestLoginModal(true);
       return;
     }
+    if (activeAbortControllerRef.current) {
+      try { activeAbortControllerRef.current.abort(); } catch {}
+    }
+    setIsStreaming(false);
+    setIsResponding(false);
     voice.stop();
     await maybeAutoNameChatOnLeave();
     setMessages([]);
@@ -691,6 +697,11 @@ export default function App() {
   };
 
   const selectConversation = async (conversation) => {
+    if (activeAbortControllerRef.current) {
+      try { activeAbortControllerRef.current.abort(); } catch {}
+    }
+    setIsStreaming(false);
+    setIsResponding(false);
     const activeUser = user || ensureUser();
     await maybeAutoNameChatOnLeave();
     if (conversation.messages && conversation.messages.length > 0) {
@@ -766,6 +777,14 @@ export default function App() {
     const userMsg = { role: 'user', content: message, timestamp: new Date() };
     const updatedMessagesWithUser = [...messages, userMsg];
     voice.stop();
+
+    // Abort any previous pending stream
+    if (activeAbortControllerRef.current) {
+      try { activeAbortControllerRef.current.abort(); } catch {}
+    }
+    const abortController = new AbortController();
+    activeAbortControllerRef.current = abortController;
+
     setMessages(updatedMessagesWithUser);
     setIsResponding(true);
 
@@ -850,7 +869,8 @@ export default function App() {
               scripture: update.scripture || null
             }]);
           }
-        }
+        },
+        abortController.signal
       );
 
       setIsResponding(false);

@@ -10006,21 +10006,21 @@ button.scroll-to-bottom,
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-    border-radius: 20px !important;
-    padding: 22px 20px 20px 20px !important;
+    border-radius: 18px !important;
+    padding: 18px 18px 16px 18px !important;
     touch-action: pan-y !important;
     background: #FFFDF9 !important;
-    border: 1px solid rgba(217, 119, 6, 0.18) !important;
-    box-shadow: 0 4px 24px -2px rgba(180, 83, 9, 0.07), 0 1px 3px rgba(0, 0, 0, 0.02) !important;
-    margin: 0 0 20px 0 !important;
+    border: 1px solid rgba(217, 119, 6, 0.16) !important;
+    box-shadow: 0 4px 20px -2px rgba(180, 83, 9, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+    margin: 0 0 18px 0 !important;
     overflow: visible !important;
   }
 
   :root[data-theme='dark'] .assistant-message-body,
   .spiritual-page.night .assistant-message-body {
-    background: rgba(18, 15, 29, 0.95) !important;
-    border: 1px solid rgba(245, 158, 11, 0.20) !important;
-    box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5), 0 0 16px rgba(245, 158, 11, 0.06) !important;
+    background: rgba(18, 15, 29, 0.96) !important;
+    border: 1px solid rgba(245, 158, 11, 0.18) !important;
+    box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5), 0 0 16px rgba(245, 158, 11, 0.05) !important;
   }
 
 }
@@ -10028,12 +10028,12 @@ button.scroll-to-bottom,
 @media (max-width: 600px) {
   .content-area .messages {
     padding: 74px 14px 220px 14px !important;
-    gap: 22px !important;
+    gap: 20px !important;
   }
 
   .assistant-message-body {
-    padding: 20px 18px 18px 18px !important;
-    border-radius: 18px !important;
+    padding: 16px 16px 14px 16px !important;
+    border-radius: 16px !important;
   }
 
   .messages-anchor {
@@ -10093,7 +10093,7 @@ button.scroll-to-bottom,
 .user-message-bubble {
   display: inline-block !important;
   padding: 12px 18px !important;
-  border-radius: 18px 18px 4px 18px !important;
+  border-radius: 18px !important;
   font-size: 15px !important;
   line-height: 1.55 !important;
   word-break: break-word !important;
@@ -10178,32 +10178,35 @@ button.scroll-to-bottom,
   touch-action: pan-y !important;
 }
 
-/* Assistant Typography: Match the exact internal alignment (14px inset) of the reasoning block */
+/* Assistant Typography: Calm, Serene, Perfectly Formatted on Mobile & Desktop */
 .message.assistant .rich-text,
 .assistant-message-body .rich-text {
-  font-size: 15px !important;
-  line-height: 1.8 !important;
-  color: var(--text, #1F2937) !important;
+  font-size: 15.5px !important;
+  line-height: 1.82 !important;
+  color: var(--text, #2D3748) !important;
   margin-top: 0 !important;
-  margin-bottom: 18px !important;
-  letter-spacing: 0.008em !important;
-  padding: 0 14px !important;
+  margin-bottom: 16px !important;
+  letter-spacing: 0.012em !important;
+  padding: 0 !important;
   box-sizing: border-box !important;
   width: 100% !important;
   max-width: 100% !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
 }
 
 :root[data-theme='dark'] .message.assistant .rich-text,
 :root[data-theme='dark'] .assistant-message-body .rich-text {
-  color: #F3F4F6 !important;
+  color: #E2E8F0 !important;
 }
 
 .message.assistant .rich-text p,
 .assistant-message-body .rich-text p,
 .message.assistant .rich-text .rich-line,
 .assistant-message-body .rich-text .rich-line {
-  margin: 0 0 16px 0 !important;
-  line-height: 1.8 !important;
+  margin: 0 0 14px 0 !important;
+  line-height: 1.82 !important;
   text-align: left !important;
   overflow-wrap: break-word !important;
   word-break: break-word !important;
@@ -10214,42 +10217,111 @@ button.scroll-to-bottom,
   margin-bottom: 0 !important;
 }
 
-/* Bullets also adhere to the same clean alignment */
+/* Bullets also adhere to clean alignment */
 .message.assistant .rich-text .rich-bullet,
 .assistant-message-body .rich-text .rich-bullet {
   padding-left: 0 !important;
+  margin-bottom: 8px !important;
+  line-height: 1.76 !important;
 }
 
-/* Shloka and Arthat cards span full container width matching reasoning container */
+/* Shloka: Symmetrical Sacred Verse Card */
 .message.assistant .rich-text .rich-shlok-line,
-.assistant-message-body .rich-text .rich-shlok-line {
-  margin-left: -14px !important;
-  margin-right: -14px !important;
-  width: calc(100% + 28px) !important;
-  max-width: calc(100% + 28px) !important;
+.assistant-message-body .rich-text .rich-shlok-line,
+.rich-shlok-line {
+  margin: 14px 0 10px 0 !important;
+  padding: 15px 18px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   box-sizing: border-box !important;
+  border: 1.5px solid rgba(217, 119, 6, 0.22) !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.45) 0%, rgba(255, 251, 235, 0.9) 100%) !important;
+  color: #78350F !important;
+  font-family: 'Martel', 'Noto Serif Devanagari', 'Georgia', serif !important;
+  font-size: 15.5px !important;
+  line-height: 1.95 !important;
+  text-align: center !important;
+  box-shadow: 0 3px 12px rgba(217, 119, 6, 0.05) !important;
 }
 
+:root[data-theme='dark'] .message.assistant .rich-text .rich-shlok-line,
+:root[data-theme='dark'] .assistant-message-body .rich-text .rich-shlok-line,
+:root[data-theme='dark'] .rich-shlok-line,
+.night .rich-shlok-line {
+  border: 1.5px solid rgba(245, 158, 11, 0.24) !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, rgba(30, 22, 42, 0.7) 0%, rgba(20, 15, 30, 0.85) 100%) !important;
+  color: #FDE68A !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Arthat: Symmetrical Sacred Meaning Card */
 .message.assistant .rich-text .rich-arthat-line,
-.assistant-message-body .rich-text .rich-arthat-line {
-  margin-left: -14px !important;
-  margin-right: -14px !important;
-  width: calc(100% + 28px) !important;
-  max-width: calc(100% + 28px) !important;
+.assistant-message-body .rich-text .rich-arthat-line,
+.rich-arthat-line {
+  margin: 6px 0 14px 0 !important;
+  padding: 13px 18px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   box-sizing: border-box !important;
+  border: 1px solid rgba(217, 119, 6, 0.16) !important;
+  border-radius: 12px !important;
+  background: rgba(217, 119, 6, 0.04) !important;
+  color: #451A03 !important;
+  font-size: 14.5px !important;
+  line-height: 1.78 !important;
 }
 
-/* Minimal Action Row Under Assistant Message follows the same 14px horizontal inset */
+:root[data-theme='dark'] .message.assistant .rich-text .rich-arthat-line,
+:root[data-theme='dark'] .assistant-message-body .rich-text .rich-arthat-line,
+:root[data-theme='dark'] .rich-arthat-line,
+.night .rich-arthat-line {
+  border: 1px solid rgba(245, 158, 11, 0.18) !important;
+  border-radius: 12px !important;
+  background: rgba(245, 158, 11, 0.05) !important;
+  color: #E2D0B6 !important;
+}
+
+/* Headings in Chat Response: Serene, dignified, calm */
+.rich-heading {
+  margin: 16px 0 10px 0 !important;
+  font-weight: 600 !important;
+  line-height: 1.45 !important;
+  color: #D97706 !important;
+  letter-spacing: 0.01em !important;
+  border-bottom: 1px solid rgba(217, 119, 6, 0.14) !important;
+  padding-bottom: 5px !important;
+}
+
+:root[data-theme='dark'] .rich-heading {
+  color: #FBBF24 !important;
+  border-bottom-color: rgba(245, 158, 11, 0.16) !important;
+}
+
+.rich-h1, .rich-h2 {
+  font-size: 1.18rem !important;
+}
+
+.rich-h3, .rich-h4 {
+  font-size: 1.05rem !important;
+}
+
+/* Minimal Action Row Under Assistant Message */
 .message.assistant .message-meta,
 .assistant-message-body .message-meta {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  margin-top: 18px !important;
-  padding-top: 12px !important;
-  padding-left: 14px !important;
-  padding-right: 14px !important;
-  border-top: 1px solid rgba(245, 158, 11, 0.14) !important;
+  margin-top: 14px !important;
+  padding-top: 10px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  border-top: 1px solid rgba(245, 158, 11, 0.12) !important;
   justify-content: flex-start !important;
   box-sizing: border-box !important;
 }
@@ -10257,6 +10329,7 @@ button.scroll-to-bottom,
 .message-action.home-action {
   gap: 4px !important;
 }
+
 
 /* ═════════════════════════════════════════════════════════════════════
    PROJECT OVERVIEW DEMO: LIST ITEMS ON NEW LINES & MOBILE HEADER FIX

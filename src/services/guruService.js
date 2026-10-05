@@ -120,10 +120,26 @@ export function isOfftopicQuery(query) {
   return offtopicPatterns.some(p => p.test(q));
 }
 
-async function streamTextDirectly(text, thought, startTime, scripture, onChunk) {
+// In-Memory Client Scripture Cache for fast repeated queries
+const _localScriptureCache = new Map();
+
+async function getCachedScriptureGrounding(userMessage) {
+  const key = (userMessage || '').trim().toLowerCase();
+  if (_localScriptureCache.has(key)) {
+    return _localScriptureCache.get(key);
+  }
+  const scripture = await getScriptureGrounding(userMessage);
+  if (scripture) {
+    _localScriptureCache.set(key, scripture);
+  }
+  return scripture;
+}
+
+async function streamTextDirectly(text, thought, startTime, scripture, onChunk, abortSignal = null) {
   const words = text.split(/(\s+)/);
   let accumulated = '';
   for (let i = 0; i < words.length; i++) {
+    if (abortSignal?.aborted) break;
     accumulated += words[i];
     if (i % 3 === 0 || i === words.length - 1) {
       onChunk({
@@ -312,7 +328,8 @@ export async function streamGuruResponse(
   memoryContext = '',
   userProfile = null,
   inferenceMode = 'deep',
-  onChunk = () => {}
+  onChunk = () => {},
+  abortSignal = null
 ) {
   const startTime = Date.now();
   const seekerName = userProfile?.fullName ? userProfile.fullName.trim().split(/\s+/)[0] : '';
@@ -407,7 +424,7 @@ export async function streamGuruResponse(
 
   let scripture = null;
   try {
-    scripture = await getScriptureGrounding(userMessage);
+    scripture = await getCachedScriptureGrounding(userMessage);
   } catch (e) {
     console.warn('[RAG Client] Grounding lookup skipped:', e.message);
   }
@@ -470,6 +487,10 @@ export async function streamGuruResponse(
 
     const elapsedSoFar = Date.now() - startTime;
     const backendTimeout = Math.min(10000, Math.max(3000, 20000 - elapsedSoFar));
+    const timeoutSignal = AbortSignal.timeout(backendTimeout);
+    const combinedSignal = abortSignal
+      ? (typeof AbortSignal.any === 'function' ? AbortSignal.any([abortSignal, timeoutSignal]) : timeoutSignal)
+      : timeoutSignal;
 
     const response = await fetch(streamEndpoint, {
       method: 'POST',
@@ -480,7 +501,7 @@ export async function streamGuruResponse(
         max_tokens: 1100,
         mode: inferenceMode === 'fast' ? 'fast' : 'deep'
       }),
-      signal: AbortSignal.timeout(backendTimeout)
+      signal: combinedSignal
     });
 
     if (response.ok && response.body) {
