@@ -21,17 +21,23 @@ export default function Composer({
   }, [value])
 
   const handleSend = (e) => {
-    if (e && e.preventDefault) {
-      e.preventDefault()
-      e.stopPropagation()
+    if (e) {
+      if (typeof e.preventDefault === 'function') e.preventDefault()
+      if (typeof e.stopPropagation === 'function') e.stopPropagation()
     }
     if (isDisabled) return
     if (guestLimitReached) {
       onGuestLimitClick && onGuestLimitClick()
       return
     }
-    if (value && value.trim()) {
-      onSubmit()
+    const textToSend = (value || '').trim()
+    if (textToSend) {
+      // Instantly clear textarea and reset its height so user feels zero send delay
+      onChange('')
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto'
+      }
+      onSubmit(textToSend)
     }
   }
 
@@ -87,17 +93,14 @@ export default function Composer({
           value={value}
           enterKeyHint="send"
         />
-        <motion.button
+        <button
           className="send-button"
           aria-label="Send message"
           disabled={!value.trim() || isDisabled}
-          onClick={handleSend}
           type="submit"
-          whileHover={!value.trim() || isDisabled ? {} : { scale: 1.08 }}
-          whileTap={!value.trim() || isDisabled ? {} : { scale: 0.92 }}
         >
           <Icon name="send" size={19} />
-        </motion.button>
+        </button>
       </form>
       <p className="composer-note">Educational playground. Verify important guidance with trusted sources and teachers.</p>
     </div>

@@ -7067,11 +7067,11 @@ select:focus-visible,
 }
 
 /* ── 7. TOPBAR: Standalone Mobile Topbar Layout ── */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .topbar {
     height: 56px !important;
-    padding-inline: 12px !important;
-    gap: 8px !important;
+    padding-inline: 14px !important;
+    gap: 10px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
@@ -7093,28 +7093,35 @@ select:focus-visible,
     border-bottom: 1px solid rgba(217, 119, 6, 0.16) !important;
   }
 
-  /* Left Anchor: Menu Button (≡) + Home Button (🏠) */
+  /* Left Anchor: Menu Button (≡) + Home Button (🏠) - perfectly spaced */
   .topbar-left {
     display: flex !important;
     align-items: center !important;
-    gap: 6px !important;
+    gap: 10px !important;
     flex-shrink: 0 !important;
   }
 
   .topbar-left .icon-button,
   .topbar-left .menu-button,
   .topbar-left .home-topbar-btn {
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 10px !important;
-    background: rgba(255, 255, 255, 0.06) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+    border: 1px solid rgba(255, 255, 255, 0.13) !important;
     color: #f3f4f6 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     flex-shrink: 0 !important;
     cursor: pointer !important;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease !important;
+  }
+
+  .topbar-left .icon-button:active,
+  .topbar-left .menu-button:active,
+  .topbar-left .home-topbar-btn:active {
+    transform: scale(0.93) !important;
   }
 
   :root[data-theme='light'] .topbar-left .icon-button,
@@ -7125,7 +7132,7 @@ select:focus-visible,
     color: #78350f !important;
   }
 
-  /* Center: 100% mathematically centered mode toggle group */
+  /* Center: Day/Night segmented theme switch mathematically centered */
   .topbar-center {
     flex: 1 !important;
     min-width: 0 !important;
@@ -7134,65 +7141,90 @@ select:focus-visible,
     justify-content: center !important;
   }
 
-  .mode-toggle-group {
-    padding: 3px !important;
-    border-radius: 999px !important;
+  /* Hide Deep/Fast mode toggle on mobile — replaced by Day/Night switch */
+  .topbar-center .desktop-only-mode-toggle,
+  .topbar-center .mode-toggle-group {
+    display: none !important;
+  }
+
+  /* Mobile-only Day/Night segmented theme switch in center */
+  .mobile-theme-switch-group {
+    display: inline-flex !important;
+    align-items: center !important;
     gap: 3px !important;
+    padding: 3px !important;
     background: rgba(0, 0, 0, 0.45) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    flex-shrink: 0 !important;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3) !important;
-  }
-
-  :root[data-theme='light'] .mode-toggle-group {
-    background: rgba(245, 158, 11, 0.12) !important;
-    border: 1px solid rgba(217, 119, 6, 0.25) !important;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06) !important;
-  }
-
-  .mode-pill-btn {
-    padding: 4px 10px !important;
-    font-size: 0.72rem !important;
-    font-weight: 600 !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
     border-radius: 999px !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+    flex-shrink: 0 !important;
+  }
+
+  :root[data-theme='light'] .mobile-theme-switch-group {
+    background: rgba(245, 158, 11, 0.1) !important;
+    border: 1px solid rgba(217, 119, 6, 0.24) !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .mobile-theme-btn {
+    border: none !important;
+    background: transparent !important;
+    padding: 5px 12px !important;
+    border-radius: 999px !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    color: rgba(255, 255, 255, 0.6) !important;
     display: inline-flex !important;
     align-items: center !important;
-    justify-content: center !important;
     gap: 4px !important;
-    min-height: 28px !important;
+    cursor: pointer !important;
+    transition: all 0.18s ease !important;
     white-space: nowrap !important;
     line-height: 1 !important;
   }
 
-  .mode-pill-btn-label-text {
-    display: inline !important;
-    font-size: 0.72rem !important;
-    font-weight: 600 !important;
+  :root[data-theme='light'] .mobile-theme-btn {
+    color: #92400e !important;
   }
 
-  /* Right Anchor: Theme toggle (🌙 / ☀️) */
+  .mobile-theme-btn.active {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  :root[data-theme='light'] .mobile-theme-btn.active {
+    background: #d97706 !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 4px rgba(217, 119, 6, 0.35) !important;
+  }
+
+  /* Right Anchor: Action buttons (🔊 Auto-speak + 🎤 Voice) - perfectly spaced */
   .topbar-actions {
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
-    gap: 6px !important;
+    gap: 10px !important;
     flex-shrink: 0 !important;
   }
 
   .topbar-actions .icon-button {
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 10px !important;
-    background: rgba(255, 255, 255, 0.06) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+    border: 1px solid rgba(255, 255, 255, 0.13) !important;
     color: #f3f4f6 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     flex-shrink: 0 !important;
     cursor: pointer !important;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease !important;
+  }
+
+  .topbar-actions .icon-button:active {
+    transform: scale(0.93) !important;
   }
 
   :root[data-theme='light'] .topbar-actions .icon-button {
@@ -7201,9 +7233,14 @@ select:focus-visible,
     color: #78350f !important;
   }
 
-  /* Hide auxiliary buttons on mobile topbar to avoid overflow */
+  /* Show Auto-speak and Voice-mode buttons on mobile right anchor */
   .topbar-actions .auto-speak-btn,
-  .topbar-actions .voice-mode-btn,
+  .topbar-actions .voice-mode-btn {
+    display: inline-flex !important;
+  }
+
+  /* Hide redundant theme toggle (now in center) and avatar on mobile topbar */
+  .topbar-actions .theme-toggle-btn,
   .topbar-actions .user-avatar {
     display: none !important;
   }

@@ -746,6 +746,9 @@ export default function App() {
     const message = (typeof explicitMessage === 'string' ? explicitMessage : draft).trim();
     if (!message) return;
 
+    // Immediately clear draft for instant, snappy input response
+    setDraft('');
+
     // Lock activeChatId upfront so every message in this session stays in the exact SAME conversation
     let activeChatId = currentConversationIdRef.current;
     if (!activeChatId) {
@@ -760,22 +763,26 @@ export default function App() {
     }
 
     userScrolledUpRef.current = false;
-    if (contentAreaRef.current) {
-      contentAreaRef.current.scrollTop = contentAreaRef.current.scrollHeight;
-    }
-
     const userMsg = { role: 'user', content: message, timestamp: new Date() };
     const updatedMessagesWithUser = [...messages, userMsg];
     voice.stop();
     setMessages(updatedMessagesWithUser);
-    setDraft('');
     setIsResponding(true);
 
-    // Automatically play default opening audio blessing ("राधे राधे बच्चा...") when operation starts generation
-    try {
-      voice.playDefaultGreeting();
-    } catch (e) {
-      console.warn('[Audio] Failed to trigger opening blessing:', e);
+    // Instant auto-scroll to the sent message on the very next render frame
+    requestAnimationFrame(() => {
+      if (contentAreaRef.current) {
+        contentAreaRef.current.scrollTop = contentAreaRef.current.scrollHeight;
+      }
+    });
+
+    // Automatically play default opening audio blessing ONLY if autoSpeak or explicit voice response is requested
+    if (autoSpeak || speakResponse) {
+      try {
+        voice.playDefaultGreeting();
+      } catch (e) {
+        console.warn('[Audio] Failed to trigger opening blessing:', e);
+      }
     }
 
     try {
@@ -1083,7 +1090,8 @@ export default function App() {
           </div>
 
           <div className="topbar-center">
-            <div className="mode-toggle-group">
+            {/* Desktop: show Deep/Fast mode toggle */}
+            <div className="mode-toggle-group desktop-only-mode-toggle">
               <button
                 type="button"
                 className={`mode-pill-btn ${inferenceMode === 'deep' ? 'active' : ''}`}
@@ -1103,6 +1111,30 @@ export default function App() {
                 title="Ultra-fast LPU inference (~1s response)"
               >
                 ⚡ <span className="mode-pill-btn-label-text">Fast</span>
+              </button>
+            </div>
+
+            {/* Mobile: Day/Night segmented theme option in center */}
+            <div className="mobile-theme-switch-group">
+              <button
+                type="button"
+                className={`mobile-theme-btn ${!darkMode ? 'active' : ''}`}
+                onClick={() => { if (darkMode) toggleTheme(); }}
+                aria-label="Day theme"
+                aria-pressed={!darkMode}
+                title="Day theme"
+              >
+                ☀️ <span className="mobile-theme-btn-text">Day</span>
+              </button>
+              <button
+                type="button"
+                className={`mobile-theme-btn ${darkMode ? 'active' : ''}`}
+                onClick={() => { if (!darkMode) toggleTheme(); }}
+                aria-label="Night theme"
+                aria-pressed={darkMode}
+                title="Night theme"
+              >
+                🌙 <span className="mobile-theme-btn-text">Night</span>
               </button>
             </div>
           </div>
@@ -1240,13 +1272,9 @@ export default function App() {
 
                 if (message.role === 'user') {
                   return (
-                    <motion.article
+                    <article
                       className="message user"
                       key={`user-${index}`}
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ type: 'spring', stiffness: 320, damping: 26 }}
-                      style={{ animation: 'none' }}
                     >
                       <div className="user-message-wrap">
                         <div className="user-message-bubble">
@@ -1260,7 +1288,7 @@ export default function App() {
                           </div>
                         )}
                       </div>
-                    </motion.article>
+                    </article>
                   );
                 }
 

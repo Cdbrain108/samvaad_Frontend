@@ -919,6 +919,12 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
   justify-content: center;
 }
 
+/* Mobile-only theme switch group: hidden on desktop, shown on mobile */
+.mobile-theme-switch-group,
+.mobile-only-theme-pill {
+  display: none;
+}
+
 .mode-toggle-group {
   flex-shrink: 0;
 }
