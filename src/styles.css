@@ -1492,7 +1492,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 .reasoning-container {
   position: relative;
   margin-bottom: 12px;
-  border-radius: 12px;
+  border-radius: 20px;
   background: rgba(18, 14, 28, 0.75);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);

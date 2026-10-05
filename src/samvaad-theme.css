@@ -7327,7 +7327,7 @@ select:focus-visible,
 @media (max-width: 640px) {
   .reasoning-container {
     position: relative !important;
-    border-radius: 13px !important;
+    border-radius: 20px !important;
     margin-bottom: 20px !important;
     border-left-width: 3.5px !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
@@ -7349,8 +7349,8 @@ select:focus-visible,
     background-size: 200% 100% !important;
     animation: energyRibbonFlow 2.4s linear infinite !important;
     z-index: 5 !important;
-    border-top-left-radius: 13px !important;
-    border-top-right-radius: 13px !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
     pointer-events: none !important;
   }
 
@@ -9740,7 +9740,7 @@ select:focus-visible,
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-left: 2px solid #D97706 !important;
-  border-radius: 16px !important;
+  border-radius: 20px !important;
   box-shadow: none !important;
   margin-bottom: 12px !important;
 }
