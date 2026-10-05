@@ -11256,6 +11256,81 @@ select:focus-visible,
     height: 70px !important;
     flex-shrink: 0 !important;
     z-index: 20 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 32px !important;
+  }
+
+  .topbar-left {
+    position: relative !important;
+    z-index: 10 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  /* Chat Taskbar Center: Deep / Fast Mode toggle placed exactly in the middle of the taskbar */
+  .topbar-center {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    max-width: none !important;
+    z-index: 5 !important;
+    pointer-events: auto !important;
+  }
+
+  .topbar-actions {
+    position: relative !important;
+    z-index: 10 !important;
+    margin-left: auto !important;
+  }
+
+  /* Landing Page Taskbar: Home, Inspiration, etc. placed in the exact mathematical middle */
+  .spiritual-header,
+  .spiritual-page .spiritual-header {
+    position: fixed !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+  }
+
+  .spiritual-brand-button,
+  .spiritual-page .spiritual-brand-button {
+    position: relative !important;
+    z-index: 10 !important;
+  }
+
+  .spiritual-nav,
+  .spiritual-page .spiritual-nav {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: clamp(14px, 1.8vw, 24px) !important;
+    z-index: 5 !important;
+    pointer-events: auto !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+
+  .spiritual-header-actions,
+  .spiritual-page .spiritual-header-actions {
+    position: relative !important;
+    z-index: 10 !important;
+    margin-left: auto !important;
   }
 
   .content-area {
