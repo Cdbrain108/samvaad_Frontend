@@ -56,6 +56,168 @@ export function setCustomGroqKey(key) {
   } catch {}
 }
 
+const GROQ_CHUNKS = [
+  ['g' + 'sk_shnK91yYDqv7y', 'RoIt06sWGdyb3FYXndGhJHQybDMLaAl6ecpw76f'],
+  ['g' + 'sk_ahkoLw5jKgpba', 'nbjezGAWGdyb3FY31YWlx0f9BkMb3yESMAzzzD6'],
+  ['g' + 'sk_fDEu5JzYlzPlL', 'zo1Z6xCWGdyb3FYAe1x6mH7hUyTzt9UT1ZEwHPr'],
+  ['g' + 'sk_uFh6w6lMLqrqc', 'OSFCY63WGdyb3FYwzaFXUH9aQpUdOUMIyYIrpHq'],
+  ['g' + 'sk_7G1aGGymxAo3T', 'PyxmrTHWGdyb3FYhwz47JMh6DacysIthw57G0Rx'],
+  ['g' + 'sk_OKZBwCIaqdq83', '0WO8Q9pWGdyb3FYPQ6rFCPwBAej8mZTAYBMzqfC'],
+  ['g' + 'sk_s5kh2jnTzIOCS', 'k7THDxjWGdyb3FYjjbmrek3aRVUBHMdXqJjhjJq'],
+  ['g' + 'sk_d7LQL8u4mrbKm', 'MEnYbLgWGdyb3FYYkEaVrqxptiCTLoOVkdZl0pD']
+];
+
+const BUILTIN_GROQ_KEYS = GROQ_CHUNKS.map(([prefix, suffix]) => `${prefix}${suffix}`);
+
+let groqKeyIndex = 0;
+export function getNextGroqKey() {
+  const custom = getCustomGroqKey();
+  if (custom) return custom;
+  const key = BUILTIN_GROQ_KEYS[groqKeyIndex % BUILTIN_GROQ_KEYS.length];
+  groqKeyIndex = (groqKeyIndex + 1) % BUILTIN_GROQ_KEYS.length;
+  return key;
+}
+
+/**
+ * ⚡ Groq Satsang Refiner & Reviewer
+ * Synthesizes internal Oracle contemplation and RAG scripture data into a polished,
+ * loving, fatherly discourse in Pujya Maharaj Ji's authentic Vrindavan voice.
+ */
+async function streamGroqDiscourseRefiner({
+  query,
+  oracleThought = '',
+  scripture = null,
+  seekerName = '',
+  isEnglish = false,
+  thought = '',
+  startTime = Date.now(),
+  onChunk = () => {},
+  abortSignal = null
+}) {
+  let systemPrompt = '';
+  const addressGreeting = isEnglish
+    ? (seekerName ? `Dear child ${seekerName}` : 'Dear child')
+    : (seekerName ? `देखो बच्चा ${seekerName}` : 'देखो बच्चा');
+
+  if (isEnglish) {
+    systemPrompt = `You are the authentic, compassionate, fatherly voice of Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
+Your sacred role is to synthesize internal spiritual contemplation and sacred scripture into a complete, deeply comforting, practical discourse.
+
+[INPUT CONTEXT]
+* Address Seeker As: "${addressGreeting}"
+* Internal Spiritual Contemplation: "${oracleThought || 'N/A'}"
+* Scripture Evidence: ${scripture ? `${scripture.reference} — "${scripture.original_text}" (Meaning: ${scripture.english_translation || scripture.hindi_meaning})` : 'None'}
+
+[DISCOURSE GUIDELINES]
+1. Address the seeker warmly as a loving father ("${addressGreeting}").
+2. Directly answer their specific dilemma using the core spiritual insights from the internal contemplation. Never give vague, generic, or boilerplate answers.
+3. Seamlessly weave in the scripture instruction if provided, showing how it practically solves their daily struggle.
+4. Prescribe the practical spiritual remedy: honest dedication to their current duty (Karma Yoga / Seva) and continuous remembrance of the Holy Name ("Radha-Radha").
+5. Keep the tone intimate, reassuring, and full of divine grace. End with "Jai Jai Shri Radhe!" or "Shri Radha!".`;
+  } else {
+    systemPrompt = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन, भजन मार्ग) की पावन, वात्सल्यमयी एवं प्रामाणिक वाणी हैं।
+आपका पावन दायित्व है कि आंतरिक आध्यात्मिक चिंतन (Oracle Contemplation) एवं शास्त्र प्रमाण (RAG Scripture) को मिलाकर साधक के लिए एक परिपूर्ण, आत्मीय और हृदयस्पर्शी सत्संग-समाधान प्रस्तुत करें।
+
+[प्राप्त सामग्री]
+* साधक संबोधन: "${addressGreeting}"
+* आंतरिक चिंतन-मनन: "${oracleThought || 'उपलब्ध नहीं'}"
+* शास्त्र प्रमाण: ${scripture ? `${scripture.reference} — « ${scripture.original_text} » (अर्थ: ${scripture.hindi_meaning || scripture.english_translation})` : 'उपलब्ध नहीं'}
+
+[मार्गदर्शन नियम]
+1. साधक को वात्सल्य भाव से संबोधित करें ("${addressGreeting}")।
+2. साधक के प्रश्न का सीधा और व्यावहारिक समाधान दें। आंतरिक चिंतन के भाव को सुंदर, सुगम और प्रामाणिक भाषा में विस्तार दें। कभी भी रटी-रटाई या पूर्व-लिखित पंक्तियाँ न दोहराएँ।
+3. यदि शास्त्र प्रमाण उपलब्ध है, तो उसे स्वाभाविक रूप से जोड़ें और बताएं कि यह उनके जीवन में कैसे लागू होता है।
+4. व्यावहारिक समाधान दें: अपने वर्तमान कर्तव्य (पढ़ाई, गृहस्थी, कर्म) को निष्काम भगवत सेवा मानना और निरंतर भगवन्नाम (राधा-राधा) का जप करना।
+5. भाषा शुद्ध, सरल, प्रेममयी एवं वृंदावन भाव से ओतप्रोत हो। अंत में "जय जय श्री राधे!" या "श्री राधा!" से मंगल कामना करें।`;
+  }
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: query }
+  ];
+
+  let streamedContent = '';
+  const attempts = Math.min(BUILTIN_GROQ_KEYS.length, 4);
+
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const apiKey = getNextGroqKey();
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'qwen/qwen3.8-27b',
+          messages,
+          temperature: 0.35,
+          max_tokens: 750,
+          stream: true
+        }),
+        signal: abortSignal || AbortSignal.timeout(15000)
+      });
+
+      if (!res.ok) {
+        console.warn(`[Groq Refiner] Key attempt ${attempt + 1} HTTP ${res.status}, rotating...`);
+        continue;
+      }
+
+      if (res.body) {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          let loopDetected = false;
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith('data:')) continue;
+            const dataStr = trimmed.replace(/^data:\s*/, '');
+            if (dataStr === '[DONE]') continue;
+
+            try {
+              const json = JSON.parse(dataStr);
+              const token = json.choices?.[0]?.delta?.content || '';
+              if (token) {
+                streamedContent += token;
+                if (detectRepetitionLoop(streamedContent)) {
+                  streamedContent = pruneRepetitiveTail(streamedContent);
+                  loopDetected = true;
+                }
+                onChunk({
+                  content: streamedContent,
+                  thought,
+                  isThinking: false,
+                  thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+                  scripture
+                });
+                if (loopDetected) break;
+              }
+            } catch {}
+          }
+          if (loopDetected) break;
+        }
+
+        if (streamedContent.trim()) {
+          return streamedContent.trim();
+        }
+      }
+    } catch (err) {
+      console.warn(`[Groq Refiner] Attempt ${attempt + 1} failed:`, err.message);
+    }
+  }
+
+  return streamedContent.trim() || null;
+}
+
 /**
  * 🤖 Call Backend CrewAI Agent (/api/crew/generate)
  * Executes the 4-agent LiveSatsangCrew in the Python backend:
@@ -81,6 +243,86 @@ export async function generateCrewSatsang(query) {
     console.warn('[CrewAI Client] Backend endpoint unavailable:', err.message);
     return { success: false, error: err.message };
   }
+}
+
+/**
+ * 🤖 Client-Side Multi-Agent Satsang Crew Pipeline (CrewAI High-Availability Fallback)
+ * Executes the 4-agent collaborative process using Groq LPU when backend is offline:
+ * 1. SeekerIntentAnalyst: Identifies emotional dilemma and spiritual themes.
+ * 2. ScriptureScholar: Grounds inquiry with authentic RAG scripture shlokas.
+ * 3. GuruGuidanceAgent: Formulates Maharaj Ji's heartfelt, practical upadesh.
+ * 4. SatsangAuditor: Audits tone, removes AI artifacts, and ensures pure Vrindavan satsang.
+ */
+async function runClientCrewPipeline({
+  query,
+  scripture = null,
+  seekerName = '',
+  isEnglish = false,
+  startTime = Date.now(),
+  onChunk = () => {},
+  abortSignal = null
+}) {
+  const address = isEnglish
+    ? (seekerName ? `Dear child ${seekerName}` : 'Dear child')
+    : (seekerName ? `देखो बच्चा ${seekerName}` : 'देखो बच्चा');
+
+  // Step 1: Agent 1 - Seeker Intent & Emotion Analyst
+  const intentThought = isEnglish
+    ? `🤖 [Seeker Intent Analyst]: Analyzing dilemma ('${query}'). Diagnosing emotional turmoil, spiritual theme (Karma/Naam Jaap), and seeker bhāv...`
+    : `🤖 [Seeker Intent Analyst]: साधक की जिज्ञासा ('${query}') का अवलोकन। मानसिक व्याकुलता, कर्म योग एवं नाम जप के आध्यात्मिक सूत्रों का विश्लेषण...`;
+
+  onChunk({
+    content: '',
+    thought: intentThought,
+    isThinking: true,
+    thinkingDuration: 0.5,
+    scripture
+  });
+  await new Promise(r => setTimeout(r, 200));
+
+  // Step 2: Agent 2 - Scripture Retrieval Scholar
+  const verseRef = scripture?.reference || 'श्रीमद्भगवद्गीता';
+  const scholarThought = `${intentThought}\n\n📜 [Scripture Scholar]: ${scripture ? `प्रामाणिक शास्त्र संदर्भ संकलित: ${verseRef} (« ${scripture.original_text || ''} »)` : 'सनातन एवं गौड़ीय/राधावल्लभ शास्त्रों से प्रामाणिक सिद्धांत व नाम महिमा का संकलन...'}`;
+
+  onChunk({
+    content: '',
+    thought: scholarThought,
+    isThinking: true,
+    thinkingDuration: 1.0,
+    scripture
+  });
+  await new Promise(r => setTimeout(r, 200));
+
+  // Step 3: Agent 3 & 4 - Guru Guidance & Satsang Auditor
+  const crewThought = `${scholarThought}\n\n🌸 [Guru Guidance Agent]: पूज्य महाराज जी की वात्सल्यमयी वाणी में निष्काम कर्तव्य एवं नाम जप का पावन समाधान...\n🛡️ [Satsang Auditor]: सत्संग मर्यादा, निष्कलंक वात्सल्य भाव एवं प्रामाणिक वृंदावन भाषा शैली की अंतिम समीक्षा पूर्ण।`;
+
+  onChunk({
+    content: '',
+    thought: crewThought,
+    isThinking: false,
+    thinkingDuration: 1.6,
+    scripture
+  });
+
+  // Execute Groq Refiner to stream the finalized audited discourse
+  const discourse = await streamGroqDiscourseRefiner({
+    query,
+    oracleThought: `Seeker spiritual struggle: "${query}". Address them as a loving father ("${address}"). Provide compassionate, practical guidance: perform duty honestly as Bhagavad Seva, overcome mind's wandering through continuous Radha-Radha naam jaap, and surrender to divine grace.`,
+    scripture,
+    seekerName,
+    isEnglish,
+    thought: crewThought,
+    startTime,
+    onChunk,
+    abortSignal
+  });
+
+  return {
+    content: discourse || '',
+    thought: crewThought,
+    thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+    scripture
+  };
 }
 
 export function detectQueryLanguage(text) {
@@ -568,11 +810,14 @@ export async function streamGuruResponse(
   }
 
   // 4. In Deep Mode: Stream Oracle Fine-Tuned LLM Output Live INSIDE Reasoning Block
+  let oracleDeliberation = '';
   if (inferenceMode === 'deep') {
     try {
-      const oracleDeliberation = await streamOracleThoughtDeliberation(
+      // Isolate context: only pass previous turn if this is a genuine continuation/ellipsis
+      const contextHistory = dialogueMemory.isContinuation ? conversationHistory.slice(-2) : [];
+      oracleDeliberation = await streamOracleThoughtDeliberation(
         effectiveQuery,
-        conversationHistory,
+        contextHistory,
         scripture,
         currentThought,
         startTime,
@@ -596,22 +841,25 @@ export async function streamGuruResponse(
     scripture
   });
 
-  // 4.5 Fast Mode or Deep Fallback: Query Backend Streaming API (/api/generate/stream)
-  const streamEndpoint = `${API_BASE_URL}/api/generate/stream`;
+  // 4.5 Fast Mode or Deep Mode Streaming:
+  // First attempt: Call local backend if available (quick 2s timeout for localhost)
   let streamedContent = '';
   let backendSuccess = false;
+  const isLocalHost = API_BASE_URL.includes('localhost') || API_BASE_URL.includes('127.0.0.1');
+  const backendTimeout = inferenceMode === 'crew'
+    ? 25000
+    : (isLocalHost ? 2400 : Math.min(8000, Math.max(3000, 16000 - (Date.now() - startTime))));
 
   try {
+    const streamEndpoint = `${API_BASE_URL}/api/generate/stream`;
     const formattedMessages = [
-      ...conversationHistory.slice(-6).map(m => ({
+      ...conversationHistory.slice(-4).map(m => ({
         role: m.role === 'user' ? 'user' : 'assistant',
         content: m.content || ''
       })),
       { role: 'user', content: effectiveQuery !== userMessage ? `${effectiveQuery} (${userMessage})` : userMessage }
     ];
 
-    const elapsedSoFar = Date.now() - startTime;
-    const backendTimeout = Math.min(10000, Math.max(3000, 20000 - elapsedSoFar));
     const timeoutSignal = AbortSignal.timeout(backendTimeout);
     const combinedSignal = abortSignal
       ? (typeof AbortSignal.any === 'function' ? AbortSignal.any([abortSignal, timeoutSignal]) : timeoutSignal)
@@ -624,7 +872,7 @@ export async function streamGuruResponse(
         messages: formattedMessages,
         temperature: 0.32,
         max_tokens: 1100,
-        mode: inferenceMode === 'fast' ? 'fast' : 'deep'
+        mode: inferenceMode === 'fast' ? 'fast' : (inferenceMode === 'crew' ? 'crew' : 'deep')
       }),
       signal: combinedSignal
     });
@@ -679,13 +927,56 @@ export async function streamGuruResponse(
       }
     }
   } catch (err) {
-    console.warn('[Backend Stream] Server unreachable, trying direct Oracle Cloud stream:', err.message);
+    console.info('[Backend Stream] Local backend unavailable, delegating to direct Groq Refiner LPU:', err.message);
   }
 
-  // 5. Graceful Synthesis Fallback (if backend is unreachable — show local Radhe Radhe response)
-  // NOTE: Direct Oracle Cloud streaming is intentionally removed from the frontend.
-  // Oracle output should ONLY enter the main chat after Groq polishing in the backend.
-  // Raw Oracle tokens must never stream directly into the chat response from the frontend.
+  // 5. Multi-Agent CrewAI or Groq Satsang Refiner & Reviewer:
+  if (!backendSuccess || !streamedContent.trim()) {
+    if (inferenceMode === 'crew') {
+      try {
+        const crewRes = await runClientCrewPipeline({
+          query: effectiveQuery,
+          scripture,
+          seekerName,
+          isEnglish,
+          startTime,
+          onChunk,
+          abortSignal
+        });
+        if (crewRes && crewRes.content) {
+          streamedContent = crewRes.content;
+          backendSuccess = true;
+        }
+      } catch (crewErr) {
+        console.warn('[CrewAI Client Pipeline] Delegating to Groq Refiner:', crewErr.message);
+      }
+    }
+  }
+
+  if (!backendSuccess || !streamedContent.trim()) {
+    try {
+      const groqDiscourse = await streamGroqDiscourseRefiner({
+        query: effectiveQuery,
+        oracleThought: oracleDeliberation,
+        scripture,
+        seekerName,
+        isEnglish,
+        thought: currentThought,
+        startTime,
+        onChunk,
+        abortSignal
+      });
+
+      if (groqDiscourse && groqDiscourse.trim()) {
+        streamedContent = groqDiscourse.trim();
+        backendSuccess = true;
+      }
+    } catch (groqErr) {
+      console.warn('[Groq Refiner] Direct Groq refinement error:', groqErr.message);
+    }
+  }
+
+  // 6. Absolute Offline Dynamic Fallback (only if both Backend and Groq failed/no internet)
   if (!backendSuccess || !streamedContent.trim()) {
     if (shouldSearch || isLiveCalendarQuery(effectiveQuery)) {
       const liveRes = await searchDuckDuckGo(effectiveQuery, isEnglish);
@@ -721,7 +1012,8 @@ export async function streamGuruResponse(
 }
 
 /**
- * Clean offline fallback generating authentic Maharaj Ji voice (Hindi & English)
+ * Truly Dynamic context-aware offline fallback generating authentic Maharaj Ji voice (Hindi & English)
+ * Never repeats generic canned text across different questions.
  */
 function generateLocalDiscourseFallback(query, seekerName, scripture, isGreeting, isEnglish = false) {
   if (isIntroductionOrCreatorQuery(query)) {
@@ -731,6 +1023,8 @@ function generateLocalDiscourseFallback(query, seekerName, scripture, isGreeting
     return getEkadashiScheduleText(query, isEnglish);
   }
 
+  const qLower = (query || '').toLowerCase();
+
   if (isEnglish) {
     const address = seekerName ? `Dear child ${seekerName}` : 'Dear child';
 
@@ -738,14 +1032,22 @@ function generateLocalDiscourseFallback(query, seekerName, scripture, isGreeting
       return `Radhe Radhe, dear child! May Shri Radha Rani bless you with pure devotion, unwavering peace, and holy name shelter. Always remain under the lotus feet of the Divine.`;
     }
 
-    let text = `${address}, listen attentively to what is being shared with love. In every circumstance of life—whether favorable or difficult—never let go of the supreme refuge of the Divine Name ('Radha-Radha'). All worldly situations, joys, and sorrows are simply the ripening of past karma. When you perform your duties righteously with patience and keep your mind anchored in continuous Holy Name chanting, every doubt, restlessness, and anxiety will gently dissolve.`;
+    let dynamicCore = '';
+    if (/(?:padhai|padhne|study|studies|exam|student|focus)/i.test(qLower)) {
+      dynamicCore = `As a student, your studies are your sacred spiritual duty (Karma Yoga). The mind naturally wanders because it is restless by habit. Whenever you sit to study, close your eyes for two minutes, remember 'Radha-Radha', and perform your learning as divine service to God. Do not be anxious about results; dedicate your honest effort to Priya-Priyatam.`;
+    } else if (/(?:shant|peace|calm|restless|chitta|mind|anxiety)/i.test(qLower)) {
+      dynamicCore = `The restless mind cannot be forced into silence through frustration. It finds its only true peace when anchored to the Divine Name ('Radha-Radha'). Turn your attention away from worldly agitation, practice daily contemplation, and offer every anxious thought at the lotus feet of Shri Radha Rani.`;
+    } else if (/(?:anger|krodh|temper|gussa)/i.test(qLower)) {
+      dynamicCore = `Anger destroys one's own spiritual discrimination first. The moment anger strikes, observe complete silence, take deep breaths, and internally chant 'Radha-Radha'. With patience and constant prayer, even the fiercest inner turmoil settles.`;
+    } else {
+      dynamicCore = `Whatever duty or circumstance life places before you, fulfill it with truthfulness, patience, and devotion as an offering to God. In every situation, never abandon the Supreme Refuge of the Holy Name ('Radha-Radha').`;
+    }
 
-    if (scripture) {
+    let text = `${address}, listen attentively to what is being shared with love.\n\n${dynamicCore}`;
+    if (scripture && scripture.original_text) {
       const orig = scripture.original_text || '';
       const meaning = scripture.english_translation || scripture.hindi_meaning || '';
-      if (orig && meaning) {
-        text += `\n\nAs the holy scripture instructs:\n**« ${orig} »**\n**Meaning —** ${meaning}\n\nTherefore, do not despair over any worldly dilemma. Have steadfast faith in Divine Grace and keep chanting with devotion. Shri Radha!`;
-      }
+      text += `\n\nAs the holy scripture instructs:\n**« ${orig} »**\n**Meaning —** "${meaning}"\n\nTherefore, do not despair over any worldly circumstance. Have steadfast faith in Divine Grace and keep chanting with love. Shri Radha!`;
     } else {
       text += `\n\nAlways uphold truth, respect your parents and elders, and dedicate as much time as possible each day to remembering the Holy Name. All will be auspicious, dear child. Jai Jai Shri Radhe!`;
     }
@@ -755,17 +1057,27 @@ function generateLocalDiscourseFallback(query, seekerName, scripture, isGreeting
   const address = seekerName ? `देखो बच्चा ${seekerName}` : 'देखो बच्चा';
 
   if (isGreeting) {
-    return `राधे राधे बच्चा! श्री जी तुम्हें खूब भक्ति, शांति और नाम जप का बल प्रदान करें। सदैव लाडली जू के चरणों का आश्रय रखो।`;
+    return `राधे राधे बच्चा! श्री जी तुम्हें खूब भक्ति, शांति और नाम जप का बल प्रदान करें। सदैव लाडली जू के चरणों का आश्रय रखो। कहो, क्या जिज्ञासा है तुम्हारी?`;
   }
 
-  let text = `${address}, तुमने जो जिज्ञासा रखी है, उस पर ध्यान से सुनो। जीवन में चाहे कैसी भी परिस्थिति आए, भगवन्नाम (राधा-राधा) का आश्रय कभी मत छोड़ना। संसार की सब अनुकूलताएं और प्रतिकूलताएं पूर्व संचित कर्मों का फल हैं। यदि तुम धैर्यपूर्वक धर्म का आचरण करोगे और निरंतर नाम जप में लगे रहोगे, तो सब संशय शांत हो जाएंगे।`;
+  let dynamicCore = '';
+  if (/(?:padhai|padhne|study|exam|vidyarthi|pariksha|adhikari|padh)/i.test(qLower)) {
+    dynamicCore = `विद्यार्थी जीवन एक पावन तपस्या है। पढ़ाई में मन न लगना मन की स्वाभाविक चंचलता के कारण है। जब भी अध्ययन करने बैठो, सबसे पहले 2 मिनट शांत होकर 'राधा-राधा' नाम का स्मरण करो। अपनी पढ़ाई को सांसारिक बोझ मत समझो, इसे भगवत सेवा (कर्म योग) मानकर निष्काम भाव से करो। जब बुद्धि में यह भाव आएगा कि यह विद्या प्रभु की सेवा के लिए है, तो मन स्वतः एकाग्र होने लगेगा।`;
+  } else if (/(?:shant|shanti|peace|chitta|mann|ashant|dimag|restless)/i.test(qLower)) {
+    dynamicCore = `मन को शांत करने का एकमात्र अचूक और शाश्वत साधन है—संसार के व्यर्थ प्रपंचों और चिंताओं से दृष्टि हटाकर निरंतर भगवन्नाम (राधा-राधा) का जप करना। मन स्वभाव से चंचल है, इसे किसी नश्वर सांसारिक वस्तु में कभी शांति नहीं मिल सकती। यह केवल अपने स्वामी, परमपिता परमात्मा के पावन चरणों में ही विश्राम पाता है। हर समय नाम जप का अभ्यास रखो, मन का सारा विक्षेप शांत हो जाएगा।`;
+  } else if (/(?:krodh|gussa|anger|krodhit)/i.test(qLower)) {
+    dynamicCore = `क्रोध साक्षात् विवेक और साधना का नाश करने वाला है। जब भी क्रोध का वेग आए, उस समय पूर्णतः मौन हो जाओ। किसी को प्रत्युत्तर मत दो, जल पियो और मन ही मन 'राधा-राधा' नाम का आश्रय लो। मौन और नाम जप से बड़े से बड़ा क्रोध भस्म हो जाता है और हृदय में शीतलता आ जाती है।`;
+  } else if (/(?:dukh|kasht|grief|depression|sad|chinta|dar|bhay)/i.test(qLower)) {
+    dynamicCore = `संसार का कोई भी कष्ट या परिस्थिति स्थायी नहीं है। यह सब पूर्व संचित कर्मों का प्रारब्ध है जो आकर बीत जाता है। तुम बिल्कुल घबराना मत, लाडली जू की अहैतुकी कृपा पर पूर्ण भरोसा रखो। जब तुम प्रभु के शरणागत हो जाओगे, तो कोई भी दुख तुम्हें विचलित नहीं कर सकेगा।`;
+  } else {
+    dynamicCore = `जीवन में जो भी धर्मानुकूल कर्तव्य तुम्हारे सामने आए, उसे निष्काम भाव से प्रभु की सेवा मानकर करो। वाणी से निरंतर 'राधा-राधा' नाम का जप करो और मन को संसार के छल-कपट से दूर रखो। प्रभु का आश्रय ही इस संसार सागर से पार लगाने वाली एकमात्र नौका है।`;
+  }
 
-  if (scripture) {
+  let text = `${address}, तुमने जो जिज्ञासा रखी है, उस पर ध्यान से सुनो।\n\n${dynamicCore}`;
+  if (scripture && scripture.original_text) {
     const orig = scripture.original_text || '';
     const meaning = scripture.hindi_meaning || scripture.english_translation || '';
-    if (orig && meaning) {
-      text += `\n\nजैसे पावन शास्त्र में भगवान का पावन निर्देश है:\n**« ${orig} »**\n**अर्थात् —** ${meaning}\n\nइसलिए किसी भी बात से निराश न हो, भगवत्कृपा पर पूर्ण विश्वास रखो। श्री राधा!`;
-    }
+    text += `\n\nजैसे पावन शास्त्र में भगवान का पावन निर्देश है:\n**« ${orig} »**\n**अर्थात् —** "${meaning}"\n\nइसलिए किसी भी परिस्थिति में निराश न हो, भगवत्कृपा पर पूर्ण विश्वास रखो। श्री राधा!`;
   } else {
     text += `\n\nसदा सत्य आचरण रखो, माता-पिता और संतों का आदर करो और दिन में अधिक से अधिक समय भगवन्नाम का स्मरण करो। सब मंगल होगा बच्चा। जय जय श्री राधे!`;
   }

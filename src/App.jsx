@@ -845,8 +845,8 @@ export default function App() {
         content: '',
         initialContent: '',
         subsequentContent: '',
-        thought: (!isCasual && inferenceMode === 'deep') ? '🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न का शास्त्रीय विश्लेषण...' : '',
-        isThinking: !isCasual && inferenceMode === 'deep',
+        thought: (!isCasual && (inferenceMode === 'deep' || inferenceMode === 'crew')) ? '🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न का शास्त्रीय विश्लेषण...' : '',
+        isThinking: !isCasual && (inferenceMode === 'deep' || inferenceMode === 'crew'),
         thinkingDuration: 0,
         timestamp: new Date(),
         mode: inferenceMode
@@ -1138,17 +1138,27 @@ export default function App() {
           </div>
 
           <div className="topbar-center">
-            {/* Unified Deep/Fast mode toggle */}
+            {/* Unified Deep / CrewAI / Fast mode toggle */}
             <div className="mode-toggle-group" role="group" aria-label="Select inference mode">
               <button
                 type="button"
                 className={`mode-pill-btn ${inferenceMode === 'deep' ? 'active' : ''}`}
                 onClick={() => handleModeChange('deep')}
-                aria-label="Deep Mode: Fine-tuned Q8 Oracle model"
+                aria-label="Deep Mode: Fine-tuned Q8 Oracle model with Groq review"
                 aria-pressed={inferenceMode === 'deep'}
-                title="Dedicated Oracle Cloud Q8 GGUF Server (~12s response)"
+                title="Oracle Cloud Q8 Fine-Tuned Model + Groq Review + RAG Data"
               >
                 🧘 <span className="mode-pill-btn-label-text">Deep</span>
+              </button>
+              <button
+                type="button"
+                className={`mode-pill-btn ${inferenceMode === 'crew' ? 'active' : ''}`}
+                onClick={() => handleModeChange('crew')}
+                aria-label="CrewAI Mode: 4-agent collaborative spiritual crew"
+                aria-pressed={inferenceMode === 'crew'}
+                title="Collaborative 4-Agent Crew: Intent -> Scripture -> Maharaj Ji Voice -> Auditor"
+              >
+                🤖 <span className="mode-pill-btn-label-text">CrewAI</span>
               </button>
               <button
                 type="button"

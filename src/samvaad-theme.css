@@ -10943,6 +10943,15 @@ select:focus-visible,
     transform: scale(1.02) !important;
   }
 
+  /* CrewAI Mode Active Pill */
+  .mode-pill-btn.active[aria-label*="Crew"] {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    color: #FFFFFF !important;
+    border-color: rgba(52, 211, 153, 0.6) !important;
+    box-shadow: 0 2px 14px rgba(5, 150, 105, 0.45) !important;
+    transform: scale(1.02) !important;
+  }
+
   .mode-pill-btn-label-text {
     display: inline !important;
     font-size: 13px !important;
