@@ -11048,88 +11048,138 @@ select:focus-visible,
    Appended last so it wins over earlier mobile rules with equal specificity.
    ═════════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* A. Topbar: mathematically perfect middle via equal 1fr side columns */
+  /* A. Topbar: mathematically absolute dead-center alignment for Day/Night toggle */
   .topbar {
-    display: grid !important;
-    grid-template-columns: 1fr auto 1fr !important;
+    position: relative !important;
+    display: flex !important;
     align-items: center !important;
-    justify-content: stretch !important;
-    column-gap: 8px !important;
+    justify-content: space-between !important;
+    height: 60px !important;
+    padding-inline: 14px !important;
+    box-sizing: border-box !important;
   }
   .topbar-left {
-    justify-self: start !important;
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
     min-width: 0 !important;
+    z-index: 6 !important;
   }
   .topbar-center {
-    justify-self: center !important;
-    align-self: center !important;
-    flex: none !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    width: max-content !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    z-index: 5 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    pointer-events: auto !important;
+    width: auto !important;
+    max-width: calc(100% - 160px) !important;
   }
   .topbar-actions {
-    justify-self: end !important;
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
+    margin-left: auto !important;
     min-width: 0 !important;
+    z-index: 6 !important;
   }
   .mobile-theme-switch-group {
+    display: inline-flex !important;
+    align-items: center !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
   }
   .mobile-theme-btn { flex-shrink: 0 !important; min-width: 0 !important; }
   .mobile-theme-btn-text { white-space: nowrap !important; }
 
-  /* D. Message-box: never collide horizontally with viewport */
-  .content-area,
-  .content-area .messages { overflow-x: clip !important; }
-  .message.assistant,
-  .assistant-message-body {
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-  }
-  .assistant-message-body > * {
-    min-width: 0 !important;
+  /* B. Chatpage Response Message Box: Perfect dedicated card container with safe internal breathing room */
+  .content-area {
+    display: block !important;
+    width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
   }
-  .assistant-message-body .rich-text {
-    overflow-wrap: break-word !important;
-    word-break: break-word !important;
-    min-width: 0 !important;
+  .content-area .messages {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 72px 14px 180px 14px !important;
+    gap: 18px !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
   }
-}
 
-@media (max-width: 640px) {
-  /* B + C. Chintan box: contained, rounded top, no text collisions */
+  .message.assistant {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 18px 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Perfect Assistant Response Card Box on Mobile */
+  .assistant-message-body {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    border-radius: 20px !important;
+    padding: 16px 16px 14px 16px !important;
+    margin: 0 0 18px 0 !important;
+    background: #FFFDF9 !important;
+    border: 1.5px solid rgba(217, 119, 6, 0.2) !important;
+    box-shadow: 0 4px 20px -2px rgba(180, 83, 9, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+    overflow: visible !important;
+  }
+
+  :root[data-theme='dark'] .assistant-message-body,
+  .spiritual-page.night .assistant-message-body {
+    background: rgba(14, 22, 38, 0.94) !important;
+    border: 1.5px solid rgba(254, 200, 75, 0.22) !important;
+    box-shadow: 0 6px 26px -2px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  /* C. Chintan Prakriya: Beautifully rounded top corners + contained without colliding */
   .assistant-message-body .reasoning-container,
   .reasoning-container {
-    border-radius: 16px !important;
+    border-radius: 18px !important;
     overflow: hidden !important;
     isolation: isolate !important;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-    margin: 0 0 12px 0 !important;
+    margin: 0 0 16px 0 !important;
   }
-  /* Sharp-corner fix: every top layer inherits the same roundness */
+
+  /* Soft, generous top-edge rounding so edges never feel sharp */
+  .reasoning-container,
+  .reasoning-container.thinking-done,
+  .reasoning-container.thinking-active {
+    border-top-left-radius: 18px !important;
+    border-top-right-radius: 18px !important;
+    border-bottom-left-radius: 18px !important;
+    border-bottom-right-radius: 18px !important;
+  }
   .reasoning-header-bar {
-    border-top-left-radius: 16px !important;
-    border-top-right-radius: 16px !important;
+    border-top-left-radius: 17px !important;
+    border-top-right-radius: 17px !important;
     overflow: hidden !important;
   }
   .reasoning-header-btn {
-    border-top-left-radius: 15px !important;
-    border-top-right-radius: 15px !important;
+    border-top-left-radius: 17px !important;
+    border-top-right-radius: 17px !important;
     overflow: hidden !important;
     min-width: 0 !important;
   }
@@ -11137,81 +11187,73 @@ select:focus-visible,
     left: 0 !important;
     right: 0 !important;
     top: 0 !important;
-    border-top-left-radius: 16px !important;
-    border-top-right-radius: 16px !important;
+    border-top-left-radius: 18px !important;
+    border-top-right-radius: 18px !important;
   }
-  /* Header row: title truncates, timer + chevron never push outside */
-  .reasoning-status-row {
-    min-width: 0 !important;
-    flex: 1 1 auto !important;
-    overflow: hidden !important;
-  }
-  .reasoning-title-text {
-    min-width: 0 !important;
-    flex: 0 1 auto !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    line-height: 1.4 !important;
-    padding-block: 1px !important;
-  }
-  .claude-timer-badge,
-  .reasoning-toggle-icon { flex-shrink: 0 !important; }
-  /* RAG pill row: full-width but text always ellipsizes inside */
-  .reasoning-pill-slot {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-  }
-  .claude-rag-pill-btn,
-  .claude-rag-searching-pill {
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-  }
-  .claude-rag-pill-text,
-  .claude-shimmer-text {
-    min-width: 0 !important;
-    flex: 1 1 auto !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-  }
-  .claude-rag-pill-icon,
-  .claude-rag-pill-score,
-  .claude-rag-pill-chevron,
-  .claude-shimmer-dot { flex-shrink: 0 !important; }
-  /* Preview stream: breathing room + no edge touch */
-  .reasoning-stream-preview {
+
+  /* D. Response text typography: Spacious, elegant, never collides with box layout */
+  .assistant-message-body .rich-text {
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-    overflow: hidden !important;
-  }
-  .reasoning-text-stream.stream-preview-always {
-    overflow: hidden !important;
+    font-size: 15.5px !important;
+    line-height: 1.85 !important;
+    padding: 0 !important;
+    margin: 0 !important;
     overflow-wrap: break-word !important;
     word-break: break-word !important;
   }
-  /* Clean separation between chintan box and answer text below */
-  .assistant-message-body .rich-text { margin-top: 2px !important; }
-  /* RAG references card: contained with its own roundness on mobile */
-  .rag-verses-dropdown-container {
+
+  .assistant-message-body .rich-text p,
+  .assistant-message-body .rich-text .rich-line {
+    margin: 0 0 14px 0 !important;
+    line-height: 1.85 !important;
+    text-align: left !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  .assistant-message-body .rich-text p:last-child,
+  .assistant-message-body .rich-text .rich-line:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  /* Shlokas: centered illuminated card inside message box */
+  .assistant-message-body .rich-shlok-line {
+    margin: 14px 0 12px 0 !important;
+    padding: 14px 16px !important;
+    border-radius: 14px !important;
+    box-sizing: border-box !important;
     width: 100% !important;
     max-width: 100% !important;
-    box-sizing: border-box !important;
-    margin-top: 12px !important;
+  }
+
+  /* Arthat: explanatory quote card inside message box */
+  .assistant-message-body .rich-arthat-line {
+    margin: 6px 0 14px 0 !important;
+    padding: 12px 14px !important;
     border-radius: 12px !important;
-    overflow: hidden !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Meta footer: clean separator line, time & audio/copy actions */
+  .assistant-message-body .message-meta {
+    margin-top: 14px !important;
+    padding-top: 10px !important;
+    border-top: 1px solid rgba(245, 158, 11, 0.14) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 }
 
 /* Very small phones: shrink topbar so centered Day/Night never overlaps */
 @media (max-width: 380px) {
-  .topbar { padding-inline: 10px !important; column-gap: 6px !important; }
+  .topbar { padding-inline: 10px !important; }
   .topbar-left { gap: 6px !important; }
   .topbar-actions { gap: 6px !important; }
   .topbar-left .icon-button,
@@ -11220,7 +11262,130 @@ select:focus-visible,
   .topbar-actions .icon-button { width: 34px !important; height: 34px !important; }
   .mobile-theme-switch-group { gap: 2px !important; padding: 2px !important; }
   .mobile-theme-btn { padding: 4px 8px !important; font-size: 0.72rem !important; }
+  .assistant-message-body { padding: 14px 14px 12px 14px !important; border-radius: 16px !important; }
 }
+
+/* ═════════════════════════════════════════════════════════════════════
+   ASSISTANT RESPONSE CARD — FINAL OVERRIDE (PC + Mobile)
+   Mirrors the user query bubble: real inner padding, rounded corners,
+   soft border. High specificity beats the legacy rules
+   `.message.assistant > div { padding:0 }` and
+   `:root[data-theme='light'] .message.assistant { border:… }`.
+   ═════════════════════════════════════════════════════════════════════ */
+
+/* 1. Outer article: invisible wrapper (kills the sharp rectangle) */
+html:root[data-theme] .main-panel .messages .message.assistant,
+html:root .main-panel .messages .message.assistant {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 0 20px 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* 2. Inner card: same language as the user bubble */
+html:root[data-theme] .main-panel .messages .message.assistant > .assistant-message-body,
+html:root .main-panel .messages .message.assistant > .assistant-message-body {
+  display: block !important;
+  position: relative !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 22px 26px 18px 26px !important;
+  border-radius: 20px !important;
+  overflow: visible !important;
+  background: #FFFDF8 !important;
+  border: 1.5px solid rgba(217, 119, 6, 0.26) !important;
+  box-shadow: 0 3px 14px rgba(217, 119, 6, 0.07) !important;
+}
+
+html:root[data-theme='dark'] .main-panel .messages .message.assistant > .assistant-message-body {
+  background: rgba(14, 22, 38, 0.92) !important;
+  border: 1.5px solid rgba(254, 200, 75, 0.28) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* 3. Children never touch the card edges or each other */
+html:root .main-panel .message.assistant > .assistant-message-body > * {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+html:root .main-panel .message.assistant > .assistant-message-body > *:first-child { margin-top: 0 !important; }
+html:root .main-panel .message.assistant > .assistant-message-body > *:last-child { margin-bottom: 0 !important; }
+
+/* Chintan box inside the card: rounded on all corners, clean gap below */
+html:root .main-panel .message.assistant > .assistant-message-body > .reasoning-container {
+  width: 100% !important;
+  margin: 0 0 18px 0 !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+}
+
+/* Answer text: breathing line-height, no stray margins */
+html:root .main-panel .message.assistant > .assistant-message-body > .rich-text {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.8 !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+}
+
+html:root .main-panel .message.assistant > .assistant-message-body > .rag-verses-dropdown-container {
+  margin-top: 16px !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
+
+html:root .main-panel .message.assistant > .assistant-message-body > .message-meta {
+  margin-top: 16px !important;
+  padding-top: 12px !important;
+}
+
+/* Streaming state: keep the same padding (legacy rule set it to 8px 0) */
+html:root .main-panel .message.assistant.responding > .assistant-message-body {
+  padding: 22px 26px 18px 26px !important;
+  overflow: hidden !important;
+}
+
+/* 4. Mobile: same card, tighter padding (matches user bubble rhythm) */
+@media (max-width: 768px) {
+  html:root[data-theme] .main-panel .messages .message.assistant > .assistant-message-body,
+  html:root .main-panel .messages .message.assistant > .assistant-message-body,
+  html:root .main-panel .message.assistant.responding > .assistant-message-body {
+    padding: 16px 16px 14px 16px !important;
+    border-radius: 18px !important;
+  }
+  html:root .main-panel .message.assistant > .assistant-message-body > .reasoning-container {
+    margin-bottom: 14px !important;
+    border-radius: 14px !important;
+  }
+  html:root .main-panel .message.assistant > .assistant-message-body > .rich-text {
+    font-size: 15px !important;
+    line-height: 1.78 !important;
+  }
+}
+
+@media (max-width: 380px) {
+  html:root[data-theme] .main-panel .messages .message.assistant > .assistant-message-body,
+  html:root .main-panel .messages .message.assistant > .assistant-message-body,
+  html:root .main-panel .message.assistant.responding > .assistant-message-body {
+    padding: 14px 13px 12px 13px !important;
+    border-radius: 16px !important;
+  }
+}
+
+
 
 
 
