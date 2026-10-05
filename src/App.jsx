@@ -462,12 +462,6 @@ export default function App() {
     };
   }, [view, sidebarOpen, voiceCloneModalOpen, showGuestLoginModal, showExitConfirmModal]);
 
-  // Clean up hide timer on unmount
-  useEffect(() => {
-    return () => {
-      if (topbarHideTimerRef.current) clearTimeout(topbarHideTimerRef.current);
-    };
-  }, []);
 
   const handleModeChange = useCallback((newMode) => {
     setInferenceMode(newMode);

@@ -133,7 +133,7 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 .profile > span:last-child { display: grid; gap: 2px; }
 .profile strong { font-size: 13px; }
 .profile small { color: var(--muted); font-size: 11px; }
-.avatar { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; background: var(--accent-soft); color: var(--accent-dark); font-size: 11px; font-weight: 700; }
+.avatar { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.18); border: 2px solid rgba(255,255,255,0.15); }
 
 .main-panel { display: flex; height: 100vh; height: 100dvh; max-height: 100dvh; flex: 1; flex-direction: column; margin-left: 0; width: 100%; overflow: hidden; background: radial-gradient(circle at 77% 8%, rgba(231, 99, 54, 0.08), transparent 26%), var(--panel); }
 .topbar { display: flex; height: 70px; align-items: center; justify-content: space-between; padding: 0 32px; border-bottom: 1px solid var(--line); }
@@ -822,21 +822,25 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 
 .user-avatar {
   display: grid;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   place-items: center;
-  border-radius: 10px;
-  background: var(--accent-soft);
-  color: var(--accent-dark);
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  border: 1px solid var(--line);
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  transition: box-shadow 160ms ease, transform 160ms ease;
+  letter-spacing: 0;
+  user-select: none;
 }
 
 .user-avatar:hover {
-  background: var(--accent);
-  color: white;
+  box-shadow: 0 4px 16px rgba(231, 99, 54, 0.4);
+  transform: scale(1.06);
 }
 
 .message-time {
@@ -1433,7 +1437,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .topbar-center .home-link .home-link-text { display: none; }
   .topbar-actions { gap: 4px; }
   .topbar .icon-button, .topbar .user-avatar { width: 34px; height: 34px; }
-  .topbar .user-avatar { display: none; }
+  .topbar .user-avatar { display: grid; }
   .content-area { padding-inline: 12px; }
   .welcome h1 { font-size: clamp(37px, 12vw, 45px); }
   .voice-mode { padding: 16px 14px; border-radius: 18px; }
@@ -2727,10 +2731,17 @@ html, body { max-width: 100%; overflow-x: hidden; }
     border-radius: 10px;
   }
 
-  /* Message bubbles: tighter on phones */
+  /* Message bubbles: no box padding on assistant messages — keeps the layout
+     open and readable rather than creating a "boxy" container look */
   .message {
-    gap: 10px;
-    padding: 14px 12px 10px;
+    gap: 6px;
+    /* No padding: assistant messages flow without a container box */
+    padding: 0;
+  }
+
+  /* User bubble messages keep their own internal bubble padding, not the message */
+  .message.user {
+    padding: 0;
   }
 
   .message-avatar {
@@ -2742,7 +2753,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
   .message > div {
     min-width: 0;
-    overflow: hidden;
+    /* Remove overflow:hidden — it clips Devanagari text & long Sanskrit shloks */
+    overflow: visible;
   }
 
   /* Engine tags: wrap on very small phones */
@@ -2777,10 +2789,12 @@ html, body { max-width: 100%; overflow-x: hidden; }
     margin-bottom: 6px;
   }
 
-  /* Make assistant message body not overflow */
+  /* Assistant message body: open layout with comfortable breathing room */
   .assistant-message-body {
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
+    gap: 10px;
+    padding: 0;
   }
 }
 
@@ -2796,9 +2810,10 @@ html, body { max-width: 100%; overflow-x: hidden; }
     padding: 10px 13px;
   }
 
+  /* No box padding on message — keep it open/flat on tiny phones */
   .message {
-    padding: 12px 10px 8px;
-    gap: 8px;
+    padding: 0;
+    gap: 6px;
   }
 
   .message-avatar {
