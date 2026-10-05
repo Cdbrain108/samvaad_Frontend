@@ -497,19 +497,33 @@ export default function App() {
     if (!contentAreaRef.current) return;
     const el = contentAreaRef.current;
     const currentScrollTop = el.scrollTop;
-    // When distance from bottom exceeds 30px, user has scrolled up to read earlier messages/question
+    // When distance from bottom exceeds 25px, user has scrolled up to read earlier messages/question
     const distanceFromBottom = el.scrollHeight - currentScrollTop - el.clientHeight;
-    userScrolledUpRef.current = distanceFromBottom > 30;
+    userScrolledUpRef.current = distanceFromBottom > 25;
+  }, []);
+
+  // Proactive mousewheel / trackpad detection: allows instantly scrolling up to view the query even during generation
+  const handleContentWheel = useCallback((e) => {
+    if (e.deltaY < 0) {
+      // User wheeled up — immediately unlock manual scroll up
+      userScrolledUpRef.current = true;
+    } else if (e.deltaY > 0 && contentAreaRef.current) {
+      const el = contentAreaRef.current;
+      const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      if (distanceFromBottom <= 25) {
+        userScrolledUpRef.current = false;
+      }
+    }
   }, []);
 
   // Auto-scroll: ONLY while actively streaming, and ONLY if user is already at the bottom
   useEffect(() => {
     if (!isStreaming || !contentAreaRef.current) return;
-    // NEVER force user back down if they intentionally scrolled up to read previous messages
+    // NEVER force user back down if they intentionally scrolled up to read previous messages or query
     if (userScrolledUpRef.current) return;
     const el = contentAreaRef.current;
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    if (distanceFromBottom > 40) return;
+    if (distanceFromBottom > 35) return;
 
     el.scrollTop = el.scrollHeight;
   }, [messages, isStreaming]);
@@ -1262,6 +1276,7 @@ export default function App() {
           className={`content-area ${voiceModeOpen ? 'voice-mode-active' : ''}${messages.length > 0 ? ' has-messages' : ''}`}
           ref={contentAreaRef}
           onScroll={handleContentScroll}
+          onWheel={handleContentWheel}
         >
           <VoiceMode
             open={voiceModeOpen}
@@ -1333,7 +1348,7 @@ export default function App() {
                         />
                       )}
 
-                      {/* Open Typography flowing directly on canvas */}
+                      {/* Open Typography flowing directly inside the Sacred Card Window */}
                       {message.content && (
                         <div className="rich-text">
                           <RichText content={message.content} streaming={isLastAssistant && (isStreaming || message.isThinking)} />
@@ -1348,44 +1363,47 @@ export default function App() {
                         />
                       )}
 
-                      <div className="message-meta">
-                        {message.timestamp && (
-                          <time className="message-time">
-                            {formatTimestamp(message.timestamp)}
-                          </time>
-                        )}
-                        {message.content && !isStreaming && (() => {
-                          const isThisActive = voice.activeSpeech === message.content;
-                          const isPreparing = isThisActive && voice.state === 'preparing';
-                          const isSpeaking = isThisActive && voice.state === 'speaking';
-                          const isPaused = isThisActive && voice.state === 'paused';
+                      {/* Only display metadata footer when message content has arrived */}
+                      {message.content && (
+                        <div className="message-meta">
+                          {message.timestamp && (
+                            <time className="message-time">
+                              {formatTimestamp(message.timestamp)}
+                            </time>
+                          )}
+                          {!isStreaming && (() => {
+                            const isThisActive = voice.activeSpeech === message.content;
+                            const isPreparing = isThisActive && voice.state === 'preparing';
+                            const isSpeaking = isThisActive && voice.state === 'speaking';
+                            const isPaused = isThisActive && voice.state === 'paused';
 
-                          return (
-                            <>
-                              <CopyButton text={message.content} />
-                              <button
-                                className={`message-action ${isThisActive ? 'is-speaking-action' : ''}`}
-                                onClick={() => {
-                                  if (isSpeaking || isPaused) {
-                                    voice.togglePause();
-                                  } else if (isPreparing) {
-                                    voice.stop();
-                                  } else {
-                                    voice.speak(message.content);
-                                  }
-                                }}
-                                aria-label="Listen to Maharaj Ji Vani"
-                                type="button"
-                                title="पूज्य महाराज जी की प्रामाणिक आवाज़"
-                                style={isThisActive ? { color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.4)' } : {}}
-                              >
-                                <Icon name={isSpeaking ? 'pause' : 'volume'} size={13} />
-                                <span>{isPreparing ? 'तैयार हो रही है...' : isSpeaking ? 'रोकें' : isPaused ? 'सुनें' : 'महाराज जी वाणी'}</span>
-                              </button>
-                            </>
-                          );
-                        })()}
-                      </div>
+                            return (
+                              <div className="message-actions-cluster">
+                                <CopyButton text={message.content} />
+                                <button
+                                  className={`message-action ${isThisActive ? 'is-speaking-action' : ''}`}
+                                  onClick={() => {
+                                    if (isSpeaking || isPaused) {
+                                      voice.togglePause();
+                                    } else if (isPreparing) {
+                                      voice.stop();
+                                    } else {
+                                      voice.speak(message.content);
+                                    }
+                                  }}
+                                  aria-label="Listen to Maharaj Ji Vani"
+                                  type="button"
+                                  title="पूज्य महाराज जी की प्रामाणिक आवाज़"
+                                  style={isThisActive ? { color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.4)' } : {}}
+                                >
+                                  <Icon name={isSpeaking ? 'pause' : 'volume'} size={13} />
+                                  <span>{isPreparing ? 'तैयार हो रही है...' : isSpeaking ? 'रोकें' : isPaused ? 'सुनें' : 'महाराज जी वाणी'}</span>
+                                </button>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
                     </div>
                   </motion.article>
                 );
