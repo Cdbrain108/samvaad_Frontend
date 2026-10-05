@@ -11290,6 +11290,74 @@ select:focus-visible,
     position: relative !important;
     z-index: 10 !important;
     margin-left: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  /* Chat taskbar Day/Night toggle pill on PC */
+  .chat-theme-toggle {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    border-radius: 999px !important;
+    padding: 3px 4px !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    transition: all 0.25s ease !important;
+  }
+
+  :root[data-theme='dark'] .chat-theme-toggle {
+    background: rgba(10, 20, 36, 0.75) !important;
+    border: 1px solid rgba(254, 200, 75, 0.28) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28) !important;
+  }
+
+  :root[data-theme='light'] .chat-theme-toggle {
+    background: rgba(255, 255, 255, 0.78) !important;
+    border: 1px solid rgba(217, 119, 6, 0.26) !important;
+    box-shadow: 0 3px 12px rgba(217, 119, 6, 0.08) !important;
+  }
+
+  .chat-theme-toggle .theme-pill-opt {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 4px 11px !important;
+    border-radius: 999px !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    line-height: 1.2 !important;
+    transition: all 0.2s ease !important;
+  }
+
+  :root[data-theme='dark'] .chat-theme-toggle .theme-pill-opt {
+    color: #94a3b8 !important;
+  }
+
+  :root[data-theme='dark'] .chat-theme-toggle .theme-pill-opt:hover:not(.is-active) {
+    color: #f3f4f6 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  :root[data-theme='light'] .chat-theme-toggle .theme-pill-opt {
+    color: #8a6b4d !important;
+  }
+
+  :root[data-theme='light'] .chat-theme-toggle .theme-pill-opt:hover:not(.is-active) {
+    color: #452402 !important;
+    background: rgba(217, 119, 6, 0.08) !important;
+  }
+
+  .chat-theme-toggle .theme-pill-opt.is-active {
+    background: linear-gradient(135deg, #f59e0b, #fcd34d) !important;
+    color: #452402 !important;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35) !important;
   }
 
   /* Landing Page Taskbar: Home, Inspiration, etc. placed in the exact mathematical middle */
@@ -11508,6 +11576,10 @@ select:focus-visible,
    MOBILE VIEWPORT: DEDICATED SACRED CARD BOX (PRESERVED AS PRAISED)
    ═════════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
+  .chat-theme-toggle {
+    display: none !important;
+  }
+
   html:root[data-theme] .main-panel .messages .message.assistant,
   html:root .main-panel .messages .message.assistant {
     background: transparent !important;

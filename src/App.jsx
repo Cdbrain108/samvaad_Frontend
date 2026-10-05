@@ -1187,6 +1187,35 @@ export default function App() {
             </div>
           </div>
 
+          <div className="topbar-actions">
+            <div
+              className="theme-pill-toggle chat-theme-toggle"
+              role="group"
+              aria-label="Toggle Day or Night theme"
+            >
+              <button
+                type="button"
+                className={`theme-pill-opt ${!darkMode ? 'is-active' : ''}`}
+                onClick={() => { if (darkMode) toggleTheme(); }}
+                aria-label="Day theme"
+                aria-pressed={!darkMode}
+                title="Switch to Day theme"
+              >
+                Day ☀️
+              </button>
+              <button
+                type="button"
+                className={`theme-pill-opt ${darkMode ? 'is-active' : ''}`}
+                onClick={() => { if (!darkMode) toggleTheme(); }}
+                aria-label="Night theme"
+                aria-pressed={darkMode}
+                title="Switch to Night theme"
+              >
+                Night 🌙
+              </button>
+            </div>
+          </div>
+
 
           {modeNotification && (
             <div
