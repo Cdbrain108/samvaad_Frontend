@@ -34,7 +34,11 @@ try {
     const { readdirSync, statSync, unlinkSync } = await import('fs');
     for (const file of readdirSync(ghAssets)) {
       if (file.endsWith('.js') || file.endsWith('.css')) {
-        unlinkSync(join(ghAssets, file));
+        try {
+          unlinkSync(join(ghAssets, file));
+        } catch (err) {
+          console.warn(`Notice: couldn't delete ${file} immediately (${err.message}), will overwrite.`);
+        }
       }
     }
   } else {
