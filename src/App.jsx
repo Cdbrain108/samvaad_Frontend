@@ -317,8 +317,18 @@ export default function App() {
   const [conversations, setConversations] = useState([]);
   const [draft, setDraft] = useState('');
   const [messages, setMessages] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth >= 900 : false));
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [view, setView] = useState('landing');
+
+  // Always hide chat history for signed in users; keep shown for guest users on desktop
+  useEffect(() => {
+    const isGuest = !user || user.uid === 'devotee_local';
+    if (!isGuest) {
+      setSidebarOpen(false);
+    } else if (typeof window !== 'undefined' && window.innerWidth >= 900) {
+      setSidebarOpen(true);
+    }
+  }, [user]);
   const [darkMode, setDarkMode] = useState(() => {
     try {
       const isMobile = typeof window !== 'undefined' && (window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
@@ -650,16 +660,28 @@ export default function App() {
   };
 
   const openChat = () => {
-    ensureUser();
+    const active = ensureUser();
     setView('chat');
     window.scrollTo(0, 0);
+    const isGuest = !active || active.uid === 'devotee_local';
+    if (!isGuest) {
+      setSidebarOpen(false);
+    } else if (typeof window !== 'undefined' && window.innerWidth >= 900) {
+      setSidebarOpen(true);
+    }
   };
 
   /* Landing hero ask-box: jump into chat and immediately send the question */
   const askFromLanding = (question) => {
-    ensureUser();
+    const active = ensureUser();
     setView('chat');
     window.scrollTo(0, 0);
+    const isGuest = !active || active.uid === 'devotee_local';
+    if (!isGuest) {
+      setSidebarOpen(false);
+    } else if (typeof window !== 'undefined' && window.innerWidth >= 900) {
+      setSidebarOpen(true);
+    }
     if (getIsGuestLimitReached()) {
       setShowGuestLoginModal(true);
       return;
