@@ -115,7 +115,10 @@ export function isOfftopicQuery(query) {
     /\b(?:write a script|create an app|fix this error|syntax error|git commit|unit test)\b/i,
     /\b(?:stock|stocks|share market|crypto|cryptocurrency|bitcoin|btc|eth|trading|investment|mutual fund|option chain|nifty|banknifty|forex|ipo)\b/i,
     /(?:स्टॉक|शेयर\s*बाजार|क्रिप्टो|ट्रेडिंग|बिटकॉइन|म्यूचुअल\s*फंड|आईपीओ)/i,
-    /\b(?:recipe|cook|bake|movie review|weather in|flight ticket|hotel booking|cricket score)\b/i
+    /\b(?:cricket|match score|ipl|football|fifa|world cup|olympics|sports score)\b/i,
+    /\b(?:movie review|bollywood|hollywood|box office|cinema|actor|actress|web series)\b/i,
+    /\b(?:election|politics|political party|bjp|congress|parliament|minister|vote)\b/i,
+    /\b(?:recipe|cook|bake|weather in|flight ticket|hotel booking)\b/i
   ];
   return offtopicPatterns.some(p => p.test(q));
 }
@@ -369,7 +372,25 @@ export async function streamGuruResponse(
     );
   }
 
-  // 1.8 DuckDuckGo Live Search for dynamic Hindu Calendar, Ekadashi & Grahan Sutak timings
+  // 2. Check Gating: Skip Oracle and Web Search for Irrelevant / Off-topic queries
+  const isOfftopic = isOfftopicQuery(userMessage);
+  if (isOfftopic) {
+    const redirectText = isEnglish
+      ? "Dear child, our guidance is centered on spiritual inquiry, Satsang, and devotion to God. Perform your daily duties honestly as sacred seva, and dedicate your mind to chanting the Holy Name. All will be auspicious."
+      : "बच्चा, हम केवल आध्यात्मिक मार्गदर्शन, प्रभु भजन और सत्संग की चर्चा करते हैं, सांसारिक या तकनीकी विषयों की नहीं। अपने सांसारिक कर्तव्य कर्म को निष्काम भाव से भगवत सेवा मानकर ईमानदारी से कीजिए और नाम जप में मन लगाइए। सब मंगल होगा बच्चा!";
+    const redirectThought = isEnglish
+      ? "Observing seeker inquiry and warmly guiding towards spiritual reflection..."
+      : "साधक की जिज्ञासा का अवलोकन कर सत्संग मर्यादा में मार्गदर्शन दिया जा रहा है...";
+    return await streamTextDirectly(
+      redirectText,
+      redirectThought,
+      startTime,
+      null,
+      onChunk
+    );
+  }
+
+  // 2.5 LAST RESORT: Live Web Search strictly for real-time Dharmic calendar, Ekadashi, Panchang & Grahan Sutak
   if (isLiveCalendarQuery(userMessage)) {
     onChunk({
       content: '',
@@ -387,24 +408,6 @@ export async function streamGuruResponse(
     return await streamTextDirectly(
       searchRes.formattedDiscourse,
       searchThought,
-      startTime,
-      null,
-      onChunk
-    );
-  }
-
-  // 2. Check Gating: Skip Oracle for Irrelevant / Off-topic queries
-  const isOfftopic = isOfftopicQuery(userMessage);
-  if (isOfftopic) {
-    const redirectText = isEnglish
-      ? "Dear child, our guidance is centered on spiritual inquiry, Satsang, and devotion to God. Perform your daily duties honestly as sacred seva, and dedicate your mind to chanting the Holy Name. All will be auspicious."
-      : "बच्चा, हम केवल आध्यात्मिक मार्गदर्शन, प्रभु भजन और सत्संग की चर्चा करते हैं, सांसारिक या तकनीकी विषयों की नहीं। अपने सांसारिक कर्तव्य कर्म को निष्काम भाव से भगवत सेवा मानकर ईमानदारी से कीजिए और नाम जप में मन लगाइए। सब मंगल होगा बच्चा!";
-    const redirectThought = isEnglish
-      ? "Observing seeker inquiry and warmly guiding towards spiritual reflection..."
-      : "साधक की जिज्ञासा का अवलोकन कर सत्संग मर्यादा में मार्गदर्शन दिया जा रहा है...";
-    return await streamTextDirectly(
-      redirectText,
-      redirectThought,
       startTime,
       null,
       onChunk
