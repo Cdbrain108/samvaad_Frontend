@@ -68,10 +68,10 @@ export function categorizeIntroQuery(query) {
     return 'data';
   }
 
-  // 3. Architecture / Model / Fine-tuning / RAG questions
+  // 3. Architecture / Model / Fine-tuning / RAG & LLM Knowledge questions
   if (
-    /\b(?:how\s*were\s*you\s*trained|which\s*model|what\s*model|fine-?tuned|gemma|gcloud|google\s*cloud|oracle\s*cloud|rag\s*system|how\s*does\s*rag\s*work|architecture)\b/i.test(clean) ||
-    /(?:ट्रेनिंग\s*कैसे\s*हुई|कौनसा\s*मॉडल|जेम्मा|राॅग|आरएजी|आर्किटेक्चर)/i.test(clean)
+    /\b(?:how\s*were\s*you\s*trained|which\s*model|what\s*model|fine-?tuned|gemma|gcloud|google\s*cloud|oracle\s*cloud|rag\s*(?:system|knowledge|corpus)?|how\s*does\s*rag\s*work|architecture|what\s*(?:kinda|kind\s*of)?\s*(?:rag|llm|knowledge)|(?:rag|llm)\s*knowledge|knowledge\s*base)\b/i.test(clean) ||
+    /(?:ट्रेनिंग\s*कैसे\s*हुई|कौनसा\s*मॉडल|जेम्मा|राॅग|आरएजी|आर्किटेक्चर|नॉलेज|ज्ञान\s*स्रोत|क्या\s*ज्ञान\s*है|आरएजी\s*और\s*एलएलएम)/i.test(clean)
   ) {
     return 'architecture';
   }
@@ -225,31 +225,47 @@ This certified dataset formed the core conversational foundation used to fine-tu
 इसी उच्च-गुणवत्ता वाले प्रामाणिक डेटासेट पर **Gemma 4 E4B IT** मॉडल को फाइन-ट्यून किया गया है!`;
   }
 
-  // ── 4. ARCHITECTURE / MODEL / FINE-TUNING / RAG ──
+  // ── 4. ARCHITECTURE / MODEL / FINE-TUNING / RAG & LLM KNOWLEDGE ──
   if (category === 'architecture') {
     if (isEnglish) {
-      return `### ⚙️ Model Architecture & Inference System
+      return `### ⚙️ Our LLM, RAG & Live Search Knowledge Architecture
 
-Samvaad AI is powered by a high-precision hybrid generative AI architecture:
+Samvaad AI operates on a sophisticated tripartite knowledge architecture:
 
-* **Fine-Tuned Model:** **Gemma 4 E4B IT**, fine-tuned on Google Cloud (GCP) and Oracle Cloud CPU VM using LoRA/QLoRA to internalize Maharaj Ji's authentic fatherly tone ('बच्चा'), spiritual gravity, and avoidance of dry robotic clichés.
-* **Hybrid Semantic RAG:** 175,000+ verses indexed across 29 scriptures, embedded with multilingual models in Qdrant, using vector similarity + BM25 keyword matching + FlashRank cross-encoder reranking, guarded by strict Dharmic topic gating.
-* **Dual Inference Engines:**
-  * **🧘 Deep Mode:** Google Cloud / Oracle VM hosted Gemma 4 E4B IT with 4-stage Chain-of-Thought deliberation (Intent -> Scripture Grounding -> Counsel -> Blessing).
-  * **⚡ Fast Mode:** Ultra-fast ~1s real-time response powered by Groq LPU with calibrated few-shot prompting.
-* **Live Knowledge Search:** Integrated with live DuckDuckGo search for real-time Hindu calendar dates (Ekadashi, Grahan/Sutak timings).`;
+1. **🧠 LLM Core Knowledge (Pujya Maharaj Ji's Teachings):**
+   * **Model:** **Gemma 4 E4B IT**, fine-tuned on Google Cloud (GCP) and Oracle Cloud CPU VM via LoRA/QLoRA.
+   * **Corpus:** Trained on ~4,000 Ekantik Vartalaap Satsang recordings of **Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj** (Bhajan Marg, Vrindavan).
+   * **Persona & Tone:** Embodies Maharaj Ji's fatherly warmth ('बच्चा' / 'My child'), deep spiritual gravity, and practical guidance without robotic clichés.
+   * **Dual Inference Engines:** **🧘 Deep Mode** (Oracle VM hosted fine-tuned model with 4-stage Chain-of-Thought) and **⚡ Fast Mode** (Groq LPU ultra-low latency ~1s inference).
+
+2. **📜 Sacred Scripture RAG Knowledge Base:**
+   * **175,000+ Sacred Verses:** Comprehensive indexed corpus across 29 ancient scriptures (Bhagavad Gita, Ramcharitmanas, Vidura Niti, Chanakya Niti, Patanjali Yoga Sutras, Bhagavata Purana, 108 Upanishads).
+   * **24 Canonical Dharmic Dilemmas:** Mapped to human existential struggles (Karma, Bhakti, Vairagya, grief, anxiety, anger, lust, surrender) to ensure relevant scriptural grounding.
+   * **Hybrid Agentic Retrieval:** Vector semantic embeddings in Qdrant + BM25 keyword matching + FlashRank cross-encoder reranking, guarded by a calibrated 0.25 confidence floor to prevent hallucinations.
+
+3. **🌐 Real-Time Live Search Engine (DuckDuckGo + Dharmic Calendar):**
+   * **Dynamic Temporal Knowledge:** When you ask about real-time, live events that change with time (such as today's **Panchang / Tithi**, current year **Ekadashi schedules**, **Grahan (Eclipse) & Sutak timings**, festival dates, or **Vrindavan temple darshan timings**), our Agentic Router automatically triggers Real-Time Web Search.
+   * **Spiritual Synthesis:** Live temporal search findings are verified and blended seamlessly with Maharaj Ji's timeless guidance and Holy Name chanting ('Radha-Radha')!`;
     }
 
-    return `### ⚙️ मॉडल संरचना एवं तकनीकी आर्किटेक्चर
+    return `### ⚙️ हमारा LLM, RAG एवं लाइव सर्च ज्ञानकोश (Knowledge Architecture)
 
-संवाद AI एक उच्च-सटीक हाइब्रिड जनरेटिव AI सिस्टम पर कार्य करता है:
+संवाद AI एक उच्च-सटीक त्रिस्तरीय ज्ञान संरचना पर कार्य करता है:
 
-* **फाइन-ट्यून्ड मॉडल:** **Gemma 4 E4B IT** मॉडल को Google Cloud (GCP) और Oracle Cloud CPU VM पर LoRA/QLoRA तकनीक द्वारा विशेष रूप से ट्रेन किया गया है, जिससे यह पूज्य महाराज जी के वात्सल्यमयी संबोधन ('बच्चा') और प्रामाणिक आध्यात्मिक शैली में उत्तर देता है।
-* **मल्टी-सोर्स RAG:** 29 शास्त्रों के 1,75,000+ श्लोक Qdrant में सिमेंटिक वेक्टर एम्बेडिंग्स, BM25 कीवर्ड सर्च और FlashRank क्रॉस-एन्कोडर रीरैंकिंग द्वारा इंडेक्स किए गए हैं, जिन्हें सख्त विषय-मर्यादा (Topic Gating) द्वारा नियंत्रित किया गया है।
-* **दोहरे इन्फरेंस मोड्स:**
-  * **🧘 Deep Mode:** GCP / Oracle VM पर फाइन-ट्यून्ड Gemma 4 E4B IT मॉडल जो 4-स्तरीय चिंतन (Intent -> Scripture -> Counsel -> Blessing) के साथ गहरा उत्तर देता है।
-  * **⚡ Fast Mode:** Groq LPU द्वारा संचालित अति-तीव्र (~1 सेकंड) रीयल-टाइम रिस्पॉन्स।
-* **लाइव सर्च एवं पंचांग:** लाइव डकडकगो (DuckDuckGo) सर्च द्वारा रीयल-टाइम पंचांग/एकादशी तिथियां एवं ग्रहण सूतक समय।`;
+1. **🧠 LLM ज्ञानकोश (पूज्य महाराज जी की प्रामाणिक वाणी):**
+   * **फाइन-ट्यून्ड मॉडल:** **Gemma 4 E4B IT**, जिसे Google Cloud (GCP) एवं Oracle Cloud VM पर LoRA/QLoRA तकनीक से विशेष रूप से ट्रेन किया गया है।
+   * **प्रवचन आधार:** पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (भजन मार्ग, वृंदावन) के ~4,000 एकांतिक वार्तालाप वीडियो के प्रामाणिक सत्संग संवाद।
+   * **वात्सल्यमयी संबोधन:** पूज्य महाराज जी के पितृतुल्य स्नेह ('बच्चा'), आध्यात्मिक गंभीरता और व्यावहारिक जीवन समाधान।
+   * **दोहरे इन्फरेंस मोड्स:** **🧘 Deep Mode** (Oracle VM पर 4-स्तरीय चिंतन) एवं **⚡ Fast Mode** (Groq LPU अति-तीव्र ~1s रिस्पॉन्स)।
+
+2. **📜 पावन शास्त्र RAG ज्ञानकोश (Sacred Scripture Base):**
+   * **1,75,000+ पावन श्लोक व व्याख्या:** 29 सनातन धर्मग्रंथों (श्रीमद्भगवद्गीता, श्रीरामचरितमानस, विदुर नीति, चाणक्य नीति, योगसूत्र, भागवत महापुराण, 108 उपनिषद आदि) का विशाल संग्रह।
+   * **24 प्रमुख जीवन संशय (Taxonomy):** कर्म, भक्ति, वैराग्य, भय, चिंता, काम, क्रोध, शोक आदि के आध्यात्मिक समाधान।
+   * **हाइब्रिड एजेंटिक RAG:** Qdrant वेक्टर सिमेंटिक एम्बेडिंग्स + BM25 कीवर्ड सर्च + FlashRank क्रॉस-एन्कोडर रीरैंकिंग (0.25 विश्वास सीमा) ताकि कोई भ्रामक उद्धरण न आए।
+
+3. **🌐 रीयल-टाइम लाइव सर्च इंजन (DuckDuckGo + धर्म पंचांग):**
+   * **डायनामिक व तात्कालिक जानकारी:** जब भी साधक समय के साथ बदलने वाले विषय पूछते हैं (जैसे **आज का पंचांग/तिथि**, **आगामी एकादशी तिथियां**, **सूर्य/चंद्र ग्रहण व सूतक काल**, **त्योहारों की तारीखें** अथवा **बांके बिहारी व वृंदावन मंदिर दर्शन समय**), तो सिस्टम स्वतः लाइव वेब सर्च सक्रिय करता है।
+   * **आध्यात्मिक समन्वय:** रीयल-टाइम पंचांग व खोज परिणामों को पूज्य महाराज जी की अमृतमयी सीख और 'श्री राधा-राधा' नाम जप के साथ प्रस्तुत किया जाता है!`;
   }
 
   // ── 5. PROJECT OVERVIEW ──
