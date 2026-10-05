@@ -11375,7 +11375,7 @@ select:focus-visible,
     padding: 0 !important;
   }
 
-  /* Desktop Assistant Messages: Pure open typography canvas without boxes or borders */
+  /* Desktop Assistant Messages: Sacred card layout matching the user query style (PC only) */
   html:root[data-theme] .main-panel .messages .message.assistant,
   html:root .main-panel .messages .message.assistant,
   .message.assistant {
@@ -11386,7 +11386,7 @@ select:focus-visible,
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
-    margin: 0 0 20px 0 !important;
+    margin: 0 0 24px 0 !important;
   }
 
   html:root[data-theme] .main-panel .messages .message.assistant > .assistant-message-body,
@@ -11394,19 +11394,35 @@ select:focus-visible,
   .message.assistant > div,
   .assistant-message-body {
     display: block !important;
+    position: relative !important;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border-radius: 0 !important;
+    padding: 26px 30px 22px 30px !important; /* Generous breathing room: zero edge collision */
+    border-radius: 20px !important;
     overflow: visible !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
   }
 
-  /* Open typography flowing directly on PC canvas */
+  /* Dark Mode: Elevated, luminous sacred container matching the user query aesthetic */
+  :root[data-theme='dark'] .assistant-message-body,
+  html:root[data-theme='dark'] .main-panel .messages .message.assistant > .assistant-message-body {
+    background: rgba(14, 24, 42, 0.82) !important;
+    border: 1.2px solid rgba(254, 200, 75, 0.26) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+  }
+
+  /* Light Mode: Warm, gentle parchment container matching the user query aesthetic */
+  :root[data-theme='light'] .assistant-message-body,
+  html:root[data-theme='light'] .main-panel .messages .message.assistant > .assistant-message-body {
+    background: #FFFDF8 !important;
+    border: 1.2px solid rgba(217, 119, 6, 0.24) !important;
+    box-shadow: 0 6px 24px rgba(180, 83, 9, 0.07), 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+  }
+
+  /* Open typography flowing inside the card with safe internal margins */
   .assistant-message-body .rich-text {
     width: 100% !important;
     max-width: 100% !important;
@@ -11427,7 +11443,10 @@ select:focus-visible,
 
   .assistant-message-body .rich-text p,
   .assistant-message-body .rich-text .rich-line {
-    margin: 0 0 14px 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 0 15px 0 !important;
     line-height: 1.85 !important;
     text-align: left !important;
     background: transparent !important;
@@ -11444,28 +11463,32 @@ select:focus-visible,
   /* Reasoning / Chintan Prakriya container on PC */
   .reasoning-container {
     width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
-    margin: 0 0 16px 0 !important;
-    border-radius: 14px !important;
+    margin: 0 0 20px 0 !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
   }
 
-  /* Shlokas: centered illuminated card */
+  /* Shlokas: centered illuminated card inside message box */
   .assistant-message-body .rich-shlok-line {
-    margin: 14px 0 12px 0 !important;
+    margin: 16px 0 14px 0 !important;
     padding: 14px 18px !important;
-    border-radius: 12px !important;
+    border-radius: 14px !important;
     box-sizing: border-box !important;
     width: 100% !important;
+    max-width: 100% !important;
     text-align: center !important;
   }
 
-  /* Arthat: explanatory quote card */
+  /* Arthat: explanatory quote card inside message box */
   .assistant-message-body .rich-arthat-line {
-    margin: 6px 0 14px 0 !important;
+    margin: 6px 0 16px 0 !important;
     padding: 12px 16px !important;
-    border-radius: 10px !important;
+    border-radius: 12px !important;
     box-sizing: border-box !important;
     width: 100% !important;
+    max-width: 100% !important;
   }
 
   /* Pristine Footer Meta Bar: Time on Left, Actions on Right */
@@ -11473,9 +11496,9 @@ select:focus-visible,
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    margin-top: 18px !important;
-    padding-top: 12px !important;
-    border-top: 1px solid rgba(245, 158, 11, 0.14) !important;
+    margin-top: 20px !important;
+    padding-top: 14px !important;
+    border-top: 1px solid rgba(245, 158, 11, 0.16) !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
