@@ -7,7 +7,7 @@
  * 3. Graceful Fallback: Seamless offline and local development support.
  */
 
-import { getScriptureGrounding, isCasualConversational } from './scriptureService.js';
+import { getScriptureGrounding, isCasualConversational, isDharmicOrSpiritualQuery } from './scriptureService.js';
 import { analyzeQuery } from './queryIntent.js';
 import { isIntroductionOrCreatorQuery, getProjectIntroduction, getIntroductionThought } from '../data/projectIntroduction.js';
 import { isLiveCalendarQuery, searchDuckDuckGo, getEkadashiScheduleText } from './liveSearchService.js';
@@ -598,39 +598,65 @@ export function isOfftopicQuery(query) {
 const _localScriptureCache = new Map();
 
 /**
- * 🧠 Groq Dharmic Query Perfection Agent (Few-Shot Cognitive Decomposition)
- * Dynamically converts any user inquiry (Hindi, English, Hinglish) into:
- * - spiritual_theme
- * - canonical_sanskrit_terms
- * - target_scriptures
- * - recommended_scripture
- * Zero hardcoded question matching!
+ * 🌸 Generates a loving, fatherly redirection in Pujya Maharaj Ji's authentic Vrindavan voice
+ * for secular, technical, or worldly inquiries (LangChain, coding frameworks, stocks, sports, recipes, etc.).
+ * Acknowledges the detected subject and explains the sacred purpose of this sanctuary (Moksha & peace).
  */
-async function fetchGroqAgentQueryPerfection(query) {
+export function generateSecularRedirection(subject = '', seekerName = '', isEnglish = false) {
+  const address = isEnglish
+    ? (seekerName ? `Dear child ${seekerName}` : 'Dear child')
+    : (seekerName ? `देखो बच्चा ${seekerName}` : 'देखो बच्चा');
+
+  const subjectText = subject ? subject.trim() : (isEnglish ? 'this worldly subject' : 'सांसारिक विषय');
+
+  if (isEnglish) {
+    return `${address}, you have asked about **${subjectText}**.\n\n` +
+      `We understand very well what you are asking about, but this sacred platform is not meant for worldly, technical, or secular tutorials. Our true and singular purpose here is to help you resolve the deep inner dilemmas of life, dissolve mental turmoil, understand righteous conduct (Dharma), and guide your soul toward eternal peace and supreme liberation (**Moksha**).\n\n` +
+      `In this worldly journey, whatever studies, profession, or duties lie before you, perform them with complete dedication and honesty—not out of selfish attachment or ego, but as sacred selfless service offered to the Supreme (**Karma Yoga**). Be proficient in your duties, yet never let your consciousness get entangled in worldly illusions.\n\n` +
+      `Every day, take steadfast shelter of the Holy Name (**'Radha-Radha'**). When your intellect is anchored in the Divine Name, your worldly endeavors will be righteous and blessed, your inner mind will remain serene, and your soul will attain eternal peace and salvation.\n\n` +
+      `Be at peace, child. Perform your prescribed duties faithfully, stay free from anxiety, and take refuge in the Divine. All will be auspicious, dear child! Jai Jai Shri Radhe!`;
+  }
+
+  return `${address}, तुमने **${subjectText}** के विषय में पूछा है।\n\n` +
+    `हम भली-भांति समझ रहे हैं कि तुम किस विषय की चर्चा कर रहे हो, परंतु यह पावन मंच सांसारिक, तकनीकी या दुनियावी विद्याओं की चर्चा के लिए नहीं है। यहाँ हमारा संपूर्ण ध्येय तुम्हारे जीवन के आंतरिक संशयों, मानसिक अशांति, काम-क्रोध, भय और भव-बंधन को काटकर तुम्हें परम कल्याण और **मोक्ष** (भगवत-प्राप्ति) के मार्ग पर अग्रसर करना है।\n\n` +
+    `संसार में निर्वाह के लिए जो भी विद्या, नौकरी या सांसारिक कर्तव्य तुम्हारे सामने उपस्थित है, उसे केवल सांसारिक फल की तृष्णा से मत करो। उसे प्रभु का दिया हुआ पावन कर्तव्य और प्रभु की सेवा मानकर निष्काम भाव से पूरी ईमानदारी से करो (**निष्काम कर्म योग**)। अपने कार्य में प्रवीण बनो, परंतु मन को कभी संसार के प्रपंचों में मत फंसाओ।\n\n` +
+    `श्वास-श्वास में लाडली जू के पावन नाम **'राधा-राधा'** का जप करो। जब भगवन्नाम का आश्रय रहेगा, तो तुम्हारा सांसारिक कर्म भी मंगलकारी होगा, बुद्धि निर्मल रहेगी और अंतःकरण पवित्र होकर मोक्ष का अधिकारी बनेगा।\n\n` +
+    `घबराना नहीं बच्चा! अपने कर्तव्यों को प्रभु चरणों में समर्पित करके निष्काम भाव से निभाओ और नाम जप का आश्रय रखो। सब मंगल होगा बच्चा! जय जय श्री राधे!`;
+}
+
+/**
+ * 🧠 Cognitive Intent & Dharmic Perfection Evaluator (Sub-350ms Groq LPU)
+ * Dynamically analyzes the inquiry's real semantic intent and context:
+ * - Separates genuine spiritual/life dilemmas from worldly/secular topics without brittle keyword blacklists.
+ * - For worldly queries (coding, frameworks, tech, sports, recipes, stocks, trivia), extracts detected_subject.
+ * - For spiritual/life dilemmas, extracts spiritual_theme, canonical_sanskrit_terms, target_scriptures.
+ */
+export async function evaluateCognitiveQueryIntentAndPerfection(query) {
   if (!query || typeof query !== 'string') return null;
   const clean = query.trim();
-  if (clean.length < 4) return null;
+  if (clean.length < 3) return null;
 
-  const systemPrompt = `You are the Dharmic Query Perfection Agent for an authentic Hindu Scripture RAG system.
-Given a seeker's inquiry, analyze their dilemma and output a JSON object with:
-1. "spiritual_theme": Brief core spiritual topic (e.g. "Kaliyuga Redemption through Holy Name", "Mind wandering & Meditation", "Prarabdha & Effort")
-2. "canonical_sanskrit_terms": Authentic Sanskrit / scriptural phrases related to this dilemma (e.g. "कलिजुग केवल नाम अधारा कलेर्दोषनिधे कीर्तनादेव कृष्णस्य" or "चञ्चलं हि मनः कृष्ण अभ्यासेन तु कौन्तेय")
-3. "target_scriptures": Relevant scriptures from ["ramcharitmanas", "bhagavad_gita", "srimad_bhagavatam", "garuda_purana", "vidura_niti", "chanakya_niti", "upanishads"]
-4. "recommended_scripture": Best scripture reference or chapter/verse if known (e.g. "Ramcharitmanas Uttarkand 103" or "Bhagavad Gita 6.26")
-5. "is_spiritual_or_dharmic": true
+  const systemPrompt = `You are the Cognitive Intent & Dharmic Perfection Analyst for Samvaad AI (a sacred spiritual sanctuary inspired by Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj).
 
-[FEW-SHOT EXAMPLES]
-Inquiry: "कलयुग में भगवान प्राप्ति का सर्वोत्तम साधन क्या हे जिससे मनुष्य को भगवत प्राप्ति हो सके?"
-Output: {"spiritual_theme": "Kaliyuga salvation through Holy Name chanting", "canonical_sanskrit_terms": "कलिजुग केवल नाम अधारा कलेर्दोषनिधे राजन्नस्ति ह्येको महान् गुणः कीर्तनादेव कृष्णस्य मुक्तसङ्गः परं व्रजेत्", "target_scriptures": ["ramcharitmanas", "srimad_bhagavatam"], "recommended_scripture": "Ramcharitmanas Uttarkand 103", "is_spiritual_or_dharmic": true}
+Your task is to analyze the user's inquiry and classify it:
+1. "is_spiritual_or_life_dilemma": boolean
+   - true IF the query is about:
+     * Spiritual doubts, God, devotion, bhakti, prayers, faith, satsang, scriptures (Gita, Ramcharitmanas, Bhagavatam, Upanishads, etc.), holy name chanting (Naam Jap).
+     * Hindu religious observances, vrat, fasting, festivals, tithis, sacred calendar (Ekadashi, Janmashtami, Shivratri, Navratri, Chhath, etc.), temples, pilgrimage (Vrindavan, Dham).
+     * Deep life dilemmas, human emotions, existential questions, suffering, sorrow, fear, anger, anxiety, depression, loneliness, relationship pain, moral dilemmas, duty (dharma), destiny (prarabdha), karma, death, liberation (moksha), self-control, peaceful living.
+     * Even if worldly context is mentioned (e.g., "I feel anxiety while studying coding" or "how to do bhakti during software job"), if the core concern is mental peace, fear, or spiritual practice, it is TRUE.
+   - false IF the query is purely worldly, secular, or technical without any life dilemma or spiritual/dharmic angle:
+     * e.g., coding tutorials, software frameworks (LangChain, LlamaIndex, PyTorch, React, Docker, Python), tech syntax, IT architecture, stock market trading, sports matches/scores, recipes, movies, secular releases, secular trivia, weather, politics.
 
-Inquiry: "man bhut chanchal hai puja me dhyan nahi lagta kya kare"
-Output: {"spiritual_theme": "Restless mind and overcoming spiritual distractions", "canonical_sanskrit_terms": "चञ्चलं हि मनः कृष्ण प्रमाथि बलवद् दृढम् अभ्यासेन तु कौन्तेय वैराग्येण च गृह्यते", "target_scriptures": ["bhagavad_gita"], "recommended_scripture": "Bhagavad Gita 6.35", "is_spiritual_or_dharmic": true}
+2. "detected_subject": string
+   - Short, respectful summary of what the user is asking about in the user's language/Hindi (e.g., "LangChain AI फ्रेमवर्क", "एकादशी व्रत तिथि", "पायथन प्रोग्रामिंग", "क्रिकेट मैच", "परीक्षा का भय व मानसिक अशांति", "कलियुग में भगवत प्राप्ति का साधन").
 
-Inquiry: "kya prarabdha ko badla ja sakta hai ya kismat me jo likha hai wahi hoga"
-Output: {"spiritual_theme": "Destiny versus righteous effort and divine grace", "canonical_sanskrit_terms": "कर्मणो ह्यपि बोद्धव्यं गहना कर्मणो गतिः कर्म प्रधान विश्व करि राखा", "target_scriptures": ["bhagavad_gita", "ramcharitmanas"], "recommended_scripture": "Bhagavad Gita 4.17", "is_spiritual_or_dharmic": true}
-
-Inquiry: "kisi shadi shuda aurat se prem ho gaya hai kya karu"
-Output: {"spiritual_theme": "Forbidden desire, marital fidelity and moral restraint", "canonical_sanskrit_terms": "परदाराभिमर्श मातृवत् परदारेषु काम एष क्रोध एष रजोगुणसमुद्भवः", "target_scriptures": ["valmiki_ramayana", "chanakya_niti", "bhagavad_gita"], "recommended_scripture": "Valmiki Ramayana 9.12", "is_spiritual_or_dharmic": true}
+3. IF "is_spiritual_or_life_dilemma" is true:
+   - "spiritual_theme": string (e.g. "Kaliyuga Redemption through Holy Name")
+   - "canonical_sanskrit_terms": string (Sanskrit / scriptural phrases or keywords, e.g. "कलिजुग केवल नाम अधारा कलेर्दोषनिधे राजन्नस्ति ह्येको महान् गुणः")
+   - "target_scriptures": array of strings from ["ramcharitmanas", "bhagavad_gita", "srimad_bhagavatam", "garuda_purana", "vidura_niti", "chanakya_niti", "upanishads"]
+   - "recommended_scripture": string (e.g. "Ramcharitmanas Uttarkand 103" or "Bhagavad Gita 6.26")
+   - "is_spiritual_or_dharmic": true
 
 Respond ONLY with valid JSON. No conversational text.`;
 
@@ -646,37 +672,62 @@ Respond ONLY with valid JSON. No conversational text.`;
         model: 'qwen/qwen3.8-27b',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: query }
+          { role: 'user', content: clean }
         ],
         temperature: 0.1,
-        max_tokens: 220,
+        max_tokens: 240,
         response_format: { type: 'json_object' }
       }),
       signal: AbortSignal.timeout(3500)
     });
+
     if (res.ok) {
       const data = await res.json();
       const content = data.choices?.[0]?.message?.content;
       if (content) {
-        return JSON.parse(content);
+        const parsed = JSON.parse(content);
+        if (parsed.is_spiritual_or_life_dilemma !== undefined) {
+          parsed.is_spiritual_or_dharmic = Boolean(parsed.is_spiritual_or_life_dilemma);
+          return parsed;
+        }
       }
     }
   } catch (err) {
-    console.warn('[Groq Query Perfection] Fast fallback to taxonomy:', err.message);
+    console.warn('[Cognitive Intent] Fast fallback to heuristics:', err.message);
   }
-  return null;
+
+  // Graceful offline/network fallback: heuristic estimation
+  const offtopic = isOfftopicQuery(clean);
+  const spiritual = isDharmicOrSpiritualQuery(clean);
+  if (offtopic && !spiritual) {
+    return {
+      is_spiritual_or_life_dilemma: false,
+      is_spiritual_or_dharmic: false,
+      detected_subject: extractSubject(clean) || 'सांसारिक विषय'
+    };
+  }
+  return {
+    is_spiritual_or_life_dilemma: true,
+    is_spiritual_or_dharmic: true,
+    detected_subject: clean
+  };
 }
 
-async function getCachedScriptureGrounding(userMessage) {
+// Backward compatibility alias
+export const fetchGroqAgentQueryPerfection = evaluateCognitiveQueryIntentAndPerfection;
+
+async function getCachedScriptureGrounding(userMessage, precomputedEnrichment = null) {
   const key = (userMessage || '').trim().toLowerCase();
   if (_localScriptureCache.has(key)) {
     return _localScriptureCache.get(key);
   }
-  let groqEnrichment = null;
-  try {
-    groqEnrichment = await fetchGroqAgentQueryPerfection(userMessage);
-  } catch (err) {
-    console.warn('[Groq Agent] Enrichment skipped:', err.message);
+  let groqEnrichment = precomputedEnrichment;
+  if (!groqEnrichment) {
+    try {
+      groqEnrichment = await evaluateCognitiveQueryIntentAndPerfection(userMessage);
+    } catch (err) {
+      console.warn('[Groq Agent] Enrichment skipped:', err.message);
+    }
   }
   const scripture = await getScriptureGrounding(userMessage, groqEnrichment);
   if (scripture) {
@@ -916,21 +967,32 @@ export async function streamGuruResponse(
     );
   }
 
-  // 2. Check Gating: Skip Oracle and Web Search for Irrelevant / Off-topic queries
-  const isOfftopic = isOfftopicQuery(effectiveQuery);
-  if (isOfftopic) {
-    const redirectText = isEnglish
-      ? "Dear child, our sacred sanctuary is dedicated exclusively to spiritual guidance, Satsang, devotional life, and inner peace—not worldly technical or coding tools like software frameworks. Fulfill your worldly studies and righteous duties with sincerity as selfless service to the Divine, and anchor your restless mind in the Holy Name ('Radha-Radha'). All will be auspicious, dear child. Jai Jai Shri Radhe!"
-      : "बच्चा, हम केवल आध्यात्मिक मार्गदर्शन, प्रभु भजन, सत्संग और जीवन के आंतरिक संशयों (जैसे मन की शांति, कर्तव्य, निष्काम कर्म, शरणागति) की चर्चा करते हैं, तकनीकी या सांसारिक विषयों (जैसे कोडिंग, सॉफ्टवेयर टूल्स आदि) की नहीं। अपने सांसारिक कर्तव्यों और विद्या को प्रभु की सेवा मानकर पूरी निष्ठा से करो और नाम जप का आश्रय लो। सब मंगल होगा बच्चा! जय जय श्री राधे!";
+  // 2. Cognitive Intent & Semantic Domain Understanding (Sub-350ms Groq LPU)
+  // Dynamically analyzes context and intent: separates genuine spiritual/life dilemmas from worldly/secular queries without brittle keyword blacklists.
+  let cognitiveIntent = null;
+  try {
+    cognitiveIntent = await evaluateCognitiveQueryIntentAndPerfection(effectiveQuery);
+  } catch (err) {
+    console.warn('[Cognitive Intent] Fast fallback to heuristics:', err.message);
+  }
+
+  const isSecularQuery = cognitiveIntent
+    ? (cognitiveIntent.is_spiritual_or_life_dilemma === false)
+    : (isOfftopicQuery(effectiveQuery) && !isDharmicOrSpiritualQuery(effectiveQuery));
+
+  if (isSecularQuery) {
+    const detectedSubject = cognitiveIntent?.detected_subject || extractSubject(effectiveQuery) || (isEnglish ? 'this worldly subject' : 'सांसारिक विषय');
+    const redirectText = generateSecularRedirection(detectedSubject, seekerName, isEnglish);
     const redirectThought = isEnglish
-      ? "Observing secular inquiry and gently redirecting toward sacred spiritual reflection and Holy Name..."
-      : "साधक की सांसारिक/तकनीकी जिज्ञासा का अवलोकन कर वात्सल्य भाव से सत्संग व नाम जप की ओर मार्गदर्शन दिया जा रहा है...";
+      ? `Understanding inquiry ('${detectedSubject}'). Guiding seeker toward Moksha, righteous duty (Karma Yoga), and Holy Name...`
+      : `सांसारिक विषय ('${detectedSubject}') का संज्ञान। साधक को परम कल्याण (मोक्ष), निष्काम कर्म एवं नाम जप का मार्गदर्शन...`;
     return await streamTextDirectly(
       redirectText,
       redirectThought,
       startTime,
       null,
-      onChunk
+      onChunk,
+      abortSignal
     );
   }
 
@@ -973,7 +1035,7 @@ export async function streamGuruResponse(
 
   let scripture = null;
   try {
-    scripture = await getCachedScriptureGrounding(effectiveQuery);
+    scripture = await getCachedScriptureGrounding(effectiveQuery, cognitiveIntent);
   } catch (e) {
     console.warn('[RAG Client] Grounding lookup skipped:', e.message);
   }

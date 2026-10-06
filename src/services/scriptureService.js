@@ -93,7 +93,8 @@ export function isDharmicOrSpiritualQuery(query) {
 
 // Backward compatibility alias
 export function isSecularOrTechnical(query, groqEnrichment = null) {
-  if (groqEnrichment?.is_spiritual_or_dharmic === false) return true;
+  if (groqEnrichment?.is_spiritual_or_dharmic === false || groqEnrichment?.is_spiritual_or_life_dilemma === false) return true;
+  if (groqEnrichment?.is_spiritual_or_dharmic === true || groqEnrichment?.is_spiritual_or_life_dilemma === true) return false;
   return !isDharmicOrSpiritualQuery(query);
 }
 
@@ -555,8 +556,8 @@ async function resolveScriptureGrounding(query, groqEnrichment = null) {
   if (!query || typeof query !== 'string') return null;
   if (isCasualConversational(query)) return null;
   // Strict Domain Gate: Only ground genuine spiritual/Dharmic inquiries
-  if (groqEnrichment?.is_spiritual_or_dharmic === false) return null;
-  if (!isDharmicOrSpiritualQuery(query)) return null;
+  if (groqEnrichment?.is_spiritual_or_dharmic === false || groqEnrichment?.is_spiritual_or_life_dilemma === false) return null;
+  if (!groqEnrichment?.is_spiritual_or_dharmic && !groqEnrichment?.is_spiritual_or_life_dilemma && !isDharmicOrSpiritualQuery(query)) return null;
   // Secular, modern technical, or worldly questions: Bypass RAG grounding entirely
   if (isSecularOrTechnical(query, groqEnrichment)) return null;
 
