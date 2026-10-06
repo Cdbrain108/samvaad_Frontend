@@ -1152,16 +1152,6 @@ export default function App() {
               </button>
               <button
                 type="button"
-                className={`mode-pill-btn ${inferenceMode === 'crew' ? 'active' : ''}`}
-                onClick={() => handleModeChange('crew')}
-                aria-label="CrewAI Mode: 4-agent collaborative spiritual crew"
-                aria-pressed={inferenceMode === 'crew'}
-                title="Collaborative 4-Agent Crew: Intent -> Scripture -> Maharaj Ji Voice -> Auditor"
-              >
-                🤖 <span className="mode-pill-btn-label-text">CrewAI</span>
-              </button>
-              <button
-                type="button"
                 className={`mode-pill-btn ${inferenceMode === 'fast' ? 'active' : ''}`}
                 onClick={() => handleModeChange('fast')}
                 aria-label="Fast Mode: Ultra-fast LPU inference"

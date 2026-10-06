@@ -181,7 +181,7 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 .message.assistant { display: block; width: 100%; max-width: 100%; }
 .message-avatar { display: none; }
 .message.assistant .message-avatar { display: none; }
-.message strong { display: block; margin: 0 0 6px; font-size: 13px; color: var(--accent-dark); }
+.message:not(.assistant) strong { display: block; margin: 0 0 6px; font-size: 13px; color: var(--accent-dark); }
 .message.assistant > div {
   padding: 0;
   border-radius: 0;
@@ -1179,7 +1179,12 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
   border-color: rgba(251, 191, 36, 0.5);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
-.rich-text strong { color: var(--accent-dark); }
+.rich-text strong {
+  display: inline;
+  margin: 0;
+  font-weight: 700;
+  color: var(--accent-dark);
+}
 .inline-code {
   padding: 1px 6px;
   border-radius: 5px;
@@ -1289,34 +1294,40 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 
 .rich-arthat-line {
   display: block;
-  margin: 6px 0 14px;
-  padding: 13px 18px;
-  background: rgba(217, 119, 6, 0.05);
-  border: 1px solid rgba(217, 119, 6, 0.16);
+  margin: 8px 0 16px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.06) 0%, rgba(254, 243, 199, 0.28) 100%);
+  border: 1.5px solid rgba(217, 119, 6, 0.22);
+  border-left: 4px solid #D97706;
   border-radius: 12px;
-  font-size: 14.5px;
-  line-height: 1.78;
+  font-size: 15px;
+  line-height: 1.82;
   color: #451A03;
   width: 100%;
   box-sizing: border-box;
+  box-shadow: 0 2px 10px rgba(217, 119, 6, 0.06);
 }
 
 :root[data-theme='dark'] .rich-arthat-line,
 .night .rich-arthat-line {
-  background: rgba(254, 200, 75, 0.06);
-  border: 1px solid rgba(254, 200, 75, 0.16);
+  background: linear-gradient(135deg, rgba(254, 200, 75, 0.08) 0%, rgba(35, 25, 12, 0.55) 100%);
+  border: 1.5px solid rgba(254, 200, 75, 0.25);
+  border-left: 4px solid #F59E0B;
   border-radius: 12px;
-  color: #E2D0B6;
+  color: #FDE68A;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 .rich-arthat-line strong {
-  color: #92400E !important;
+  color: #9A3412 !important;
   font-weight: 700;
+  letter-spacing: 0.015em;
 }
 
 :root[data-theme='dark'] .rich-arthat-line strong,
 .night .rich-arthat-line strong {
-  color: #FBBF24 !important;
+  color: #FCD34D !important;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.35);
 }
 
 .message-meta { display: flex; align-items: center; gap: 10px; margin-top: 6px; }

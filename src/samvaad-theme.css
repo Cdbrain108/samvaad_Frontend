@@ -9704,12 +9704,23 @@ select:focus-visible,
   padding: 0 !important;
 }
 
-.message.assistant .message-sender-row {
+.message.assistant .message-sender-row,
+.message.assistant > strong.message-sender {
   display: none !important;
 }
 
-.message.assistant strong {
-  display: none !important;
+/* Ensure bold text inside assistant discourse is beautifully visible and inline */
+.message.assistant .rich-text strong,
+.rich-text strong {
+  display: inline !important;
+  margin: 0 !important;
+  font-weight: 700 !important;
+  color: #FBBF24 !important; /* Golden amber for dark / night themes */
+}
+
+:root[data-theme='light'] .rich-text strong,
+body:not(.night) .rich-text strong {
+  color: #B45309 !important; /* Deep saffron amber for light theme */
 }
 
 /* Assistant Messages: Clean, serene, open typography canvas */

@@ -54,10 +54,60 @@ export const SCRIPTURE_DATABASE = [
     context_intro_hi: 'जैसे श्री गरुड़ पुराण में साक्षात् भगवान श्रीहरि विष्णु पक्षीराज गरुड़ जी को सबसे बड़े पाप और कृतघ्नता का निर्णय समझाते हुए कहते हैं कि —',
     context_intro_en: 'Just as Bhagavan Shri Hari Vishnu reveals the gravest sins and the fate of betrayal to Garuda in the Garuda Purana —',
     keywords: [
+      'garun puran', 'garuda puran', 'garuda purana', 'garun puran top verses', 'garuda purana verses',
       'garuda purana sins', 'garun puran sins', 'garun puran mahapaap', 'garuda puran mahapaap',
       'गरुड़ पुराण महापाप', 'गरुण पुराण महापाप', 'गरुड़ पुराण पाप फल',
       'कृतघ्नता', 'मित्रद्रोह', 'विश्वासघात', 'उपकार', 'कृतघ्न',
       'kritaghnata', 'mitradroha', 'vishwasghat', 'betrayal', 'ingratitude'
+    ]
+  },
+
+  // 0C1_A. Garuda Purana Karma & Selfless Duty (सत्कर्म, परोपकार व कर्मफल निर्णय)
+  {
+    id: 'garuda_purana_karma',
+    scripture_id: 'garuda_purana',
+    reference: 'श्री गरुड़ पुराण १.११४ (Garuda Purana · सत्कर्म व परोपकार)',
+    original_text: 'परोपकाराय फलन्ति वृक्षाः परोपकाराय वहन्ति नद्यः। परोपकाराय दुहन्ति गावः परोपकारार्थमिदं शरीरम्॥ शुभाशुभानि कर्माणि जीवः स्वयमुपार्जयेत्। स्वयमेव फलान्यश्नाति नान्यः कश्चन संसारे॥',
+    hindi_meaning: 'गरुड़ पुराण में भगवान विष्णु पक्षीराज गरुड़ जी से कहते हैं कि यह मानव शरीर केवल परोपकार और भगवत-सेवा के लिए मिला है। वृक्ष, नदियाँ और गौएँ केवल दूसरों के कल्याण के लिए जीवित रहते हैं। जीव अपने शुभ और अशुभ कर्मों को स्वयं ही अर्जित करता है और उसका फल भी स्वयं ही भोगता है, कोई दूसरा उसके कर्मों का भार नहीं ले सकता। इसलिए निरंतर धर्म और सेवा में रत रहो।',
+    english_translation: 'In the sacred Garuda Purana (1.114), Lord Vishnu tells Garuda: "Trees yield fruit for others, rivers flow for others, cows yield milk for others, and this human body is meant solely for helping others and performing selfless service. The soul itself accumulates good and bad deeds and alone reaps their fruits in this world." Therefore, live in righteousness and benevolence.',
+    context_intro_hi: 'जैसे श्री गरुड़ पुराण में भगवान श्रीहरि विष्णु पक्षीराज गरुड़ जी को सत्कर्म और परोपकार का मर्म समझाते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Bhagavan Shri Hari Vishnu illuminates the path of selfless virtue and karma in the Garuda Purana —',
+    keywords: [
+      'garun puran', 'garuda puran', 'garuda purana', 'garun puran top verses', 'garuda purana verses',
+      'garuda purana karma', 'garun puran karma', 'garuda purana updesh', 'गरुड़ पुराण श्लोक', 'गरुण पुराण श्लोक',
+      'परोपकार', 'सत्कर्म', 'कर्म फल'
+    ]
+  },
+
+  // 0C1_B. Garuda Purana Charity & Spiritual Compassion (दान, सुपात्र सेवा व सद्गति)
+  {
+    id: 'garuda_purana_charity',
+    scripture_id: 'garuda_purana',
+    reference: 'श्री गरुड़ पुराण (Garuda Purana · दान व सद्गति रहस्य)',
+    original_text: 'अदत्तं नैव लभ्यते दत्त्वा लभ्यते यत्पुनः। तस्माद्देयं द्विजातिभ्यो दीनेभ्यश्च विशेषतः॥ न दानेन समं मित्रं न दानेन समः सुहृत्। परलोके हितार्थाय दानमेकं प्रशस्यते॥',
+    hindi_meaning: 'गरुड़ पुराण में भगवान श्रीहरि उपदेश देते हैं कि परलोक में मनुष्य के साथ केवल उसके द्वारा किया गया सत्कर्म और दान ही जाता है। संसार में दान जैसा कोई सच्चा मित्र या हितैषी नहीं है, जो मृत्यु के उपरांत भी आत्मा का रक्षण करता है। जो दीन-दुखियों और सत्पात्रों को निस्वार्थ भाव से देता है, वही परलोक में अक्षय सुख और सद्गति को प्राप्त करता है।',
+    english_translation: 'In the Garuda Purana, Lord Vishnu reveals that in the journey beyond this world, only one’s righteous deeds and selfless charity (Dana) accompany the soul. There is no friend equal to charity, for it protects the soul after death. One who serves the needy and righteous without pride attains enduring peace and liberation.',
+    context_intro_hi: 'जैसे श्री गरुड़ पुराण में साक्षात् भगवान श्रीहरि विष्णु परलोक में सहायक दान और सेवा की महिमा बताते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Bhagavan Shri Hari Vishnu proclaims the enduring merit of charity and compassion in the Garuda Purana —',
+    keywords: [
+      'garun puran', 'garuda puran', 'garuda purana', 'garuda puran dana', 'garun puran daan',
+      'garuda purana verses', 'garun puran verses', 'दान', 'सद्गति', 'परलोक', 'charity in garuda purana'
+    ]
+  },
+
+  // 0C1_C. Garuda Purana Ultimate Liberation through Holy Name (भगवन्नाम व परमपद)
+  {
+    id: 'garuda_purana_liberation',
+    scripture_id: 'garuda_purana',
+    reference: 'श्री गरुड़ पुराण (Garuda Purana · भगवन्नाम व मोक्ष रहस्य)',
+    original_text: 'नास्ति विष्णुसमं तीर्थं नास्ति विष्णुसमं तपः। नास्ति विष्णुसमं ध्यानं नास्ति विष्णुसमं पदम्॥ यावज्जीवेत्स्मरेन्नित्यं वासुदेवं जगत्पतिम्। तस्य देहावसाने तु गतिर्विष्णुपदं भवेत्॥',
+    hindi_meaning: 'गरुड़ पुराण में स्पष्ट निर्देश है कि भगवान विष्णु के स्मरण के समान न कोई तीर्थ है, न तप, न ध्यान और न ही कोई पद। जब तक शरीर में प्राण हैं, तब तक जो निरंतर जगत्पति वासुदेव का स्मरण और नाम-जप करता है, देह त्याग के समय उसे निश्चित रूप से परमपद (वैकुंठ धाम) की प्राप्ति होती है।',
+    english_translation: 'In the Garuda Purana, it is declared: "There is no pilgrimage, austerity, meditation, or supreme state equal to Lord Vishnu. As long as breath remains in the body, one who remembers and chants the holy name of Vasudeva attains the supreme divine realm upon leaving this mortal form."',
+    context_intro_hi: 'जैसे श्री गरुड़ पुराण में साक्षात् भगवान श्रीहरि विष्णु भगवन्नाम की सर्वोच्च महिमा प्रकट करते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Bhagavan Shri Hari Vishnu reveals the supreme shelter of the Holy Name in the Garuda Purana —',
+    keywords: [
+      'garun puran', 'garuda puran', 'garuda purana', 'garuda puran moksha', 'garun puran mukti',
+      'garuda purana verses', 'garun puran verses', 'मोक्ष', 'विष्णु नाम', 'भगवन्नाम', 'afterlife liberation'
     ]
   },
 
@@ -1056,6 +1106,37 @@ export const SCRIPTURE_DATABASE = [
       'उत्तिष्ठत जाग्रत', 'कठोपनिषद', 'katha upanishad', 'arise awake', 'determination', 'resolve',
       'hard work', 'कर्तव्य पथ', 'never give up', 'razor edge', 'courage'
     ]
+  },
+
+  // 35. Shri Ramcharitmanas - Kaliyug Sole Refuge is Holy Name (कलिजुग केवल नाम अधारा)
+  {
+    id: 'rcm_kalijug_keval_naam',
+    scripture_id: 'ramcharitmanas',
+    reference: 'श्रीरामचरितमानस उत्तरकाण्ड १०३.१ (Ramcharitmanas · कलिजुग केवल नाम अधारा)',
+    original_text: 'कलिजुग केवल नाम अधारा। सुमिरि सुमिरि नर उतरहिं पारा॥ कलिजुग जोग न जग्य न ग्याना। एक अधार कृपानिधि नामा॥',
+    hindi_meaning: 'कलियुग में न तो कठिन योग साधना संभव है, न बड़े-बड़े यज्ञ और न ही गूढ़ ज्ञान। कलियुग में केवल कृपानिधान भगवान का नाम ही एकमात्र सच्चा आधार है, जिसका निरंतर स्मरण व जप करके मनुष्य भवसागर से सहज ही पार उतर जाता है और भगवत प्राप्ति कर लेता है।',
+    english_translation: 'In the age of Kaliyuga, neither rigorous yoga, nor elaborate Vedic sacrifices, nor dry philosophical scholarship can easily redeem the soul. The Holy Name of the Compassionate Lord is the sole sublime refuge; by contemplating and chanting it constantly, a soul effortlessly crosses the ocean of worldly existence.',
+    context_intro_hi: 'जैसे श्रीरामचरितमानस में गोस्वामी तुलसीदास जी कलियुग में भगवत प्राप्ति का सर्वोत्तम साधन बताते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Goswami Tulsidas Ji proclaims the supreme path to God-realization in Kaliyuga in Shri Ramcharitmanas —',
+    keywords: [
+      'कलिजुग केवल नाम अधारा', 'कलयुग', 'कलियुग', 'नाम जप', 'हरिनाम', 'राधा नाम', 'कृपानिधि नामा', 'kaliyug', 'naam jaap'
+    ]
+  },
+
+  // 36. Srimad Bhagavatam - Supreme Merit of Kaliyug (कलेर्दोषनिधे राजन्नस्ति ह्येको महान् गुणः)
+  {
+    id: 'sb_kaler_dosha_nidhe',
+    scripture_id: 'srimad_bhagavatam',
+    reference: 'श्रीमद्भागवत महापुराण १२.३.५१ (Srimad Bhagavatam 12.3.51)',
+    original_text: 'कलेर्दोषनिधे राजन्नस्ति ह्येको महान् गुणः। कीर्तनादेव कृष्णस्य मुक्तसङ्गः परं व्रजेत्॥',
+    hindi_meaning: 'श्रील शुकदेव जी राजा परीक्षित से कहते हैं: हे राजन्! यद्यपि कलियुग दोषों और पापों का महासमुद्र है, किंतु इसमें एक अत्यंत विलक्षण और महान गुण है — केवल भगवान श्रीकृष्ण के पावन नाम का संकीर्तन व जप करने मात्र से ही मनुष्य समस्त सांसारिक बंधनों और माया से मुक्त होकर परम पद को प्राप्त हो जाता है।',
+    english_translation: 'In Srimad Bhagavatam (12.3.51), Sage Shukadeva instructs King Parikshit: "O King, although the age of Kaliyuga is an ocean of faults, there is still one supreme blessing in this age: simply by chanting the holy names of Shri Krishna, one is freed from material bondage and reaches the supreme divine abode."',
+    context_intro_hi: 'जैसे श्रीमद्भागवत महापुराण में श्रील शुकदेव जी कलियुग के परम गुण और नाम-संकीर्तन का रहस्य प्रकट करते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Sage Shukadeva reveals the supreme grace of Holy Name chanting in Kaliyuga in Srimad Bhagavatam —',
+    keywords: [
+      'कलेर्दोषनिधे', 'कीर्तनादेव कृष्णस्य', 'श्रीमद्भागवतम् १२.३.५१', 'नाम संकीर्तन', 'kaler dosha nidhe', 'kirtanadeva krishnasya'
+    ]
   }
 ];
+
 

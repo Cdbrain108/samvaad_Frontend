@@ -45,8 +45,12 @@ export function intelligentSegmentResponse(text) {
   // Strip newlines immediately preceding punctuation
   processed = processed.replace(/\n\s*([.,;!?।])/g, '$1');
 
-  // Collapse soft single newlines within narrative prose
-  processed = processed.replace(/([^\n])\n(?!\n|#{1,4}\s|[•\-*]\s|\d+[.)]\s|[«📖─\-]|\*\*[«📖]|(?:\*\*|\*)*(?:Meaning|अर्थात्|भावार्थ))/g, '$1 ');
+  // 0. If a line has « ... » and then trailing text on the same line (like » अर्थ: ...), decouple them immediately!
+  processed = processed.replace(/(»["”]?)\s*([^\n\s])/gu, '$1\n\n$2');
+
+  // Collapse soft single newlines within narrative prose, but NEVER across verses, arthat, headers, or bullet points
+  // Also NEVER collapse if preceding character is » or ॥ (verse closers)
+  processed = processed.replace(/([^\n»॥])\n(?!\n|#{1,4}\s|[•\-*]\s|\d+[.)]\s|[«📖─\-]|\*\*[«📖]|(?:\*\*|\*|__)*(?:Meaning|अर्थात्|भावार्थ|अर्थ)(?:[:—\-–,\s]|$))/gi, '$1 ');
 
   // Separate horizontal rules and supporting references
   processed = processed.replace(/\s*(?:---|───|\*\*\*)\s*(?=📖|\*\*📖|$)/g, '\n\n---\n\n');
@@ -58,9 +62,18 @@ export function intelligentSegmentResponse(text) {
   // Separate inline numbered points
   processed = processed.replace(/([.!?।»”"])\s+(\d{1,2}[.)]\s+)(?=[A-Z*«"“(\u0900-\u097F])/g, '$1\n$2');
 
-  // Shloka quotation isolation
+  // 1. Isolate any inline Sanskrit verse containing double danda ॥ wrapped in quotes or preceded by कि / :
+  processed = processed.replace(/\s*["“]([^\n"“”]*?॥+[^\n"“”]*?)["”]\s*/gu, '\n\n« $1 »\n\n');
+
+  // Shloka quotation isolation & clean Arthat / Meaning break (support अर्थात, भावार्थ, अर्थ, Meaning)
   processed = processed.replace(/([.!?।])\s*(?=\*?\*?«)/g, '$1\n\n');
-  processed = processed.replace(/(»\*?\*?)\s*(?=(?:\*\*?Meaning|\*\*?अर्थात्|\*\*?भावार्थ|Meaning —|अर्थात् —))/gi, '$1\n');
+  processed = processed.replace(/([»॥]["”]?)\s*(?=(?:\*\*|\*|__)*(?:Meaning|अर्थात्|भावार्थ|अर्थ)(?:[:—\-–,\s]|$))/giu, '$1\n\n');
+
+  // Ensure text following Arthat/Meaning quote ends with quotation mark before separating into a new paragraph
+  processed = processed.replace(/((?:\*\*|\*|__)*(?:Meaning|अर्थात्|भावार्थ|अर्थ)[^\n]+?["”»])\s+(?=(?:देखो|सुनो|बेटा|वत्स|प्रिय|तुम्हारा|तुम्हारी|हर काम|जब तुम|याद रखो|अब|इसलिए|इस प्रकार|अतः|Remember|In your|Dear|Child|Therefore|[A-Z\u0900-\u097F]))/gi, '$1\n\n');
+  
+  // If Arthat ends with punctuation and is followed by transition discourse, separate into discourse paragraph
+  processed = processed.replace(/((?:\*\*|\*|__)*(?:Meaning|अर्थात्|भावार्थ|अर्थ)[^\n]+?[।!?]["”»]?)\s+(?=(?:देखो\s*बच्चा|सुनो\s*बच्चा|बेटा|वत्स|प्रिय\s*बच्चा|इसलिए|इस\s*प्रकार|अतः|याद\s*रखो|इस\s*श्लोक|यह\s*श्लोक|Remember,\s*child|My\s*child|Therefore)[\sA-Za-z\u0900-\u097F])/gi, '$1\n\n');
 
   // After shloka meaning quote, isolate next practice section
   processed = processed.replace(/(["”»])\s+(?=(?:For your daily practice|As a daily practice|Daily practice|For daily contemplation|Each morning|Throughout the day|दैनिक साधना|प्रतिदिन|सुबह|साधना अभ्यास)[\s:,])/gi, '$1\n\n');
@@ -70,12 +83,20 @@ export function intelligentSegmentResponse(text) {
   processed = processed.replace(/([.!?।]["”]?)\s+(?=(?:By shifting your focus|Shifting your focus from|जब आप अपने दृष्टिकोण को बदलते हैं)[\sA-Za-z\u0900-\u097F])/g, '$1\n\n');
   processed = processed.replace(/([.!?।]["”]?)\s+(?=(?:Remember,\s*(?:child|my child)|Let the Holy Name|May the blessings|याद रखो बच्चा|निरंतर नाम जप|श्री राधा नाम)[\sA-Za-z\u0900-\u097F])/g, '$1\n\n');
 
-  // Safety balance: Split paragraphs longer than 3 sentences and > 220 chars
+  // Safety balance: Split paragraphs longer than 3 sentences and > 220 chars (NEVER split shloka or arthat)
   const rawParas = processed.split('\n\n');
   const balanced = [];
   for (const para of rawParas) {
     const trimmed = para.trim();
-    if (!trimmed || trimmed.startsWith('«') || trimmed.startsWith('**«') || trimmed.startsWith('•') || trimmed.startsWith('---') || trimmed.startsWith('📖') || trimmed.startsWith('Meaning') || trimmed.startsWith('**Meaning')) {
+    if (
+      !trimmed ||
+      trimmed.startsWith('«') ||
+      trimmed.startsWith('**«') ||
+      trimmed.startsWith('•') ||
+      trimmed.startsWith('---') ||
+      trimmed.startsWith('📖') ||
+      /^(?:["“'«»\s]|\*\*|\*|__)*(?:Meaning|अर्थात्|भावार्थ|अर्थ)(?:[:—\-–,\s]|$)/i.test(trimmed)
+    ) {
       balanced.push(trimmed);
       continue;
     }

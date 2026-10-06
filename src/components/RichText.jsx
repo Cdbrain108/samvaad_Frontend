@@ -28,15 +28,37 @@ export default function RichText({ content, streaming = false }) {
         continue;
       }
 
-      // Check if line is arthat/meaning
-      const isArthat = /^(?:\*\*|\*|\b)?(?:अर्थात्|भावार्थ|अर्थ|meaning)\b/i.test(trimmed);
+      // Defensive 1: Mid-line or leading shloka with other text (e.g. « ... » followed by अर्थ:)
+      const midShlokMatch = trimmed.match(/^([\s\S]*?)([*_\s]*«[^»]+»[*_\s]*)([\s\S]*)$/u);
+      if (midShlokMatch && (midShlokMatch[1].trim() || midShlokMatch[3].trim())) {
+        const parts = [];
+        if (midShlokMatch[1].trim()) parts.push(midShlokMatch[1].trim());
+        parts.push(midShlokMatch[2].trim());
+        if (midShlokMatch[3].trim()) parts.push(midShlokMatch[3].trim());
+        rawLines.splice(i, 1, ...parts);
+        i--;
+        continue;
+      }
+
+      // Defensive 2: Arthat line followed by discourse transition (e.g. इसलिए, इस श्लोक, अतः, याद रखो)
+      const isArthatCandidate = /^(?:["“'«»\s]|\*\*|\*|__)*(?:अर्थात्|भावार्थ|अर्थ|meaning)(?:\*\*|\*|__)?(?:\s*[:—\-–,]\s*|\s+)/iu.test(trimmed);
+      if (isArthatCandidate) {
+        const arthatTransitionMatch = trimmed.match(/^((?:["“'«»\s]|\*\*|\*|__)*(?:अर्थात्|भावार्थ|अर्थ|meaning)[^]+?[।!?]["”»]?)\s+((?:देखो\s*बच्चा|सुनो\s*बच्चा|बेटा|वत्स|प्रिय\s*बच्चा|इसलिए|इस\s*प्रकार|अतः|याद\s*रखो|इस\s*श्लोक|यह\s*श्लोक|Remember,\s*child|My\s*child|Therefore)[\sA-Za-z\u0900-\u097F][^]*)$/u);
+        if (arthatTransitionMatch) {
+          rawLines.splice(i, 1, arthatTransitionMatch[1].trim(), arthatTransitionMatch[2].trim());
+          i--;
+          continue;
+        }
+      }
+
+      const isArthat = isArthatCandidate;
 
       // Check if line is shlok
       const isShlok = !isArthat && (
         (trimmed.includes('«') && trimmed.includes('»')) ||
-        (trimmed.includes('॥') && (trimmed.startsWith('**') || trimmed.endsWith('**') || trimmed.startsWith('«'))) ||
+        (trimmed.includes('॥') && (trimmed.startsWith('**') || trimmed.endsWith('**') || trimmed.startsWith('«') || trimmed.startsWith('"') || trimmed.startsWith('“'))) ||
         (/^[«\*]+[\u0900-\u097F\s,।'॥\-]+[»\*]+$/.test(trimmed) && trimmed.length > 20) ||
-        (currentShlok !== null && (trimmed.includes('॥') || trimmed.endsWith('»**') || trimmed.endsWith('»') || trimmed.endsWith('**') || /^[\u0900-\u097F\s,।'॥\-]+$/.test(trimmed)))
+        (currentShlok !== null && (trimmed.includes('॥') || trimmed.endsWith('»**') || trimmed.endsWith('»') || trimmed.endsWith('**')))
       );
 
       if (isShlok) {
@@ -44,6 +66,11 @@ export default function RichText({ content, streaming = false }) {
           currentShlok = { type: 'shlok', lines: [trimmed] };
         } else {
           currentShlok.lines.push(trimmed);
+        }
+        // If this line closes the shloka, flush currentShlok immediately
+        if (trimmed.includes('»') || trimmed.endsWith('॥') || trimmed.endsWith('»**')) {
+          grouped.push(currentShlok);
+          currentShlok = null;
         }
         continue;
       }
@@ -201,10 +228,25 @@ export default function RichText({ content, streaming = false }) {
         }
 
         if (block.type === 'arthat') {
-          const cleanedArthat = block.text.replace(/^\*\*\s*/g, '').replace(/\s*\*\*$/g, '').trim();
+          // Normalize arthat text so markdown asterisks are always clean and balanced
+          let cleanArthat = block.text.trim();
+          const asterisks = (cleanArthat.match(/\*\*/g) || []).length;
+          if (asterisks % 2 !== 0) {
+            cleanArthat = cleanArthat.replace(/\*\*/g, '');
+          }
+          if (!cleanArthat.startsWith('**')) {
+            cleanArthat = cleanArthat.replace(
+              /^([«*"“'_\s]*)(अर्थात्|भावार्थ|अर्थ|meaning)(\s*[:—\-–]\s*|\s+)(["“]?[^]*)$/iu,
+              '**$2 —** $4'
+            );
+          }
+
           return (
             <div className="rich-arthat-line" key={`arthat-${index}`}>
-              {renderInline(cleanedArthat, `arthat-${index}`)}{cursor}
+              <div className="rich-arthat-content">
+                {renderInline(cleanArthat, `arthat-${index}`)}
+              </div>
+              {cursor}
             </div>
           );
         }
