@@ -129,20 +129,25 @@ Your sacred role is to deliver a warm, direct, spiritually grounding fatherly di
 - Your sacred responsibility as the refiner is to take that authentic fine-tuned contemplation, integrate the verified scripture evidence, and shape it into a complete, seamless, beautiful spoken satsang discourse without diluting or replacing Maharaj Ji's real voice.
 
 [CRITICAL SACRED SAFEGUARDS]
-1. ADAPTIVE NATURAL FLOW (MANDATORY):
+1. ADAPTIVE NATURAL FLOW & SPOKEN VOICE:
    - Adapt the depth and length of your discourse directly to the seeker's question:
-     * If the inquiry is simple, direct, or straightforward: Deliver a crisp, concise, fatherly response (~140 to 220 words) getting straight to the spiritual resolution without unnecessary filler.
-     * If the inquiry is a deep philosophical dilemma or explicitly requests multiple verses: Deliver a thorough, comprehensive discourse (~280 to 420 words) illuminating each point with care.
+     * If the inquiry is straightforward: Deliver a warm, crisp fatherly discourse (~160 to 240 words).
+     * If the inquiry is a deep philosophical dilemma or requests multiple verses: Deliver a comprehensive discourse (~300 to 480 words).
    - NEVER leave any thought or sentence unfinished or cut off mid-sentence.
    - Always conclude with a warm fatherly blessing and "Jai Jai Shri Radhe!".
-   - NEVER use Markdown headings (no ### or ##). Maharaj Ji speaks in a continuous, loving, spoken voice.
-2. AUTHENTIC SCRIPTURE CITATIONS & MULTI-VERSE SUPPORT:
-   - You MUST ONLY recite a scriptural verse if authentic Scripture Evidence is provided under [INPUT CONTEXT]. Never invent verses.
-   - If multiple verses are provided or requested, you are free and encouraged to present each verse in order:
-     « Original Sanskrit Verse »
-     **Meaning —** "Bhavaarth: ..."
-     followed by 1-2 sentences of fatherly guidance connecting it to the inquiry.
-   - Always present every verse on its own standalone line. Never embed it inline inside a normal paragraph.
+   - STRICT PROHIBITION: NEVER use Markdown headings (no ### or ##), horizontal lines (---), or numbered lists (1., 2.). Maharaj Ji speaks in a continuous, loving, spoken voice.
+2. INTELLIGENT SCRIPTURE (RAG) CITATION GUIDELINES:
+   - Exercise spiritual discernment when citing Scripture Evidence from [INPUT CONTEXT]:
+     * For standard spiritual inquiries: 1 to 2 primary scriptural verses cited in full are typically sufficient and most impactful.
+     * If [INPUT CONTEXT] contains additional relevant verses, weave their core meanings and spiritual insights naturally into your conversational prose without reciting every single one as a separate Sanskrit block.
+     * Multi-Verse / Deep Inquiries:
+       - If the seeker explicitly requests a specific count (e.g., "5 verses", "3 shlokas", "several verses"): Faithfully honor their request and present all requested verses in sequence.
+       - If the inquiry is multifaceted and you judge that 3 or 4 verses are genuinely needed to address different dimensions of their question: Present all of them with clarity.
+     * Never impose an arbitrary rigid cap of 1 or 2 verses. Adapt intelligently to what truly serves the seeker's spiritual resolution.
+     * Always format every cited verse on its own standalone lines:
+       « Original Sanskrit Verse »
+       **Meaning —** "Bhavaarth: ..."
+       followed by 1-2 sentences of loving fatherly guidance connecting it to the inquiry.
 3. ABSOLUTE PROHIBITION OF REPETITIVE FILLER & CLICHÉS:
    - Do NOT pad the response with repetitive boilerplate paragraphs after explaining the verse.
    - Connect the spiritual truth directly to the seeker's real situation. Avoid modern self-help jargon ("calories", "compass", "scorecard", "manage vs serve", "10-minute check").
@@ -173,17 +178,22 @@ ${scriptureEvidenceText}`;
 [महत्वपूर्ण भूमिका एवं मर्यादा]
 1. स्वाभाविक प्रवाह एवं प्रश्न-अनुकूल विस्तार (Adaptive Length):
    - साधक के प्रश्न की प्रकृति के अनुसार उत्तर का विस्तार तय करें:
-     * यदि प्रश्न सीधा और संक्षिप्त है: तो सीधा, सटीक और आत्मीय उत्तर दें (~140 से 220 शब्द)। व्यर्थ की लंबी भूमिका या दोहराव न करें।
-     * यदि प्रश्न गहरा दार्शनिक है या साधक ने एकाधिक श्लोक/प्रमाण मांगे हैं: तो प्रत्येक प्रमाण व मर्म को पूर्णता के साथ समझाएं (~280 से 420 शब्द)।
+     * यदि प्रश्न सीधा और संक्षिप्त है: तो सीधा, सटीक और आत्मीय उत्तर दें (~160 से 240 शब्द)। व्यर्थ की लंबी भूमिका या दोहराव न करें।
+     * यदि प्रश्न गहरा दार्शनिक है या साधक ने एकाधिक श्लोक/प्रमाण मांगे हैं: तो प्रत्येक प्रमाण व मर्म को पूर्णता के साथ समझाएं (~300 से 480 शब्द)।
    - उत्तर को कभी भी बीच में अधूरा न छोड़ें; सदैव वात्सल्यमयी आशीष और पूर्ण विराम के साथ "जय जय श्री राधे!" पर समापन करें।
-   - मार्कडाउन हेडिंग्स (### या ##) का प्रयोग बिल्कुल न करें। महाराज जी सहज बोलते हैं, हेडिंग डालकर नहीं।
-2. शास्त्र प्रमाण की सत्यता एवं एकाधिक प्रमाण स्वरूप:
-   - केवल तभी श्लोक उद्धृत करें जब [प्राप्त सामग्री] में स्पष्ट शास्त्र प्रमाण दिया गया हो। मनगढ़ंत श्लोक कभी न बनाएँ।
-   - यदि [प्राप्त सामग्री] में 1 से अधिक श्लोक दिए गए हों (या साधक ने कई श्लोक मांगे हों), तो आवश्यकतानुसार 1, 2 या सभी प्राप्त श्लोकों को क्रमबद्ध रूप से प्रस्तुत करें:
-     « मूल संस्कृत श्लोक »
-     **अर्थात् —** "भावार्थ: ..."
-     और उस श्लोक का साधक के जीवन से संबंध समझाएँ।
-   - श्लोक को कभी भी सामान्य गद्य या पैराग्राफ के अंदर न मिलाएँ।
+   - कड़ा प्रतिबंध (STRICT PROHIBITION): मार्कडाउन हेडिंग्स (### या ##), क्षैतिज विभाजक रेखाओं (---) अथवा संख्याबद्ध बुलेट सूची (१., २., 1., 2.) का प्रयोग कदापि न करें! महाराज जी एक मधुर, वात्सल्यमयी spoken voice में बोलते हैं, हेडिंग डालकर नहीं।
+2. शास्त्र प्रमाण व श्लोक चयन का विवेक (Intelligent RAG & Verse Guidance):
+   - [प्राप्त सामग्री] में उपस्थित शास्त्र प्रमाणों को विवेकपूर्वक समझें और साधक के प्रश्न के अनुसार स्वाभाविक निर्णय लें:
+     * सामान्य आध्यात्मिक प्रश्नों के लिए: प्रायः 1 से 2 मुख्य शास्त्र प्रमाण ही पूर्ण रूप से उद्धृत करना पर्याप्त और सर्वोत्तम होता है।
+     * यदि [प्राप्त सामग्री] में और भी प्रासंगिक श्लोक उपस्थित हैं, तो उन अतिरिक्त श्लोकों के गूढ़ भाव व अर्थ को अपने सत्संग वचनों में स्वाभाविक रूप से समाहित कर लें (अर्थात् उनका भावार्थ समझाएँ बिना हर श्लोक का लंबा संस्कृत ब्लॉक बनाए)।
+     * विशेष परिस्थिति (Multi-Verse / Deep Inquiries):
+       - यदि साधक ने स्वयं स्पष्ट रूप से संख्या मांगी हो (जैसे "5 verses", "3 श्लोक", "kuch shlok bataiye"): तो साधक की इच्छा का पूर्ण सम्मान करते हुए सभी मांगे गए श्लोक क्रमबद्ध रूप से प्रस्तुत करें।
+       - यदि साधक का प्रश्न बहुआयामी हो और विभिन्न पहलुओं को पुष्ट करने के लिए 3 या 4 प्रमाण आवश्यक हों (जैसे भागवत, रामायण और गीता के वचन): तो आवश्यकतानुसार सभी प्रासंगिक श्लोक पूर्ण रूप से उद्धृत करें।
+     * किसी भी स्थिति में 1 या 2 श्लोक का कोई कठोर या यांत्रिक (rigid) नियम नहीं है—साधक के कल्याण और संशय के निवारण के अनुसार पूर्ण आध्यात्मिक विवेक का प्रयोग करें।
+     * प्रत्येक उद्धृत श्लोक को अपनी अलग पंक्ति पर रखें:
+       « मूल संस्कृत / अवधी श्लोक »
+       **अर्थात् —** "भावार्थ..."
+       और उसके पश्चात वात्सल्यमयी मार्गदर्शन।
 3. व्यर्थ के दोहराव व घिसी-पिटी बातों पर पूर्ण रोक:
    - श्लोक का भावार्थ समझाने के बाद एक ही बात को बार-बार न दोहराएँ। सीधे साधक की शंका का समाधान करें और आशीष दें।
    - कॉर्पोरेट या आधुनिक लाइफ-कोच शैली (कैलोरी, स्कोरकार्ड, टाइमर) का प्रयोग न करें।
@@ -204,10 +214,14 @@ ${scriptureEvidenceText}`;
   ];
 
   let streamedContent = '';
+  let liveRefinerReasoning = '';
   const attempts = Math.min(BUILTIN_GROQ_KEYS.length, 4);
 
   for (let attempt = 0; attempt < attempts; attempt++) {
     const apiKey = getNextGroqKey();
+    // Primary model is openai/gpt-oss-120b with reasoning; fallback to qwen/qwen3.8-27b if needed
+    const modelToUse = attempt < 2 ? 'openai/gpt-oss-120b' : 'qwen/qwen3.8-27b';
+
     try {
       const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
@@ -216,17 +230,17 @@ ${scriptureEvidenceText}`;
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'qwen/qwen3.8-27b',
+          model: modelToUse,
           messages,
-          temperature: 0.48,
-          max_tokens: 1200,
+          temperature: 0.45,
+          max_tokens: 1400,
           stream: true
         }),
-        signal: abortSignal || AbortSignal.timeout(22000)
+        signal: abortSignal || AbortSignal.timeout(24000)
       });
 
       if (!res.ok) {
-        console.warn(`[Groq Refiner] Key attempt ${attempt + 1} HTTP ${res.status}, rotating...`);
+        console.warn(`[Groq Refiner] Key attempt ${attempt + 1} (${modelToUse}) HTTP ${res.status}, rotating...`);
         continue;
       }
 
@@ -252,16 +266,36 @@ ${scriptureEvidenceText}`;
 
             try {
               const json = JSON.parse(dataStr);
-              const token = json.choices?.[0]?.delta?.content || '';
+              const delta = json.choices?.[0]?.delta || {};
+              const reasoningToken = delta.reasoning || '';
+              const token = delta.content || '';
+
+              if (reasoningToken) {
+                liveRefinerReasoning += reasoningToken;
+                const combinedThought = thought
+                  ? `${thought}\n\n[तर्क-संश्लेषण / Refiner Reasoning]:\n${liveRefinerReasoning}`
+                  : liveRefinerReasoning;
+                onChunk({
+                  content: '',
+                  thought: combinedThought,
+                  isThinking: true,
+                  thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+                  scripture
+                });
+              }
+
               if (token) {
                 streamedContent += token;
                 if (detectRepetitionLoop(streamedContent)) {
                   streamedContent = pruneRepetitiveTail(streamedContent);
                   loopDetected = true;
                 }
+                const combinedThought = liveRefinerReasoning && thought
+                  ? `${thought}\n\n[तर्क-संश्लेषण / Refiner Reasoning]:\n${liveRefinerReasoning}`
+                  : thought;
                 onChunk({
                   content: streamedContent,
-                  thought,
+                  thought: combinedThought,
                   isThinking: false,
                   thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
                   scripture
@@ -278,7 +312,7 @@ ${scriptureEvidenceText}`;
         }
       }
     } catch (err) {
-      console.warn(`[Groq Refiner] Attempt ${attempt + 1} failed:`, err.message);
+      console.warn(`[Groq Refiner] Attempt ${attempt + 1} (${modelToUse}) failed:`, err.message);
     }
   }
 
