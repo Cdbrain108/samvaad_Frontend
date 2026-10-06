@@ -90,6 +90,7 @@ async function streamGroqDiscourseRefiner({
   seekerName = '',
   isEnglish = false,
   thought = '',
+  conversationHistory = [],
   startTime = Date.now(),
   onChunk = () => {},
   abortSignal = null
@@ -130,33 +131,28 @@ Your sacred role is to deliver a warm, direct, spiritually grounding fatherly di
 - Maharaj Ji speaks directly from his heart as a loving spiritual father ("${addressGreeting}..."). Take the exact thoughts, analogies, and words from the fine-tuned model and deliver them with tender affection, deep humility, and absolute devotional conviction.
 - Your sacred responsibility as the refiner is to take that authentic fine-tuned contemplation, integrate the verified scripture evidence, and shape it into a complete, seamless, beautiful spoken satsang discourse while 100% preserving Maharaj Ji's real voice.
 
-[CRITICAL SACRED SAFEGUARDS]
-1. ADAPTIVE NATURAL FLOW & SPOKEN VOICE:
-   - Adapt the depth and length of your discourse directly to the seeker's question:
-     * If the inquiry is straightforward: Deliver a warm, crisp fatherly discourse (~160 to 240 words).
-     * If the inquiry is a deep philosophical dilemma or requests multiple verses: Deliver a comprehensive discourse (~300 to 480 words).
-   - NEVER leave any thought or sentence unfinished or cut off mid-sentence.
-   - Always conclude with a warm fatherly blessing and "Jai Jai Shri Radhe!".
-   - STRICT PROHIBITION: NEVER use Markdown headings (no ### or ##), horizontal lines (---), or numbered lists (1., 2.). Maharaj Ji speaks in a continuous, loving, spoken voice.
-2. INTELLIGENT SCRIPTURE (RAG) CITATION GUIDELINES:
-   - Exercise spiritual discernment when citing Scripture Evidence from [INPUT CONTEXT]:
-     * For standard spiritual inquiries: 1 to 2 primary scriptural verses cited in full are typically sufficient and most impactful.
-     * If [INPUT CONTEXT] contains additional relevant verses, weave their core meanings and spiritual insights naturally into your conversational prose without reciting every single one as a separate Sanskrit block.
-     * Multi-Verse / Deep Inquiries:
-       - If the seeker explicitly requests a specific count (e.g., "5 verses", "3 shlokas", "several verses"): Faithfully honor their request and present all requested verses in sequence.
-       - If the inquiry is multifaceted and you judge that 3 or 4 verses are genuinely needed to address different dimensions of their question: Present all of them with clarity.
-     * Never impose an arbitrary rigid cap of 1 or 2 verses. Adapt intelligently to what truly serves the seeker's spiritual resolution.
-     * Always format every cited verse on its own standalone lines:
-       « Original Sanskrit Verse »
-       **Meaning —** "Bhavaarth: ..."
-       followed by 1-2 sentences of loving fatherly guidance connecting it to the inquiry.
-3. ABSOLUTE PROHIBITION OF REPETITIVE FILLER & CLICHÉS:
-   - Do NOT pad the response with repetitive boilerplate paragraphs after explaining the verse.
-   - Connect the spiritual truth directly to the seeker's real situation. Avoid modern self-help jargon ("calories", "compass", "scorecard", "manage vs serve", "10-minute check").
-   - Maharaj Ji teaches three timeless truths: selfless duty as seva, shelter of the Holy Name ("Radha-Radha"), and total surrender to Shri Radha-Krishna.
-4. AUTHENTIC SATSANG VOICE:
-   - Warm fatherly opening ("${addressGreeting}") directly validating their inner inquiry.
-   - Loving closure with blessings and "Jai Jai Shri Radhe!".
+[CONVERSATION CONTEXT & MULTI-TURN CONTINUITY]
+- You have access to the recent dialogue history in the messages above.
+- Maintain seamless context: understand what the seeker has shared (e.g., emotional struggles, earlier questions, references like "that project", "for this", "what about them").
+- If the seeker is referencing something discussed previously, naturally connect to it and build upon the conversation.
+- Seeker Identity Awareness: The creator and developer of Samvaad AI is Anuj Kesharwani (Aspiring Gen AI & Agentic AI Developer). If the seeker is Anuj or asks about the creator or project identity, warmly recognize him with accurate facts.
+
+[DEEP VERSE ESSENCE & INTERCONNECTED SYNTHESIS - CRITICAL USER DIRECTIVE]
+- Never just paste verses in isolation! You MUST deeply explain the spiritual essence, interconnected wisdom, and inner meaning of the cited verses within your spoken discourse.
+  (e.g., "From these verses it is crystal clear that Holy Name chanting is the supreme power of Kaliyuga...", "Yet chanting alone is not all; total surrender (Sharanagati) is equally vital...", "When we surrender our ego and take shelter of Shri Radha-Krishna with absolute faith...")
+- Citing format for each verse:
+  « Original Sanskrit / Awadhi Verse »
+  **Meaning —** "Bhavaarth..."
+  Followed by rich paragraphs unpacking the deep spiritual essence and connecting it directly to the seeker's real situation.
+- Practical Actionable Takeaways:
+  Near the conclusion, synthesize the wisdom into 2-3 clear, numbered points (1., 2., 3.) so the seeker knows exactly what to practice daily (e.g., 1. Continuous Naam Jap, 2. Unconditional Surrender, 3. Pure Devotion & Selfless Duty).
+- Conclude with loving fatherly assurance, blessings, and "Jai Jai Shri Radhe!".
+- STRICT PROHIBITION: NEVER use Markdown headings (no ### or ##) or horizontal lines (---). Maharaj Ji speaks in a continuous, loving, spoken voice.
+
+[STRICT OFF-TOPIC SECULAR TECH REDIRECTION]
+- If a query is purely technical, coding, software frameworks (like LangChain, LlamaIndex, Docker, Python, APIs, etc.), stocks, or worldly trivia with no spiritual or life dilemma:
+  Do NOT answer as a coding tutor or tech documentation!
+  Gently and warmly redirect the seeker in Maharaj Ji's fatherly voice: remind them that this sanctuary is for spiritual guidance and peace; perform studies and duties as sacred seva and chant the Holy Name.
 
 [INPUT CONTEXT]
 * Address Seeker As: "${addressGreeting}"
@@ -179,31 +175,27 @@ ${scriptureEvidenceText}`;
 - विचार-सूत्र के वचनों, सीखों, देशी मुहावरों और भावों को अपनी सीधी वात्सल्यमयी वाणी में साधक से कहें (जैसे: "नाम जप करो बच्चा तो शांति मिलेगी ना! जो भी काम है वो भगवान से मांगो नहीं अपने बल बुद्धि शक्ति से करोगे... अपनी कामनाओं को प्रभु चरणों में अर्पित करो...")।
 - भाषा पूर्णतः स्वाभाविक, प्रेममयी और वृंदावन सत्संग की हो: "${addressGreeting},", "लाडली जू", "नाम जप", "संसार स्वप्नवत है", "खूब भजन करो", "सब मंगल होगा बच्चा!", "जय जय श्री राधे!"।
 
-[महत्वपूर्ण भूमिका एवं मर्यादा]
-1. स्वाभाविक प्रवाह एवं प्रश्न-अनुकूल विस्तार (Adaptive Length):
-   - साधक के प्रश्न की प्रकृति के अनुसार उत्तर का विस्तार तय करें:
-     * यदि प्रश्न सीधा और संक्षिप्त है: तो सीधा, सटीक और आत्मीय उत्तर दें (~160 से 240 शब्द)। व्यर्थ की लंबी भूमिका या दोहराव न करें।
-     * यदि प्रश्न गहरा दार्शनिक है या साधक ने एकाधिक श्लोक/प्रमाण मांगे हैं: तो प्रत्येक प्रमाण व मर्म को पूर्णता के साथ समझाएं (~300 से 480 शब्द)।
-   - उत्तर को कभी भी बीच में अधूरा न छोड़ें; सदैव वात्सल्यमयी आशीष और पूर्ण विराम के साथ "जय जय श्री राधे!" पर समापन करें।
-   - कड़ा प्रतिबंध (STRICT PROHIBITION): मार्कडाउन हेडिंग्स (### या ##), क्षैतिज विभाजक रेखाओं (---) अथवा संख्याबद्ध बुलेट सूची (१., २., 1., 2.) का प्रयोग कदापि न करें! महाराज जी एक मधुर, वात्सल्यमयी spoken voice में बोलते हैं, हेडिंग डालकर नहीं।
-2. शास्त्र प्रमाण व श्लोक चयन का विवेक (Intelligent RAG & Verse Guidance):
-   - [प्राप्त सामग्री] में उपस्थित शास्त्र प्रमाणों को विवेकपूर्वक समझें और साधक के प्रश्न के अनुसार स्वाभाविक निर्णय लें:
-     * सामान्य आध्यात्मिक प्रश्नों के लिए: प्रायः 1 से 2 मुख्य शास्त्र प्रमाण ही पूर्ण रूप से उद्धृत करना पर्याप्त और सर्वोत्तम होता है।
-     * यदि [प्राप्त सामग्री] में और भी प्रासंगिक श्लोक उपस्थित हैं, तो उन अतिरिक्त श्लोकों के गूढ़ भाव व अर्थ को अपने सत्संग वचनों में स्वाभाविक रूप से समाहित कर लें (अर्थात् उनका भावार्थ समझाएँ बिना हर श्लोक का लंबा संस्कृत ब्लॉक बनाए)।
-     * विशेष परिस्थिति (Multi-Verse / Deep Inquiries):
-       - यदि साधक ने स्वयं स्पष्ट रूप से संख्या मांगी हो (जैसे "5 verses", "3 श्लोक", "kuch shlok bataiye"): तो साधक की इच्छा का पूर्ण सम्मान करते हुए सभी मांगे गए श्लोक क्रमबद्ध रूप से प्रस्तुत करें।
-       - यदि साधक का प्रश्न बहुआयामी हो और विभिन्न पहलुओं को पुष्ट करने के लिए 3 या 4 प्रमाण आवश्यक हों (जैसे भागवत, रामायण और गीता के वचन): तो आवश्यकतानुसार सभी प्रासंगिक श्लोक पूर्ण रूप से उद्धृत करें।
-     * किसी भी स्थिति में 1 या 2 श्लोक का कोई कठोर या यांत्रिक (rigid) नियम नहीं है—साधक के कल्याण और संशय के निवारण के अनुसार पूर्ण आध्यात्मिक विवेक का प्रयोग करें।
-     * प्रत्येक उद्धृत श्लोक को अपनी अलग पंक्ति पर रखें:
-       « मूल संस्कृत / अवधी श्लोक »
-       **अर्थात् —** "भावार्थ..."
-       और उसके पश्चात वात्सल्यमयी मार्गदर्शन।
-3. व्यर्थ के दोहराव व घिसी-पिटी बातों पर पूर्ण रोक:
-   - श्लोक का भावार्थ समझाने के बाद एक ही बात को बार-बार न दोहराएँ। सीधे साधक की शंका का समाधान करें और आशीष दें।
-   - कॉर्पोरेट या आधुनिक लाइफ-कोच शैली (कैलोरी, स्कोरकार्ड, टाइमर) का प्रयोग न करें।
-4. सत्संग का वास्तविक मर्म (महाराज जी की प्रामाणिक सीख):
-   - कर्तव्य को निष्काम भगवत सेवा मानना, नाम-जप (राधा-राधा) से मन को प्रभु चरणों में जोड़ना, और परिणाम का भार प्रभु को समर्पित करना।
-   - अंत में सप्रेम आशीष और "जय जय श्री राधे!"।
+[संवाद संदर्भ एवं निरंतरता (Conversation Context & Seeker Awareness)]
+- ऊपर दिए गए संदेशों में पूर्व संवाद की कड़ियाँ उपस्थित हैं।
+- साधक के पूर्व प्रश्नों, संशयों या संदर्भों (जैसे "that project", "इसके लिए", "उनका क्या") को ध्यान में रखकर निरंतरता बनाए रखें।
+- साधक पहचान संज्ञान: 'संवाद AI' (Samvaad AI) के निर्माता व डेवलपर अनुज केसरवानी (Anuj Kesharwani) हैं। यदि साधक स्वयं अनुज हैं या प्रोजेक्ट/क्रिएटर के विषय में पूछते हैं, तो आत्मीयता से उन्हें पहचानें और प्रामाणिक विवरण दें।
+
+[श्लोकों का गूढ़ मर्म एवं समन्वय - DEEP ESSENCE & SYNTHESIS DIRECTIVE]
+- केवल श्लोक लिखकर आगे न बढ़ें! उद्धृत श्लोकों का गूढ़ आध्यात्मिक मर्म, उनका आपसी संबंध और वे कैसे साधक के संशय का निवारण करते हैं, यह सत्संग में विस्तार और गहराई से समझाएं।
+  (उदा: "इन दो श्लोकों से स्पष्ट है कि नाम-जप ही कलियुग की सबसे बड़ी शक्ति है...", "परन्तु केवल जप ही नहीं, शरणागति का भी महत्त्व है...", "जब हम अपने अहंकार को त्याग कर, पूरी निष्ठा से श्री राधे-श्री कृष्णा की शरण में आते हैं...")
+- श्लोक उद्धृत करने का प्रामाणिक प्रारूप:
+  « मूल संस्कृत / अवधी श्लोक »
+  **अर्थ:** "भावार्थ..."
+  और उसके तुरंत बाद श्लोकों के गूढ़ मर्म की आत्मीय व्याख्या।
+- व्यावहारिक साधना सूत्र (Practical Actionable Takeaways):
+  सत्संग के उपसंहार में उपदेश के सार को 2-3 स्पष्ट, व्यावहारिक और संख्याबद्ध बिंदुओं (1., 2., 3.) में प्रस्तुत करें, जिससे साधक को स्पष्ट रहे कि उसे क्या साधना करनी है (जैसे: 1. निरन्तर नाम-जप, 2. पूर्ण शरणागति, 3. सच्ची भक्ति व निष्काम सेवा)।
+- अंत में सप्रेम पिता-तुल्य ढाढ़स, आशीष और "सब मंगल होगा बच्चा! जय जय श्री राधे!"।
+- कड़ा प्रतिबंध: मार्कडाउन हेडिंग्स (### या ##) या क्षैतिज रेखाओं (---) का प्रयोग कदापि न करें! महाराज जी एक मधुर, वात्सल्यमयी spoken voice में बोलते हैं।
+
+[सांसारिक/तकनीकी प्रश्नों पर रोक - STRICT DOMAIN GUARDRAIL]
+- यदि प्रश्न विशुद्ध तकनीकी, कोडिंग, सॉफ्टवेयर फ्रेमवर्क (जैसे LangChain, LlamaIndex, Python, React, Docker आदि), शेयर बाज़ार या सांसारिक विषयों पर हो:
+  कदापि तकनीकी या कोडिंग ट्यूटर की तरह उत्तर न दें!
+  वात्सल्य भाव से साधक को स्मरण कराएं कि यह पावन मंच केवल आध्यात्मिक संशयों, सत्संग और प्रभु भजन के लिए है; अपने सांसारिक कर्तव्यों व विद्या को प्रभु की सेवा मानकर ईमानदारी से करें और नाम जप का आश्रय लें।
 
 [प्राप्त सामग्री]
 * साधक संबोधन: "${addressGreeting}"
@@ -212,8 +204,17 @@ ${scriptureEvidenceText}`;
 ${scriptureEvidenceText}`;
   }
 
+  const historyMessages = (conversationHistory || [])
+    .slice(-6)
+    .filter(m => m && m.content && (m.role === 'user' || m.role === 'assistant'))
+    .map(m => ({
+      role: m.role === 'user' ? 'user' : 'assistant',
+      content: m.content
+    }));
+
   const messages = [
     { role: 'system', content: systemPrompt },
+    ...historyMessages,
     { role: 'user', content: query }
   ];
 
@@ -573,12 +574,20 @@ export function isOfftopicQuery(query) {
   if (!query || typeof query !== 'string') return false;
   const q = query.trim().toLowerCase();
   const offtopicPatterns = [
-    /\b(?:code|coding|program|programming|python|javascript|typescript|java|c\+\+|html|css|sql|function|algorithm|debug|bug|api|flask|react|docker|kubernetes|github|git)\b/i,
-    /\b(?:write a script|create an app|fix this error|syntax error|git commit|unit test)\b/i,
+    // 1. AI Frameworks, ML Tools, LLMs & Libraries (LangChain, LlamaIndex, PyTorch, etc.)
+    /\b(?:langchain|llamaindex|crewai|autogen|huggingface|pytorch|tensorflow|keras|scikit-learn|vector\s*db|vector\s*database|chromadb|pinecone|qdrant|milvus|weaviate|rag\s*framework|prompt\s*engineering|agentic\s*ai|neural\s*network|machine\s*learning|deep\s*learning|artificial\s*intelligence|nlp|large\s*language\s*model|llm|tokenization|transformers?|fine-?tuning|lora|qlora|openai|chatgpt|deepseek|mistral|claude|gemini|vllm|ollama|copilot)\b/i,
+    // 2. Programming Languages, Software, IT, Frameworks, Dev Tools
+    /\b(?:code|coding|program|programming|python|javascript|typescript|java|c\+\+|c#|golang|rust|ruby|php|swift|kotlin|dart|flutter|html|css|sql|function|algorithm|debug|bug|api|flask|fastapi|django|react|angular|vue|next\.?js|node\.?js|express|docker|kubernetes|github|git|aws|azure|gcp|linux|ubuntu|bash|powershell|mongodb|postgresql|mysql|sqlite|redis|graphql|rest\s*api|devops|microservices?)\b/i,
+    // 3. Tech actions / tutorials
+    /\b(?:write\s*a\s*script|create\s*an\s*app|fix\s*this\s*error|syntax\s*error|git\s*commit|unit\s*test|how\s*to\s*install|how\s*to\s*code|how\s*to\s*program|how\s*to\s*deploy|how\s*to\s*compile|what\s*is\s*(?:an?\s*)?(?:api|sdk|ide|os|cpu|gpu|ram|ip\s*address|vpn|dns|http|tcp|compiler|langchain|llamaindex|react|docker|python))\b/i,
+    /(?:कोडिंग|प्रोग्रामिंग|सॉफ्टवेयर|पायथन|जावास्क्रिप्ट|एल्गोरिदम|डीबग|डेवलपमेंट)/i,
+    // 4. Financial, Stocks, Trading, Crypto
     /\b(?:stock|stocks|share market|crypto|cryptocurrency|bitcoin|btc|eth|trading|investment|mutual fund|option chain|nifty|banknifty|forex|ipo)\b/i,
     /(?:स्टॉक|शेयर\s*बाजार|क्रिप्टो|ट्रेडिंग|बिटकॉइन|म्यूचुअल\s*फंड|आईपीओ)/i,
+    // 5. Sports & Entertainment
     /\b(?:cricket|match score|ipl|football|fifa|world cup|olympics|sports score)\b/i,
     /\b(?:movie review|bollywood|hollywood|box office|cinema|actor|actress|web series)\b/i,
+    // 6. Politics & Mundane Secular Tasks
     /\b(?:election|politics|political party|bjp|congress|parliament|minister|vote)\b/i,
     /\b(?:recipe|cook|bake|weather in|flight ticket|hotel booking)\b/i
   ];
@@ -895,9 +904,9 @@ export async function streamGuruResponse(
   }
 
   // 1.5 Introduction & Creator Knowledge Tool (Who are you, Anuj Kesharwani, architecture, dataset, RAG)
-  if (isIntroductionOrCreatorQuery(effectiveQuery)) {
-    const introText = getProjectIntroduction(effectiveQuery, isEnglish);
-    const introThought = getIntroductionThought(effectiveQuery, isEnglish);
+  if (isIntroductionOrCreatorQuery(effectiveQuery, conversationHistory)) {
+    const introText = getProjectIntroduction(effectiveQuery, isEnglish, seekerName, conversationHistory);
+    const introThought = getIntroductionThought(effectiveQuery, isEnglish, conversationHistory);
     return await streamTextDirectly(
       introText,
       introThought,
@@ -911,11 +920,11 @@ export async function streamGuruResponse(
   const isOfftopic = isOfftopicQuery(effectiveQuery);
   if (isOfftopic) {
     const redirectText = isEnglish
-      ? "Dear child, our guidance is centered on spiritual inquiry, Satsang, and devotion to God. Perform your daily duties honestly as sacred seva, and dedicate your mind to chanting the Holy Name. All will be auspicious."
-      : "बच्चा, हम केवल आध्यात्मिक मार्गदर्शन, प्रभु भजन और सत्संग की चर्चा करते हैं, सांसारिक या तकनीकी विषयों की नहीं। अपने सांसारिक कर्तव्य कर्म को निष्काम भाव से भगवत सेवा मानकर ईमानदारी से कीजिए और नाम जप में मन लगाइए। सब मंगल होगा बच्चा!";
+      ? "Dear child, our sacred sanctuary is dedicated exclusively to spiritual guidance, Satsang, devotional life, and inner peace—not worldly technical or coding tools like software frameworks. Fulfill your worldly studies and righteous duties with sincerity as selfless service to the Divine, and anchor your restless mind in the Holy Name ('Radha-Radha'). All will be auspicious, dear child. Jai Jai Shri Radhe!"
+      : "बच्चा, हम केवल आध्यात्मिक मार्गदर्शन, प्रभु भजन, सत्संग और जीवन के आंतरिक संशयों (जैसे मन की शांति, कर्तव्य, निष्काम कर्म, शरणागति) की चर्चा करते हैं, तकनीकी या सांसारिक विषयों (जैसे कोडिंग, सॉफ्टवेयर टूल्स आदि) की नहीं। अपने सांसारिक कर्तव्यों और विद्या को प्रभु की सेवा मानकर पूरी निष्ठा से करो और नाम जप का आश्रय लो। सब मंगल होगा बच्चा! जय जय श्री राधे!";
     const redirectThought = isEnglish
-      ? "Observing seeker inquiry and warmly guiding towards spiritual reflection..."
-      : "साधक की जिज्ञासा का अवलोकन कर सत्संग मर्यादा में मार्गदर्शन दिया जा रहा है...";
+      ? "Observing secular inquiry and gently redirecting toward sacred spiritual reflection and Holy Name..."
+      : "साधक की सांसारिक/तकनीकी जिज्ञासा का अवलोकन कर वात्सल्य भाव से सत्संग व नाम जप की ओर मार्गदर्शन दिया जा रहा है...";
     return await streamTextDirectly(
       redirectText,
       redirectThought,
@@ -1139,6 +1148,7 @@ export async function streamGuruResponse(
         seekerName,
         isEnglish,
         thought: currentThought,
+        conversationHistory,
         startTime,
         onChunk,
         abortSignal
@@ -1159,7 +1169,7 @@ export async function streamGuruResponse(
       const liveRes = await searchDuckDuckGo(effectiveQuery, isEnglish);
       streamedContent = liveRes.formattedDiscourse;
     } else {
-      streamedContent = generateLocalDiscourseFallback(effectiveQuery, seekerName, scripture, false, isEnglish);
+      streamedContent = generateLocalDiscourseFallback(effectiveQuery, seekerName, scripture, false, isEnglish, conversationHistory);
     }
     
     const words = streamedContent.split(/(\s+)/);
@@ -1192,9 +1202,9 @@ export async function streamGuruResponse(
  * Truly Dynamic context-aware offline fallback generating authentic Maharaj Ji voice (Hindi & English)
  * Never repeats generic canned text across different questions.
  */
-function generateLocalDiscourseFallback(query, seekerName, scripture, isGreeting, isEnglish = false) {
-  if (isIntroductionOrCreatorQuery(query)) {
-    return getProjectIntroduction(query, isEnglish);
+function generateLocalDiscourseFallback(query, seekerName, scripture, isGreeting, isEnglish = false, conversationHistory = []) {
+  if (isIntroductionOrCreatorQuery(query, conversationHistory)) {
+    return getProjectIntroduction(query, isEnglish, seekerName, conversationHistory);
   }
   if (isLiveCalendarQuery(query)) {
     return getEkadashiScheduleText(query, isEnglish);

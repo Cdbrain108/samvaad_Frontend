@@ -48,16 +48,27 @@ export const SAMVAAD_PROJECT_INFO = {
 /**
  * Categorizes an introduction inquiry to answer ONLY what the user asked.
  */
-export function categorizeIntroQuery(query) {
+export function categorizeIntroQuery(query, conversationHistory = []) {
   if (!query || typeof query !== 'string') return null;
   const clean = query.trim().toLowerCase();
 
   // 1. Creator / Developer questions
+  // Matches: "who is the creator of that project", "who made this project", "who is your creator", "who created it", "who am i", etc.
   if (
-    /\b(?:who\s*(?:created|made|built|developed|designed|founded)\s*you|who\s*is\s*your\s*(?:creator|maker|developer|author|engineer|founder)|anuj\s*kesharwani|anuj|kesharwani|keshari)\b/i.test(clean) ||
-    /(?:आपको\s*किसने\s*बनाया|किसने\s*डेवलप\s*किया|निर्माता\s*कौन\s*है|डेवलपर\s*कौन\s*है|किसका\s*प्रोजेक्ट\s*है|अनुज\s*केसरवानी|अनुज)/i.test(clean)
+    /\b(?:who\s*(?:created|made|built|developed|designed|founded)\s*(?:you|this|that|it|(?:this|that|the)\s*(?:project|app|website|system|bot|model))|who\s*is\s*(?:your|(?:the|this|that)\s*(?:project'?s?|app'?s?|bot'?s?))\s*(?:creator|maker|developer|author|engineer|founder|architect)|who\s*is\s*(?:the\s*)?(?:creator|maker|developer|author|founder|architect)\s*(?:of\s*(?:you|this|that|it|(?:this|that|the)\s*(?:project|app|system|bot|website)))?|anuj\s*kesharwani|anuj|kesharwani|keshari|who\s*(?:am\s*i|are\s*you\s*talking\s*to)|do\s*you\s*know\s*me)\b/i.test(clean) ||
+    /(?:आपको\s*किसने\s*बनाया|किसने\s*बनाया|किसने\s*डेवलप\s*किया|निर्माता\s*कौन\s*है|डेवलपर\s*कौन\s*है|किसका\s*प्रोजेक्ट\s*है|इस\s*प्रोजेक्ट\s*(?:का|के)\s*(?:निर्माता|डेवलपर|क्रिएटर)|अनुज\s*केसरवानी|अनुज|मैं\s*कौन\s*हूँ|मुझे\s*जानते\s*हो)/i.test(clean)
   ) {
     return 'creator';
+  }
+
+  // Follow-up context check: If previous message was identity/project intro and user asks "who made it", "creator kaun hai", etc.
+  if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
+    const lastBotMsg = [...conversationHistory].reverse().find(m => m.role === 'assistant')?.content || '';
+    if (lastBotMsg.includes('Samvaad AI') || lastBotMsg.includes('संवाद AI')) {
+      if (/\b(?:creator|maker|developer|who\s*made|who\s*built|who\s*created|founder)\b/i.test(clean) || /(?:निर्माता|डेवलपर|किसने\s*बनाया)/i.test(clean)) {
+        return 'creator';
+      }
+    }
   }
 
   // 2. Data Pipeline / Training Data / QA generation / Agentic System questions
@@ -99,15 +110,15 @@ export function categorizeIntroQuery(query) {
 /**
  * Checks if a user's query is an intro/creator/data/architecture query.
  */
-export function isIntroductionOrCreatorQuery(query) {
-  return categorizeIntroQuery(query) !== null;
+export function isIntroductionOrCreatorQuery(query, conversationHistory = []) {
+  return categorizeIntroQuery(query, conversationHistory) !== null;
 }
 
 /**
  * Returns a brief thought for the reasoning block based on inquiry category.
  */
-export function getIntroductionThought(query, isEnglish = false) {
-  const category = categorizeIntroQuery(query) || 'identity';
+export function getIntroductionThought(query, isEnglish = false, conversationHistory = []) {
+  const category = categorizeIntroQuery(query, conversationHistory) || 'identity';
 
   if (category === 'identity') {
     return isEnglish
@@ -141,8 +152,12 @@ export function getIntroductionThought(query, isEnglish = false) {
 /**
  * Generates context-specific, focused answers according to the exact question asked.
  */
-export function getProjectIntroduction(query, isEnglish = false) {
-  const category = categorizeIntroQuery(query) || 'identity';
+export function getProjectIntroduction(query, isEnglish = false, seekerName = '', conversationHistory = []) {
+  const category = categorizeIntroQuery(query, conversationHistory) || 'identity';
+  const clean = (query || '').toLowerCase();
+  const isAnuj = (seekerName && /anuj|kesharwani|keshari/i.test(seekerName)) ||
+                 /\b(?:who\s*am\s*i|do\s*you\s*know\s*me)\b/i.test(clean) ||
+                 /(?:मैं\s*कौन\s*हूँ|मुझे\s*जानते\s*हो)/i.test(clean);
 
   // ── 1. WHO ARE YOU -> ONLY tell about Samvaad project and what it is for ──
   if (category === 'identity') {
@@ -174,6 +189,19 @@ Tell me, dear seeker, what inquiry rests in your heart today?`;
   // ── 2. CREATOR / DEVELOPER -> Tells specifically about Anuj Kesharwani ──
   if (category === 'creator') {
     if (isEnglish) {
+      if (isAnuj) {
+        return `### 👨‍💻 Creator & Engineering Vision
+
+**You, Anuj Kesharwani, are the creator and developer of Samvaad AI (संवाद)!**
+
+* **Creator:** **Anuj Kesharwani**
+* **Role:** Aspiring Gen AI & Agentic AI Developer
+* **Email:** [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)
+* **Vision:** You envisioned and built Samvaad AI as an independent passion project to bridge timeless Vedic wisdom and revered Sant-Vani (specifically Pujya Premanand Ji Maharaj's Bhajan Marg teachings) with modern Generative & Agentic AI architectures.
+
+You engineered the complete platform: architecting the **multi-agent data pipeline** that turned ~4,000 raw YouTube transcripts into authentic Q&A pairs, fine-tuning the **Gemma 4 E4B IT** model on Google Cloud (GCP) and Oracle Cloud, and designing the hybrid multi-source RAG system across 175,000+ sacred verses.`;
+      }
+
       return `### 👨‍💻 Creator & Engineering Vision
 
 **Samvaad AI was envisioned and built by Anuj Kesharwani**, an aspiring Gen AI & Agentic AI Developer.
@@ -183,6 +211,19 @@ Tell me, dear seeker, what inquiry rests in your heart today?`;
 * **Vision:** Built as an independent passion project to bridge timeless Vedic wisdom and revered Sant-Vani (specifically Pujya Premanand Ji Maharaj's Bhajan Marg teachings) with modern Generative & Agentic AI architectures.
 
 Anuj engineered the complete system: architecting the **multi-agent data pipeline** that turned ~4,000 raw YouTube transcripts into authentic Q&A pairs, fine-tuning the **Gemma 4 E4B IT** model on Google Cloud (GCP) and Oracle Cloud, and designing the hybrid multi-source RAG system across 175,000+ sacred verses.`;
+    }
+
+    if (isAnuj) {
+      return `### 👨‍💻 निर्माता एवं परिकल्पना (Creator & Developer)
+
+**'संवाद AI' के निर्माता और डेवलपर आप स्वयं—अनुज केसरवानी (Anuj Kesharwani) हैं!**
+
+* **निर्माता:** **अनुज केसरवानी**
+* **पद/भूमिका:** Aspiring Gen AI & Agentic AI Developer
+* **ईमेल:** [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)
+* **दृष्टिकोण:** आपने इसे एक स्वतंत्र और समर्पित प्रोजेक्ट के रूप में विकसित किया है, ताकि पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज के पावन एकांतिक सत्संगों और वैदिक शास्त्रों की अमूल्य शिक्षाओं को आधुनिक जनरेटिव व एजेंटिक AI तकनीकों के माध्यम से विश्वभर के साधकों तक प्रामाणिक रूप से पहुँचाया जा सके।
+
+आपने ~4,000 यूट्यूब वीडियो ट्रांसक्रिप्ट्स से स्वाभाविक प्रश्नोत्तरी तैयार करने वाली **मल्टी-एजेंट पाइपलाइन** बनाई, Google Cloud एवं Oracle VM पर **Gemma 4 E4B IT** मॉडल को फाइन-ट्यून किया, और 1,75,000+ श्लोकों के हाइब्रिड RAG सिस्टम का संपूर्ण आर्किटेक्चर स्वतंत्र रूप से तैयार किया है।`;
     }
 
     return `### 👨‍💻 निर्माता एवं परिकल्पना (Creator & Developer)
