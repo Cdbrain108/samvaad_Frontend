@@ -99,36 +99,103 @@ async function streamGroqDiscourseRefiner({
     ? (seekerName ? `Dear child ${seekerName}` : 'Dear child')
     : (seekerName ? `देखो बच्चा ${seekerName}` : 'देखो बच्चा');
 
+  const sanitizedOracleThought = (oracleThought || '')
+    .replace(/(?:मैं सब रूपों से परे हूँ|मैं सब रूपों से परे हूं|मेरी आराधना करो|तुम्हारी आराधना करो|मुझसे परे कोई नहीं|मैं तुम्हें ज्ञान रूपी धन दूंगा|मैं तुम्हें ज्ञान रूपी धन दूँगा)[^।!?]*[।!?]/gu, '')
+    .trim();
+
+  const candidateList = (scripture && scripture.candidates && scripture.candidates.length)
+    ? scripture.candidates
+    : (scripture ? [scripture] : []);
+
+  const scriptureEvidenceText = candidateList.length > 0
+    ? (candidateList.length === 1
+        ? `${candidateList[0].reference} — « ${candidateList[0].original_text} »\n(${isEnglish ? 'Meaning: ' : 'अर्थ: '}${isEnglish ? (candidateList[0].english_translation || candidateList[0].hindi_meaning) : (candidateList[0].hindi_meaning || candidateList[0].english_translation)})`
+        : candidateList.map((c, i) => `[${isEnglish ? 'Scripture ' + (i + 1) : 'शास्त्र प्रमाण ' + (i + 1)}] ${c.reference} — « ${c.original_text} »\n(${isEnglish ? 'Meaning: ' : 'अर्थ: '}${isEnglish ? (c.english_translation || c.hindi_meaning) : (c.hindi_meaning || c.english_translation)})`).join('\n\n')
+      )
+    : (isEnglish ? 'None' : 'उपलब्ध नहीं');
+
   if (isEnglish) {
-    systemPrompt = `You are the authentic, compassionate, fatherly voice of Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
-Your sacred role is to synthesize internal spiritual contemplation and sacred scripture into a complete, deeply comforting, practical discourse.
+    systemPrompt = `You are the authentic, revered, fatherly voice of Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
+Your sacred role is to deliver a warm, direct, spiritually grounding fatherly discourse addressing the seeker's inquiry.
+
+[DYNAMIC LANGUAGE COGNITION (स्वतः भाषा संज्ञान)]
+- Detect the seeker's inquiry language and script autonomously:
+  * If the seeker writes in English: Deliver the discourse in warm, fatherly English, beginning with "${addressGreeting}".
+  * If the seeker writes in Hindi (Devanagari) or Hinglish (Hindi written in Roman/English alphabet, e.g. "mera man shant nahi hai", "kya karu"): You MUST deliver the discourse in authentic Devanagari Hindi, beginning with "देखो बच्चा ${seekerName || ''}," and concluding with "जय जय श्री राधे!". Never reply to a Hindi/Hinglish inquiry in English!
+
+[DEEP INTEGRATION OF FINE-TUNED ORACLE CONTEMPLATION - MANDATORY]
+- Under [INPUT CONTEXT], 'Contemplative Guidance' contains the authentic spiritual contemplation generated directly by our model fine-tuned on Pujya Maharaj Ji's real discourses and teachings.
+- DO NOT sideline or discard this guidance! You must actively incorporate its core spiritual insights, tone, fatherly concern, specific metaphors, and insistence on Holy Name chanting into your discourse.
+- Your sacred responsibility as the refiner is to take that authentic fine-tuned contemplation, integrate the verified scripture evidence, and shape it into a complete, seamless, beautiful spoken satsang discourse without diluting or replacing Maharaj Ji's real voice.
+
+[CRITICAL SACRED SAFEGUARDS]
+1. ADAPTIVE NATURAL FLOW (MANDATORY):
+   - Adapt the depth and length of your discourse directly to the seeker's question:
+     * If the inquiry is simple, direct, or straightforward: Deliver a crisp, concise, fatherly response (~140 to 220 words) getting straight to the spiritual resolution without unnecessary filler.
+     * If the inquiry is a deep philosophical dilemma or explicitly requests multiple verses: Deliver a thorough, comprehensive discourse (~280 to 420 words) illuminating each point with care.
+   - NEVER leave any thought or sentence unfinished or cut off mid-sentence.
+   - Always conclude with a warm fatherly blessing and "Jai Jai Shri Radhe!".
+   - NEVER use Markdown headings (no ### or ##). Maharaj Ji speaks in a continuous, loving, spoken voice.
+2. AUTHENTIC SCRIPTURE CITATIONS & MULTI-VERSE SUPPORT:
+   - You MUST ONLY recite a scriptural verse if authentic Scripture Evidence is provided under [INPUT CONTEXT]. Never invent verses.
+   - If multiple verses are provided or requested, you are free and encouraged to present each verse in order:
+     « Original Sanskrit Verse »
+     **Meaning —** "Bhavaarth: ..."
+     followed by 1-2 sentences of fatherly guidance connecting it to the inquiry.
+   - Always present every verse on its own standalone line. Never embed it inline inside a normal paragraph.
+3. ABSOLUTE PROHIBITION OF REPETITIVE FILLER & CLICHÉS:
+   - Do NOT pad the response with repetitive boilerplate paragraphs after explaining the verse.
+   - Connect the spiritual truth directly to the seeker's real situation. Avoid modern self-help jargon ("calories", "compass", "scorecard", "manage vs serve", "10-minute check").
+   - Maharaj Ji teaches three timeless truths: selfless duty as seva, shelter of the Holy Name ("Radha-Radha"), and total surrender to Shri Radha-Krishna.
+4. AUTHENTIC SATSANG VOICE:
+   - Warm fatherly opening ("${addressGreeting}") directly validating their inner inquiry.
+   - Loving closure with blessings and "Jai Jai Shri Radhe!".
 
 [INPUT CONTEXT]
 * Address Seeker As: "${addressGreeting}"
-* Internal Spiritual Contemplation: "${oracleThought || 'N/A'}"
-* Scripture Evidence: ${scripture ? `${scripture.reference} — "${scripture.original_text}" (Meaning: ${scripture.english_translation || scripture.hindi_meaning})` : 'None'}
-
-[DISCOURSE GUIDELINES]
-1. Address the seeker warmly as a loving father ("${addressGreeting}").
-2. Directly answer their specific dilemma using the core spiritual insights from the internal contemplation. Never give vague, generic, or boilerplate answers.
-3. Seamlessly weave in the scripture instruction if provided, showing how it practically solves their daily struggle.
-4. Prescribe the practical spiritual remedy: honest dedication to their current duty (Karma Yoga / Seva) and continuous remembrance of the Holy Name ("Radha-Radha").
-5. Keep the tone intimate, reassuring, and full of divine grace. End with "Jai Jai Shri Radhe!" or "Shri Radha!".`;
+* Contemplative Guidance (Fine-Tuned Guru Model Output): "${sanitizedOracleThought || 'N/A'}"
+* Scripture Evidence:
+${scriptureEvidenceText}`;
   } else {
     systemPrompt = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन, भजन मार्ग) की पावन, वात्सल्यमयी एवं प्रामाणिक वाणी हैं।
-आपका पावन दायित्व है कि आंतरिक आध्यात्मिक चिंतन (Oracle Contemplation) एवं शास्त्र प्रमाण (RAG Scripture) को मिलाकर साधक के लिए एक परिपूर्ण, आत्मीय और हृदयस्पर्शी सत्संग-समाधान प्रस्तुत करें।
+आपका पावन दायित्व है कि साधक के प्रश्न का एक परिपूर्ण, आत्मीय, गहरा और प्रेरक सत्संग-समाधान प्रस्तुत करें।
+
+[स्वाभाविक भाषा संज्ञान (Dynamic Language Cognition)]
+- साधक के प्रश्न की भाषा व लिपि का स्वतः परीक्षण करें:
+  * यदि प्रश्न हिंदी (देवनागरी) अथवा हिंग्लिश (रोमन अक्षरों में लिखी हिंदी, जैसे 'mera man shant nahi hai', 'kya karu') में है: तो संपूर्ण सत्संग सदैव प्रामाणिक देवनागरी हिंदी में दें, आरंभ "${addressGreeting}" से करें।
+  * यदि प्रश्न विशुद्ध अंग्रेजी (English) में है: तो संपूर्ण सत्संग वात्सल्यमयी अंग्रेजी में दें, आरंभ "Dear child ${seekerName || ''}" से करें और अंत "Jai Jai Shri Radhe!" पर करें।
+
+[पूज्य महाराज जी के आंतरिक चिंतन (Fine-Tuned Oracle Model) का अनिवार्य समावेशन - MANDATORY]
+- नीचे [प्राप्त सामग्री] में दिया गया 'आंतरिक विचार-सूत्र' पूज्य महाराज जी के प्रामाणिक सत्संग डेटा से विशेष रूप से प्रशिक्षित (Fine-Tuned) मॉडल का साक्षात् आध्यात्मिक चिंतन है।
+- इस विचार-सूत्र को कभी दरकिनार (sideline) न करें! इसमें व्यक्त मूल भाव, भाषा-शैली (Tone), दृष्टांत, मानसिक स्थिति का विश्लेषण और नाम-जप का आग्रह आपके सत्संग-समाधान का मुख्य प्राण होना चाहिए।
+- ग्रोक (Groq) का कार्य इस आंतरिक चिंतन को शास्त्र-प्रमाण और साधक के संदर्भ के साथ जोड़ते हुए एक धाराप्रवाह, वात्सल्यमयी एवं परिपूर्ण सत्संग रूप देना है—चिंतन के मूल भाव और वाणी की आत्मीयता को पूर्णतः सुरक्षित रखें।
+
+[महत्वपूर्ण भूमिका एवं मर्यादा]
+1. स्वाभाविक प्रवाह एवं प्रश्न-अनुकूल विस्तार (Adaptive Length):
+   - साधक के प्रश्न की प्रकृति के अनुसार उत्तर का विस्तार तय करें:
+     * यदि प्रश्न सीधा और संक्षिप्त है: तो सीधा, सटीक और आत्मीय उत्तर दें (~140 से 220 शब्द)। व्यर्थ की लंबी भूमिका या दोहराव न करें।
+     * यदि प्रश्न गहरा दार्शनिक है या साधक ने एकाधिक श्लोक/प्रमाण मांगे हैं: तो प्रत्येक प्रमाण व मर्म को पूर्णता के साथ समझाएं (~280 से 420 शब्द)।
+   - उत्तर को कभी भी बीच में अधूरा न छोड़ें; सदैव वात्सल्यमयी आशीष और पूर्ण विराम के साथ "जय जय श्री राधे!" पर समापन करें।
+   - मार्कडाउन हेडिंग्स (### या ##) का प्रयोग बिल्कुल न करें। महाराज जी सहज बोलते हैं, हेडिंग डालकर नहीं।
+2. शास्त्र प्रमाण की सत्यता एवं एकाधिक प्रमाण स्वरूप:
+   - केवल तभी श्लोक उद्धृत करें जब [प्राप्त सामग्री] में स्पष्ट शास्त्र प्रमाण दिया गया हो। मनगढ़ंत श्लोक कभी न बनाएँ।
+   - यदि [प्राप्त सामग्री] में 1 से अधिक श्लोक दिए गए हों (या साधक ने कई श्लोक मांगे हों), तो आवश्यकतानुसार 1, 2 या सभी प्राप्त श्लोकों को क्रमबद्ध रूप से प्रस्तुत करें:
+     « मूल संस्कृत श्लोक »
+     **अर्थात् —** "भावार्थ: ..."
+     और उस श्लोक का साधक के जीवन से संबंध समझाएँ।
+   - श्लोक को कभी भी सामान्य गद्य या पैराग्राफ के अंदर न मिलाएँ।
+3. व्यर्थ के दोहराव व घिसी-पिटी बातों पर पूर्ण रोक:
+   - श्लोक का भावार्थ समझाने के बाद एक ही बात को बार-बार न दोहराएँ। सीधे साधक की शंका का समाधान करें और आशीष दें।
+   - कॉर्पोरेट या आधुनिक लाइफ-कोच शैली (कैलोरी, स्कोरकार्ड, टाइमर) का प्रयोग न करें।
+4. सत्संग का वास्तविक मर्म (महाराज जी की प्रामाणिक सीख):
+   - कर्तव्य को निष्काम भगवत सेवा मानना, नाम-जप (राधा-राधा) से मन को प्रभु चरणों में जोड़ना, और परिणाम का भार प्रभु को समर्पित करना।
+   - अंत में सप्रेम आशीष और "जय जय श्री राधे!"।
 
 [प्राप्त सामग्री]
 * साधक संबोधन: "${addressGreeting}"
-* आंतरिक चिंतन-मनन: "${oracleThought || 'उपलब्ध नहीं'}"
-* शास्त्र प्रमाण: ${scripture ? `${scripture.reference} — « ${scripture.original_text} » (अर्थ: ${scripture.hindi_meaning || scripture.english_translation})` : 'उपलब्ध नहीं'}
-
-[मार्गदर्शन नियम]
-1. साधक को वात्सल्य भाव से संबोधित करें ("${addressGreeting}")।
-2. साधक के प्रश्न का सीधा और व्यावहारिक समाधान दें। आंतरिक चिंतन के भाव को सुंदर, सुगम और प्रामाणिक भाषा में विस्तार दें। कभी भी रटी-रटाई या पूर्व-लिखित पंक्तियाँ न दोहराएँ।
-3. यदि शास्त्र प्रमाण उपलब्ध है, तो उसे स्वाभाविक रूप से जोड़ें और बताएं कि यह उनके जीवन में कैसे लागू होता है।
-4. व्यावहारिक समाधान दें: अपने वर्तमान कर्तव्य (पढ़ाई, गृहस्थी, कर्म) को निष्काम भगवत सेवा मानना और निरंतर भगवन्नाम (राधा-राधा) का जप करना।
-5. भाषा शुद्ध, सरल, प्रेममयी एवं वृंदावन भाव से ओतप्रोत हो। अंत में "जय जय श्री राधे!" या "श्री राधा!" से मंगल कामना करें।`;
+* आंतरिक विचार-सूत्र (Fine-Tuned Guru Model Output): "${sanitizedOracleThought || 'उपलब्ध नहीं'}"
+* शास्त्र प्रमाण:
+${scriptureEvidenceText}`;
   }
 
   const messages = [
@@ -151,11 +218,11 @@ Your sacred role is to synthesize internal spiritual contemplation and sacred sc
         body: JSON.stringify({
           model: 'qwen/qwen3.8-27b',
           messages,
-          temperature: 0.35,
-          max_tokens: 750,
+          temperature: 0.48,
+          max_tokens: 1200,
           stream: true
         }),
-        signal: abortSignal || AbortSignal.timeout(15000)
+        signal: abortSignal || AbortSignal.timeout(22000)
       });
 
       if (!res.ok) {
@@ -307,7 +374,7 @@ async function runClientCrewPipeline({
   // Execute Groq Refiner to stream the finalized audited discourse
   const discourse = await streamGroqDiscourseRefiner({
     query,
-    oracleThought: `Seeker spiritual struggle: "${query}". Address them as a loving father ("${address}"). Provide compassionate, practical guidance: perform duty honestly as Bhagavad Seva, overcome mind's wandering through continuous Radha-Radha naam jaap, and surrender to divine grace.`,
+    oracleThought: `Seeker dilemma: "${query}". Address them as "${address}". Offer deep, compassionate, and practical guidance tailored directly to their inquiry.`,
     scripture,
     seekerName,
     isEnglish,
@@ -333,24 +400,24 @@ export function detectQueryLanguage(text) {
     return 'hindi';
   }
 
-  // 2. Strong Hinglish vocabulary & grammar markers
-  // Common Hinglish words used in spiritual, calendar, and everyday inquiries:
-  const hinMarkers = clean.match(
-    /\b(kab|hai|hain|me|mein|kya|kaise|kyu|kyun|karein|kare|karte|karti|karta|ho|hun|hoon|nahi|nahin|mat|hota|hoti|hote|mera|meri|mere|mujhe|mujhko|hum|humko|hamein|aap|apka|apki|apke|batao|bataiye|samjhaiye|kahiye|chahiye|raha|rahi|rahe|karo|dekho|suno|pranam|namaste|radhe|krishna|ram|aaj|kal|parso|kitne|kitna|konsi|kaun|kaha|kahan|kise|kis|kisko|aur|agla|agli|agle|wale|wali|wala|mahina|mahine|shuru|khatam|samay|purnima|amavasya|vrat|parana|bhajan|naam|jap|bhakti|bhagwan|mandir|darshan)\b/gi
-  );
+  // 2. English syntax & vocabulary markers
+  const engMarkers = clean.match(
+    /\b(hi|hello|hey|greetings|morning|evening|the|is|are|am|was|were|how|what|why|when|where|which|who|can|could|should|would|will|do|does|did|in|to|for|of|and|with|about|my|your|our|their|his|her|its|have|has|had|be|been|being|if|that|this|these|those|from|by|at|on|so|no|not|please|tell|give|verses?|shlokas?|chapter|purana?|gita|ramayana|life|mind|peace|death|soul|god|lord|devotion|meditation|prayer|divine|love|manifest|chanting|holy|name|transformation|practitioner|bring|satsang|dharma)\b/gi
+  ) || [];
 
-  // If there are explicit Hinglish markers present, treat as Hindi
-  if (hinMarkers && hinMarkers.length > 0) {
-    return 'hindi';
+  // 3. Strong Hinglish vocabulary & grammar markers (exclude common English words like 'me', 'ho')
+  const hinMarkers = clean.match(
+    /\b(kab|hai|hain|mein|kya|kaise|kyu|kyun|karein|kare|karte|karti|karta|hoon|hun|nahi|nahin|mat|hota|hoti|hote|mera|meri|mere|mujhe|mujhko|hum|humko|hamein|aap|apka|apki|apke|batao|bataiye|samjhaiye|kahiye|chahiye|raha|rahi|rahe|karo|dekho|suno|pranam|namaste|radhe|krishna|ram|aaj|kal|parso|kitne|kitna|konsi|kaun|kaha|kahan|kise|kis|kisko|aur|agla|agli|agle|wale|wali|wala|mahina|mahine|shuru|khatam|samay|purnima|amavasya|vrat|parana|bhajan|naam|jap|bhakti|bhagwan|mandir|darshan)\b/gi
+  ) || [];
+
+  // If there are explicit English markers and they are equal to or more than Hinglish markers, treat as English
+  if (engMarkers.length > 0 && engMarkers.length >= hinMarkers.length) {
+    return 'english';
   }
 
-  // 3. English syntax & vocabulary markers
-  const engMarkers = clean.match(
-    /\b(hi|hello|hey|greetings|morning|evening|the|is|are|am|was|were|how|what|why|when|where|which|who|can|could|should|would|will|do|does|did|in|to|for|of|and|with|about|my|your|our|their|his|her|its|have|has|had|be|been|being|if|that|this|these|those|from|by|at|on|so|no|not|please|tell|give|life|mind|peace|death|soul|god|lord|devotion|meditation|prayer|divine|love|manifest|chanting|holy|name|transformation|practitioner|bring|satsang|dharma)\b/gi
-  );
-
-  if (engMarkers && engMarkers.length > 0) {
-    return 'english';
+  // If explicit Hinglish markers dominate, treat as Hindi
+  if (hinMarkers.length > 0) {
+    return 'hindi';
   }
 
   return /^[a-zA-Z0-9\s.,!?'"()\-—]+$/.test(clean) ? 'english' : 'hindi';
@@ -483,12 +550,88 @@ export function isOfftopicQuery(query) {
 // In-Memory Client Scripture Cache for fast repeated queries
 const _localScriptureCache = new Map();
 
+/**
+ * 🧠 Groq Dharmic Query Perfection Agent (Few-Shot Cognitive Decomposition)
+ * Dynamically converts any user inquiry (Hindi, English, Hinglish) into:
+ * - spiritual_theme
+ * - canonical_sanskrit_terms
+ * - target_scriptures
+ * - recommended_scripture
+ * Zero hardcoded question matching!
+ */
+async function fetchGroqAgentQueryPerfection(query) {
+  if (!query || typeof query !== 'string') return null;
+  const clean = query.trim();
+  if (clean.length < 4) return null;
+
+  const systemPrompt = `You are the Dharmic Query Perfection Agent for an authentic Hindu Scripture RAG system.
+Given a seeker's inquiry, analyze their dilemma and output a JSON object with:
+1. "spiritual_theme": Brief core spiritual topic (e.g. "Kaliyuga Redemption through Holy Name", "Mind wandering & Meditation", "Prarabdha & Effort")
+2. "canonical_sanskrit_terms": Authentic Sanskrit / scriptural phrases related to this dilemma (e.g. "कलिजुग केवल नाम अधारा कलेर्दोषनिधे कीर्तनादेव कृष्णस्य" or "चञ्चलं हि मनः कृष्ण अभ्यासेन तु कौन्तेय")
+3. "target_scriptures": Relevant scriptures from ["ramcharitmanas", "bhagavad_gita", "srimad_bhagavatam", "garuda_purana", "vidura_niti", "chanakya_niti", "upanishads"]
+4. "recommended_scripture": Best scripture reference or chapter/verse if known (e.g. "Ramcharitmanas Uttarkand 103" or "Bhagavad Gita 6.26")
+5. "is_spiritual_or_dharmic": true
+
+[FEW-SHOT EXAMPLES]
+Inquiry: "कलयुग में भगवान प्राप्ति का सर्वोत्तम साधन क्या हे जिससे मनुष्य को भगवत प्राप्ति हो सके?"
+Output: {"spiritual_theme": "Kaliyuga salvation through Holy Name chanting", "canonical_sanskrit_terms": "कलिजुग केवल नाम अधारा कलेर्दोषनिधे राजन्नस्ति ह्येको महान् गुणः कीर्तनादेव कृष्णस्य मुक्तसङ्गः परं व्रजेत्", "target_scriptures": ["ramcharitmanas", "srimad_bhagavatam"], "recommended_scripture": "Ramcharitmanas Uttarkand 103", "is_spiritual_or_dharmic": true}
+
+Inquiry: "man bhut chanchal hai puja me dhyan nahi lagta kya kare"
+Output: {"spiritual_theme": "Restless mind and overcoming spiritual distractions", "canonical_sanskrit_terms": "चञ्चलं हि मनः कृष्ण प्रमाथि बलवद् दृढम् अभ्यासेन तु कौन्तेय वैराग्येण च गृह्यते", "target_scriptures": ["bhagavad_gita"], "recommended_scripture": "Bhagavad Gita 6.35", "is_spiritual_or_dharmic": true}
+
+Inquiry: "kya prarabdha ko badla ja sakta hai ya kismat me jo likha hai wahi hoga"
+Output: {"spiritual_theme": "Destiny versus righteous effort and divine grace", "canonical_sanskrit_terms": "कर्मणो ह्यपि बोद्धव्यं गहना कर्मणो गतिः कर्म प्रधान विश्व करि राखा", "target_scriptures": ["bhagavad_gita", "ramcharitmanas"], "recommended_scripture": "Bhagavad Gita 4.17", "is_spiritual_or_dharmic": true}
+
+Inquiry: "kisi shadi shuda aurat se prem ho gaya hai kya karu"
+Output: {"spiritual_theme": "Forbidden desire, marital fidelity and moral restraint", "canonical_sanskrit_terms": "परदाराभिमर्श मातृवत् परदारेषु काम एष क्रोध एष रजोगुणसमुद्भवः", "target_scriptures": ["valmiki_ramayana", "chanakya_niti", "bhagavad_gita"], "recommended_scripture": "Valmiki Ramayana 9.12", "is_spiritual_or_dharmic": true}
+
+Respond ONLY with valid JSON. No conversational text.`;
+
+  const apiKey = getNextGroqKey();
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'qwen/qwen3.8-27b',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: query }
+        ],
+        temperature: 0.1,
+        max_tokens: 220,
+        response_format: { type: 'json_object' }
+      }),
+      signal: AbortSignal.timeout(3500)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (content) {
+        return JSON.parse(content);
+      }
+    }
+  } catch (err) {
+    console.warn('[Groq Query Perfection] Fast fallback to taxonomy:', err.message);
+  }
+  return null;
+}
+
 async function getCachedScriptureGrounding(userMessage) {
   const key = (userMessage || '').trim().toLowerCase();
   if (_localScriptureCache.has(key)) {
     return _localScriptureCache.get(key);
   }
-  const scripture = await getScriptureGrounding(userMessage);
+  let groqEnrichment = null;
+  try {
+    groqEnrichment = await fetchGroqAgentQueryPerfection(userMessage);
+  } catch (err) {
+    console.warn('[Groq Agent] Enrichment skipped:', err.message);
+  }
+  const scripture = await getScriptureGrounding(userMessage, groqEnrichment);
   if (scripture) {
     _localScriptureCache.set(key, scripture);
   }
@@ -577,16 +720,8 @@ async function streamOracleThoughtDeliberation(userMessage, conversationHistory,
   const oracleBase = getOracleUrl() || 'https://immature-zen-earthen.ngrok-free.dev';
   const endpoint = `${oracleBase.replace(/\/$/, '')}/v1/chat/completions`;
 
-  let systemPrompt = '';
-  if (isEnglish) {
-    systemPrompt = `You are the deep internal spiritual contemplation and deliberation core of Pujya Maharaj Ji (Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj).
-Reflect deeply on the seeker's inner dilemma, emotional state, and spiritual remedy (surrender to Radha Rani, chanting, righteous duty).
-Provide your internal contemplative reasoning in English in a thoughtful, serene manner (keep under 100 words).`;
-  } else {
-    systemPrompt = `आप पूज्य श्री प्रेमानंद जी महाराज का आंतरिक आध्यात्मिक विचार एवं चिंतन-मनन हैं।
-साधक की आंतरिक स्थिति, प्रारब्ध, और संशयों का सूक्ष्म विश्लेषण करते हुए एकांतिक चिंतन प्रस्तुत करें।
-प्रभु के नाम-जप, सत्संग और शरणागति के भाव का अनुशीलन करें। चिंतन को संक्षिप्त (100 शब्दों के भीतर) रखें।`;
-  }
+  let systemPrompt = `आप पूज्य श्री प्रेमानंद जी महाराज (वृंदावन) का आंतरिक आध्यात्मिक चिंतन-मनन हैं।
+साधक के संशय व स्थिति का सूक्ष्म विश्लेषण करते हुए निष्काम कर्तव्य, नाम-जप, लाडली जू की शरणागति और संत-वाणी के मर्म पर गहरा व प्रामाणिक चिंतन प्रस्तुत करें (१५०-२०० शब्दों में)।`;
 
   if (scripture && scripture.original_text) {
     systemPrompt += `\n\nशास्त्र प्रमाण: ${scripture.reference || ''} - ${scripture.original_text}`;
@@ -620,11 +755,11 @@ Provide your internal contemplative reasoning in English in a thoughtful, serene
         frequency_penalty: 0.2,
         cache_prompt: false,
         slot_id: -1,
-        max_tokens: 180,
+        max_tokens: 260,
         stop: ["<end_of_turn>", "<start_of_turn>", "<|im_end|>", "</s>", "\n\nUser:", "User:", "साधक:", "\n\nसाधक:", "\nSeeker:", "Seeker:", "\nHuman:", "Human:"],
         stream: true
       }),
-      signal: AbortSignal.timeout(16000)
+      signal: AbortSignal.timeout(28000)
     });
 
     if (res.ok && res.body) {
@@ -797,9 +932,13 @@ export async function streamGuruResponse(
   }
 
   if (scripture) {
+    const candCount = (scripture.candidates && scripture.candidates.length) || 1;
+    const citationSummary = candCount > 1
+      ? `${scripture.reference || 'शास्त्र प्रमाण'} (+${candCount - 1} पूरक प्रमाण)`
+      : (scripture.reference || 'श्रीमद्भगवद्गीता');
     currentThought += isEnglish
-      ? `\nScriptural citation verified: ${scripture.reference || 'Shrimad Bhagavad Gita'}`
-      : `\nशास्त्र प्रमाण प्राप्त: ${scripture.reference || 'श्रीमद्भगवद्गीता'}`;
+      ? `\nScriptural citation verified: ${scripture.reference || 'Shrimad Bhagavad Gita'}${candCount > 1 ? ` (+${candCount - 1} supporting verses)` : ''}`
+      : `\nशास्त्र प्रमाण प्राप्त: ${citationSummary}`;
     onChunk({
       content: '',
       thought: currentThought,
@@ -871,7 +1010,7 @@ export async function streamGuruResponse(
       body: JSON.stringify({
         messages: formattedMessages,
         temperature: 0.32,
-        max_tokens: 1100,
+        max_tokens: 1800,
         mode: inferenceMode === 'fast' ? 'fast' : (inferenceMode === 'crew' ? 'crew' : 'deep')
       }),
       signal: combinedSignal
@@ -1023,7 +1162,7 @@ function generateLocalDiscourseFallback(query, seekerName, scripture, isGreeting
     return getEkadashiScheduleText(query, isEnglish);
   }
 
-  const qLower = (query || '').toLowerCase();
+  const cleanQuery = (query || '').trim();
 
   if (isEnglish) {
     const address = seekerName ? `Dear child ${seekerName}` : 'Dear child';
@@ -1032,24 +1171,17 @@ function generateLocalDiscourseFallback(query, seekerName, scripture, isGreeting
       return `Radhe Radhe, dear child! May Shri Radha Rani bless you with pure devotion, unwavering peace, and holy name shelter. Always remain under the lotus feet of the Divine.`;
     }
 
-    let dynamicCore = '';
-    if (/(?:padhai|padhne|study|studies|exam|student|focus)/i.test(qLower)) {
-      dynamicCore = `As a student, your studies are your sacred spiritual duty (Karma Yoga). The mind naturally wanders because it is restless by habit. Whenever you sit to study, close your eyes for two minutes, remember 'Radha-Radha', and perform your learning as divine service to God. Do not be anxious about results; dedicate your honest effort to Priya-Priyatam.`;
-    } else if (/(?:shant|peace|calm|restless|chitta|mind|anxiety)/i.test(qLower)) {
-      dynamicCore = `The restless mind cannot be forced into silence through frustration. It finds its only true peace when anchored to the Divine Name ('Radha-Radha'). Turn your attention away from worldly agitation, practice daily contemplation, and offer every anxious thought at the lotus feet of Shri Radha Rani.`;
-    } else if (/(?:anger|krodh|temper|gussa)/i.test(qLower)) {
-      dynamicCore = `Anger destroys one's own spiritual discrimination first. The moment anger strikes, observe complete silence, take deep breaths, and internally chant 'Radha-Radha'. With patience and constant prayer, even the fiercest inner turmoil settles.`;
-    } else {
-      dynamicCore = `Whatever duty or circumstance life places before you, fulfill it with truthfulness, patience, and devotion as an offering to God. In every situation, never abandon the Supreme Refuge of the Holy Name ('Radha-Radha').`;
-    }
+    let text = `${address}, listen attentively with an open heart to what is being shared.\n\n`;
+    text += `Regarding what you have placed before us ("${cleanQuery}"), understand that every dilemma in this human life is an opportunity to purify our consciousness. The mind tends to wander toward worldly agitation or doubt, but true solace lies in duty performed without selfish attachment and constant remembrance of the Supreme.\n\n`;
 
-    let text = `${address}, listen attentively to what is being shared with love.\n\n${dynamicCore}`;
     if (scripture && scripture.original_text) {
-      const orig = scripture.original_text || '';
-      const meaning = scripture.english_translation || scripture.hindi_meaning || '';
-      text += `\n\nAs the holy scripture instructs:\n**« ${orig} »**\n**Meaning —** "${meaning}"\n\nTherefore, do not despair over any worldly circumstance. Have steadfast faith in Divine Grace and keep chanting with love. Shri Radha!`;
+      const orig = scripture.original_text.trim();
+      const meaning = (scripture.english_translation || scripture.hindi_meaning || '').trim();
+      const ref = scripture.reference || 'Sacred Scripture';
+      text += `As revealed in the divine wisdom of **${ref}**:\n\n**« ${orig} »**\n\n**Meaning —** "${meaning}"\n\n`;
+      text += `Let this sacred teaching be your guiding light. Fulfill whatever righteous duty lies before you with honesty as divine worship (Karma Yoga), and anchor your restless intellect in constant 'Radha-Radha' chanting. Do not harbor despair; all is guided by Divine Grace. Shri Radha!`;
     } else {
-      text += `\n\nAlways uphold truth, respect your parents and elders, and dedicate as much time as possible each day to remembering the Holy Name. All will be auspicious, dear child. Jai Jai Shri Radhe!`;
+      text += `Whatever circumstance life places before you, fulfill your prescribed duties with integrity and patience as divine service. Daily anchor your thoughts in the Holy Name ('Radha-Radha') and keep company with uplifting spiritual wisdom. All will be auspicious, dear child. Jai Jai Shri Radhe!`;
     }
     return text;
   }
@@ -1060,26 +1192,17 @@ function generateLocalDiscourseFallback(query, seekerName, scripture, isGreeting
     return `राधे राधे बच्चा! श्री जी तुम्हें खूब भक्ति, शांति और नाम जप का बल प्रदान करें। सदैव लाडली जू के चरणों का आश्रय रखो। कहो, क्या जिज्ञासा है तुम्हारी?`;
   }
 
-  let dynamicCore = '';
-  if (/(?:padhai|padhne|study|exam|vidyarthi|pariksha|adhikari|padh)/i.test(qLower)) {
-    dynamicCore = `विद्यार्थी जीवन एक पावन तपस्या है। पढ़ाई में मन न लगना मन की स्वाभाविक चंचलता के कारण है। जब भी अध्ययन करने बैठो, सबसे पहले 2 मिनट शांत होकर 'राधा-राधा' नाम का स्मरण करो। अपनी पढ़ाई को सांसारिक बोझ मत समझो, इसे भगवत सेवा (कर्म योग) मानकर निष्काम भाव से करो। जब बुद्धि में यह भाव आएगा कि यह विद्या प्रभु की सेवा के लिए है, तो मन स्वतः एकाग्र होने लगेगा।`;
-  } else if (/(?:shant|shanti|peace|chitta|mann|ashant|dimag|restless)/i.test(qLower)) {
-    dynamicCore = `मन को शांत करने का एकमात्र अचूक और शाश्वत साधन है—संसार के व्यर्थ प्रपंचों और चिंताओं से दृष्टि हटाकर निरंतर भगवन्नाम (राधा-राधा) का जप करना। मन स्वभाव से चंचल है, इसे किसी नश्वर सांसारिक वस्तु में कभी शांति नहीं मिल सकती। यह केवल अपने स्वामी, परमपिता परमात्मा के पावन चरणों में ही विश्राम पाता है। हर समय नाम जप का अभ्यास रखो, मन का सारा विक्षेप शांत हो जाएगा।`;
-  } else if (/(?:krodh|gussa|anger|krodhit)/i.test(qLower)) {
-    dynamicCore = `क्रोध साक्षात् विवेक और साधना का नाश करने वाला है। जब भी क्रोध का वेग आए, उस समय पूर्णतः मौन हो जाओ। किसी को प्रत्युत्तर मत दो, जल पियो और मन ही मन 'राधा-राधा' नाम का आश्रय लो। मौन और नाम जप से बड़े से बड़ा क्रोध भस्म हो जाता है और हृदय में शीतलता आ जाती है।`;
-  } else if (/(?:dukh|kasht|grief|depression|sad|chinta|dar|bhay)/i.test(qLower)) {
-    dynamicCore = `संसार का कोई भी कष्ट या परिस्थिति स्थायी नहीं है। यह सब पूर्व संचित कर्मों का प्रारब्ध है जो आकर बीत जाता है। तुम बिल्कुल घबराना मत, लाडली जू की अहैतुकी कृपा पर पूर्ण भरोसा रखो। जब तुम प्रभु के शरणागत हो जाओगे, तो कोई भी दुख तुम्हें विचलित नहीं कर सकेगा।`;
-  } else {
-    dynamicCore = `जीवन में जो भी धर्मानुकूल कर्तव्य तुम्हारे सामने आए, उसे निष्काम भाव से प्रभु की सेवा मानकर करो। वाणी से निरंतर 'राधा-राधा' नाम का जप करो और मन को संसार के छल-कपट से दूर रखो। प्रभु का आश्रय ही इस संसार सागर से पार लगाने वाली एकमात्र नौका है।`;
-  }
+  let text = `${address}, तुमने जो बात पूछी है, उसे शांत चित्त होकर ध्यान से समझो।\n\n`;
+  text += `जीवन की कोई भी परिस्थिति या संशय हो, जब तक दृष्टि केवल सांसारिक फल या चिंताओं पर रहेगी, तब तक मन चंचल और व्यथित रहेगा। जो भी कर्तव्य तुम्हारे सामने है, उसे केवल सांसारिक भार न समझकर प्रभु की पावन सेवा मानकर निष्काम भाव से करो।\n\n`;
 
-  let text = `${address}, तुमने जो जिज्ञासा रखी है, उस पर ध्यान से सुनो।\n\n${dynamicCore}`;
   if (scripture && scripture.original_text) {
-    const orig = scripture.original_text || '';
-    const meaning = scripture.hindi_meaning || scripture.english_translation || '';
-    text += `\n\nजैसे पावन शास्त्र में भगवान का पावन निर्देश है:\n**« ${orig} »**\n**अर्थात् —** "${meaning}"\n\nइसलिए किसी भी परिस्थिति में निराश न हो, भगवत्कृपा पर पूर्ण विश्वास रखो। श्री राधा!`;
+    const orig = scripture.original_text.trim();
+    const meaning = (scripture.hindi_meaning || scripture.english_translation || '').trim();
+    const ref = scripture.reference || 'पावन शास्त्र';
+    text += `इस विषय में **${ref}** का पावन प्रमाण ध्यान से सुनो:\n\n**« ${orig} »**\n\n**अर्थात् —** "${meaning}"\n\n`;
+    text += `इस पावन वचन को अपने हृदय में धारण करो. अपने दैनिक कर्म को भगवत आराधना मानकर ईमानदारी से निभाओ, व्यर्थ की चिंताओं को लाडली जू के चरणों में समर्पित कर दो, और श्वास-श्वास में 'श्री राधा-राधा' नाम का आश्रय लो। जब नाम का सहारा होगा, तो मन का हर संशय शांत हो जाएगा। घबराना नहीं, सब मंगल होगा बच्चा! जय जय श्री राधे!`;
   } else {
-    text += `\n\nसदा सत्य आचरण रखो, माता-पिता और संतों का आदर करो और दिन में अधिक से अधिक समय भगवन्नाम का स्मरण करो। सब मंगल होगा बच्चा। जय जय श्री राधे!`;
+    text += `धर्मानुकूल आचरण रखो, माता-पिता और गुरुजनों का आदर करो, और अधिक से अधिक समय वाणी से 'राधा-राधा' नाम का जप करो। भगवन्नाम ही इस संसार में सबसे बड़ा संबल है। लाडली जू कृपा करेंगी बच्चा, खूब भजन करो। जय जय श्री राधे!`;
   }
 
   return text;
