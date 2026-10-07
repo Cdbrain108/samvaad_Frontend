@@ -12270,3 +12270,24 @@ body:not(.night) .rich-text strong {
   }
 }
 
+@media (max-width: 768px) {
+  .responding-indicator-box {
+    font-size: 0.88rem !important;
+    line-height: 1.52 !important;
+    word-break: break-word !important;
+    gap: 6px !important;
+  }
+
+  .responding-typewriter-cursor {
+    font-size: 0.92rem !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .responding-indicator-box {
+    font-size: 0.84rem !important;
+    line-height: 1.45 !important;
+  }
+}
+
+
