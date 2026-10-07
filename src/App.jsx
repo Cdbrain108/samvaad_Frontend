@@ -951,11 +951,11 @@ export default function App() {
         userProfile,
         inferenceMode,
         (update) => {
-          const hasVisiblePayload = typeof update === 'string'
+          const hasContent = typeof update === 'string'
             ? Boolean(update.trim())
-            : Boolean(update?.content?.trim() || update?.thought?.trim() || update?.isThinking);
+            : Boolean(update?.content?.trim());
 
-          if (hasVisiblePayload && !receivedAnyChunk) {
+          if (hasContent && !receivedAnyChunk) {
             receivedAnyChunk = true;
             setIsResponding(false);
           }
@@ -1380,8 +1380,8 @@ export default function App() {
                           <RichText content={message.content} streaming={isLastAssistant && (isStreaming || message.isThinking)} />
                         </div>
                       ) : (
-                        isLastAssistant && !message.isThinking && isStreaming && (
-                          <div style={{ marginTop: '12px' }}>
+                        isLastAssistant && (isStreaming || isResponding) && (
+                          <div style={{ marginTop: (message.mode === 'deep' && (message.thought || message.isThinking)) ? '14px' : '0px' }}>
                             <RespondingIndicator
                               isDeep={inferenceMode === 'deep'}
                               userQuery={index > 0 && messages[index - 1] ? messages[index - 1].content || '' : ''}
