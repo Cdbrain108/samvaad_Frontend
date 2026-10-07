@@ -12221,11 +12221,52 @@ body:not(.night) .rich-text strong {
   box-shadow: 0 12px 28px rgba(180, 120, 40, 0.14), 0 0 12px rgba(217, 119, 6, 0.12) !important;
 }
 
+/* ── Sacred Responding Typewriter Indicator ── */
+.responding-indicator-box {
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  font-size: 0.95rem !important;
+  line-height: 1.6 !important;
+  font-weight: 500 !important;
+  min-height: 28px !important;
+  margin: 0 !important;
+}
 
+:root[data-theme='dark'] .responding-indicator-box {
+  color: #FEF3C7 !important;
+}
 
+:root[data-theme='light'] .responding-indicator-box {
+  color: #78350F !important;
+}
 
+.responding-typed-content {
+  letter-spacing: 0.015em;
+  font-style: italic;
+  font-family: inherit;
+  transition: color 0.25s ease;
+}
 
+.responding-typewriter-cursor {
+  display: inline-block;
+  color: #F59E0B;
+  font-weight: 800;
+  font-size: 1rem;
+  animation: sacredCursorBlink 0.85s steps(2, start) infinite;
+  margin-left: 2px;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
 
-
-
+@keyframes sacredCursorBlink {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
 

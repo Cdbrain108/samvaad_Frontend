@@ -29,6 +29,8 @@ const STAGES_DIRECT_EN = [
 
 const WISDOM_PEARLS_HI = [
   "ठाकुर जी शरीर की बनावट या लौकिक रूप नहीं, केवल अंतःकरण का निष्काम प्रेम देखते हैं।",
+  "हरे कृष्ण हरे कृष्ण कृष्ण कृष्ण हरे हरे | हरे राम हरे राम राम राम हरे हरे — महामंत्र ही कलि में परम संबल है।",
+  "यदि आप विद्यार्थी हैं, तो नित्य 'ॐ ऐं ॐ माँ सरस्वत्यै नमः' का जप करें और अध्ययन को प्रभु सेवा मानकर करें।",
   "हर श्वास में 'राधा-राधा' नाम का सुमिरन ही चित्त के समस्त संशयों को शांत करता है।",
   "संसार का कोई भी भय या तिरस्कार प्रभु के अहैतुक वात्सल्य से बड़ा नहीं हो सकता।",
   "अपने दैनिक कर्तव्य को प्रभु की पूजा मानकर, अहंकार त्यागकर प्रेम से जीवन बिताएं।",
@@ -37,6 +39,8 @@ const WISDOM_PEARLS_HI = [
 
 const WISDOM_PEARLS_EN = [
   "The Divine does not judge physical form or labels, but cherishes only sincere purity of heart.",
+  "Hare Krishna Hare Krishna Krishna Krishna Hare Hare, Hare Rama Hare Rama Rama Rama Hare Hare — the Supreme Mahamantra.",
+  "If you are a student, chant 'Om Aeng Om Ma Saraswatyai Namah' daily and dedicate your studies as sacred seva.",
   "Every breath anchored in the Holy Name 'Radha Radha' brings unshakeable inner peace.",
   "No worldly judgment or anxiety can ever overcome Thakur Ji's unconditional shelter.",
   "Perform your daily duties honestly as sacred seva, surrendering all fruits to God.",

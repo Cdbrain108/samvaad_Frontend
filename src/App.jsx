@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { onAuthStateChange, saveConversation, getUserConversations, getConversation, updateConversation, getUserMemory, saveUserMemory, getUserProfileInfo, saveUserProfileInfo, signInWithGoogle, loginUser, registerUser } from './services/firebase';
 import { generateGuruResponse, streamGuruResponse, generateChatTitle, isCasualConversational, detectQueryLanguage } from './services/guruService';
@@ -17,6 +17,12 @@ import RagVersesDropdown from './components/RagVersesDropdown';
 import { getVoiceCloneUrl } from './services/ttsService';
 import RichText from './components/RichText';
 import { formatTimestamp } from './utils/formatters';
+
+export function isStudyQuery(query = '') {
+  if (!query || typeof query !== 'string') return false;
+  const clean = query.trim().toLowerCase();
+  return /(?:study|studies|student|students|exam|exams|padhai|paḍhāī|padhne|pariksha|parīkṣā|vidyarthi|vidyārthī|syllabus|concentration|dhyan|ekagrata|ekāgratā|memory|yaad\s*nahi|neet|jee|upsc|ias|college|school|marks|grades|career|board\s*exam|padh|paḍh)/i.test(clean);
+}
 
 function CopyButton({ text }) {
   const [copied, setCopied] = useState(false);
@@ -43,41 +49,94 @@ function CopyButton({ text }) {
   );
 }
 
-const respondingPhrases = [
-  '🌸 श्री राधा नाम स्मरण एवं पावन चिंतन...',
-  'एकांतिक वार्तालाप एवं पूज्य महाराज जी के वचनों का अनुशीलन...',
-  'साधक के प्रश्न का भावपूर्ण शास्त्रीय समाधान...',
-];
+function RespondingIndicator({ isDeep = false, userQuery = '' }) {
+  const isEnglish = detectQueryLanguage(userQuery) === 'english';
+  const studyQuery = isStudyQuery(userQuery);
 
-function RespondingIndicator({ isDeep = false }) {
-  const [phraseIndex, setPhraseIndex] = useState(0);
+  const phrases = useMemo(() => {
+    if (studyQuery) {
+      return isEnglish ? [
+        '📚 If you are a student, please chant that mantra everyday: "Om Aeng Om Ma Saraswatyai Namah" (ॐ ऐं ॐ माँ सरस्वत्यै नमः)...',
+        '📿 Hare Krishna Hare Krishna Krishna Krishna Hare Hare, Hare Rama Hare Rama Rama Rama Hare Hare...',
+        '✨ Study with dedication as divine seva; anchor restless mind in "Radhe Radhe"...',
+        '🌸 Invoking Maa Saraswati and Pujya Maharaj Ji’s blessings for sharp intellect & focus...'
+      ] : [
+        '📚 यदि आप एक विद्यार्थी हैं, तो नित्य इस पावन मन्त्र का जप करें: "ॐ ऐं ॐ माँ सरस्वत्यै नमः"...',
+        '📿 हरे कृष्ण हरे कृष्ण कृष्ण कृष्ण हरे हरे | हरे राम हरे राम राम राम हरे हरे...',
+        '✨ राधे राधे... पढ़ाई को प्रभु की सेवा मानकर एकाग्रचित्त होकर अध्ययन करें...',
+        '🌸 विद्या, बुद्धि एवं एकाग्रता हेतु श्री सरस्वती स्मरण एवं पूज्य महाराज जी का पावन मार्गदर्शन...'
+      ];
+    }
 
-  const phrases = [
-    '🌸 श्री राधा नाम स्मरण एवं पावन चिंतन...',
-    'एकांतिक वार्तालाप एवं पूज्य महाराज जी के वचनों का अनुशीलन...',
-    'साधक के प्रश्न का भावपूर्ण शास्त्रीय समाधान...',
-  ];
+    if (isEnglish) {
+      return [
+        '🌸 Remembering Shri Radha: "Radhe Radhe... Radhe Radhe"...',
+        '📿 Hare Krishna Hare Krishna Krishna Krishna Hare Hare, Hare Rama Hare Rama Rama Rama Hare Hare...',
+        '✨ Seeking eternal refuge at the lotus feet of Shri Radha Rani...',
+        '🕉️ Om Namo Bhagavate Vasudevaya... invoking sacred scriptural wisdom...',
+        '🌺 Contemplating seeker’s inquiry with fatherly affection and divine grace...',
+        '🪷 "Radha Radha" chanting purifies consciousness and dissolves all turmoil...'
+      ];
+    }
+
+    return [
+      '🌸 श्री राधा नाम स्मरण एवं पावन चिंतन...',
+      '📿 हरे कृष्ण हरे कृष्ण कृष्ण कृष्ण हरे हरे | हरे राम हरे राम राम राम हरे हरे...',
+      '✨ राधे राधे... राधे राधे... श्री जी के चरणों का पावन आश्रय...',
+      '🌺 श्वास-श्वास में "श्री राधा-राधा" नाम की पावन ध्वनि...',
+      '🕉️ ॐ नमो भगवते वासुदेवाय... परम तत्व का पावन स्मरण...',
+      '🙏 साधक के संशय निवारण हेतु पूज्य महाराज जी के वचनों का अनुशीलन...',
+      '🪷 श्री सीताराम नाम सुमिरन एवं मानस चिंतन...',
+      '🌸 एकांतिक वार्तालाप एवं पूज्य महाराज जी की वात्सल्यमयी वाणी...'
+    ];
+  }, [userQuery, isEnglish, studyQuery]);
+
+  const [phraseIdx, setPhraseIdx] = useState(() => (studyQuery ? 0 : Math.floor(Math.random() * phrases.length)));
+  const [displayedText, setDisplayedText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const cycle = setInterval(() => {
-      setPhraseIndex((current) => (current + 1) % phrases.length);
-    }, 2200);
-    return () => clearInterval(cycle);
-  }, [phrases.length]);
+    setPhraseIdx(studyQuery ? 0 : Math.floor(Math.random() * phrases.length));
+    setDisplayedText('');
+    setIsDeleting(false);
+  }, [studyQuery, phrases]);
+
+  useEffect(() => {
+    const currentTarget = phrases[phraseIdx % phrases.length];
+    if (!currentTarget) return;
+    let timer = null;
+
+    if (!isDeleting) {
+      if (displayedText.length < currentTarget.length) {
+        timer = setTimeout(() => {
+          setDisplayedText(currentTarget.slice(0, displayedText.length + 1));
+        }, 28);
+      } else {
+        // Pause to let seeker comfortably read and absorb the sacred mantra
+        timer = setTimeout(() => {
+          setIsDeleting(true);
+        }, 2200);
+      }
+    } else {
+      if (displayedText.length > 0) {
+        timer = setTimeout(() => {
+          setDisplayedText(currentTarget.slice(0, Math.max(0, displayedText.length - 3)));
+        }, 16);
+      } else {
+        setIsDeleting(false);
+        setPhraseIdx(prev => (prev + 1) % phrases.length);
+      }
+    }
+
+    return () => clearTimeout(timer);
+  }, [displayedText, isDeleting, phraseIdx, phrases]);
 
   return (
-    <p className="typing-text">
-      <AnimatePresence mode="wait">
-        <motion.em
-          key={phraseIndex}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.25 }}
-        >
-          {phrases[phraseIndex]}
-        </motion.em>
-      </AnimatePresence>
+    <p className="typing-text responding-indicator-box">
+      <span className="responding-typed-content">
+        {displayedText}
+      </span>
+      <span className="responding-typewriter-cursor" aria-hidden="true">▍</span>
       <span className="chat-typing-dots" aria-hidden="true"><i /><i /><i /></span>
     </p>
   );
@@ -1316,10 +1375,19 @@ export default function App() {
                       )}
 
                       {/* Open Typography flowing directly inside the Sacred Card Window */}
-                      {message.content && (
+                      {message.content ? (
                         <div className="rich-text">
                           <RichText content={message.content} streaming={isLastAssistant && (isStreaming || message.isThinking)} />
                         </div>
+                      ) : (
+                        isLastAssistant && !message.isThinking && isStreaming && (
+                          <div style={{ marginTop: '12px' }}>
+                            <RespondingIndicator
+                              isDeep={inferenceMode === 'deep'}
+                              userQuery={index > 0 && messages[index - 1] ? messages[index - 1].content || '' : ''}
+                            />
+                          </div>
+                        )
                       )}
 
                       {/* RAG Reference Dropdown Section */}
@@ -1386,7 +1454,10 @@ export default function App() {
                     style={{ animation: 'none' }}
                   >
                     <div className="assistant-message-body">
-                      <RespondingIndicator isDeep={inferenceMode === 'deep'} />
+                      <RespondingIndicator
+                        isDeep={inferenceMode === 'deep'}
+                        userQuery={messages.filter(m => m.role === 'user').slice(-1)[0]?.content || ''}
+                      />
                     </div>
                   </motion.article>
                 )}
