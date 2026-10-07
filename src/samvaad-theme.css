@@ -12347,40 +12347,132 @@ body:not(.night) .rich-text strong {
   transform: translate(-50%, -50%) scale(1) !important;
 }
 
-/* Chat Messages: Dynamically fit full screen height with comfortable breathing room */
+/* ═════════════════════════════════════════════════════════════════════
+   CLAUDE-STYLE FULL-VIEWPORT SCROLL & TRANSLUCENT FLOATING CHATBOX
+   - .main-panel holds the viewport
+   - In chat mode, .content-area occupies 100% of height and messages scroll
+     seamlessly behind the translucent floating composer!
+   - .composer-wrap is 100% transparent and floats at the bottom (same layout/location)
+   - .composer has frosted-glass translucency with authentic theme colors
+   ═════════════════════════════════════════════ */
+.main-panel:has(.content-area.has-messages) {
+  position: relative !important;
+  width: 100% !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+  display: block !important;
+}
+
 .content-area.has-messages {
-  padding-top: 58px !important;
-  padding-bottom: 6px !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  box-sizing: border-box !important;
+  padding-top: 64px !important;
+  padding-bottom: 118px !important;
+  scroll-behavior: smooth !important;
 }
 
 .content-area.has-messages .messages {
-  padding: 8px 16px 14px 16px !important;
-  gap: 16px !important;
   width: 100% !important;
   max-width: 840px !important;
   margin: 0 auto !important;
+  padding: 10px 16px 20px 16px !important;
+  gap: 16px !important;
+  box-sizing: border-box !important;
 }
 
-/* Chatbox Composer: Flush aligned with messages container (840px), comfortable bottom spacing (ChatGPT / WhatsApp style) */
-.composer-wrap {
+/* Floating Composer Dock: 100% Transparent Background & Non-blocking wrapper */
+.main-panel:has(.content-area.has-messages) .composer-wrap,
+.content-area.has-messages ~ .composer-wrap {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
   width: 100% !important;
   max-width: 840px !important;
   margin: 0 auto !important;
-  padding: 0 16px 12px 16px !important;
+  padding: 0 16px max(12px, env(safe-area-inset-bottom, 12px)) 16px !important;
   box-sizing: border-box !important;
+  z-index: 35 !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+/* Translucent Frosted Glass Pill (Claude Mobile Style) */
+.main-panel:has(.content-area.has-messages) .composer-wrap .composer,
+.content-area.has-messages ~ .composer-wrap .composer {
+  pointer-events: auto !important;
+  width: 100% !important;
+  max-width: 840px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  gap: 8px !important;
+  padding: 8px 10px 8px 16px !important;
+  border-radius: 26px !important;
+  background: rgba(14, 26, 46, 0.76) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.35) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(245, 158, 11, 0.1) !important;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease !important;
+}
+
+:root[data-theme='light'] .main-panel:has(.content-area.has-messages) .composer-wrap .composer,
+:root[data-theme='light'] .content-area.has-messages ~ .composer-wrap .composer {
+  background: rgba(255, 253, 248, 0.82) !important;
+  border: 1.5px solid rgba(217, 119, 6, 0.35) !important;
+  box-shadow: 0 12px 40px rgba(180, 83, 9, 0.15), 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+}
+
+.main-panel:has(.content-area.has-messages) .composer textarea,
+.content-area.has-messages ~ .composer-wrap .composer textarea {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.main-panel:has(.content-area.has-messages) .composer-note,
+.content-area.has-messages ~ .composer-wrap .composer-note {
+  background: transparent !important;
+  pointer-events: none !important;
+  text-align: center !important;
+  font-size: 11px !important;
+  margin-top: 5px !important;
+  color: rgba(254, 243, 199, 0.55) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8) !important;
+}
+
+:root[data-theme='light'] .main-panel:has(.content-area.has-messages) .composer-note,
+:root[data-theme='light'] .content-area.has-messages ~ .composer-wrap .composer-note {
+  color: rgba(120, 53, 15, 0.6) !important;
+  text-shadow: none !important;
 }
 
 @media (max-width: 768px) {
   .content-area.has-messages {
-    padding-top: 52px !important;
-    padding-bottom: 4px !important;
+    padding-top: 58px !important;
+    padding-bottom: 112px !important;
   }
   .content-area.has-messages .messages {
-    padding: 6px 10px 10px 10px !important;
+    padding: 6px 12px 16px 12px !important;
     gap: 14px !important;
   }
-  .composer-wrap {
-    padding: 0 10px max(8px, env(safe-area-inset-bottom, 8px)) !important;
+  .main-panel:has(.content-area.has-messages) .composer-wrap,
+  .content-area.has-messages ~ .composer-wrap {
+    padding: 0 10px max(8px, env(safe-area-inset-bottom, 8px)) 10px !important;
   }
 }
 
@@ -12431,26 +12523,28 @@ body:not(.night) .rich-text strong {
   pointer-events: none !important;
 }
 
-/* Brand logo and navigation links slide up and vanish smoothly */
-.spiritual-header.is-taskbar-hidden .spiritual-brand-button,
-.spiritual-header.is-taskbar-hidden .spiritual-nav {
-  opacity: 0 !important;
-  transform: translateY(-26px) scale(0.95) !important;
-  pointer-events: none !important;
-}
+/* Brand logo and navigation links slide up and vanish smoothly (Desktop only) */
+@media (min-width: 769px) {
+  .spiritual-header.is-taskbar-hidden .spiritual-brand-button,
+  .spiritual-header.is-taskbar-hidden .spiritual-nav {
+    opacity: 0 !important;
+    transform: translateY(-26px) scale(0.95) !important;
+    pointer-events: none !important;
+  }
 
-/* Corner action buttons (Day/Night & User) STAY visible and clickable in place */
-.spiritual-header.is-taskbar-hidden .spiritual-header-actions {
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-  transform: none !important;
+  .spiritual-header.is-taskbar-hidden .spiritual-header-actions {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: none !important;
+  }
 }
 
 /* ═════════════════════════════════════════════════════════════════════
-   MOBILE LANDING PAGE: SMOOTH HEADER SLIDE AUTO-HIDE
-   - Slides up offscreen when scrolling down or idle on section
-   - Slides smoothly back down when scrolling up or tapping top
+   MOBILE LANDING PAGE: CLEAN AUTO-HIDE (NO HOLLOW BACKGROUND BOX)
+   - When visible: full header with brand on left and buttons on right
+   - When hidden: entire bar slides up out of view (-150%) with ZERO background box
+   - When scrolling up / tapping top: slides down smoothly (0)
    ═════════════════════════════════════════════ */
 @media (max-width: 768px) {
   .spiritual-header {
@@ -12461,13 +12555,181 @@ body:not(.night) .rich-text strong {
                 box-shadow 0.3s ease !important;
   }
 
+  .spiritual-header .spiritual-brand-button {
+    opacity: 1 !important;
+    transform: none !important;
+    display: inline-flex !important;
+    pointer-events: auto !important;
+  }
+
   .spiritual-header.is-taskbar-hidden,
   .night .spiritual-header.is-taskbar-hidden,
   .spiritual-page.night .spiritual-header.is-taskbar-hidden,
   .spiritual-page .spiritual-header.is-taskbar-hidden {
-    transform: translate(-50%, -130%) !important;
+    transform: translate(-50%, -150%) !important;
     opacity: 0 !important;
     pointer-events: none !important;
     visibility: hidden !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .spiritual-header.is-taskbar-hidden .spiritual-header-actions,
+  .spiritual-header.is-taskbar-hidden .spiritual-brand-button {
+    pointer-events: none !important;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+   MOBILE ABOUT US SECTION: DYNAMIC SCREEN FIT (IDENTICAL TO OVERVIEW)
+   - Matches .chat-overview-section behavior exactly
+   - Collapses heading automatically
+   - Sleek single-row scrollable pills
+   - Compact footer actions so the typing window gets 100% visible height
+   ═════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .spiritual-page .phase#education,
+  .about-us-section {
+    height: 100svh !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    padding: 8px 8px 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    box-sizing: border-box !important;
+  }
+
+  .about-us-section .about-heading-wrap {
+    margin: 0 0 6px !important;
+    padding: 0 !important;
+    text-align: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  .about-us-section.heading-hidden .about-heading-wrap,
+  .about-us-section .about-heading-wrap.is-backward-removing {
+    display: none !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .about-us-chat-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    flex: 1 1 auto !important;
+    height: calc(100% - 32px) !important;
+    max-height: calc(100% - 32px) !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+  }
+
+  .about-us-chat-container .chat-demo-window {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    border-radius: 18px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+    overflow: hidden !important;
+  }
+
+  .about-us-chat-container .chat-demo-body {
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    padding: 10px 10px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .about-us-chat-container .chat-demo-controls {
+    padding: 6px 10px 8px !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  .about-us-chat-container .chat-demo-pills {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    gap: 6px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .about-us-chat-container .chat-demo-pills::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .about-us-chat-container .chat-demo-pill {
+    white-space: nowrap !important;
+    font-size: 11px !important;
+    padding: 5px 10px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .about-us-chat-container .creator-social-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin-top: 4px !important;
+    padding-top: 4px !important;
+    border-top: 1px solid rgba(254, 200, 75, 0.15) !important;
+    width: 100% !important;
+  }
+
+  .about-us-chat-container .creator-action-btn {
+    flex: 0 0 auto !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    padding: 6px 11px !important;
+    font-size: 11px !important;
+    border-radius: 999px !important;
+    white-space: nowrap !important;
+  }
+
+  .about-us-chat-container .creator-social-actions .rust-button.cta-button {
+    flex: 1 1 auto !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    padding: 6px 12px !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    border-radius: 999px !important;
+    margin-top: 0 !important;
+    white-space: nowrap !important;
+  }
+}
+
+.creator-btn-text-mobile,
+.chat-demo-pill-label-mobile {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .creator-btn-text-full,
+  .chat-demo-pill-label-full {
+    display: none !important;
+  }
+  .creator-btn-text-mobile,
+  .chat-demo-pill-label-mobile {
+    display: inline !important;
   }
 }
