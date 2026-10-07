@@ -677,32 +677,34 @@ This platform serves as an interactive learning playground. Guidance here is ref
 
           {/* Social & Connect Action Buttons */}
           <div className="creator-social-actions">
-            <a
-              href="https://www.linkedin.com/in/anuj-kesharwani-3a5245206/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="creator-action-btn creator-linkedin-btn"
-              title="Connect with Anuj Kesharwani on LinkedIn"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45a1.65 1.65 0 0 0-1.66 1.66 1.66 1.66 0 0 0 1.66 1.66 1.66 1.66 0 0 0 1.66-1.66 1.65 1.65 0 0 0-1.66-1.66Z" />
-              </svg>
-              <span className="creator-btn-text-full">Connect on LinkedIn</span>
-              <span className="creator-btn-text-mobile">LinkedIn</span>
-            </a>
+            <div className="creator-social-pair">
+              <a
+                href="https://www.linkedin.com/in/anuj-kesharwani-3a5245206/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="creator-action-btn creator-linkedin-btn"
+                title="Connect with Anuj Kesharwani on LinkedIn"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45a1.65 1.65 0 0 0-1.66 1.66 1.66 1.66 0 0 0 1.66 1.66 1.66 1.66 0 0 0 1.66-1.66 1.65 1.65 0 0 0-1.66-1.66Z" />
+                </svg>
+                <span className="creator-btn-text-full">Connect on LinkedIn</span>
+                <span className="creator-btn-text-mobile">LinkedIn</span>
+              </a>
 
-            <a
-              href="mailto:anujkeshari786@gmail.com"
-              className="creator-action-btn creator-email-btn"
-              title="Send email to Anuj Kesharwani"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <rect width="20" height="16" x="2" y="4" rx="2" />
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-              </svg>
-              <span className="creator-btn-text-full">Email: anujkeshari786@gmail.com</span>
-              <span className="creator-btn-text-mobile">Email</span>
-            </a>
+              <a
+                href="mailto:anujkeshari786@gmail.com"
+                className="creator-action-btn creator-email-btn"
+                title="Send email to Anuj Kesharwani"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <rect width="20" height="16" x="2" y="4" rx="2" />
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg>
+                <span className="creator-btn-text-full">Email: anujkeshari786@gmail.com</span>
+                <span className="creator-btn-text-mobile">Email</span>
+              </a>
+            </div>
 
             <button className="rust-button cta-button" onClick={onEnter}>
               <span aria-hidden="true">🙏</span> <span className="creator-btn-text-full">Start Live Samvaad</span><span className="creator-btn-text-mobile">Live Samvaad</span> <span aria-hidden="true">→</span>
@@ -763,10 +765,10 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     }, 1500)
   }
 
-  // 1. Initial land on very first page section (hero): wait 2.5s then hide taskbar completely
+  // 1. Initial land on very first page section (hero): wait 5s then hide taskbar
   useEffect(() => {
     setTaskbarVisible(true)
-    scheduleTaskbarHide(2500)
+    scheduleTaskbarHide(5000)
     return () => {
       if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
       if (scrollStopTimerRef.current) clearTimeout(scrollStopTimerRef.current)
@@ -775,17 +777,11 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
 
   // 2. When active section changes (landing into a particular section):
   useEffect(() => {
-    const currentPhase = phases[active]?.id
-    if (currentPhase === 'overview' || currentPhase === 'education') {
-      // Over project overview and about us, instantly hide taskbar!
-      if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
-      setTaskbarVisible(false)
-    } else if (active !== 0) {
-      // Landed in a section: wait 1.5s then hide taskbar completely!
-      setTaskbarVisible(true)
-      scheduleTaskbarHide(1500)
-    }
+    const isFirstPage = active === 0
+    setTaskbarVisible(true)
+    scheduleTaskbarHide(isFirstPage ? 5000 : 1500)
 
+    const currentPhase = phases[active]?.id
     if (currentPhase !== 'education') {
       setAboutHeadingDismissed(false)
     }
@@ -804,33 +800,29 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     let touchStartY = 0
 
     const handleScrollActivity = () => {
-      const currentPhase = phases[activeRef.current]?.id
-      if (currentPhase === 'overview' || currentPhase === 'education') {
-        setTaskbarVisible(false)
-        return
-      }
-
       const currentScroll = root.scrollTop
       const scrollDiff = currentScroll - lastScrollTop
       lastScrollTop = currentScroll
 
-      // When near the top of the landing page: always show
+      const isFirstPage = activeRef.current === 0
+
+      // When near the top of the landing page: always show (5s on hero)
       if (currentScroll <= 35) {
         setTaskbarVisible(true)
-        scheduleTaskbarHide(2500)
+        scheduleTaskbarHide(isFirstPage ? 5000 : 2500)
         return
       }
 
       // Scrolling up (user scrolling towards top): reveal taskbar
-      if (scrollDiff < -8) {
+      if (scrollDiff < -6) {
         setTaskbarVisible(true)
         if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
-        scheduleTaskbarHide(2500)
+        scheduleTaskbarHide(isFirstPage ? 5000 : 2000)
         return
       }
 
       // Scrolling down (user reading / scrolling down): hide taskbar immediately
-      if (scrollDiff > 8) {
+      if (scrollDiff > 6) {
         setTaskbarVisible(false)
         if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
         return
@@ -842,33 +834,30 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
 
       if (scrollStopTimerRef.current) clearTimeout(scrollStopTimerRef.current)
       scrollStopTimerRef.current = setTimeout(() => {
-        const landedPhase = phases[activeRef.current]?.id
-        if (landedPhase === 'overview' || landedPhase === 'education') {
-          setTaskbarVisible(false)
-        } else {
-          scheduleTaskbarHide(1500)
-        }
+        scheduleTaskbarHide(isFirstPage ? 5000 : 1500)
       }, 200)
     }
 
     // Touch swipe detection for mobile UI
     const handleTouchStart = (e) => {
       touchStartY = e.touches[0].clientY
-      if (touchStartY <= 70) {
+      if (touchStartY <= 80) {
         if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
         setTaskbarVisible(true)
-        scheduleTaskbarHide(2500)
+        scheduleTaskbarHide(activeRef.current === 0 ? 5000 : 2500)
       }
     }
 
     const handleTouchMove = (e) => {
       const currentY = e.touches[0].clientY
       const deltaY = currentY - touchStartY
-      if (deltaY > 16) {
+      const isFirstPage = activeRef.current === 0
+
+      if (deltaY > 12) {
         // Swiping down (scrolling up) -> reveal taskbar
         setTaskbarVisible(true)
-        scheduleTaskbarHide(2500)
-      } else if (deltaY < -16 && root.scrollTop > 40) {
+        scheduleTaskbarHide(isFirstPage ? 5000 : 2500)
+      } else if (deltaY < -12 && root.scrollTop > 30) {
         // Swiping up (scrolling down) -> hide taskbar
         setTaskbarVisible(false)
       }
@@ -876,16 +865,12 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
 
     const handlePointerTop = (e) => {
       const y = e.touches ? e.touches[0].clientY : e.clientY
-      const currentPhase = phases[activeRef.current]?.id
-      if (y <= 70) {
+      const isFirstPage = activeRef.current === 0
+      if (y <= 80) {
         if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
         setTaskbarVisible(true)
       } else if (y > 115 && taskbarVisible) {
-        if (currentPhase === 'overview' || currentPhase === 'education') {
-          setTaskbarVisible(false)
-        } else {
-          scheduleTaskbarHide(1500)
-        }
+        scheduleTaskbarHide(isFirstPage ? 5000 : 1500)
       }
     }
 
@@ -953,6 +938,9 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       elements.forEach((el, index) => {
         if (el && el.getBoundingClientRect().top - rootTop <= probe) current = index
       })
+      if (root.scrollTop + root.clientHeight >= root.scrollHeight - 50) {
+        current = phases.length - 1
+      }
       if (current !== activeRef.current) {
         activeRef.current = current
         setActive(current)
@@ -1068,17 +1056,18 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       {/* Main Taskbar Header: Shows while scrolling / hovering; seamlessly integrates actions into taskbar */}
       <header
         className={`spiritual-header ${!taskbarVisible ? 'is-taskbar-hidden' : ''}`}
+        onClick={() => {
+          if (!taskbarVisible) {
+            setTaskbarVisible(true)
+            scheduleTaskbarHide(activeRef.current === 0 ? 5000 : 2500)
+          }
+        }}
         onMouseEnter={() => {
           if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
           setTaskbarVisible(true)
         }}
         onMouseLeave={() => {
-          const currentPhase = phases[activeRef.current]?.id
-          if (currentPhase === 'overview' || currentPhase === 'education') {
-            setTaskbarVisible(false)
-          } else {
-            scheduleTaskbarHide(1500)
-          }
+          scheduleTaskbarHide(activeRef.current === 0 ? 5000 : 1500)
         }}
       >
         <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
