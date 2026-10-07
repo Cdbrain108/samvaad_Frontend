@@ -96,6 +96,7 @@ export default function Composer({
         <button
           className="send-button"
           aria-label="Send message"
+          title={value.trim() ? "Send message (Enter)" : "Type your question to send"}
           disabled={!value.trim() || isDisabled}
           type="submit"
         >

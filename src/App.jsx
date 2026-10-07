@@ -30,9 +30,15 @@ function CopyButton({ text }) {
   };
 
   return (
-    <button className="message-action" onClick={copy} aria-label={copied ? 'Copied' : 'Copy reply'} type="button">
-      <Icon name={copied ? 'check' : 'copy'} size={14} />
-      {copied ? 'Copied' : 'Copy'}
+    <button
+      className={`message-action ${copied ? 'is-copied' : ''}`}
+      onClick={copy}
+      aria-label={copied ? 'Copied' : 'Copy reply'}
+      type="button"
+      title="Copy Satsang discourse"
+    >
+      <Icon name={copied ? 'check' : 'copy'} size={13} />
+      <span>{copied ? 'Copied!' : 'Copy'}</span>
     </button>
   );
 }
@@ -1138,27 +1144,31 @@ export default function App() {
           </div>
 
           <div className="topbar-center">
-            {/* Unified Deep / CrewAI / Fast mode toggle */}
+            {/* Unified Deep / Fast mode toggle */}
             <div className="mode-toggle-group" role="group" aria-label="Select inference mode">
               <button
                 type="button"
-                className={`mode-pill-btn ${inferenceMode === 'deep' ? 'active' : ''}`}
+                className={`mode-pill-btn mode-pill-deep ${inferenceMode === 'deep' ? 'active' : ''}`}
                 onClick={() => handleModeChange('deep')}
-                aria-label="Deep Mode: Fine-tuned Q8 Oracle model with Groq review"
+                aria-label="Deep Mode: Fine-tuned Guru model with profound contemplation"
                 aria-pressed={inferenceMode === 'deep'}
-                title="Oracle Cloud Q8 Fine-Tuned Model + Groq Review + RAG Data"
+                title="Deep Mode (गहन चिंतन): Fine-Tuned Guru Model + Vedic RAG + Groq Satsang Refiner"
               >
-                🧘 <span className="mode-pill-btn-label-text">Deep</span>
+                <span className="mode-pill-icon" aria-hidden="true">🧘</span>
+                <span className="mode-pill-btn-label-text">Deep</span>
+                <span className="mode-pill-subtext" aria-hidden="true">गहन</span>
               </button>
               <button
                 type="button"
-                className={`mode-pill-btn ${inferenceMode === 'fast' ? 'active' : ''}`}
+                className={`mode-pill-btn mode-pill-fast ${inferenceMode === 'fast' ? 'active' : ''}`}
                 onClick={() => handleModeChange('fast')}
                 aria-label="Fast Mode: Ultra-fast LPU inference"
                 aria-pressed={inferenceMode === 'fast'}
-                title="Ultra-fast LPU inference (~1s response)"
+                title="Fast Mode (त्वरित समाधान): Instant Groq LPU inference with scripture guidance"
               >
-                ⚡ <span className="mode-pill-btn-label-text">Fast</span>
+                <span className="mode-pill-icon" aria-hidden="true">⚡</span>
+                <span className="mode-pill-btn-label-text">Fast</span>
+                <span className="mode-pill-subtext" aria-hidden="true">त्वरित</span>
               </button>
             </div>
           </div>
@@ -1191,66 +1201,41 @@ export default function App() {
               </button>
             </div>
           </div>
+        </header>
 
-
+        {/* Mode switch feedback toast (positioned outside topbar to avoid overflow clipping) */}
+        <AnimatePresence>
           {modeNotification && (
-            <div
-              className="mode-switch-toast"
+            <motion.div
+              className={`mode-switch-toast mode-toast-${modeNotification}`}
               role="status"
               aria-live="polite"
-              style={{
-                position: 'fixed',
-                top: '70px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                zIndex: 9999,
-                maxWidth: '92vw',
-                width: '580px',
-                background: 'rgba(22, 17, 34, 0.96)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                border: modeNotification === 'deep' ? '1px solid rgba(167, 139, 250, 0.45)' : '1px solid rgba(251, 191, 36, 0.45)',
-                boxShadow: modeNotification === 'deep' ? '0 12px 32px rgba(124, 58, 237, 0.35), 0 0 16px rgba(167, 139, 250, 0.2)' : '0 12px 32px rgba(217, 119, 6, 0.35), 0 0 16px rgba(251, 191, 36, 0.2)',
-                borderRadius: '16px',
-                padding: '12px 18px',
-                color: '#f3f4f6',
-                fontSize: '0.84rem',
-                lineHeight: 1.55,
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '12px',
-                animation: 'modeToastFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-                pointerEvents: 'none'
-              }}
+              initial={{ opacity: 0, y: -14, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 25 }}
             >
-              <div style={{ fontSize: '1.4rem', flexShrink: 0, marginTop: '1px' }}>
+              <div className="mode-toast-icon-wrap" aria-hidden="true">
                 {modeNotification === 'deep' ? '🧘' : '⚡'}
               </div>
-              <div>
-                <div style={{
-                  fontWeight: 700,
-                  fontSize: '0.88rem',
-                  color: modeNotification === 'deep' ? '#c4b5fd' : '#fde68a',
-                  marginBottom: '2px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}>
-                  {modeNotification === 'deep' ? 'Deep Mode' : 'Fast Mode'}
-                  {modeNotification === 'deep' && (
-                    <span style={{ fontSize: '0.7rem', padding: '1px 6px', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.2)', color: '#ddd6fe' }}>Default</span>
-                  )}
+              <div className="mode-toast-body">
+                <div className="mode-toast-header">
+                  <span className="mode-toast-title">
+                    {modeNotification === 'deep' ? 'Deep Mode · गहन चिंतन' : 'Fast Mode · त्वरित समाधान'}
+                  </span>
+                  <span className={`mode-toast-badge ${modeNotification}`}>
+                    {modeNotification === 'deep' ? 'Oracle + RAG' : 'Groq LPU'}
+                  </span>
                 </div>
-                <div style={{ color: '#e5e7eb', fontSize: '0.82rem' }}>
+                <p className="mode-toast-desc">
                   {modeNotification === 'deep'
-                    ? "Deep mode: Fine-Tuned Gemma 4 E4B IT model trained on Maharaj Ji's comprehensive Bhajan Marg discourses. Takes slightly longer for profound, authentic reasoning and gentle tone."
-                    : "Fast mode: Quick response powered by Groq LPU which uses few shots and role bases propmting of guruji's"}
-                </div>
+                    ? "पूज्य महाराज जी के विचार-सूत्रों, वैदिक शास्त्र प्रमाण (RAG) व वात्सल्यमयी सत्संग समीक्षा के साथ गहरा, चिंतनशील समाधान।"
+                    : "Groq LPU द्वारा तीव्र गति (~१-२ सेकंड) में प्रामाणिक शास्त्र संदर्भों सहित त्वरित सत्संग समाधान।"}
+                </p>
               </div>
-            </div>
+            </motion.div>
           )}
-
-        </header>
+        </AnimatePresence>
 
         <div
           className={`content-area${messages.length > 0 ? ' has-messages' : ''}`}
