@@ -917,7 +917,8 @@ async function streamOracleThoughtDeliberation(userMessage, conversationHistory,
                 thought: liveThought,
                 isThinking: true,
                 thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
-                scripture
+                scripture,
+                oracleActive: true
               });
               if (loopDetected) break;
             }
