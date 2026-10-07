@@ -821,11 +821,13 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         return
       }
 
-      // Scrolling down (user reading / scrolling down): hide taskbar immediately
+      // Scrolling down (user reading / scrolling down): hide taskbar immediately (except on first page!)
       if (scrollDiff > 6) {
-        setTaskbarVisible(false)
-        if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
-        return
+        if (!isFirstPage) {
+          setTaskbarVisible(false)
+          if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
+          return
+        }
       }
 
       // Fallback scroll stop handler
@@ -858,19 +860,18 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         setTaskbarVisible(true)
         scheduleTaskbarHide(isFirstPage ? 5000 : 2500)
       } else if (deltaY < -12 && root.scrollTop > 30) {
-        // Swiping up (scrolling down) -> hide taskbar
-        setTaskbarVisible(false)
+        // Swiping up (scrolling down) -> hide taskbar (only on subsequent pages)
+        if (!isFirstPage) {
+          setTaskbarVisible(false)
+        }
       }
     }
 
     const handlePointerTop = (e) => {
       const y = e.touches ? e.touches[0].clientY : e.clientY
-      const isFirstPage = activeRef.current === 0
-      if (y <= 80) {
+      if (y <= 70) {
         if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
         setTaskbarVisible(true)
-      } else if (y > 115 && taskbarVisible) {
-        scheduleTaskbarHide(isFirstPage ? 5000 : 1500)
       }
     }
 
@@ -948,7 +949,9 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     }
 
     const onScroll = () => {
-      showHeaderTemporarily(1800)
+      const isFirst = activeRef.current === 0
+      setTaskbarVisible(true)
+      scheduleTaskbarHide(isFirst ? 5000 : 1800)
       scheduleFloatingPill()
       if (!ticking) {
         ticking = true
@@ -1455,7 +1458,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
             PAGE 6 · ABOUT US & CREATOR'S PASSION PROJECT
             ============================================================ */}
         <section className={`about-us-section phase${aboutHeadingDismissed ? ' heading-hidden' : ''}`} id="education">
-          <div className={`about-heading-wrap${aboutHeadingDismissed ? ' is-backward-removing' : ''}`}>
+          <div className={`overview-heading-wrap about-heading-wrap${aboutHeadingDismissed ? ' is-backward-removing' : ''}`}>
             <Reveal className="spiritual-section-heading">
               <span>परिचय एवं ध्येय · About Us</span>
               <h2>Independent Passion Project &amp; Creator</h2>

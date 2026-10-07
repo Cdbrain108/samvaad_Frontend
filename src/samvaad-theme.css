@@ -6125,18 +6125,28 @@ select:focus-visible,
     border-radius: 999px !important;
   }
   .creator-social-actions {
-    margin-top: 8px !important;
+    margin-top: 5px !important;
     padding-top: 0 !important;
-    gap: 8px !important;
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
+    gap: 5px !important;
+    display: flex !important;
+    flex-direction: column !important;
     width: 100% !important;
+    flex-shrink: 0 !important;
+  }
+  .creator-social-pair {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 6px !important;
+    width: 100% !important;
+    flex-shrink: 0 !important;
   }
   .creator-action-btn {
-    width: 100% !important;
-    min-height: 42px !important;
-    padding: 8px 10px !important;
-    font-size: 11.5px !important;
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 4px 8px !important;
+    font-size: 11px !important;
     font-weight: 600 !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -6146,20 +6156,20 @@ select:focus-visible,
     touch-action: manipulation !important;
   }
   .creator-social-actions .rust-button.cta-button {
-    grid-column: 1 / -1 !important;
     width: 100% !important;
-    min-height: 48px !important;
-    padding: 12px 18px !important;
-    font-size: 13.5px !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    padding: 6px 14px !important;
+    font-size: 12px !important;
     font-weight: 700 !important;
     border-radius: 999px !important;
-    margin-top: 2px !important;
+    margin-top: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
     touch-action: manipulation !important;
-    box-shadow: 0 6px 18px rgba(217, 119, 6, 0.4) !important;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35) !important;
   }
 
   /* Themes in Mobile Chat Demo */
@@ -12574,6 +12584,7 @@ body:not(.night) .rich-text strong {
     box-shadow: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    justify-content: flex-end !important;
   }
 
   .spiritual-header.is-taskbar-hidden .spiritual-brand-button,
@@ -12590,9 +12601,11 @@ body:not(.night) .rich-text strong {
     visibility: visible !important;
     pointer-events: auto !important;
     display: flex !important;
+    margin-left: auto !important;
   }
 
   .spiritual-header.is-taskbar-hidden .spiritual-header-actions .landing-user-pill,
+  .spiritual-header.is-taskbar-hidden .spiritual-header-actions .landing-signin-btn,
   .spiritual-header.is-taskbar-hidden .spiritual-header-actions .hero-auth-btn {
     opacity: 1 !important;
     visibility: visible !important;
@@ -12600,6 +12613,14 @@ body:not(.night) .rich-text strong {
     display: inline-flex !important;
     transform: none !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+  }
+
+  .spiritual-header.is-taskbar-hidden .landing-user-name {
+    display: inline-block !important;
+    max-width: 90px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
   }
 }
 
