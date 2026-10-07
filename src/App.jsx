@@ -402,16 +402,11 @@ export default function App() {
   const [showGuestLoginModal, setShowGuestLoginModal] = useState(false);
   const [inferenceMode, setInferenceMode] = useState(() => {
     try {
-      const explicit = localStorage.getItem('samvaad_user_mode_explicit');
-      if (explicit) {
-        return localStorage.getItem('samvaad_inference_mode') || 'deep';
-      }
-      // Always default to deep mode as intended
+      // Deep mode is the default reasoning & contemplation engine
       localStorage.setItem('samvaad_inference_mode', 'deep');
-      return 'deep';
-    } catch {
-      return 'deep';
-    }
+      localStorage.removeItem('samvaad_user_mode_explicit');
+    } catch {}
+    return 'deep';
   });
   const [modeNotification, setModeNotification] = useState(null);
   const modeNotificationTimerRef = useRef(null);
@@ -1425,8 +1420,8 @@ export default function App() {
                     style={{ animation: 'none' }}
                   >
                     <div className="assistant-message-body">
-                      {/* Reasoning Box is positioned at the top if in Deep mode */}
-                      {message.mode === 'deep' && (message.thought || message.isThinking) && (
+                      {/* Spiritual Reasoning Block positioned gracefully at the top of the discourse */}
+                      {(message.thought || message.isThinking) && (
                         <ReasoningBlock
                           thought={message.thought}
                           isThinking={message.isThinking}
@@ -1442,8 +1437,8 @@ export default function App() {
                           <RichText content={message.content} streaming={isLastAssistant && (isStreaming || message.isThinking)} />
                         </div>
                       ) : (
-                        isLastAssistant && (isStreaming || isResponding) && !message.oracleActive && !(message.mode === 'deep' && message.thought && message.thought.includes('\n\n')) && (
-                          <div style={{ marginTop: (message.mode === 'deep' && (message.thought || message.isThinking)) ? '14px' : '0px' }}>
+                        isLastAssistant && (isStreaming || isResponding) && !message.oracleActive && !(message.thought && message.thought.includes('\n\n')) && (
+                          <div style={{ marginTop: (message.thought || message.isThinking) ? '14px' : '0px' }}>
                             <RespondingIndicator
                               isDeep={inferenceMode === 'deep'}
                               userQuery={index > 0 && messages[index - 1] ? messages[index - 1].content || '' : ''}
