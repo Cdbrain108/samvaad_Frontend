@@ -560,17 +560,7 @@ export default function App() {
     return () => window.removeEventListener('pointermove', handlePointerMove);
   }, [messages.length, topbarRevealed]);
 
-  // Auto-scroll: ONLY while actively streaming, and ONLY if user is already at the bottom
-  useEffect(() => {
-    if (!isStreaming || !contentAreaRef.current) return;
-    // NEVER force user back down if they intentionally scrolled up to read previous messages or query
-    if (userScrolledUpRef.current) return;
-    const el = contentAreaRef.current;
-    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    if (distanceFromBottom > 35) return;
-
-    el.scrollTop = el.scrollHeight;
-  }, [messages, isStreaming]);
+  // Viewport stays comfortably anchored at generation start point (user is free to scroll anywhere freely)
 
   // Sync body viewport lock when entering or leaving chat view on mobile
   useEffect(() => {
@@ -883,10 +873,14 @@ export default function App() {
       setIsResponding(true);
     }
 
-    // Instant auto-scroll to the sent message on the very next render frame
+    // Automatically head screen view directly at generation process starting point (query + answer start)
     requestAnimationFrame(() => {
       if (contentAreaRef.current) {
-        contentAreaRef.current.scrollTop = contentAreaRef.current.scrollHeight;
+        const userNodes = contentAreaRef.current.querySelectorAll('.message.user');
+        const latestUserMsg = userNodes[userNodes.length - 1];
+        if (latestUserMsg) {
+          latestUserMsg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
     });
 

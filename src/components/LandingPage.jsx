@@ -725,11 +725,17 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   const cueTimer = useRef(null)
   const [pendingVideo, setPendingVideo] = useState(null)
 
-  // Auto-hide progressive taskbar states & timers
-  const [navHidden, setNavHidden] = useState(false)
-  const [actionsHidden, setActionsHidden] = useState(false)
-  const navStage1Timer = useRef(null)
-  const navStage2Timer = useRef(null)
+  // Auto-hide taskbar state & timers
+  const [taskbarVisible, setTaskbarVisible] = useState(true)
+  const taskbarHideTimerRef = useRef(null)
+  const scrollStopTimerRef = useRef(null)
+
+  const scheduleTaskbarHide = (delayMs = 1500) => {
+    if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
+    taskbarHideTimerRef.current = setTimeout(() => {
+      setTaskbarVisible(false)
+    }, delayMs)
+  }
 
   // Floating "Try Samvaad" pill state & timer (appears after staying >1.5s in a section)
   const [showFloatingPill, setShowFloatingPill] = useState(false)
@@ -750,92 +756,28 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     }, 1500)
   }
 
-  /* Progressive Auto-hide taskbar logic on PC:
-     1. On entering a new page section or scrolling down:
-        - Full taskbar visible for 2s.
-        - Taskbar frame/nav links hide, leaving only floating Day/Night action pill for 2s.
-        - Day/Night action pill also hides completely (clean, immersive reading).
-     2. When scrolling UP (deltaY < -15):
-        - Only the Day/Night action pill becomes visible for 2.5s, then auto-hides.
-     3. When pointing mouse in top area (clientY <= 95) or hovering header:
-        - Reveals the FULL taskbar with all nav links immediately.
-     4. On About Us (education):
-        - Completely hidden so creator profile is 100% unobstructed.
-  */
+  // 1. Initial land on very first page section (hero): wait 2.5s then hide taskbar completely
   useEffect(() => {
-    const clearTimers = () => {
-      if (navStage1Timer.current) clearTimeout(navStage1Timer.current)
-      if (navStage2Timer.current) clearTimeout(navStage2Timer.current)
+    setTaskbarVisible(true)
+    scheduleTaskbarHide(2500)
+    return () => {
+      if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
+      if (scrollStopTimerRef.current) clearTimeout(scrollStopTimerRef.current)
     }
+  }, [])
 
+  // 2. When active section changes (landing into a particular section):
+  useEffect(() => {
     const currentPhase = phases[active]?.id
-    if (currentPhase === 'education' || currentPhase === 'overview' || active === phases.length - 1) {
-      clearTimers()
-      setNavHidden(true)
-      setActionsHidden(true)
-      return
+    if (currentPhase === 'overview' || currentPhase === 'education') {
+      // Over project overview and about us, instantly hide taskbar!
+      if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
+      setTaskbarVisible(false)
+    } else if (active !== 0) {
+      // Landed in a section: wait 1.5s then hide taskbar completely!
+      setTaskbarVisible(true)
+      scheduleTaskbarHide(1500)
     }
-
-    const startProgressiveSequence = () => {
-      clearTimers()
-      setNavHidden(false)
-      setActionsHidden(false)
-      navStage1Timer.current = setTimeout(() => {
-        setNavHidden(true) // hides frame & nav links, leaves Day/Night bar
-        navStage2Timer.current = setTimeout(() => {
-          setActionsHidden(true) // Day/Night bar also hides
-        }, 2000)
-      }, 2000)
-    }
-
-    const showActionsBriefly = (duration = 2500) => {
-      clearTimers()
-      setNavHidden(true)
-      setActionsHidden(false)
-      navStage2Timer.current = setTimeout(() => {
-        setActionsHidden(true)
-      }, duration)
-    }
-
-    // 1. Mouse movement: pointing mouse in top area (clientY <= 95) reveals full taskbar on PC
-    const onMouseMove = (event) => {
-      if (event.clientY <= 95) {
-        clearTimers()
-        setNavHidden(false)
-        setActionsHidden(false)
-      } else if (event.movementY > 10 && event.clientY > 110) {
-        if (!navHidden) {
-          setNavHidden(true)
-        }
-      }
-    }
-
-    // 2. Wheel gesture on PC:
-    // - Scrolling UP (deltaY < -15): reveals Day/Night action pill for 2.5s
-    // - Scrolling DOWN (deltaY > 20): quick hide
-    const onWheelNav = (event) => {
-      if (event.deltaY < -15) {
-        showActionsBriefly(2500)
-      } else if (event.deltaY > 20) {
-        if (!navHidden) {
-          clearTimers()
-          setNavHidden(true)
-          navStage2Timer.current = setTimeout(() => {
-            setActionsHidden(true)
-          }, 1500)
-        }
-      }
-    }
-
-    // Touch gesture for mobile:
-    const onTouchInteraction = (event) => {
-      const y = event.touches ? event.touches[0].clientY : event.clientY
-      if (y <= 95) {
-        startProgressiveSequence()
-      }
-    }
-
-    startProgressiveSequence()
 
     if (currentPhase !== 'education') {
       setAboutHeadingDismissed(false)
@@ -844,19 +786,65 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       setOverviewHeadingDismissed(false)
     }
     scheduleFloatingPill()
-
-    window.addEventListener('mousemove', onMouseMove, { passive: true })
-    window.addEventListener('wheel', onWheelNav, { passive: true })
-    window.addEventListener('touchstart', onTouchInteraction, { passive: true })
-
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove)
-      window.removeEventListener('wheel', onWheelNav)
-      window.removeEventListener('touchstart', onTouchInteraction)
-      clearTimers()
-      if (floatingTimerRef.current) clearTimeout(floatingTimerRef.current)
-    }
   }, [active])
+
+  // 3. User interaction: while scrolling down/up within page sections, taskbar shows!
+  // When user lands into a section (scrolling stops), wait 1.5s then hide taskbar completely!
+  useEffect(() => {
+    const root = scrollRef.current
+    if (!root) return
+
+    const handleScrollActivity = () => {
+      const currentPhase = phases[activeRef.current]?.id
+      if (currentPhase === 'overview' || currentPhase === 'education') {
+        setTaskbarVisible(false)
+        return
+      }
+
+      // Show taskbar while actively scrolling
+      setTaskbarVisible(true)
+      if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
+
+      // When landed into a section (scroll stops): wait 1.5s then hide taskbar completely
+      if (scrollStopTimerRef.current) clearTimeout(scrollStopTimerRef.current)
+      scrollStopTimerRef.current = setTimeout(() => {
+        const landedPhase = phases[activeRef.current]?.id
+        if (landedPhase === 'overview' || landedPhase === 'education') {
+          setTaskbarVisible(false)
+        } else {
+          scheduleTaskbarHide(1500)
+        }
+      }, 180)
+    }
+
+    root.addEventListener('scroll', handleScrollActivity, { passive: true })
+    return () => {
+      root.removeEventListener('scroll', handleScrollActivity)
+    }
+  }, [])
+
+  // 4. Pointer near top (clientY <= 90): reveal taskbar
+  useEffect(() => {
+    const handlePointerTop = (e) => {
+      const y = e.touches ? e.touches[0].clientY : e.clientY
+      const currentPhase = phases[activeRef.current]?.id
+      if (y <= 90) {
+        if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
+        setTaskbarVisible(true)
+      } else if (y > 115 && taskbarVisible) {
+        if (currentPhase === 'overview' || currentPhase === 'education') {
+          setTaskbarVisible(false)
+        } else {
+          scheduleTaskbarHide(1500)
+        }
+      }
+    }
+
+    window.addEventListener('pointermove', handlePointerTop, { passive: true })
+    return () => {
+      window.removeEventListener('pointermove', handlePointerTop)
+    }
+  }, [taskbarVisible])
 
   const showCueTemporarily = (duration = 2000) => {
     setCueHidden(false)
@@ -1018,86 +1006,124 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         </svg>
       </div>
 
-      {phases[active]?.id !== 'education' && phases[active]?.id !== 'overview' && (
-        <header
-          className={`spiritual-header${navHidden ? ' is-hidden' : ''}${actionsHidden ? ' actions-hidden' : ''}`}
-          onMouseEnter={() => {
-            if (navStage1Timer.current) clearTimeout(navStage1Timer.current)
-            if (navStage2Timer.current) clearTimeout(navStage2Timer.current)
-            setNavHidden(false)
-            setActionsHidden(false)
-          }}
-          onMouseLeave={() => {
-            if (navStage1Timer.current) clearTimeout(navStage1Timer.current)
-            if (navStage2Timer.current) clearTimeout(navStage2Timer.current)
-            navStage1Timer.current = setTimeout(() => {
-              setNavHidden(true)
-              navStage2Timer.current = setTimeout(() => {
-                setActionsHidden(true)
-              }, 2000)
-            }, 1800)
-          }}
+      {/* Floating Day/Night & User Pill: Always visible across all sections in the top-right corner */}
+      <aside className="landing-floating-corner-actions" aria-label="Quick Controls">
+        <button
+          className="theme-pill-toggle"
+          onClick={onToggleTheme}
+          aria-label={darkMode ? 'Switch to Day theme' : 'Switch to Night theme'}
+          title="Toggle Day / Night theme"
         >
-          <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
-            <img className="brand-icon" src={brandIcon} alt="" />
-            <span className="brand-text">
-              <span className="spiritual-wordmark">Samvaad</span>
-              <span className="brand-tagline">प्रश्न आपका, कृपा उसकी</span>
+          <span className={`theme-pill-opt ${!darkMode ? 'is-active' : ''}`}>
+            Day ☀️
+          </span>
+          <span className={`theme-pill-opt ${darkMode ? 'is-active' : ''}`}>
+            Night 🌙
+          </span>
+        </button>
+        {user ? (
+          <button
+            className="landing-user-pill"
+            onClick={onEnter}
+            type="button"
+            title={`Signed in as ${userProfile?.fullName || user.displayName || user.email || 'Devotee'}. Click to enter chat.`}
+          >
+            <span aria-hidden="true">🙏</span>
+            <span className="landing-user-name">
+              {userProfile?.fullName ? userProfile.fullName.split(' ')[0] : (user.displayName ? user.displayName.split(' ')[0] : (user.email ? user.email.split('@')[0] : 'Devotee'))}
             </span>
           </button>
-
-          <nav className="spiritual-nav" aria-label="Main navigation">
-            <a href="#hero" onClick={(event) => { event.preventDefault(); goToPhase('hero') }}><Icon name="home" size={15} />Home</a>
-            <a href="#inspiration" onClick={(event) => { event.preventDefault(); goToPhase('inspiration') }}><Icon name="heart" size={15} />Inspiration</a>
-            <a href="#overview" onClick={(event) => { event.preventDefault(); goToPhase('overview') }}><Icon name="message-square" size={15} />About Project</a>
-            <a href="#pipeline" onClick={(event) => { event.preventDefault(); goToPhase('pipeline') }}><Icon name="layers" size={15} />How It Works</a>
-            <a href="#scriptures" onClick={(event) => { event.preventDefault(); goToPhase('scriptures') }}><Icon name="book" size={15} />Scriptures</a>
-            <a href="#education" onClick={(event) => { event.preventDefault(); goToPhase('education') }}><Icon name="info" size={15} />About Us</a>
-          </nav>
-
-          <div className="spiritual-header-actions">
+        ) : (
+          onSignIn && (
             <button
-              className="theme-pill-toggle"
-              onClick={onToggleTheme}
-              aria-label={darkMode ? 'Switch to Day theme' : 'Switch to Night theme'}
-              title="Toggle Day / Night theme"
+              className="landing-signin-btn"
+              onClick={onSignIn}
+              type="button"
+              aria-label="Sign In to account"
+              title="Sign In to Samvaad"
             >
-              <span className={`theme-pill-opt ${!darkMode ? 'is-active' : ''}`}>
-                Day ☀️
-              </span>
-              <span className={`theme-pill-opt ${darkMode ? 'is-active' : ''}`}>
-                Night 🌙
+              <span aria-hidden="true">✨</span>
+              <span>Sign In</span>
+            </button>
+          )
+        )}
+      </aside>
+
+      {/* Main Taskbar Header: Shows while scrolling / hovering; completely vanishes when hidden */}
+      <header
+        className={`spiritual-header ${!taskbarVisible ? 'is-taskbar-hidden' : ''}`}
+        onMouseEnter={() => {
+          if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
+          setTaskbarVisible(true)
+        }}
+        onMouseLeave={() => {
+          const currentPhase = phases[activeRef.current]?.id
+          if (currentPhase === 'overview' || currentPhase === 'education') {
+            setTaskbarVisible(false)
+          } else {
+            scheduleTaskbarHide(1500)
+          }
+        }}
+      >
+        <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
+          <img className="brand-icon" src={brandIcon} alt="" />
+          <span className="brand-text">
+            <span className="spiritual-wordmark">Samvaad</span>
+            <span className="brand-tagline">प्रश्न आपका, कृपा उसकी</span>
+          </span>
+        </button>
+
+        <nav className="spiritual-nav" aria-label="Main navigation">
+          <a href="#hero" onClick={(event) => { event.preventDefault(); goToPhase('hero') }}><Icon name="home" size={15} />Home</a>
+          <a href="#inspiration" onClick={(event) => { event.preventDefault(); goToPhase('inspiration') }}><Icon name="heart" size={15} />Inspiration</a>
+          <a href="#overview" onClick={(event) => { event.preventDefault(); goToPhase('overview') }}><Icon name="message-square" size={15} />About Project</a>
+          <a href="#pipeline" onClick={(event) => { event.preventDefault(); goToPhase('pipeline') }}><Icon name="layers" size={15} />How It Works</a>
+          <a href="#scriptures" onClick={(event) => { event.preventDefault(); goToPhase('scriptures') }}><Icon name="book" size={15} />Scriptures</a>
+          <a href="#education" onClick={(event) => { event.preventDefault(); goToPhase('education') }}><Icon name="info" size={15} />About Us</a>
+        </nav>
+
+        <div className="spiritual-header-actions">
+          <button
+            className="theme-pill-toggle"
+            onClick={onToggleTheme}
+            aria-label={darkMode ? 'Switch to Day theme' : 'Switch to Night theme'}
+            title="Toggle Day / Night theme"
+          >
+            <span className={`theme-pill-opt ${!darkMode ? 'is-active' : ''}`}>
+              Day ☀️
+            </span>
+            <span className={`theme-pill-opt ${darkMode ? 'is-active' : ''}`}>
+              Night 🌙
+            </span>
+          </button>
+          {user ? (
+            <button
+              className="landing-user-pill"
+              onClick={onEnter}
+              type="button"
+              title={`Signed in as ${userProfile?.fullName || user.displayName || user.email || 'Devotee'}. Click to enter chat.`}
+            >
+              <span aria-hidden="true">🙏</span>
+              <span className="landing-user-name">
+                {userProfile?.fullName ? userProfile.fullName.split(' ')[0] : (user.displayName ? user.displayName.split(' ')[0] : (user.email ? user.email.split('@')[0] : 'Devotee'))}
               </span>
             </button>
-            {user ? (
+          ) : (
+            onSignIn && (
               <button
-                className="landing-user-pill"
-                onClick={onEnter}
+                className="landing-signin-btn"
+                onClick={onSignIn}
                 type="button"
-                title={`Signed in as ${userProfile?.fullName || user.displayName || user.email || 'Devotee'}. Click to enter chat.`}
+                aria-label="Sign In to account"
+                title="Sign In to Samvaad"
               >
-                <span aria-hidden="true">🙏</span>
-                <span className="landing-user-name">
-                  {userProfile?.fullName ? userProfile.fullName.split(' ')[0] : (user.displayName ? user.displayName.split(' ')[0] : (user.email ? user.email.split('@')[0] : 'Devotee'))}
-                </span>
+                <span aria-hidden="true">✨</span>
+                <span>Sign In</span>
               </button>
-            ) : (
-              onSignIn && (
-                <button
-                  className="landing-signin-btn"
-                  onClick={onSignIn}
-                  type="button"
-                  aria-label="Sign In to account"
-                  title="Sign In to Samvaad"
-                >
-                  <span aria-hidden="true">✨</span>
-                  <span>Sign In</span>
-                </button>
-              )
-            )}
-          </div>
-        </header>
-      )}
+            )
+          )}
+        </div>
+      </header>
 
       {/* Side Dot Navigation */}
       <nav className="phase-nav" aria-label="Page phases">
