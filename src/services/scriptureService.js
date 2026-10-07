@@ -43,30 +43,46 @@ export function normalizeScriptureMeaning(text) {
     .trim();
 }
 
-/**
- * Casual conversational gating:
- * Returns true if the query is merely a greeting or casual remark
- * that should receive warm natural Satsang discourse WITHOUT forcing an unprompted scripture shlok.
- */
+// Set of recognized devotional & conversational greeting words (Hindi, Sanskrit, Hinglish, English)
+const GREETING_WORD_SET = new Set([
+  'राधे', 'राधा', 'जय', 'श्री', 'कृष्ण', 'कृष्णा', 'राम', 'प्रणाम', 'चरण', 'स्पर्श',
+  'नमस्ते', 'नमस्कार', 'हेलो', 'हाय', 'हरि', 'बोल', 'सुप्रभात', 'शुभ', 'संध्या', 'रात्रि',
+  'radhe', 'radhey', 'radha', 'jai', 'shri', 'shree', 'krishna', 'ram', 'rama',
+  'pranam', 'pranaam', 'charan', 'sparsh', 'namaste', 'namaskar', 'hello', 'hi', 'hey',
+  'good', 'morning', 'evening', 'afternoon', 'night', 'hare', 'bol', 'ji', 'guruji',
+  'maharaj', 'baba', 'swami', 'guru', 'dev', 'prabhu', 'there'
+]);
+
 export function isCasualConversational(query) {
   if (!query) return true;
   let clean = query.trim().toLowerCase();
-  if (clean.length < 3) return true;
+  if (clean.length < 2) return true;
 
-  // Remove trailing/leading honorifics for greeting check
+  // 1. Remove trailing/leading honorifics for greeting check
   const stripped = clean
     .replace(/(?:महाराज\s*जी|महाराज|गुरु\s*जी|गुरुजी|गुरुदेव|बाबा\s*जी|प्रभु\s*जी|ji|guruji|maharaj\s*ji|baba\s*ji)/gi, '')
     .replace(/[^\w\s\u0900-\u0D7F]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 
-  // Pure greetings (Hindi Devanagari, English, and Latin Hinglish)
-  const pureGreetings = /^(?:राधे\s*राधे|जय\s*श्री\s*(?:कृष्णा?|राम|राधे)|प्रणाम|चरण\s*स्पर्श|नमस्ते|नमस्कार|राम\s*राम|हेलो|हाय|hello|hi|hey|good\s*(?:morning|evening|afternoon)|hare\s*krishna|radhe\s*radhe|radhey?\s*radhey?|jai\s*shree?\s*(?:krishna|ram|radhe)|namaste|pranam|charan\s*sparsh|hare\s*(?:krishna|rama?)|ram\s*ram|hey\s*there|hello\s*there|hi\s*there)$/i;
-  if (!stripped || pureGreetings.test(stripped) || pureGreetings.test(clean)) return true;
+  if (!stripped) return true;
 
-  // Simple routine queries like 'how are you' (exclude 'who are you' which has its own full introduction)
-  const casualQuestions = /^(?:आप\s*कैसे\s*हैं|कैसे\s*हो|सब\s*ठीक\s*है|हाल\s*चाल|how\s*are\s*you|how\s*r\s*u|how\s*do\s*you\s*do)$/i;
-  if (casualQuestions.test(stripped) || casualQuestions.test(clean)) return true;
+  // 2. Token-level greeting check: If all words in the inquiry are greeting/honorific words
+  // (e.g. "namaste radhe radhe", "radhe radhe pranam", "hello radhe radhe", "hare krishna pranam")
+  const tokens = stripped.split(/\s+/).filter(Boolean);
+  if (tokens.length > 0 && tokens.every(t => GREETING_WORD_SET.has(t))) {
+    return true;
+  }
+
+  // 3. Regular expression check for standard greetings and chitchat
+  const pureGreetings = /^(?:राधे\s*राधे|जय\s*श्री\s*(?:कृष्णा?|राम|राधे)|प्रणाम|चरण\s*स्पर्श|नमस्ते|नमस्कार|राम\s*राम|हेलो|हाय|hello|hi|hey|good\s*(?:morning|evening|afternoon)|hare\s*krishna|radhe\s*radhe|radhey?\s*radhey?|jai\s*shree?\s*(?:krishna|ram|radhe)|namaste|pranam|charan\s*sparsh|hare\s*(?:krishna|rama?)|ram\s*ram|hey\s*there|hello\s*there|hi\s*there)$/i;
+  if (pureGreetings.test(stripped) || pureGreetings.test(clean)) return true;
+
+  // 4. Simple routine conversational queries like 'how are you' / 'kaise ho'
+  const casualQuestions = /(?:आप\s*कैसे\s*हैं|कैसे\s*हो|सब\s*ठीक\s*है|हाल\s*चाल|how\s*are\s*you|how\s*r\s*u|how\s*do\s*you\s*do|kaise\s*ho|kaise\s*hain)/i;
+  if (tokens.length <= 4 && (casualQuestions.test(stripped) || casualQuestions.test(clean))) {
+    return true;
+  }
 
   return false;
 }
