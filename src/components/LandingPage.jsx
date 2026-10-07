@@ -1006,50 +1006,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         </svg>
       </div>
 
-      {/* Floating Day/Night & User Pill: Always visible across all sections in the top-right corner */}
-      <aside className="landing-floating-corner-actions" aria-label="Quick Controls">
-        <button
-          className="theme-pill-toggle"
-          onClick={onToggleTheme}
-          aria-label={darkMode ? 'Switch to Day theme' : 'Switch to Night theme'}
-          title="Toggle Day / Night theme"
-        >
-          <span className={`theme-pill-opt ${!darkMode ? 'is-active' : ''}`}>
-            Day ☀️
-          </span>
-          <span className={`theme-pill-opt ${darkMode ? 'is-active' : ''}`}>
-            Night 🌙
-          </span>
-        </button>
-        {user ? (
-          <button
-            className="landing-user-pill"
-            onClick={onEnter}
-            type="button"
-            title={`Signed in as ${userProfile?.fullName || user.displayName || user.email || 'Devotee'}. Click to enter chat.`}
-          >
-            <span aria-hidden="true">🙏</span>
-            <span className="landing-user-name">
-              {userProfile?.fullName ? userProfile.fullName.split(' ')[0] : (user.displayName ? user.displayName.split(' ')[0] : (user.email ? user.email.split('@')[0] : 'Devotee'))}
-            </span>
-          </button>
-        ) : (
-          onSignIn && (
-            <button
-              className="landing-signin-btn"
-              onClick={onSignIn}
-              type="button"
-              aria-label="Sign In to account"
-              title="Sign In to Samvaad"
-            >
-              <span aria-hidden="true">✨</span>
-              <span>Sign In</span>
-            </button>
-          )
-        )}
-      </aside>
-
-      {/* Main Taskbar Header: Shows while scrolling / hovering; completely vanishes when hidden */}
+      {/* Main Taskbar Header: Shows while scrolling / hovering; seamlessly integrates actions into taskbar */}
       <header
         className={`spiritual-header ${!taskbarVisible ? 'is-taskbar-hidden' : ''}`}
         onMouseEnter={() => {

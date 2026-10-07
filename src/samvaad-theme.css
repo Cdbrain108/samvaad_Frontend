@@ -12396,44 +12396,66 @@ body:not(.night) .rich-text strong {
 }
 
 /* ═════════════════════════════════════════════════════════════════════
-   LANDING PAGE: ALWAYS-VISIBLE FLOATING CORNER ACTIONS & CLEAN AUTOHIDE
-   - Corner Actions (Day/Night & User) float in top-right across all sections
-   - Taskbar Header slides down on scroll/hover; completely vanishes when hidden
-   ═════════════════════════════════════════════ */
-.landing-floating-corner-actions {
-  position: fixed !important;
-  top: 14px !important;
-  right: 28px !important;
-  z-index: 95 !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  pointer-events: auto !important;
-}
-
-@media (max-width: 768px) {
-  .landing-floating-corner-actions {
-    top: 10px !important;
-    right: 14px !important;
-    gap: 6px !important;
-  }
-}
-
+   LANDING PAGE: SEAMLESS TASKBAR AUTOHIDE & PERSISTENT CORNER BUTTONS
+   - Day/Night & User buttons are inside .spiritual-header-actions
+   - When taskbar is hidden: background, border, brand & nav vanish completely,
+     while .spiritual-header-actions stays floating in its exact place!
+   - When taskbar appears: the taskbar frame smoothly slides in around them,
+     dynamically overriding & framing the buttons in their original place!
+   ═════════════════════════════════════════════════════════════════════ */
 .spiritual-header {
+  position: fixed !important;
+  top: 10px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
   z-index: 100 !important;
-  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 0.28s ease,
-              visibility 0.38s !important;
+  transition: background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s ease,
+              box-shadow 0.35s ease,
+              backdrop-filter 0.35s ease !important;
 }
 
-/* Completely hidden taskbar: NO border, NO outline, NO leftover box! */
-.spiritual-header.is-taskbar-hidden {
-  transform: translateX(-50%) translateY(-110px) !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  box-shadow: none !important;
+.spiritual-header .spiritual-brand-button,
+.spiritual-header .spiritual-nav {
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.spiritual-header .spiritual-header-actions {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transition: opacity 0.25s ease !important;
+}
+
+/* Hidden taskbar state: 100% transparent frame, ZERO border, ZERO outline, ZERO box */
+.spiritual-header.is-taskbar-hidden,
+.night .spiritual-header.is-taskbar-hidden,
+.spiritual-page.night .spiritual-header.is-taskbar-hidden,
+.spiritual-page .spiritual-header.is-taskbar-hidden {
+  background: transparent !important;
+  border: 1px solid transparent !important;
   border-color: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  pointer-events: none !important;
+}
+
+/* Brand logo and navigation links slide up and vanish smoothly */
+.spiritual-header.is-taskbar-hidden .spiritual-brand-button,
+.spiritual-header.is-taskbar-hidden .spiritual-nav {
+  opacity: 0 !important;
+  transform: translateY(-26px) scale(0.95) !important;
+  pointer-events: none !important;
+}
+
+/* Corner action buttons (Day/Night & User) STAY visible and clickable in place */
+.spiritual-header.is-taskbar-hidden .spiritual-header-actions {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: none !important;
 }
 
 
