@@ -834,16 +834,95 @@ function pruneRepetitiveTail(text) {
  * The Oracle output is used exclusively as internal spiritual contemplation/deliberation.
  * It streams token-by-token into the thought stream with a 2-line gap, never into main content.
  */
+async function streamGroqThoughtFallback(userMessage, scripture, baseThought, startTime, onChunk) {
+  const apiKey = getNextGroqKey();
+  const fallbackPrompt = `You are the authentic internal spiritual contemplation of Pujya Sant Shri Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
+The seeker has asked their spiritual inquiry in English.
+Contemplate deeply upon the seeker's inquiry in pure, loving, fatherly English (120-160 words).
+Reflect upon selfless family duty (Karma Yoga) as sacred seva to the Divine, anchoring the restless mind in continuous Holy Name chanting ('Radha-Radha'), and seeking eternal shelter under Shri Radha-Krishna.
+${scripture ? `Scripture: ${scripture.reference || ''} - ${scripture.english_translation || scripture.hindi_meaning || ''}` : ''}`;
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-oss-120b',
+        messages: [
+          { role: 'system', content: fallbackPrompt },
+          { role: 'user', content: userMessage }
+        ],
+        temperature: 0.35,
+        max_tokens: 240,
+        stream: true
+      })
+    });
+    if (!res.ok) return '';
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+    let thoughtText = '';
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith('data:')) continue;
+        const dataStr = trimmed.replace(/^data:\s*/, '');
+        if (dataStr === '[DONE]') continue;
+        try {
+          const json = JSON.parse(dataStr);
+          const tok = json.choices?.[0]?.delta?.content || '';
+          if (tok) {
+            thoughtText += tok;
+            onChunk({
+              content: '',
+              thought: `${baseThought}\n\n${thoughtText}`,
+              isThinking: true,
+              thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+              scripture,
+              oracleActive: true
+            });
+          }
+        } catch {}
+      }
+    }
+    return thoughtText.trim();
+  } catch {
+    return '';
+  }
+}
+
 async function streamOracleThoughtDeliberation(userMessage, conversationHistory, scripture, baseThought, startTime, isEnglish, onChunk) {
   const oracleBase = getOracleUrl() || 'https://immature-zen-earthen.ngrok-free.dev';
   const endpoint = `${oracleBase.replace(/\/$/, '')}/v1/chat/completions`;
 
-  let systemPrompt = `आप पूज्य श्री प्रेमानंद जी महाराज (वृंदावन) का आंतरिक आध्यात्मिक चिंतन-मनन हैं।
-साधक के संशय व स्थिति का सूक्ष्म विश्लेषण करते हुए निष्काम कर्तव्य, नाम-जप, लाडली जू की शरणागति और संत-वाणी के मर्म पर गहरा व प्रामाणिक चिंतन प्रस्तुत करें (१५०-२०० शब्दों में)।`;
-
-  if (scripture && scripture.original_text) {
-    systemPrompt += `\n\nशास्त्र प्रमाण: ${scripture.reference || ''} - ${scripture.original_text}`;
+  let systemPrompt = '';
+  if (isEnglish) {
+    systemPrompt = `You are the authentic internal spiritual contemplation of Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
+The seeker has asked their spiritual question in English.
+CRITICAL DIRECTIVE: You MUST generate your internal spiritual contemplation strictly in heartfelt, fatherly English (120-180 words). Never output Hindi or Devanagari script for an English inquiry.
+Reflect upon the seeker's dilemma, selfless duty (Karma Yoga) as sacred worship of the Divine, and continuous Holy Name chanting ('Radha-Radha').`;
+    if (scripture && scripture.original_text) {
+      systemPrompt += `\n\nScripture Citation: ${scripture.reference || ''} — « ${scripture.original_text} »\nMeaning: ${scripture.english_translation || scripture.hindi_meaning || ''}`;
+    }
+  } else {
+    systemPrompt = `आप पूज्य श्री प्रेमानंद जी महाराज (वृंदावन) का आंतरिक आध्यात्मिक चिंतन-मनन हैं।
+साधक के संशय व स्थिति का सूक्ष्म विश्लेषण करते हुए निष्काम कर्तव्य, नाम-जप, लाडली जू की शरणागति और संत-वाणी के मर्म पर गहरा व प्रामाणिक चिंतन प्रस्तुत करें (१२०-१८० शब्दों में)।`;
+    if (scripture && scripture.original_text) {
+      systemPrompt += `\n\nशास्त्र प्रमाण: ${scripture.reference || ''} — « ${scripture.original_text} »`;
+    }
   }
+
+  const effectiveUserMsg = isEnglish
+    ? `[Please contemplate strictly in English]: ${userMessage}`
+    : userMessage;
 
   const messages = [
     { role: 'system', content: systemPrompt },
@@ -851,7 +930,7 @@ async function streamOracleThoughtDeliberation(userMessage, conversationHistory,
       role: m.role === 'user' ? 'user' : 'assistant',
       content: m.content || ''
     })),
-    { role: 'user', content: userMessage }
+    { role: 'user', content: effectiveUserMsg }
   ];
 
   let oracleThought = '';
@@ -904,6 +983,10 @@ async function streamOracleThoughtDeliberation(userMessage, conversationHistory,
             const json = JSON.parse(dataStr);
             const token = json.choices?.[0]?.delta?.content || '';
             if (token) {
+              // Language guardrail: If the seeker asked in English, suppress non-English tokens
+              if (isEnglish && /[\u0900-\u097F]/.test(token) && oracleThought.length < 50) {
+                continue;
+              }
               oracleThought += token;
               if (detectRepetitionLoop(oracleThought)) {
                 oracleThought = pruneRepetitiveTail(oracleThought);
@@ -929,6 +1012,12 @@ async function streamOracleThoughtDeliberation(userMessage, conversationHistory,
     }
   } catch (err) {
     console.warn('[Deep Mode] Oracle contemplation streaming completed/skipped:', err.message);
+  }
+
+  // Graceful fallback for English queries if Oracle failed or produced no valid English tokens
+  if (!oracleThought.trim() && isEnglish) {
+    console.info('[Oracle Fallback] Streaming English spiritual contemplation via Groq LPU...');
+    oracleThought = await streamGroqThoughtFallback(userMessage, scripture, baseThought, startTime, onChunk);
   }
 
   return oracleThought.trim();
