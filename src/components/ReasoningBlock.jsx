@@ -64,8 +64,8 @@ export default function ReasoningBlock({
   isEnglish = false,
   needsScriptureRag = undefined,
 }) {
-  // Default to collapsed 2-3 line buffer preview on both mobile and PC
-  const [isOpen, setIsOpen] = useState(false);
+  // Active and open during live thinking; auto-collapsed into neat summary badge when finished
+  const [isOpen, setIsOpen] = useState(Boolean(isThinking));
   const [isExpanded, setIsExpanded] = useState(false);
   const [isScriptureOpen, setIsScriptureOpen] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -93,10 +93,11 @@ export default function ReasoningBlock({
     return () => clearInterval(interval);
   }, [isThinking, pearls.length]);
 
-  // Live ticking timer
+  // Live ticking timer and auto-open/collapse based on thinking state
   useEffect(() => {
     let interval = null;
     if (isThinking) {
+      setIsOpen(true);
       if (!startTimeRef.current) {
         startTimeRef.current = Date.now();
       }
@@ -106,6 +107,7 @@ export default function ReasoningBlock({
         }
       }, 100);
     } else {
+      setIsOpen(false);
       if (duration > 0) {
         setElapsed(duration);
       }

@@ -3080,13 +3080,13 @@ select:focus-visible,
     gap: 6px !important;
   }
   .mode-pill-btn {
-    padding: 3px 7px !important;
-    font-size: 0.68rem !important;
-    gap: 2px !important;
+    padding: 5px 11px !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    gap: 4px !important;
   }
-  /* Show only emoji of mode labels on very small screens */
   .mode-pill-btn-label-text {
-    display: none !important;
+    display: inline !important;
   }
   /* Hide volume button to save space, keep theme + avatar */
   .topbar-actions .icon-button[aria-label*="Voice"],
@@ -7374,6 +7374,60 @@ select:focus-visible,
     background: rgba(14, 11, 24, 0.65) !important;
   }
 
+  :root[data-theme='light'] .reasoning-container {
+    background: rgba(255, 252, 245, 0.95) !important;
+    border: 1.5px solid rgba(217, 119, 6, 0.28) !important;
+    box-shadow: 0 4px 20px rgba(180, 83, 9, 0.1) !important;
+  }
+
+  :root[data-theme='light'] .reasoning-container.thinking-active {
+    border-color: rgba(217, 119, 6, 0.6) !important;
+    box-shadow: 0 4px 22px rgba(245, 158, 11, 0.22) !important;
+  }
+
+  :root[data-theme='light'] .reasoning-container.thinking-done {
+    border-color: rgba(16, 185, 129, 0.4) !important;
+    background: rgba(254, 250, 240, 0.9) !important;
+  }
+
+  :root[data-theme='light'] .reasoning-title-text {
+    color: #1e293b !important;
+  }
+
+  :root[data-theme='light'] .reasoning-text-stream.claude-thought-stream {
+    color: #334155 !important;
+  }
+
+  :root[data-theme='light'] .stepper-label {
+    color: #334155 !important;
+  }
+
+  :root[data-theme='light'] .deliberation-stepper {
+    background: rgba(245, 240, 230, 0.65) !important;
+    border-bottom: 1px solid rgba(217, 119, 6, 0.12) !important;
+  }
+
+  :root[data-theme='light'] .stepper-step {
+    background: rgba(255, 255, 255, 0.75) !important;
+  }
+
+  :root[data-theme='light'] .stepper-step.step-active {
+    background: linear-gradient(135deg, rgba(254, 243, 199, 0.95), rgba(253, 230, 138, 0.85)) !important;
+    border-color: rgba(217, 119, 6, 0.5) !important;
+    color: #92400e !important;
+  }
+
+  :root[data-theme='light'] .stepper-step.step-completed {
+    color: #059669 !important;
+    background: rgba(236, 253, 245, 0.8) !important;
+  }
+
+  :root[data-theme='light'] .reasoning-expand-toggle-btn {
+    background: rgba(245, 158, 11, 0.12) !important;
+    border: 1px solid rgba(217, 119, 6, 0.3) !important;
+    color: #b45309 !important;
+  }
+
   /* Header Bar: Clean 2-Row or Stacked Layout */
   .reasoning-header-bar {
     display: flex !important;
@@ -7648,6 +7702,10 @@ select:focus-visible,
     font-size: 0.77rem !important;
     line-height: 1.55 !important;
     color: #cbd5e1 !important;
+  }
+
+  :root[data-theme='light'] .reasoning-text-stream.claude-thought-stream {
+    color: #334155 !important;
   }
 
   .reasoning-text-stream.stream-compact {
@@ -10873,82 +10931,84 @@ body:not(.night) .rich-text strong {
     transition: opacity 0.2s ease, transform 0.2s ease !important;
   }
 
-  /* Center: PC Mode Toggle Group (Deep Mode 🧘 / Fast Mode ⚡) */
+  /* Center: Mode Toggle Group (Deep Mode 🧘 / Fast Mode ⚡) — Mathematically Absolute Dead-Center */
   .topbar-center {
-    position: static !important;
-    transform: none !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    flex: 1 !important;
     width: auto !important;
     max-width: none !important;
     margin: 0 !important;
+    z-index: 10 !important;
+    pointer-events: auto !important;
   }
 
   /* ═══════════════════════════════════════════════════════════════════
-     🌸 PREMIUM SACRED MODE TOGGLE (DEEP / FAST) — DESKTOP & TOPBAR
+     🌸 PREMIUM SACRED MODE TOGGLE (DEEP / FAST) — IDENTICAL TO DAY/NIGHT TOGGLE
      ═══════════════════════════════════════════════════════════════════ */
   .topbar-center .mode-toggle-group,
   .mode-toggle-group {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 5px !important;
-    padding: 4px 6px !important;
+    gap: 3px !important;
+    padding: 3px !important;
     border-radius: 9999px !important;
-    backdrop-filter: blur(18px) !important;
-    -webkit-backdrop-filter: blur(18px) !important;
-    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    transition: all 0.25s ease !important;
     box-sizing: border-box !important;
     user-select: none !important;
   }
 
   :root[data-theme='dark'] .topbar-center .mode-toggle-group,
   :root[data-theme='dark'] .mode-toggle-group {
-    background: rgba(13, 22, 42, 0.88) !important;
-    border: 1.5px solid rgba(254, 200, 75, 0.35) !important;
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+    background: rgba(13, 20, 36, 0.88) !important;
+    border: 1.5px solid rgba(254, 200, 75, 0.32) !important;
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4) !important;
   }
 
   :root[data-theme='light'] .topbar-center .mode-toggle-group,
   :root[data-theme='light'] .mode-toggle-group {
-    background: rgba(255, 250, 240, 0.9) !important;
-    border: 1.5px solid rgba(217, 119, 6, 0.35) !important;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 14px rgba(217, 119, 6, 0.12) !important;
+    background: rgba(255, 250, 240, 0.92) !important;
+    border: 1.5px solid rgba(217, 119, 6, 0.32) !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
   }
 
-  /* Pill Buttons inside the Mode Toggle */
+  /* Pill Buttons inside the Mode Toggle — Matching .theme-pill-opt exactly */
   .topbar-center .mode-pill-btn,
   .mode-pill-btn {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 6px !important;
-    padding: 6px 14px !important;
+    gap: 4px !important;
+    padding: 5px 11px !important;
     border-radius: 9999px !important;
-    font-size: 13.5px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.02em !important;
-    border: 1px solid transparent !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.01em !important;
+    border: none !important;
+    background: transparent !important;
     cursor: pointer !important;
     transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
     white-space: nowrap !important;
     line-height: 1.2 !important;
     outline: none !important;
-    position: relative !important;
     box-sizing: border-box !important;
   }
 
   :root[data-theme='dark'] .mode-pill-btn {
-    color: rgba(254, 243, 199, 0.7) !important;
+    color: rgba(254, 243, 199, 0.65) !important;
     background: transparent !important;
   }
 
   :root[data-theme='dark'] .mode-pill-btn:hover:not(.active) {
     color: #FEF3C7 !important;
     background: rgba(255, 255, 255, 0.08) !important;
-    transform: translateY(-1px) !important;
   }
 
   :root[data-theme='light'] .mode-pill-btn {
@@ -10958,8 +11018,7 @@ body:not(.night) .rich-text strong {
 
   :root[data-theme='light'] .mode-pill-btn:hover:not(.active) {
     color: #78350F !important;
-    background: rgba(217, 119, 6, 0.1) !important;
-    transform: translateY(-1px) !important;
+    background: rgba(217, 119, 6, 0.08) !important;
   }
 
   .mode-pill-btn:active {
@@ -10970,72 +11029,36 @@ body:not(.night) .rich-text strong {
   .mode-pill-btn.active.mode-pill-deep,
   .mode-pill-btn.active[aria-label*="Deep"],
   .topbar-center .mode-pill-btn.active[aria-label*="Deep"] {
-    background: linear-gradient(135deg, #7C3AED 0%, #6366F1 50%, #4F46E5 100%) !important;
+    background: linear-gradient(135deg, #7C3AED 0%, #6366F1 100%) !important;
     color: #FFFFFF !important;
-    border-color: rgba(196, 181, 253, 0.6) !important;
-    box-shadow: 0 4px 18px rgba(124, 58, 237, 0.45), 0 0 10px rgba(167, 139, 250, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 2px 10px rgba(124, 58, 237, 0.35) !important;
     transform: scale(1.02) !important;
   }
 
-  /* ⚡ Fast Mode Active Pill (Radiant Surya / Saffron Gold) */
+  /* ⚡ Fast Mode Active Pill (Radiant Surya / Saffron Gold — Same as Day active) */
   .mode-pill-btn.active.mode-pill-fast,
   .mode-pill-btn.active[aria-label*="Fast"],
   .topbar-center .mode-pill-btn.active[aria-label*="Fast"] {
-    background: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%) !important;
-    color: #FFFFFF !important;
-    border-color: rgba(253, 230, 138, 0.6) !important;
-    box-shadow: 0 4px 18px rgba(217, 119, 6, 0.45), 0 0 10px rgba(251, 191, 36, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+    background: linear-gradient(135deg, #F59E0B 0%, #FCD34D 100%) !important;
+    color: #451A03 !important;
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.35) !important;
     transform: scale(1.02) !important;
   }
 
   /* Icons inside Mode Pills */
   .mode-pill-icon {
-    font-size: 14px !important;
+    font-size: 11.5px !important;
     line-height: 1 !important;
     display: inline-block !important;
-    transition: transform 0.22s ease !important;
-  }
-  .mode-pill-btn.active .mode-pill-icon {
-    transform: scale(1.15) !important;
   }
 
-  /* Subtext Badge (गहन / त्वरित) */
-  .mode-pill-subtext {
-    font-size: 10px !important;
-    font-weight: 700 !important;
-    line-height: 1 !important;
-    padding: 2px 5px !important;
-    border-radius: 6px !important;
-    letter-spacing: 0.02em !important;
-    transition: all 0.2s ease !important;
-  }
-
-  :root[data-theme='dark'] .mode-pill-btn:not(.active) .mode-pill-subtext {
-    background: rgba(255, 255, 255, 0.08) !important;
-    color: rgba(254, 243, 199, 0.6) !important;
-  }
-
-  :root[data-theme='light'] .mode-pill-btn:not(.active) .mode-pill-subtext {
-    background: rgba(217, 119, 6, 0.1) !important;
-    color: #92400E !important;
-  }
-
-  .mode-pill-btn.active.mode-pill-deep .mode-pill-subtext,
-  .mode-pill-btn.active[aria-label*="Deep"] .mode-pill-subtext {
-    background: rgba(255, 255, 255, 0.22) !important;
-    color: #FFFFFF !important;
-  }
-
-  .mode-pill-btn.active.mode-pill-fast .mode-pill-subtext,
-  .mode-pill-btn.active[aria-label*="Fast"] .mode-pill-subtext {
-    background: rgba(0, 0, 0, 0.18) !important;
-    color: #FFFFFF !important;
-  }
-
+  /* Mode Button Label Text */
   .mode-pill-btn-label-text {
     display: inline !important;
-    font-size: 13.5px !important;
-    font-weight: 600 !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.01em !important;
+    line-height: 1.2 !important;
   }
 
   /* PC Topbar Action Buttons & Left Buttons: Circular, luminous, ergonomic */
@@ -11130,13 +11153,13 @@ body:not(.night) .rich-text strong {
     top: 50% !important;
     transform: translate(-50%, -50%) !important;
     margin: 0 !important;
-    z-index: 5 !important;
+    z-index: 10 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     pointer-events: auto !important;
     width: auto !important;
-    max-width: calc(100% - 160px) !important;
+    max-width: none !important;
   }
   .topbar-actions {
     display: flex !important;
@@ -11147,132 +11170,104 @@ body:not(.night) .rich-text strong {
     z-index: 6 !important;
   }
 
-  /* Mobile Mode Toggle Group in Topbar Center: Seamless Scaling */
+  /* Mode Toggle Group & Day/Night Toggle: Exactly Identical Dimensions & Ergonomics */
   .topbar-center .mode-toggle-group,
-  .mode-toggle-group {
+  .mode-toggle-group,
+  .chat-theme-toggle {
     display: inline-flex !important;
     align-items: center !important;
+    justify-content: center !important;
     gap: 3px !important;
-    padding: 3px 4px !important;
+    padding: 3px !important;
     border-radius: 9999px !important;
     flex-shrink: 0 !important;
-    backdrop-filter: blur(14px) !important;
-    -webkit-backdrop-filter: blur(14px) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    transition: all 0.25s ease !important;
+    box-sizing: border-box !important;
+    user-select: none !important;
   }
 
   :root[data-theme='dark'] .topbar-center .mode-toggle-group,
-  :root[data-theme='dark'] .mode-toggle-group {
-    background: rgba(13, 22, 42, 0.9) !important;
-    border: 1.5px solid rgba(254, 200, 75, 0.35) !important;
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45) !important;
+  :root[data-theme='dark'] .mode-toggle-group,
+  :root[data-theme='dark'] .chat-theme-toggle {
+    background: rgba(13, 20, 36, 0.88) !important;
+    border: 1.5px solid rgba(254, 200, 75, 0.32) !important;
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4) !important;
   }
 
   :root[data-theme='light'] .topbar-center .mode-toggle-group,
-  :root[data-theme='light'] .mode-toggle-group {
+  :root[data-theme='light'] .mode-toggle-group,
+  :root[data-theme='light'] .chat-theme-toggle {
     background: rgba(255, 250, 240, 0.92) !important;
     border: 1.5px solid rgba(217, 119, 6, 0.32) !important;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 10px rgba(217, 119, 6, 0.1) !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
   }
 
-  .mode-pill-btn {
-    border: 1px solid transparent !important;
+  /* Pill Buttons: Mode Pills & Day/Night Pills have exact same size, height, padding, and font */
+  .topbar-center .mode-pill-btn,
+  .mode-pill-btn,
+  .theme-pill-opt {
+    border: none !important;
     background: transparent !important;
     padding: 5px 11px !important;
     border-radius: 9999px !important;
-    font-size: 12.5px !important;
-    font-weight: 600 !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.01em !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 4px !important;
     cursor: pointer !important;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
     white-space: nowrap !important;
     line-height: 1.2 !important;
+    outline: none !important;
+    box-sizing: border-box !important;
   }
 
-  :root[data-theme='dark'] .mode-pill-btn {
-    color: rgba(254, 243, 199, 0.72) !important;
+  :root[data-theme='dark'] .mode-pill-btn,
+  :root[data-theme='dark'] .theme-pill-opt {
+    color: rgba(254, 243, 199, 0.65) !important;
   }
 
-  :root[data-theme='light'] .mode-pill-btn {
-    color: #92400e !important;
+  :root[data-theme='light'] .mode-pill-btn,
+  :root[data-theme='light'] .theme-pill-opt {
+    color: #92400E !important;
   }
 
-  /* Deep Active (Amethyst / Indigo) on Mobile */
+  :root[data-theme='dark'] .mode-pill-btn:hover:not(.active),
+  :root[data-theme='dark'] .theme-pill-opt:hover:not(.is-active) {
+    color: #FEF3C7 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  :root[data-theme='light'] .mode-pill-btn:hover:not(.active),
+  :root[data-theme='light'] .theme-pill-opt:hover:not(.is-active) {
+    color: #78350F !important;
+    background: rgba(217, 119, 6, 0.08) !important;
+  }
+
+  /* Deep Active (Amethyst / Indigo) */
   .mode-pill-btn.active.mode-pill-deep,
   .mode-pill-btn.active[aria-label*="Deep"],
   .topbar-center .mode-pill-btn.active[aria-label*="Deep"] {
-    background: linear-gradient(135deg, #7C3AED 0%, #6366F1 50%, #4F46E5 100%) !important;
-    color: #ffffff !important;
-    border-color: rgba(196, 181, 253, 0.6) !important;
-    box-shadow: 0 3px 14px rgba(124, 58, 237, 0.45) !important;
+    background: linear-gradient(135deg, #7C3AED 0%, #6366F1 100%) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 2px 10px rgba(124, 58, 237, 0.35) !important;
     transform: scale(1.02) !important;
   }
 
-  /* Fast Active (Saffron Amber) on Mobile */
+  /* Fast Active & Day Active (Saffron Gold) */
   .mode-pill-btn.active.mode-pill-fast,
   .mode-pill-btn.active[aria-label*="Fast"],
-  .topbar-center .mode-pill-btn.active[aria-label*="Fast"] {
-    background: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%) !important;
-    color: #ffffff !important;
-    border-color: rgba(253, 230, 138, 0.6) !important;
-    box-shadow: 0 3px 14px rgba(217, 119, 6, 0.45) !important;
-    transform: scale(1.02) !important;
-  }
-
-  /* Mobile Day/Night Theme Pill in Topbar Actions */
-  .chat-theme-toggle {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 2px !important;
-    padding: 2px !important;
-    background: rgba(15, 23, 42, 0.72) !important;
-    border: 1px solid rgba(255, 255, 255, 0.16) !important;
-    border-radius: 999px !important;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35) !important;
-    flex-shrink: 0 !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
-  }
-
-  :root[data-theme='light'] .chat-theme-toggle {
-    background: rgba(254, 243, 199, 0.75) !important;
-    border: 1px solid rgba(217, 119, 6, 0.28) !important;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
-  }
-
-  .theme-pill-opt {
-    border: none !important;
-    background: transparent !important;
-    padding: 5px 8px !important;
-    border-radius: 999px !important;
-    font-size: 0.74rem !important;
-    font-weight: 600 !important;
-    color: rgba(255, 255, 255, 0.65) !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 3px !important;
-    cursor: pointer !important;
-    transition: all 0.18s ease !important;
-    white-space: nowrap !important;
-    line-height: 1 !important;
-  }
-
-  :root[data-theme='light'] .theme-pill-opt {
-    color: #92400e !important;
-  }
-
+  .topbar-center .mode-pill-btn.active[aria-label*="Fast"],
   .theme-pill-opt.is-active {
-    background: rgba(255, 255, 255, 0.22) !important;
-    color: #ffffff !important;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
-  }
-
-  :root[data-theme='light'] .theme-pill-opt.is-active {
-    background: #d97706 !important;
-    color: #ffffff !important;
-    box-shadow: 0 1px 4px rgba(217, 119, 6, 0.35) !important;
+    background: linear-gradient(135deg, #F59E0B 0%, #FCD34D 100%) !important;
+    color: #451A03 !important;
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.35) !important;
+    transform: scale(1.02) !important;
   }
 
   /* B. Chatpage Response Message Box: Perfect dedicated card container with safe internal breathing room */
@@ -12235,15 +12230,13 @@ body:not(.night) .rich-text strong {
 
 /* ── Sacred Responding Typewriter Indicator ── */
 .responding-indicator-box {
-  display: inline-flex !important;
-  align-items: center !important;
-  flex-wrap: wrap !important;
-  gap: 8px !important;
-  font-size: 0.95rem !important;
+  display: block !important;
+  font-size: 0.94rem !important;
   line-height: 1.6 !important;
   font-weight: 500 !important;
   min-height: 28px !important;
   margin: 0 !important;
+  word-break: break-word !important;
 }
 
 :root[data-theme='dark'] .responding-indicator-box {
@@ -12264,11 +12257,14 @@ body:not(.night) .rich-text strong {
 .responding-typewriter-cursor {
   display: inline-block;
   color: #F59E0B;
-  font-weight: 800;
-  font-size: 1rem;
+  font-weight: 600;
+  font-size: 0.92rem;
+  line-height: 1;
   animation: sacredCursorBlink 0.85s steps(2, start) infinite;
   margin-left: 2px;
-  text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+  margin-right: 6px;
+  vertical-align: baseline;
+  text-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
 }
 
 @keyframes sacredCursorBlink {
@@ -12512,115 +12508,104 @@ body:not(.night) .rich-text strong {
               transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-.spiritual-header .spiritual-header-actions {
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-  transition: opacity 0.25s ease !important;
+/* ═════════════════════════════════════════════════════════════════════
+   UNIVERSAL TASKBAR AUTO-HIDE: ZERO FLICKER, ZERO PHANTOM BACKGROUND
+   - When visible: smoothly slides down into place (translateY(0))
+   - When hidden: entire header slides up out of the viewport (-140%)
+   - ZERO residual background, ZERO pseudo-elements, ZERO shadow/outline
+   ═════════════════════════════════════════════ */
+.spiritual-header,
+.spiritual-page .spiritual-header {
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.25s ease,
+              visibility 0.32s ease,
+              background 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease !important;
+  will-change: transform, opacity;
 }
 
-/* Hidden taskbar state: 100% transparent frame, ZERO border, ZERO outline, ZERO box */
 .spiritual-header.is-taskbar-hidden,
 .night .spiritual-header.is-taskbar-hidden,
 .spiritual-page.night .spiritual-header.is-taskbar-hidden,
 .spiritual-page .spiritual-header.is-taskbar-hidden {
+  transform: translateX(-50%) translateY(calc(-100% - 35px)) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
   background: transparent !important;
-  border: 1px solid transparent !important;
   border-color: transparent !important;
   box-shadow: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  pointer-events: none !important;
 }
 
-/* Brand logo and navigation links slide up and vanish smoothly (Desktop only) */
-@media (min-width: 769px) {
-  .spiritual-header.is-taskbar-hidden .spiritual-brand-button,
-  .spiritual-header.is-taskbar-hidden .spiritual-nav {
-    opacity: 0 !important;
-    transform: translateY(-26px) scale(0.95) !important;
-    pointer-events: none !important;
-  }
-
-  .spiritual-header.is-taskbar-hidden .spiritual-header-actions {
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    transform: none !important;
-  }
+.spiritual-header.is-taskbar-hidden::before,
+.night .spiritual-header.is-taskbar-hidden::before,
+.spiritual-page .spiritual-header.is-taskbar-hidden::before,
+.spiritual-page.night .spiritual-header.is-taskbar-hidden::before,
+.spiritual-header.is-taskbar-hidden::after,
+.night .spiritual-header.is-taskbar-hidden::after,
+.spiritual-page .spiritual-header.is-taskbar-hidden::after,
+.spiritual-page.night .spiritual-header.is-taskbar-hidden::after {
+  opacity: 0 !important;
+  display: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 /* ═════════════════════════════════════════════════════════════════════
-   MOBILE LANDING PAGE: CLEAN AUTO-HIDE (NO HOLLOW BACKGROUND BOX)
-   - When visible: full header with brand on left and buttons on right
-   - When hidden: entire bar slides up out of view (-150%) with ZERO background box
-   - When scrolling up / tapping top: slides down smoothly (0)
+   CORNER USER BADGE: REMAINS ACCESSIBLE WHEN TASKBAR IS HIDDEN
+   - Smoothly fades and scales into place in top-right corner
+   - ZERO container width, ZERO layout background bar across the screen
+   - Tactile click feedback, perfect on both Mobile & Desktop
    ═════════════════════════════════════════════ */
+.landing-corner-user-badge {
+  position: fixed !important;
+  top: 10px !important;
+  right: 14px !important;
+  z-index: 105 !important;
+  display: flex !important;
+  align-items: center !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(-8px) scale(0.95) !important;
+  transition: opacity 0.28s ease,
+              transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.28s ease !important;
+}
+
+.landing-corner-user-badge.is-visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateY(0) scale(1) !important;
+}
+
+.landing-corner-user-badge .landing-user-pill,
+.landing-corner-user-badge .landing-signin-btn {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28), 0 1px 3px rgba(217, 119, 6, 0.2) !important;
+}
+
+.night .landing-corner-user-badge .landing-user-pill,
+.spiritual-page.night .landing-corner-user-badge .landing-user-pill,
+.night .landing-corner-user-badge .landing-signin-btn,
+.spiritual-page.night .landing-corner-user-badge .landing-signin-btn {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 12px rgba(254, 200, 75, 0.22) !important;
+}
+
 @media (max-width: 768px) {
-  .spiritual-header {
-    transition: background 0.3s ease,
-                border-color 0.3s ease,
-                box-shadow 0.3s ease !important;
+  .landing-corner-user-badge {
+    top: 8px !important;
+    right: 10px !important;
   }
-
-  .spiritual-header .spiritual-brand-button {
-    transition: opacity 0.25s ease, transform 0.25s ease !important;
-  }
-
-  /* When taskbar is hidden on mobile:
-     Frame is transparent, brand/nav/day-night vanish,
-     and ONLY the user name / sign in pill remains visible in the top corner! */
-  .spiritual-header.is-taskbar-hidden,
-  .night .spiritual-header.is-taskbar-hidden,
-  .spiritual-page.night .spiritual-header.is-taskbar-hidden,
-  .spiritual-page .spiritual-header.is-taskbar-hidden {
-    transform: translateX(-50%) !important;
-    opacity: 1 !important;
-    pointer-events: none !important;
-    visibility: visible !important;
-    background: transparent !important;
-    border: 1px solid transparent !important;
-    border-color: transparent !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    justify-content: flex-end !important;
-  }
-
-  .spiritual-header.is-taskbar-hidden .spiritual-brand-button,
-  .spiritual-header.is-taskbar-hidden .spiritual-nav,
-  .spiritual-header.is-taskbar-hidden .theme-pill-toggle {
-    opacity: 0 !important;
-    pointer-events: none !important;
-    transform: translateY(-20px) !important;
-    display: none !important;
-  }
-
-  .spiritual-header.is-taskbar-hidden .spiritual-header-actions {
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    display: flex !important;
-    margin-left: auto !important;
-  }
-
-  .spiritual-header.is-taskbar-hidden .spiritual-header-actions .landing-user-pill,
-  .spiritual-header.is-taskbar-hidden .spiritual-header-actions .landing-signin-btn,
-  .spiritual-header.is-taskbar-hidden .spiritual-header-actions .hero-auth-btn {
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    display: inline-flex !important;
-    transform: none !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
-  }
-
-  .spiritual-header.is-taskbar-hidden .landing-user-name {
-    display: inline-block !important;
-    max-width: 90px !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
+  .landing-corner-user-badge .landing-user-pill,
+  .landing-corner-user-badge .landing-signin-btn {
+    height: 34px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
   }
 }
 

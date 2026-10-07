@@ -733,16 +733,41 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   const cueTimer = useRef(null)
   const [pendingVideo, setPendingVideo] = useState(null)
 
-  // Auto-hide taskbar state & timers
+  // Auto-hide taskbar state & robust ref tracking (prevents re-render loops & flicker)
   const [taskbarVisible, setTaskbarVisible] = useState(true)
+  const taskbarVisibleRef = useRef(true)
   const taskbarHideTimerRef = useRef(null)
-  const scrollStopTimerRef = useRef(null)
 
-  const scheduleTaskbarHide = (delayMs = 1500) => {
-    if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
-    taskbarHideTimerRef.current = setTimeout(() => {
+  const showTaskbar = (autoHideDelayMs = 0) => {
+    if (!taskbarVisibleRef.current) {
+      taskbarVisibleRef.current = true
+      setTaskbarVisible(true)
+    }
+    if (taskbarHideTimerRef.current) {
+      clearTimeout(taskbarHideTimerRef.current)
+      taskbarHideTimerRef.current = null
+    }
+    if (autoHideDelayMs > 0) {
+      taskbarHideTimerRef.current = setTimeout(() => {
+        hideTaskbar()
+      }, autoHideDelayMs)
+    }
+  }
+
+  const hideTaskbar = () => {
+    if (taskbarHideTimerRef.current) {
+      clearTimeout(taskbarHideTimerRef.current)
+      taskbarHideTimerRef.current = null
+    }
+    const root = scrollRef.current
+    // Stay visible if seeker is right at the top of the hero section
+    if (root && root.scrollTop <= 40 && activeRef.current === 0) {
+      return
+    }
+    if (taskbarVisibleRef.current) {
+      taskbarVisibleRef.current = false
       setTaskbarVisible(false)
-    }, delayMs)
+    }
   }
 
   // Floating "Try Samvaad" pill state & timer (appears after staying >1.5s in a section)
@@ -767,19 +792,16 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
 
   // 1. Initial land on very first page section (hero): wait 5s then hide taskbar
   useEffect(() => {
-    setTaskbarVisible(true)
-    scheduleTaskbarHide(5000)
+    showTaskbar(5000)
     return () => {
       if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
-      if (scrollStopTimerRef.current) clearTimeout(scrollStopTimerRef.current)
     }
   }, [])
 
   // 2. When active section changes (landing into a particular section):
   useEffect(() => {
     const isFirstPage = active === 0
-    setTaskbarVisible(true)
-    scheduleTaskbarHide(isFirstPage ? 5000 : 1500)
+    showTaskbar(isFirstPage ? 5000 : 2000)
 
     const currentPhase = phases[active]?.id
     if (currentPhase !== 'education') {
@@ -791,62 +813,47 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     scheduleFloatingPill()
   }, [active])
 
-  // 3. User interaction & mobile touch: auto-hide taskbar on scroll down / idle, reveal on scroll up / touch
+  // 3. User interaction & mobile touch: auto-hide taskbar on scroll down, reveal on scroll up / touch
   useEffect(() => {
     const root = scrollRef.current
     if (!root) return
 
-    let lastScrollTop = 0
+    let lastScrollTop = root.scrollTop
     let touchStartY = 0
 
     const handleScrollActivity = () => {
       const currentScroll = root.scrollTop
       const scrollDiff = currentScroll - lastScrollTop
-      lastScrollTop = currentScroll
 
+      // Ignore micro jitter (under 8px)
+      if (Math.abs(scrollDiff) < 8) return
+
+      lastScrollTop = currentScroll
       const isFirstPage = activeRef.current === 0
 
-      // When near the top of the landing page: always show (5s on hero)
-      if (currentScroll <= 35) {
-        setTaskbarVisible(true)
-        scheduleTaskbarHide(isFirstPage ? 5000 : 2500)
+      // When near the top of the landing page: always show
+      if (currentScroll <= 40) {
+        showTaskbar(isFirstPage ? 5000 : 2500)
+        return
+      }
+
+      // Scrolling down (user reading / scrolling down): hide taskbar completely without flicker
+      if (scrollDiff > 12) {
+        hideTaskbar()
         return
       }
 
       // Scrolling up (user scrolling towards top): reveal taskbar
-      if (scrollDiff < -6) {
-        setTaskbarVisible(true)
-        if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
-        scheduleTaskbarHide(isFirstPage ? 5000 : 2000)
-        return
+      if (scrollDiff < -14) {
+        showTaskbar(isFirstPage ? 5000 : 3000)
       }
-
-      // Scrolling down (user reading / scrolling down): hide taskbar immediately (except on first page!)
-      if (scrollDiff > 6) {
-        if (!isFirstPage) {
-          setTaskbarVisible(false)
-          if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
-          return
-        }
-      }
-
-      // Fallback scroll stop handler
-      setTaskbarVisible(true)
-      if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
-
-      if (scrollStopTimerRef.current) clearTimeout(scrollStopTimerRef.current)
-      scrollStopTimerRef.current = setTimeout(() => {
-        scheduleTaskbarHide(isFirstPage ? 5000 : 1500)
-      }, 200)
     }
 
     // Touch swipe detection for mobile UI
     const handleTouchStart = (e) => {
       touchStartY = e.touches[0].clientY
-      if (touchStartY <= 80) {
-        if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
-        setTaskbarVisible(true)
-        scheduleTaskbarHide(activeRef.current === 0 ? 5000 : 2500)
+      if (touchStartY <= 60) {
+        showTaskbar(activeRef.current === 0 ? 5000 : 3000)
       }
     }
 
@@ -855,23 +862,19 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       const deltaY = currentY - touchStartY
       const isFirstPage = activeRef.current === 0
 
-      if (deltaY > 12) {
+      if (deltaY > 18) {
         // Swiping down (scrolling up) -> reveal taskbar
-        setTaskbarVisible(true)
-        scheduleTaskbarHide(isFirstPage ? 5000 : 2500)
-      } else if (deltaY < -12 && root.scrollTop > 30) {
-        // Swiping up (scrolling down) -> hide taskbar (only on subsequent pages)
-        if (!isFirstPage) {
-          setTaskbarVisible(false)
-        }
+        showTaskbar(isFirstPage ? 5000 : 3000)
+      } else if (deltaY < -18 && root.scrollTop > 45) {
+        // Swiping up (scrolling down) -> hide taskbar completely
+        hideTaskbar()
       }
     }
 
     const handlePointerTop = (e) => {
       const y = e.touches ? e.touches[0].clientY : e.clientY
-      if (y <= 70) {
-        if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
-        setTaskbarVisible(true)
+      if (y <= 50) {
+        showTaskbar(activeRef.current === 0 ? 5000 : 3000)
       }
     }
 
@@ -886,7 +889,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       window.removeEventListener('touchmove', handleTouchMove)
       window.removeEventListener('pointermove', handlePointerTop)
     }
-  }, [taskbarVisible])
+  }, [])
 
   const showCueTemporarily = (duration = 2000) => {
     setCueHidden(false)
@@ -949,9 +952,6 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     }
 
     const onScroll = () => {
-      const isFirst = activeRef.current === 0
-      setTaskbarVisible(true)
-      scheduleTaskbarHide(isFirst ? 5000 : 1800)
       scheduleFloatingPill()
       if (!ticking) {
         ticking = true
@@ -1061,16 +1061,14 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         className={`spiritual-header ${!taskbarVisible ? 'is-taskbar-hidden' : ''}`}
         onClick={() => {
           if (!taskbarVisible) {
-            setTaskbarVisible(true)
-            scheduleTaskbarHide(activeRef.current === 0 ? 5000 : 2500)
+            showTaskbar(activeRef.current === 0 ? 5000 : 3000)
           }
         }}
         onMouseEnter={() => {
-          if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
-          setTaskbarVisible(true)
+          showTaskbar(0)
         }}
         onMouseLeave={() => {
-          scheduleTaskbarHide(activeRef.current === 0 ? 5000 : 1500)
+          showTaskbar(activeRef.current === 0 ? 5000 : 1500)
         }}
       >
         <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
@@ -1132,6 +1130,39 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
           )}
         </div>
       </header>
+
+      {/* Standalone Corner User Badge: Seamlessly stays available when taskbar is hidden */}
+      <div
+        className={`landing-corner-user-badge ${!taskbarVisible ? 'is-visible' : ''}`}
+        aria-hidden={taskbarVisible}
+      >
+        {user ? (
+          <button
+            className="landing-user-pill corner-variant"
+            onClick={onEnter}
+            type="button"
+            title={`Signed in as ${userProfile?.fullName || user.displayName || user.email || 'Devotee'}. Click to enter chat.`}
+          >
+            <span aria-hidden="true">🙏</span>
+            <span className="landing-user-name">
+              {userProfile?.fullName ? userProfile.fullName.split(' ')[0] : (user.displayName ? user.displayName.split(' ')[0] : (user.email ? user.email.split('@')[0] : 'Devotee'))}
+            </span>
+          </button>
+        ) : (
+          onSignIn && (
+            <button
+              className="landing-signin-btn corner-variant"
+              onClick={onSignIn}
+              type="button"
+              aria-label="Sign In to account"
+              title="Sign In to Samvaad"
+            >
+              <span aria-hidden="true">✨</span>
+              <span>Sign In</span>
+            </button>
+          )
+        )}
+      </div>
 
       {/* Side Dot Navigation */}
       <nav className="phase-nav" aria-label="Page phases">

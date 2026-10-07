@@ -88,7 +88,7 @@ function RespondingIndicator({ isDeep = false, userQuery = '' }) {
       <span className="responding-typed-content">
         {displayedText}
       </span>
-      <span className="responding-typewriter-cursor" aria-hidden="true">▍</span>
+      <span className="responding-typewriter-cursor" aria-hidden="true">|</span>
       <span className="chat-typing-dots" aria-hidden="true"><i /><i /><i /></span>
     </p>
   );
@@ -1007,8 +1007,8 @@ export default function App() {
 
           if (hasContent && !receivedAnyChunk) {
             receivedAnyChunk = true;
-            setIsResponding(false);
           }
+          setIsResponding(false);
           if (typeof update === 'string') {
             setMessages([...updatedMessagesWithUser, { ...assistantMsg, content: update, isThinking: false }]);
           } else {
@@ -1286,11 +1286,10 @@ export default function App() {
                 onClick={() => handleModeChange('deep')}
                 aria-label="Deep Mode: Fine-tuned Guru model with profound contemplation"
                 aria-pressed={inferenceMode === 'deep'}
-                title="Deep Mode (गहन चिंतन): Fine-Tuned Guru Model + Vedic RAG + Groq Satsang Refiner"
+                title="Deep Mode: Fine-Tuned Guru Model + Vedic RAG + Deep Contemplation"
               >
+                <span className="mode-pill-btn-label-text">Deep </span>
                 <span className="mode-pill-icon" aria-hidden="true">🧘</span>
-                <span className="mode-pill-btn-label-text">Deep</span>
-                <span className="mode-pill-subtext" aria-hidden="true">गहन</span>
               </button>
               <button
                 type="button"
@@ -1298,11 +1297,10 @@ export default function App() {
                 onClick={() => handleModeChange('fast')}
                 aria-label="Fast Mode: Ultra-fast LPU inference"
                 aria-pressed={inferenceMode === 'fast'}
-                title="Fast Mode (त्वरित समाधान): Instant Groq LPU inference with scripture guidance"
+                title="Fast Mode: Instant Groq LPU inference with scripture guidance"
               >
+                <span className="mode-pill-btn-label-text">Fast </span>
                 <span className="mode-pill-icon" aria-hidden="true">⚡</span>
-                <span className="mode-pill-btn-label-text">Fast</span>
-                <span className="mode-pill-subtext" aria-hidden="true">त्वरित</span>
               </button>
             </div>
           </div>
@@ -1508,7 +1506,7 @@ export default function App() {
                 );
               })}
               <AnimatePresence>
-                {isResponding && (
+                {isResponding && messages[messages.length - 1]?.role !== 'assistant' && (
                   <motion.article
                     className="message assistant responding"
                     initial={{ opacity: 0, y: 12 }}
