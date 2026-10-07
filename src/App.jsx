@@ -820,8 +820,37 @@ export default function App() {
     const abortController = new AbortController();
     activeAbortControllerRef.current = abortController;
 
-    setMessages(updatedMessagesWithUser);
-    setIsResponding(true);
+    const isCasual = isCasualConversational(message);
+    const isEng = detectQueryLanguage(message) === 'english';
+    const isThinkingMode = !isCasual && (inferenceMode === 'deep' || inferenceMode === 'crew');
+
+    const initialThought = isThinkingMode
+      ? (isEng
+          ? "Contemplating the seeker's spiritual inquiry, emotional state, and seeking divine guidance..."
+          : "🌸 साधक के आंतरिक भाव, संशय और आध्यात्मिक स्थिति का अनुशीलन किया जा रहा है...")
+      : '';
+
+    const assistantMsg = {
+      role: 'assistant',
+      content: '',
+      initialContent: '',
+      subsequentContent: '',
+      thought: initialThought,
+      isThinking: isThinkingMode,
+      thinkingDuration: 0,
+      timestamp: new Date(),
+      mode: inferenceMode
+    };
+
+    // Instant thinking start: In Deep/crew mode, mount the Reasoning Block directly under the query
+    // with timer starting at 0.0s, eliminating disconnected placeholder delays.
+    if (isThinkingMode) {
+      setMessages([...updatedMessagesWithUser, assistantMsg]);
+      setIsResponding(false);
+    } else {
+      setMessages(updatedMessagesWithUser);
+      setIsResponding(true);
+    }
 
     // Instant auto-scroll to the sent message on the very next render frame
     requestAnimationFrame(() => {
@@ -844,19 +873,6 @@ export default function App() {
         userMemory.topics_explored?.length ? `Topics Explored: ${userMemory.topics_explored.join(', ')}` : '',
         userMemory.preferences?.length ? `Preferences: ${userMemory.preferences.join(', ')}` : ''
       ].filter(Boolean).join('\n') : '';
-
-      const isCasual = isCasualConversational(message);
-      const assistantMsg = {
-        role: 'assistant',
-        content: '',
-        initialContent: '',
-        subsequentContent: '',
-        thought: (!isCasual && (inferenceMode === 'deep' || inferenceMode === 'crew')) ? '🔍 जिज्ञासा व अंतर्मन की स्थिति: साधक के प्रश्न का शास्त्रीय विश्लेषण...' : '',
-        isThinking: !isCasual && (inferenceMode === 'deep' || inferenceMode === 'crew'),
-        thinkingDuration: 0,
-        timestamp: new Date(),
-        mode: inferenceMode
-      };
 
       // GUEST LIMIT: Increment counter IMMEDIATELY before streaming starts.
       // Persist in both localStorage and sessionStorage so it cannot be bypassed.

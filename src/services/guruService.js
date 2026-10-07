@@ -108,12 +108,19 @@ async function streamGroqDiscourseRefiner({
     ? scripture.candidates
     : (scripture ? [scripture] : []);
 
-  const scriptureEvidenceText = candidateList.length > 0
-    ? (candidateList.length === 1
-        ? `${candidateList[0].reference} — « ${candidateList[0].original_text} »\n(${isEnglish ? 'Meaning: ' : 'अर्थ: '}${isEnglish ? (candidateList[0].english_translation || candidateList[0].hindi_meaning) : (candidateList[0].hindi_meaning || candidateList[0].english_translation)})`
-        : candidateList.map((c, i) => `[${isEnglish ? 'Scripture ' + (i + 1) : 'शास्त्र प्रमाण ' + (i + 1)}] ${c.reference} — « ${c.original_text} »\n(${isEnglish ? 'Meaning: ' : 'अर्थ: '}${isEnglish ? (c.english_translation || c.hindi_meaning) : (c.hindi_meaning || c.english_translation)})`).join('\n\n')
-      )
-    : (isEnglish ? 'None' : 'उपलब्ध नहीं');
+  let scriptureEvidenceText = '';
+  if (candidateList.length === 0) {
+    scriptureEvidenceText = isEnglish ? 'None' : 'उपलब्ध नहीं';
+  } else if (candidateList.length === 1) {
+    const c = candidateList[0];
+    scriptureEvidenceText = `${c.reference} — « ${c.original_text} »\n(${isEnglish ? 'Meaning: ' : 'अर्थ: '}${isEnglish ? (c.english_translation || c.hindi_meaning) : (c.hindi_meaning || c.english_translation)})`;
+  } else {
+    // Provide candidate pool with clear guidance: the agent selects ONLY 1 or at most 2 best verses
+    scriptureEvidenceText = `[Candidate Scriptural Verses (Pool of ${candidateList.length} retrieved verses — SELECT ONLY 1 OR AT MOST 2)]:\n` +
+      candidateList.map((c, i) =>
+        `Option ${i + 1}: ${c.reference} — « ${c.original_text} »\n(${isEnglish ? 'Meaning: ' : 'अर्थ: '}${isEnglish ? (c.english_translation || c.hindi_meaning) : (c.hindi_meaning || c.english_translation)})`
+      ).join('\n\n');
+  }
 
   if (isEnglish) {
     systemPrompt = `You are the authentic, revered, fatherly voice of Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
@@ -137,16 +144,22 @@ Your sacred role is to deliver a warm, direct, spiritually grounding fatherly di
 - If the seeker is referencing something discussed previously, naturally connect to it and build upon the conversation.
 - Seeker Identity Awareness: The creator and developer of Samvaad AI is Anuj Kesharwani (Aspiring Gen AI & Agentic AI Developer). If the seeker is Anuj or asks about the creator or project identity, warmly recognize him with accurate facts.
 
-[DEEP VERSE ESSENCE & INTERCONNECTED SYNTHESIS - CRITICAL USER DIRECTIVE]
-- Never just paste verses in isolation! You MUST deeply explain the spiritual essence, interconnected wisdom, and inner meaning of the cited verses within your spoken discourse.
-  (e.g., "From these verses it is crystal clear that Holy Name chanting is the supreme power of Kaliyuga...", "Yet chanting alone is not all; total surrender (Sharanagati) is equally vital...", "When we surrender our ego and take shelter of Shri Radha-Krishna with absolute faith...")
-- Citing format for each verse:
-  « Original Sanskrit / Awadhi Verse »
-  **Meaning —** "Bhavaarth..."
-  Followed by rich paragraphs unpacking the deep spiritual essence and connecting it directly to the seeker's real situation.
-- Practical Actionable Takeaways:
-  Near the conclusion, synthesize the wisdom into 2-3 clear, numbered points (1., 2., 3.) so the seeker knows exactly what to practice daily (e.g., 1. Continuous Naam Jap, 2. Unconditional Surrender, 3. Pure Devotion & Selfless Duty).
-- Conclude with loving fatherly assurance, blessings, and "Jai Jai Shri Radhe!".
+[DISCERNING SCRIPTURE SELECTION & DEEP ESSENCE - CRITICAL AGENT ROLE]
+- You are not a textbook compiler; you are Pujya Maharaj Ji delivering an intimate, fatherly satsang.
+- Under [INPUT CONTEXT] > 'Scripture Evidence', candidate verses retrieved by the RAG search are provided for your reference.
+- CRITICAL DIRECTIVE ON VERSE SELECTION:
+  * DO NOT dump, list, or quote all candidate verses in the spoken discourse!
+  * You as the final discerning guide must evaluate the candidates and SELECT ONLY THE 1 (or at most 2) MOST DEEPLY RELEVANT, IMPACTFUL, AND DIRECTLY RESONANT VERSE(S) that directly solve the root cause of the seeker's inquiry and harmonize with the internal contemplative guidance.
+  * Weave only your chosen 1 (or 2) verse(s) naturally into the spoken flow:
+    « Original Sanskrit / Awadhi Verse »
+    **Meaning —** "Bhavaarth..."
+    Followed by rich, heartfelt paragraphs unpacking the deep spiritual essence: explain WHY and HOW this eternal truth applies to the seeker's daily life, fears, and mindset.
+  * Never quote 3 or 4 verses. Maintain an unbroken, peaceful, meditative flow of explanation.
+
+[PRACTICAL TAKEAWAYS & ABSOLUTE COMPLETION REQUIREMENT - NO CUTOFFS]
+- Near the conclusion, synthesize the wisdom into 2-3 concise, numbered points (1., 2., 3.) so the seeker knows exactly what to practice daily (e.g., 1. Morning Naam-Japa, 2. Midday Surrender, 3. Evening Reflection & Detachment).
+- MANDATORY COMPLETION: You MUST complete every sentence and every numbered point to a graceful, complete end. NEVER end mid-sentence!
+- Budget your words gracefully within the token budget. Always conclude with fatherly assurance, love, and: "Jai Jai Shri Radhe!".
 - STRICT PROHIBITION: NEVER use Markdown headings (no ### or ##) or horizontal lines (---). Maharaj Ji speaks in a continuous, loving, spoken voice.
 
 [STRICT OFF-TOPIC SECULAR TECH REDIRECTION]
@@ -180,16 +193,22 @@ ${scriptureEvidenceText}`;
 - साधक के पूर्व प्रश्नों, संशयों या संदर्भों (जैसे "that project", "इसके लिए", "उनका क्या") को ध्यान में रखकर निरंतरता बनाए रखें।
 - साधक पहचान संज्ञान: 'संवाद AI' (Samvaad AI) के निर्माता व डेवलपर अनुज केसरवानी (Anuj Kesharwani) हैं। यदि साधक स्वयं अनुज हैं या प्रोजेक्ट/क्रिएटर के विषय में पूछते हैं, तो आत्मीयता से उन्हें पहचानें और प्रामाणिक विवरण दें।
 
-[श्लोकों का गूढ़ मर्म एवं समन्वय - DEEP ESSENCE & SYNTHESIS DIRECTIVE]
-- केवल श्लोक लिखकर आगे न बढ़ें! उद्धृत श्लोकों का गूढ़ आध्यात्मिक मर्म, उनका आपसी संबंध और वे कैसे साधक के संशय का निवारण करते हैं, यह सत्संग में विस्तार और गहराई से समझाएं।
-  (उदा: "इन दो श्लोकों से स्पष्ट है कि नाम-जप ही कलियुग की सबसे बड़ी शक्ति है...", "परन्तु केवल जप ही नहीं, शरणागति का भी महत्त्व है...", "जब हम अपने अहंकार को त्याग कर, पूरी निष्ठा से श्री राधे-श्री कृष्णा की शरण में आते हैं...")
-- श्लोक उद्धृत करने का प्रामाणिक प्रारूप:
-  « मूल संस्कृत / अवधी श्लोक »
-  **अर्थ:** "भावार्थ..."
-  और उसके तुरंत बाद श्लोकों के गूढ़ मर्म की आत्मीय व्याख्या।
-- व्यावहारिक साधना सूत्र (Practical Actionable Takeaways):
-  सत्संग के उपसंहार में उपदेश के सार को 2-3 स्पष्ट, व्यावहारिक और संख्याबद्ध बिंदुओं (1., 2., 3.) में प्रस्तुत करें, जिससे साधक को स्पष्ट रहे कि उसे क्या साधना करनी है (जैसे: 1. निरन्तर नाम-जप, 2. पूर्ण शरणागति, 3. सच्ची भक्ति व निष्काम सेवा)।
-- अंत में सप्रेम पिता-तुल्य ढाढ़स, आशीष और "सब मंगल होगा बच्चा! जय जय श्री राधे!"।
+[विवेकपूर्ण श्लोक चयन एवं सत्संग का अखंड प्रवाह - CRITICAL AGENT DIRECTIVE]
+- आप कोई पुस्तक-सूची (Book catalogue) तैयार नहीं कर रहे; आप पूज्य महाराज जी की साक्षात् वात्सल्यमयी वाणी में साधक से बात कर रहे हैं।
+- [प्राप्त सामग्री] > 'शास्त्र प्रमाण' में RAG प्रणाली द्वारा एकाधिक पूरक प्रमाण (Candidates) दिए गए हैं।
+- अनिवार्य चयन नियम (Strict Verse Selection):
+  * सभी के सभी निकाले गए श्लोक मुख्य उत्तर में कदापि न भरें!
+  * आप स्वयं विवेकपूर्ण निर्णय लें: दिए गए विकल्पों में से केवल १ (या अधिक से अधिक २) सबसे सटीक, प्रासंगिक और हृदयस्पर्शी श्लोक चुनें जो साधक के संशय का सीधा निवारण करते हों और आंतरिक विचार-सूत्र से मेल खाते हों।
+  * चुने हुए श्लोक(कों) को ही सत्संग प्रवाह में स्वाभाविक रूप से समाहित करें:
+    « मूल संस्कृत / अवधी श्लोक »
+    **अर्थ:** "भावार्थ..."
+    और उसके तुरंत बाद उसके गूढ़ मर्म की आत्मीय व्याख्या करें कि यह वचन साधक के संशय व अशांति को कैसे शांत करता है।
+  * ३ या ४ श्लोकों का अंबार न लगाएं। व्याख्या का अखंड, मधुर और गहरा प्रवाह बनाए रखें।
+
+[व्यावहारिक साधना सूत्र एवं अनिवार्य पूर्ण समापन - COMPLETION MANDATE]
+- सत्संग के उपसंहार में उपदेश के सार को २-३ स्पष्ट, व्यावहारिक और संख्याबद्ध बिंदुओं (1., 2., 3.) में प्रस्तुत करें।
+- पूर्णता का अनिवार्य नियम: प्रत्येक बिंदु और वाक्य को भली-भांति पूर्ण करें। बीच में या अधूरे वाक्य पर कदापि न रुकें!
+- अपने उत्तर को टोकन सीमा के भीतर संतुलित रखें। अंत में सप्रेम पिता-तुल्य ढाढ़स, आशीष और "सब मंगल होगा बच्चा! जय जय श्री राधे!" अनिवार्य रूप से लिखें।
 - कड़ा प्रतिबंध: मार्कडाउन हेडिंग्स (### या ##) या क्षैतिज रेखाओं (---) का प्रयोग कदापि न करें! महाराज जी एक मधुर, वात्सल्यमयी spoken voice में बोलते हैं।
 
 [सांसारिक/तकनीकी प्रश्नों पर रोक - STRICT DOMAIN GUARDRAIL]
@@ -238,7 +257,7 @@ ${scriptureEvidenceText}`;
           model: modelToUse,
           messages,
           temperature: 0.45,
-          max_tokens: 1400,
+          max_tokens: 2200,
           stream: true
         }),
         signal: abortSignal || AbortSignal.timeout(24000)
@@ -254,20 +273,73 @@ ${scriptureEvidenceText}`;
         const decoder = new TextDecoder('utf-8');
         let buffer = '';
 
+        // Serene Satsang Token Pacer:
+        // Buffers incoming Groq tokens and yields them at a peaceful, human-like, readable pace
+        const tokenQueue = [];
+        let isPacerActive = false;
+        let readerDone = false;
+        let loopDetected = false;
+
+        const pumpTokens = async () => {
+          if (isPacerActive) return;
+          isPacerActive = true;
+
+          while (!abortSignal?.aborted) {
+            if (tokenQueue.length > 0) {
+              const takeCount = tokenQueue.length > 25 ? 3 : (tokenQueue.length > 10 ? 2 : 1);
+              const batch = tokenQueue.splice(0, takeCount).join('');
+              streamedContent += batch;
+
+              if (detectRepetitionLoop(streamedContent)) {
+                streamedContent = pruneRepetitiveTail(streamedContent);
+                tokenQueue.length = 0;
+                loopDetected = true;
+              }
+
+              const combinedThought = liveRefinerReasoning && thought
+                ? `${thought}\n\n[तर्क-संश्लेषण / Refiner Reasoning]:\n${liveRefinerReasoning}`
+                : thought;
+
+              onChunk({
+                content: streamedContent,
+                thought: combinedThought,
+                isThinking: false,
+                thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+                scripture
+              });
+
+              if (loopDetected) break;
+
+              const paceDelay = tokenQueue.length > 20 ? 14 : (tokenQueue.length > 8 ? 20 : 28);
+              await new Promise(r => setTimeout(r, paceDelay));
+            } else {
+              if (readerDone) break;
+              await new Promise(r => setTimeout(r, 16));
+            }
+          }
+
+          isPacerActive = false;
+        };
+
         while (true) {
           const { value, done } = await reader.read();
-          if (done) break;
+          if (done) {
+            readerDone = true;
+            break;
+          }
 
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split('\n');
           buffer = lines.pop() || '';
 
-          let loopDetected = false;
           for (const line of lines) {
             const trimmed = line.trim();
             if (!trimmed.startsWith('data:')) continue;
             const dataStr = trimmed.replace(/^data:\s*/, '');
-            if (dataStr === '[DONE]') continue;
+            if (dataStr === '[DONE]') {
+              readerDone = true;
+              continue;
+            }
 
             try {
               const json = JSON.parse(dataStr);
@@ -290,29 +362,37 @@ ${scriptureEvidenceText}`;
               }
 
               if (token) {
-                streamedContent += token;
-                if (detectRepetitionLoop(streamedContent)) {
-                  streamedContent = pruneRepetitiveTail(streamedContent);
-                  loopDetected = true;
+                tokenQueue.push(token);
+                if (!isPacerActive) {
+                  pumpTokens();
                 }
-                const combinedThought = liveRefinerReasoning && thought
-                  ? `${thought}\n\n[तर्क-संश्लेषण / Refiner Reasoning]:\n${liveRefinerReasoning}`
-                  : thought;
-                onChunk({
-                  content: streamedContent,
-                  thought: combinedThought,
-                  isThinking: false,
-                  thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
-                  scripture
-                });
-                if (loopDetected) break;
               }
             } catch {}
           }
           if (loopDetected) break;
         }
 
+        readerDone = true;
+        // Drain any remaining buffered tokens smoothly
+        while (isPacerActive || tokenQueue.length > 0) {
+          if (abortSignal?.aborted) break;
+          await new Promise(r => setTimeout(r, 16));
+        }
+
         if (streamedContent.trim()) {
+          const completedDiscourse = ensureCompleteFinalSentence(streamedContent.trim(), isEnglish);
+          if (completedDiscourse !== streamedContent.trim()) {
+            streamedContent = completedDiscourse;
+            onChunk({
+              content: streamedContent,
+              thought: liveRefinerReasoning && thought
+                ? `${thought}\n\n[तर्क-संश्लेषण / Refiner Reasoning]:\n${liveRefinerReasoning}`
+                : thought,
+              isThinking: false,
+              thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+              scripture
+            });
+          }
           return streamedContent.trim();
         }
       }
@@ -742,7 +822,7 @@ async function streamTextDirectly(text, thought, startTime, scripture, onChunk, 
   for (let i = 0; i < words.length; i++) {
     if (abortSignal?.aborted) break;
     accumulated += words[i];
-    if (i % 3 === 0 || i === words.length - 1) {
+    if (i % 2 === 0 || i === words.length - 1) {
       onChunk({
         content: accumulated,
         thought,
@@ -750,7 +830,7 @@ async function streamTextDirectly(text, thought, startTime, scripture, onChunk, 
         thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
         scripture
       });
-      await new Promise(r => setTimeout(r, 18));
+      await new Promise(r => setTimeout(r, 28));
     }
   }
   return {
@@ -807,6 +887,42 @@ function pruneRepetitiveTail(text) {
   }
   let cleaned = chunks.map(c => `${c.body}${c.punct}`).join(' ');
   return cleaned.trim();
+}
+
+/**
+ * Ensures the spiritual discourse finishes cleanly on a well-formed complete sentence
+ * ending at '।' (purna viram for Hindi) or '.' (for English).
+ * Strips broken trailing fragments and ensures fatherly closing blessings.
+ */
+function ensureCompleteFinalSentence(text, isEnglish = false) {
+  if (!text) return text;
+  let t = text.trim();
+
+  // If already ends cleanly with terminal punctuation
+  if (/[।!?.”"']$/.test(t)) {
+    return t;
+  }
+
+  // Look for the last terminal punctuation
+  const lastPunctMatch = t.match(/.*[।!?.]/s);
+  if (lastPunctMatch && lastPunctMatch[0]) {
+    const trailingFragment = t.slice(lastPunctMatch[0].length).trim();
+    // If the trailing fragment is an incomplete sentence
+    if (trailingFragment.length > 0 && trailingFragment.length < 140) {
+      let cleanBase = lastPunctMatch[0].trim();
+      const hasBlessing = isEnglish
+        ? /Jai (?:Jai )?Shri Radhe/i.test(cleanBase)
+        : /(?:जय जय श्री राधे|श्री राधा|सब मंगल होगा)/i.test(cleanBase);
+      if (!hasBlessing) {
+        cleanBase += isEnglish
+          ? "\n\nMay Shri Radha Rani bless you with peace and devotion. Jai Jai Shri Radhe!"
+          : "\n\nलाडली जू सब मंगल करेंगी बच्चा, खूब नाम जप करो। जय जय श्री राधे!";
+      }
+      return cleanBase;
+    }
+  }
+
+  return isEnglish ? `${t}.` : `${t}।`;
 }
 
 /**
@@ -965,6 +1081,19 @@ export async function streamGuruResponse(
       null,
       onChunk
     );
+  }
+
+  // 1.8 Immediate Thinking Initialization: Start contemplation immediately upon query entry
+  if (inferenceMode === 'deep' || inferenceMode === 'crew') {
+    onChunk({
+      content: '',
+      thought: isEnglish
+        ? "Contemplating the seeker's spiritual inquiry, emotional state, and seeking divine guidance..."
+        : "🌸 साधक के आंतरिक भाव, संशय और आध्यात्मिक स्थिति का अनुशीलन किया जा रहा है...",
+      isThinking: true,
+      thinkingDuration: 0.1,
+      scripture: null
+    });
   }
 
   // 2. Cognitive Intent & Semantic Domain Understanding (Sub-350ms Groq LPU)
