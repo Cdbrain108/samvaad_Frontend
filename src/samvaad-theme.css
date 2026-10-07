@@ -12290,4 +12290,136 @@ body:not(.night) .rich-text strong {
   }
 }
 
+/* ═════════════════════════════════════════════════════════════════════
+   CHAT PAGE TASKBAR: AUTOHIDE BACKGROUND & DEEP/FAST MODE IN CHAT
+   - When a query is entered (messages.length > 0):
+     Topbar background, border, and Deep/Fast mode are hidden
+     Menu, Home, and Day/Night icons remain visible always!
+   - When user scrolls up AND points mouse near taskbar:
+     Smoothly reveals full background and Deep/Fast mode pill
+   ═════════════════════════════════════════════════════════════════════ */
+.topbar.is-chat-mode {
+  background: transparent !important;
+  border-bottom: 1px solid transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s ease,
+              box-shadow 0.35s ease,
+              backdrop-filter 0.35s ease !important;
+}
+
+.topbar.is-chat-mode .topbar-center {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translate(-50%, -65%) scale(0.94) !important;
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.36s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Icons visible ALWAYS: Menu, Home, Day/Night */
+.topbar.is-chat-mode .topbar-left,
+.topbar.is-chat-mode .topbar-actions {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transition: transform 0.25s ease !important;
+}
+
+/* Revealed state when scrolled up AND pointer is near taskbar */
+.topbar.is-chat-mode.is-revealed {
+  background: rgba(255, 253, 248, 0.94) !important;
+  border-bottom: 1px solid rgba(217, 119, 6, 0.22) !important;
+  box-shadow: 0 4px 20px rgba(120, 70, 10, 0.08) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+
+:root[data-theme='dark'] .topbar.is-chat-mode.is-revealed {
+  background: rgba(10, 22, 40, 0.94) !important;
+  border-bottom: 1px solid rgba(254, 200, 75, 0.22) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+.topbar.is-chat-mode.is-revealed .topbar-center {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translate(-50%, -50%) scale(1) !important;
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+   LANDING PAGE SMART AUTO-HIDE TASKBAR (PC OPTIMIZED)
+   - Stage 1: Frame and nav links hide, leaving floating Day/Night bar
+   - Stage 2: Day/Night bar also hides for 100% serene reading
+   - Reveals FULL taskbar on mouse top (clientY <= 95) or header hover
+   ═════════════════════════════════════════════════════════════════════ */
+.spiritual-header {
+  transition: background 380ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1),
+              backdrop-filter 380ms ease,
+              -webkit-backdrop-filter 380ms ease !important;
+}
+
+.spiritual-header .spiritual-brand-button,
+.spiritual-header .spiritual-nav {
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 360ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Stage 1: Frame & nav links vanish; floating Day/Night remains */
+.spiritual-header.is-hidden {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  pointer-events: none !important;
+}
+
+.spiritual-header.is-hidden .spiritual-brand-button,
+.spiritual-header.is-hidden .spiritual-nav {
+  opacity: 0 !important;
+  transform: translateY(-24px) scale(0.96) !important;
+  pointer-events: none !important;
+}
+
+.spiritual-header .spiritual-header-actions {
+  transition: transform 380ms cubic-bezier(0.16, 1, 0.3, 1),
+              background 320ms ease,
+              border-color 320ms ease,
+              box-shadow 320ms ease,
+              padding 320ms ease,
+              opacity 340ms ease !important;
+  pointer-events: auto !important;
+}
+
+.spiritual-header.is-hidden .spiritual-header-actions {
+  pointer-events: auto !important;
+  transform: translateX(0);
+  background: rgba(255, 248, 225, 0.94) !important;
+  border: 1px solid rgba(230, 138, 0, 0.32) !important;
+  border-radius: 999px !important;
+  padding: 5px 8px !important;
+  box-shadow: 0 10px 30px rgba(120, 70, 10, 0.22), 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+
+.night .spiritual-header.is-hidden .spiritual-header-actions,
+.spiritual-page.night .spiritual-header.is-hidden .spiritual-header-actions {
+  background: rgba(10, 26, 47, 0.94) !important;
+  border-color: rgba(254, 200, 75, 0.35) !important;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55), 0 0 14px rgba(254, 200, 75, 0.12) !important;
+}
+
+/* Stage 2 / Actions-hidden: floating Day/Night bar also hides */
+.spiritual-header.actions-hidden .spiritual-header-actions {
+  opacity: 0 !important;
+  transform: translateY(-28px) scale(0.94) !important;
+  pointer-events: none !important;
+}
+
+
 

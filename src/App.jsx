@@ -510,7 +510,9 @@ export default function App() {
     document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
   }, [darkMode]);
 
+  const [topbarRevealed, setTopbarRevealed] = useState(false);
   const userScrolledUpRef = useRef(false);
+  const isNearTopRef = useRef(true);
 
   // Track user scroll position so auto-scroll never locks the page or overrides manual scrolling
   const handleContentScroll = useCallback(() => {
@@ -520,6 +522,7 @@ export default function App() {
     // When distance from bottom exceeds 25px, user has scrolled up to read earlier messages/question
     const distanceFromBottom = el.scrollHeight - currentScrollTop - el.clientHeight;
     userScrolledUpRef.current = distanceFromBottom > 25;
+    isNearTopRef.current = currentScrollTop <= 80;
   }, []);
 
   // Proactive mousewheel / trackpad detection: allows instantly scrolling up to view the query even during generation
@@ -527,14 +530,35 @@ export default function App() {
     if (e.deltaY < 0) {
       // User wheeled up — immediately unlock manual scroll up
       userScrolledUpRef.current = true;
+      if (contentAreaRef.current && contentAreaRef.current.scrollTop <= 80) {
+        isNearTopRef.current = true;
+      }
     } else if (e.deltaY > 0 && contentAreaRef.current) {
       const el = contentAreaRef.current;
       const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
       if (distanceFromBottom <= 25) {
         userScrolledUpRef.current = false;
       }
+      if (el.scrollTop > 80) {
+        isNearTopRef.current = false;
+      }
     }
   }, []);
+
+  // Auto-hide taskbar background & Deep/Fast mode after entering a query (messages.length > 0)
+  // Reveals ONLY when scrolled up AND pointing mouse near taskbar (clientY <= 65)
+  useEffect(() => {
+    const handlePointerMove = (e) => {
+      if (messages.length === 0) return;
+      if (e.clientY <= 65 && (isNearTopRef.current || userScrolledUpRef.current)) {
+        setTopbarRevealed(true);
+      } else if (e.clientY > 80 && topbarRevealed) {
+        setTopbarRevealed(false);
+      }
+    };
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    return () => window.removeEventListener('pointermove', handlePointerMove);
+  }, [messages.length, topbarRevealed]);
 
   // Auto-scroll: ONLY while actively streaming, and ONLY if user is already at the bottom
   useEffect(() => {
@@ -1148,7 +1172,19 @@ export default function App() {
       />
 
       <main className="main-panel">
-        <header className="topbar topbar-visible">
+        <header
+          className={`topbar topbar-visible ${messages.length > 0 ? 'is-chat-mode' : ''} ${topbarRevealed ? 'is-revealed' : ''}`}
+          onMouseEnter={() => {
+            if (messages.length === 0 || isNearTopRef.current || userScrolledUpRef.current) {
+              setTopbarRevealed(true);
+            }
+          }}
+          onMouseLeave={() => {
+            if (messages.length > 0) {
+              setTopbarRevealed(false);
+            }
+          }}
+        >
           <div className={`topbar-left ${sidebarOpen ? 'sidebar-is-open' : ''}`}>
             <button
               className="icon-button menu-button"

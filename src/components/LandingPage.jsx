@@ -725,9 +725,11 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   const cueTimer = useRef(null)
   const [pendingVideo, setPendingVideo] = useState(null)
 
-  // Auto-hide taskbar header state & timer
-  const [headerVisible, setHeaderVisible] = useState(true)
-  const headerTimerRef = useRef(null)
+  // Auto-hide progressive taskbar states & timers
+  const [navHidden, setNavHidden] = useState(false)
+  const [actionsHidden, setActionsHidden] = useState(false)
+  const navStage1Timer = useRef(null)
+  const navStage2Timer = useRef(null)
 
   // Floating "Try Samvaad" pill state & timer (appears after staying >1.5s in a section)
   const [showFloatingPill, setShowFloatingPill] = useState(false)
@@ -748,30 +750,93 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     }, 1500)
   }
 
-  const showHeaderTemporarily = (duration = 1800) => {
-    const currentPhase = phases[activeRef.current]?.id
-    if (currentPhase === 'overview' || currentPhase === 'education') {
-      setHeaderVisible(false)
-      if (headerTimerRef.current) clearTimeout(headerTimerRef.current)
+  /* Progressive Auto-hide taskbar logic on PC:
+     1. On entering a new page section or scrolling down:
+        - Full taskbar visible for 2s.
+        - Taskbar frame/nav links hide, leaving only floating Day/Night action pill for 2s.
+        - Day/Night action pill also hides completely (clean, immersive reading).
+     2. When scrolling UP (deltaY < -15):
+        - Only the Day/Night action pill becomes visible for 2.5s, then auto-hides.
+     3. When pointing mouse in top area (clientY <= 95) or hovering header:
+        - Reveals the FULL taskbar with all nav links immediately.
+     4. On About Us (education):
+        - Completely hidden so creator profile is 100% unobstructed.
+  */
+  useEffect(() => {
+    const clearTimers = () => {
+      if (navStage1Timer.current) clearTimeout(navStage1Timer.current)
+      if (navStage2Timer.current) clearTimeout(navStage2Timer.current)
+    }
+
+    const currentPhase = phases[active]?.id
+    if (currentPhase === 'education' || currentPhase === 'overview' || active === phases.length - 1) {
+      clearTimers()
+      setNavHidden(true)
+      setActionsHidden(true)
       return
     }
-    setHeaderVisible(true)
-    if (headerTimerRef.current) clearTimeout(headerTimerRef.current)
-    headerTimerRef.current = setTimeout(() => {
-      setHeaderVisible(false)
-    }, duration)
-  }
 
-  // Auto-hide taskbar within 1.8s & IMMEDIATELY in project overview & about me
-  // Also start 1.5s timer for floating "Try Samvaad" button when entering a section
-  useEffect(() => {
-    const currentPhase = phases[active]?.id
-    if (currentPhase === 'overview' || currentPhase === 'education') {
-      setHeaderVisible(false)
-      if (headerTimerRef.current) clearTimeout(headerTimerRef.current)
-    } else {
-      showHeaderTemporarily(1800)
+    const startProgressiveSequence = () => {
+      clearTimers()
+      setNavHidden(false)
+      setActionsHidden(false)
+      navStage1Timer.current = setTimeout(() => {
+        setNavHidden(true) // hides frame & nav links, leaves Day/Night bar
+        navStage2Timer.current = setTimeout(() => {
+          setActionsHidden(true) // Day/Night bar also hides
+        }, 2000)
+      }, 2000)
     }
+
+    const showActionsBriefly = (duration = 2500) => {
+      clearTimers()
+      setNavHidden(true)
+      setActionsHidden(false)
+      navStage2Timer.current = setTimeout(() => {
+        setActionsHidden(true)
+      }, duration)
+    }
+
+    // 1. Mouse movement: pointing mouse in top area (clientY <= 95) reveals full taskbar on PC
+    const onMouseMove = (event) => {
+      if (event.clientY <= 95) {
+        clearTimers()
+        setNavHidden(false)
+        setActionsHidden(false)
+      } else if (event.movementY > 10 && event.clientY > 110) {
+        if (!navHidden) {
+          setNavHidden(true)
+        }
+      }
+    }
+
+    // 2. Wheel gesture on PC:
+    // - Scrolling UP (deltaY < -15): reveals Day/Night action pill for 2.5s
+    // - Scrolling DOWN (deltaY > 20): quick hide
+    const onWheelNav = (event) => {
+      if (event.deltaY < -15) {
+        showActionsBriefly(2500)
+      } else if (event.deltaY > 20) {
+        if (!navHidden) {
+          clearTimers()
+          setNavHidden(true)
+          navStage2Timer.current = setTimeout(() => {
+            setActionsHidden(true)
+          }, 1500)
+        }
+      }
+    }
+
+    // Touch gesture for mobile:
+    const onTouchInteraction = (event) => {
+      const y = event.touches ? event.touches[0].clientY : event.clientY
+      if (y <= 95) {
+        startProgressiveSequence()
+      }
+    }
+
+    startProgressiveSequence()
+
     if (currentPhase !== 'education') {
       setAboutHeadingDismissed(false)
     }
@@ -779,27 +844,19 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       setOverviewHeadingDismissed(false)
     }
     scheduleFloatingPill()
+
+    window.addEventListener('mousemove', onMouseMove, { passive: true })
+    window.addEventListener('wheel', onWheelNav, { passive: true })
+    window.addEventListener('touchstart', onTouchInteraction, { passive: true })
+
     return () => {
-      if (headerTimerRef.current) clearTimeout(headerTimerRef.current)
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('wheel', onWheelNav)
+      window.removeEventListener('touchstart', onTouchInteraction)
+      clearTimers()
       if (floatingTimerRef.current) clearTimeout(floatingTimerRef.current)
     }
   }, [active])
-
-  // Show taskbar when user moves pointer or touches near the top
-  useEffect(() => {
-    const handleTopInteraction = (e) => {
-      const y = e.touches ? e.touches[0].clientY : e.clientY
-      if (y <= 95) {
-        showHeaderTemporarily(1800)
-      }
-    }
-    window.addEventListener('pointermove', handleTopInteraction, { passive: true })
-    window.addEventListener('touchstart', handleTopInteraction, { passive: true })
-    return () => {
-      window.removeEventListener('pointermove', handleTopInteraction)
-      window.removeEventListener('touchstart', handleTopInteraction)
-    }
-  }, [])
 
   const showCueTemporarily = (duration = 2000) => {
     setCueHidden(false)
@@ -963,9 +1020,23 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
 
       {phases[active]?.id !== 'education' && phases[active]?.id !== 'overview' && (
         <header
-          className={`spiritual-header ${!headerVisible ? 'is-hidden-auto' : ''}`}
-          onMouseEnter={() => { if (headerTimerRef.current) clearTimeout(headerTimerRef.current); setHeaderVisible(true) }}
-          onMouseLeave={() => showHeaderTemporarily(1800)}
+          className={`spiritual-header${navHidden ? ' is-hidden' : ''}${actionsHidden ? ' actions-hidden' : ''}`}
+          onMouseEnter={() => {
+            if (navStage1Timer.current) clearTimeout(navStage1Timer.current)
+            if (navStage2Timer.current) clearTimeout(navStage2Timer.current)
+            setNavHidden(false)
+            setActionsHidden(false)
+          }}
+          onMouseLeave={() => {
+            if (navStage1Timer.current) clearTimeout(navStage1Timer.current)
+            if (navStage2Timer.current) clearTimeout(navStage2Timer.current)
+            navStage1Timer.current = setTimeout(() => {
+              setNavHidden(true)
+              navStage2Timer.current = setTimeout(() => {
+                setActionsHidden(true)
+              }, 2000)
+            }, 1800)
+          }}
         >
           <button className="spiritual-brand-button" onClick={() => goToPhase('hero')}>
             <img className="brand-icon" src={brandIcon} alt="" />
