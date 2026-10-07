@@ -821,30 +821,25 @@ export default function App() {
     activeAbortControllerRef.current = abortController;
 
     const isCasual = isCasualConversational(message);
-    const isEng = detectQueryLanguage(message) === 'english';
-    const isThinkingMode = !isCasual && (inferenceMode === 'deep' || inferenceMode === 'crew');
-
-    const initialThought = isThinkingMode
-      ? (isEng
-          ? "Contemplating the seeker's spiritual inquiry, emotional state, and seeking divine guidance..."
-          : "🌸 साधक के आंतरिक भाव, संशय और आध्यात्मिक स्थिति का अनुशीलन किया जा रहा है...")
-      : '';
+    const isEnglishQuery = detectQueryLanguage(message) === 'english';
+    const shouldThink = !isCasual && (inferenceMode === 'deep' || inferenceMode === 'crew');
 
     const assistantMsg = {
       role: 'assistant',
       content: '',
       initialContent: '',
       subsequentContent: '',
-      thought: initialThought,
-      isThinking: isThinkingMode,
+      thought: shouldThink
+        ? (isEnglishQuery ? '🔍 Analyzing Seeker Intent & Dilemma...' : '🔍 साधक भाव व अंतर्मन अध्ययन: जिज्ञासा का अनुशीलन...')
+        : '',
+      isThinking: shouldThink,
       thinkingDuration: 0,
       timestamp: new Date(),
       mode: inferenceMode
     };
 
-    // Instant thinking start: In Deep/crew mode, mount the Reasoning Block directly under the query
-    // with timer starting at 0.0s, eliminating disconnected placeholder delays.
-    if (isThinkingMode) {
+    if (shouldThink) {
+      // Direct instant mount of thinking block when query enters chatbox
       setMessages([...updatedMessagesWithUser, assistantMsg]);
       setIsResponding(false);
     } else {
@@ -913,8 +908,8 @@ export default function App() {
               content: update.content || '',
               initialContent: update.initialContent || '',
               subsequentContent: update.subsequentContent || '',
-              thought: update.thought || '',
-              isThinking: Boolean(update.isThinking),
+              thought: update.thought !== undefined ? update.thought : assistantMsg.thought,
+              isThinking: update.isThinking !== undefined ? Boolean(update.isThinking) : assistantMsg.isThinking,
               thinkingDuration: update.thinkingDuration || 0,
               scripture: update.scripture || null
             }]);
