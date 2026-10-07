@@ -740,6 +740,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   // Floating "Try Samvaad" pill state & timer (appears after staying >1.5s in a section)
   const [showFloatingPill, setShowFloatingPill] = useState(false)
   const floatingTimerRef = useRef(null)
+  const isAskingRef = useRef(false)
 
   const scheduleFloatingPill = () => {
     if (floatingTimerRef.current) clearTimeout(floatingTimerRef.current)
@@ -966,6 +967,9 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       onEnter?.()
       return
     }
+    if (isAskingRef.current) return
+    isAskingRef.current = true
+    setTimeout(() => { isAskingRef.current = false }, 1200)
     onAsk?.(value)
   }
 

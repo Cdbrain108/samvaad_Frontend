@@ -513,6 +513,8 @@ export default function App() {
   const [topbarRevealed, setTopbarRevealed] = useState(false);
   const userScrolledUpRef = useRef(false);
   const isNearTopRef = useRef(true);
+  const isSubmittingRef = useRef(false);
+  const lastLandingAskRef = useRef({ text: '', time: 0 });
 
   // Track user scroll position so auto-scroll never locks the page or overrides manual scrolling
   const handleContentScroll = useCallback(() => {
@@ -704,6 +706,14 @@ export default function App() {
 
   /* Landing hero ask-box: jump into chat and immediately send the question */
   const askFromLanding = (question) => {
+    const trimmed = (question || '').trim();
+    if (!trimmed) return;
+    const now = Date.now();
+    if (lastLandingAskRef.current.text === trimmed && (now - lastLandingAskRef.current.time) < 1500) {
+      return;
+    }
+    lastLandingAskRef.current = { text: trimmed, time: now };
+
     const active = ensureUser();
     setView('chat');
     window.scrollTo(0, 0);
@@ -717,9 +727,7 @@ export default function App() {
       setShowGuestLoginModal(true);
       return;
     }
-    if (question && question.trim()) {
-      setTimeout(() => submitMessage(question), 150);
-    }
+    setTimeout(() => submitMessage(trimmed), 150);
   };
 
   // Helper to finalize chat auto-naming when leaving a chat
@@ -811,11 +819,15 @@ export default function App() {
 
   const submitMessage = async (explicitMessage, speakResponse = false) => {
     const activeUser = user || ensureUser();
-    // Block ALL submissions while any response is in flight
-    if (isResponding || isStreaming) return;
+    // Synchronous immediate lock to prevent ANY concurrent or duplicate submissions
+    if (isSubmittingRef.current || isResponding || isStreaming) return;
+    isSubmittingRef.current = true;
 
     const message = (typeof explicitMessage === 'string' ? explicitMessage : draft).trim();
-    if (!message) return;
+    if (!message) {
+      isSubmittingRef.current = false;
+      return;
+    }
 
     // Immediately clear draft for instant, snappy input response
     setDraft('');
@@ -829,6 +841,7 @@ export default function App() {
 
     // Guest users get exactly 1 free question
     if (getIsGuestLimitReached()) {
+      isSubmittingRef.current = false;
       setShowGuestLoginModal(true);
       return;
     }
@@ -1020,6 +1033,7 @@ export default function App() {
       const fallbackContent = 'राधे राधे बच्चा! मन को शांत रखिए और भगवन्नाम (राधा नाम) का आश्रय लीजिए। प्रभु सब मंगल करेंगे।';
       setMessages([...updatedMessagesWithUser, { role: 'assistant', content: fallbackContent, timestamp: new Date() }]);
     } finally {
+      isSubmittingRef.current = false;
       setIsResponding(false);
       setIsStreaming(false);
     }

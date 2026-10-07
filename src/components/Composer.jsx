@@ -12,6 +12,7 @@ export default function Composer({
   onFocus,
 }) {
   const textareaRef = useRef(null)
+  const isSubmittingRef = useRef(false)
 
   useEffect(() => {
     const textarea = textareaRef.current
@@ -25,26 +26,31 @@ export default function Composer({
       if (typeof e.preventDefault === 'function') e.preventDefault()
       if (typeof e.stopPropagation === 'function') e.stopPropagation()
     }
-    if (isDisabled) return
+    if (isDisabled || isSubmittingRef.current) return
     if (guestLimitReached) {
       onGuestLimitClick && onGuestLimitClick()
       return
     }
     const textToSend = (value || '').trim()
     if (textToSend) {
+      isSubmittingRef.current = true
       // Instantly clear textarea and reset its height so user feels zero send delay
       onChange('')
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto'
       }
       onSubmit(textToSend)
+      setTimeout(() => {
+        isSubmittingRef.current = false
+      }, 800)
     }
   }
 
   function handleKeyDown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
-      if (isDisabled) return
+      event.stopPropagation()
+      if (isDisabled || isSubmittingRef.current) return
       if (guestLimitReached) {
         onGuestLimitClick && onGuestLimitClick()
         return
@@ -98,7 +104,8 @@ export default function Composer({
           aria-label="Send message"
           title={value.trim() ? "Send message (Enter)" : "Type your question to send"}
           disabled={!value.trim() || isDisabled}
-          type="submit"
+          type="button"
+          onClick={handleSend}
         >
           <Icon name="send" size={19} />
         </button>
