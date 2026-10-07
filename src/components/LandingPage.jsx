@@ -789,11 +789,13 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     scheduleFloatingPill()
   }, [active])
 
-  // 3. User interaction: while scrolling down/up within page sections, taskbar shows!
-  // When user lands into a section (scrolling stops), wait 1.5s then hide taskbar completely!
+  // 3. User interaction & mobile touch: auto-hide taskbar on scroll down / idle, reveal on scroll up / touch
   useEffect(() => {
     const root = scrollRef.current
     if (!root) return
+
+    let lastScrollTop = 0
+    let touchStartY = 0
 
     const handleScrollActivity = () => {
       const currentPhase = phases[activeRef.current]?.id
@@ -802,11 +804,36 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         return
       }
 
-      // Show taskbar while actively scrolling
+      const currentScroll = root.scrollTop
+      const scrollDiff = currentScroll - lastScrollTop
+      lastScrollTop = currentScroll
+
+      // When near the top of the landing page: always show
+      if (currentScroll <= 35) {
+        setTaskbarVisible(true)
+        scheduleTaskbarHide(2500)
+        return
+      }
+
+      // Scrolling up (user scrolling towards top): reveal taskbar
+      if (scrollDiff < -8) {
+        setTaskbarVisible(true)
+        if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
+        scheduleTaskbarHide(2500)
+        return
+      }
+
+      // Scrolling down (user reading / scrolling down): hide taskbar immediately
+      if (scrollDiff > 8) {
+        setTaskbarVisible(false)
+        if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
+        return
+      }
+
+      // Fallback scroll stop handler
       setTaskbarVisible(true)
       if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
 
-      // When landed into a section (scroll stops): wait 1.5s then hide taskbar completely
       if (scrollStopTimerRef.current) clearTimeout(scrollStopTimerRef.current)
       scrollStopTimerRef.current = setTimeout(() => {
         const landedPhase = phases[activeRef.current]?.id
@@ -815,21 +842,36 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         } else {
           scheduleTaskbarHide(1500)
         }
-      }, 180)
+      }, 200)
     }
 
-    root.addEventListener('scroll', handleScrollActivity, { passive: true })
-    return () => {
-      root.removeEventListener('scroll', handleScrollActivity)
+    // Touch swipe detection for mobile UI
+    const handleTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY
+      if (touchStartY <= 70) {
+        if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
+        setTaskbarVisible(true)
+        scheduleTaskbarHide(2500)
+      }
     }
-  }, [])
 
-  // 4. Pointer near top (clientY <= 90): reveal taskbar
-  useEffect(() => {
+    const handleTouchMove = (e) => {
+      const currentY = e.touches[0].clientY
+      const deltaY = currentY - touchStartY
+      if (deltaY > 16) {
+        // Swiping down (scrolling up) -> reveal taskbar
+        setTaskbarVisible(true)
+        scheduleTaskbarHide(2500)
+      } else if (deltaY < -16 && root.scrollTop > 40) {
+        // Swiping up (scrolling down) -> hide taskbar
+        setTaskbarVisible(false)
+      }
+    }
+
     const handlePointerTop = (e) => {
       const y = e.touches ? e.touches[0].clientY : e.clientY
       const currentPhase = phases[activeRef.current]?.id
-      if (y <= 90) {
+      if (y <= 70) {
         if (taskbarHideTimerRef.current) clearTimeout(taskbarHideTimerRef.current)
         setTaskbarVisible(true)
       } else if (y > 115 && taskbarVisible) {
@@ -841,8 +883,15 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       }
     }
 
+    root.addEventListener('scroll', handleScrollActivity, { passive: true })
+    window.addEventListener('touchstart', handleTouchStart, { passive: true })
+    window.addEventListener('touchmove', handleTouchMove, { passive: true })
     window.addEventListener('pointermove', handlePointerTop, { passive: true })
+
     return () => {
+      root.removeEventListener('scroll', handleScrollActivity)
+      window.removeEventListener('touchstart', handleTouchStart)
+      window.removeEventListener('touchmove', handleTouchMove)
       window.removeEventListener('pointermove', handlePointerTop)
     }
   }, [taskbarVisible])

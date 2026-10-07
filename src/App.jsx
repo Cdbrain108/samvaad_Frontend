@@ -516,51 +516,117 @@ export default function App() {
   const isSubmittingRef = useRef(false);
   const lastLandingAskRef = useRef({ text: '', time: 0 });
 
-  // Track user scroll position so auto-scroll never locks the page or overrides manual scrolling
+  const topbarHideTimerRef = useRef(null);
+  const scheduleTopbarHide = useCallback((delay = 2400) => {
+    if (topbarHideTimerRef.current) clearTimeout(topbarHideTimerRef.current);
+    topbarHideTimerRef.current = setTimeout(() => {
+      setTopbarRevealed(false);
+    }, delay);
+  }, []);
+
+  const lastScrollTopRef = useRef(0);
+  const touchStartYRef = useRef(0);
+
+  // Track user scroll position & direction: auto-hides taskbar on scroll down, reveals on scroll up
   const handleContentScroll = useCallback(() => {
     if (!contentAreaRef.current) return;
     const el = contentAreaRef.current;
     const currentScrollTop = el.scrollTop;
-    // When distance from bottom exceeds 25px, user has scrolled up to read earlier messages/question
+    const scrollDiff = currentScrollTop - lastScrollTopRef.current;
+    lastScrollTopRef.current = currentScrollTop;
+
     const distanceFromBottom = el.scrollHeight - currentScrollTop - el.clientHeight;
     userScrolledUpRef.current = distanceFromBottom > 25;
     isNearTopRef.current = currentScrollTop <= 80;
-  }, []);
 
-  // Proactive mousewheel / trackpad detection: allows instantly scrolling up to view the query even during generation
+    if (messages.length > 0) {
+      if (currentScrollTop <= 25) {
+        // At the very top: reveal taskbar
+        setTopbarRevealed(true);
+      } else if (scrollDiff < -8) {
+        // Scrolling up (user swiping down to navigate): smoothly reveal taskbar
+        setTopbarRevealed(true);
+        scheduleTopbarHide(2500);
+      } else if (scrollDiff > 8) {
+        // Scrolling down (user reading dialogue): hide taskbar to maximize reading area
+        setTopbarRevealed(false);
+        if (topbarHideTimerRef.current) clearTimeout(topbarHideTimerRef.current);
+      }
+    }
+  }, [messages.length, scheduleTopbarHide]);
+
+  // Proactive mousewheel / trackpad detection: allows scrolling up to view the query even during generation
   const handleContentWheel = useCallback((e) => {
-    if (e.deltaY < 0) {
-      // User wheeled up — immediately unlock manual scroll up
+    if (e.deltaY < -6) {
       userScrolledUpRef.current = true;
+      if (messages.length > 0) {
+        setTopbarRevealed(true);
+        scheduleTopbarHide(2500);
+      }
       if (contentAreaRef.current && contentAreaRef.current.scrollTop <= 80) {
         isNearTopRef.current = true;
       }
-    } else if (e.deltaY > 0 && contentAreaRef.current) {
-      const el = contentAreaRef.current;
-      const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-      if (distanceFromBottom <= 25) {
-        userScrolledUpRef.current = false;
+    } else if (e.deltaY > 6) {
+      if (messages.length > 0 && topbarRevealed) {
+        setTopbarRevealed(false);
       }
-      if (el.scrollTop > 80) {
-        isNearTopRef.current = false;
+      if (contentAreaRef.current) {
+        const el = contentAreaRef.current;
+        const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+        if (distanceFromBottom <= 25) {
+          userScrolledUpRef.current = false;
+        }
+        if (el.scrollTop > 80) {
+          isNearTopRef.current = false;
+        }
       }
     }
-  }, []);
+  }, [messages.length, topbarRevealed, scheduleTopbarHide]);
 
-  // Auto-hide taskbar background & Deep/Fast mode after entering a query (messages.length > 0)
-  // Reveals ONLY when scrolled up AND pointing mouse near taskbar (clientY <= 65)
+  // Auto-hide taskbar on mobile touch & desktop pointer: reveals on scroll up or top tap
   useEffect(() => {
-    const handlePointerMove = (e) => {
-      if (messages.length === 0) return;
-      if (e.clientY <= 65 && (isNearTopRef.current || userScrolledUpRef.current)) {
+    if (messages.length === 0) return;
+
+    const handleTouchStart = (e) => {
+      touchStartYRef.current = e.touches[0].clientY;
+      if (touchStartYRef.current <= 65) {
+        if (topbarHideTimerRef.current) clearTimeout(topbarHideTimerRef.current);
         setTopbarRevealed(true);
-      } else if (e.clientY > 80 && topbarRevealed) {
+        scheduleTopbarHide(3000);
+      }
+    };
+
+    const handleTouchMove = (e) => {
+      const currentY = e.touches[0].clientY;
+      const deltaY = currentY - touchStartYRef.current;
+      if (deltaY > 16) {
+        // Swiping down -> reveal taskbar
+        setTopbarRevealed(true);
+        scheduleTopbarHide(2500);
+      } else if (deltaY < -16 && contentAreaRef.current && contentAreaRef.current.scrollTop > 35) {
+        // Swiping up -> reading dialogue down -> hide taskbar
         setTopbarRevealed(false);
       }
     };
+
+    const handlePointerMove = (e) => {
+      if (e.clientY <= 65) {
+        if (topbarHideTimerRef.current) clearTimeout(topbarHideTimerRef.current);
+        setTopbarRevealed(true);
+      } else if (e.clientY > 85 && topbarRevealed) {
+        scheduleTopbarHide(600);
+      }
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
-    return () => window.removeEventListener('pointermove', handlePointerMove);
-  }, [messages.length, topbarRevealed]);
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('pointermove', handlePointerMove);
+    };
+  }, [messages.length, topbarRevealed, scheduleTopbarHide]);
 
   // Viewport stays comfortably anchored at generation start point (user is free to scroll anywhere freely)
 

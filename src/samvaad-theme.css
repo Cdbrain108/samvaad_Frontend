@@ -12300,50 +12300,39 @@ body:not(.night) .rich-text strong {
    - When user scrolls up AND points mouse near taskbar:
      Smoothly reveals full background and Deep/Fast mode pill
    ═════════════════════════════════════════════════════════════════════ */
+/* ═════════════════════════════════════════════════════════════════════
+   CHAT PAGE TASKBAR: SMOOTH AUTO-HIDE (MOBILE & DESKTOP)
+   - When a query is entered (messages.length > 0):
+     Topbar auto-hides (slides up translateY(-115%)), giving full distraction-free view
+   - When user scrolls up or touches/points near the top:
+     Smoothly slides down into view (translateY(0))
+   ═════════════════════════════════════════════ */
 .topbar.is-chat-mode {
-  position: absolute !important;
+  position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
   height: 60px !important;
-  background: transparent !important;
-  border-bottom: none !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  transform: translateY(-115%) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
   pointer-events: none !important;
   z-index: 50 !important;
-  transition: background 0.32s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.32s ease,
-              box-shadow 0.32s ease,
-              backdrop-filter 0.32s ease !important;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.28s ease,
+              visibility 0.35s !important;
 }
 
-.topbar.is-chat-mode .topbar-center {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transform: translate(-50%, -85%) scale(0.92) !important;
-  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-/* Icons visible ALWAYS: Menu, Home, Day/Night */
-.topbar.is-chat-mode .topbar-left,
-.topbar.is-chat-mode .topbar-actions {
+.topbar.is-chat-mode.is-revealed {
+  transform: translateY(0) !important;
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
-  transition: transform 0.25s ease !important;
-}
-
-/* Revealed state when scrolled up AND pointer is near taskbar */
-.topbar.is-chat-mode.is-revealed {
   background: rgba(255, 253, 248, 0.95) !important;
   border-bottom: 1px solid rgba(217, 119, 6, 0.22) !important;
   box-shadow: 0 8px 30px rgba(120, 70, 10, 0.08) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
-  pointer-events: auto !important;
 }
 
 :root[data-theme='dark'] .topbar.is-chat-mode.is-revealed {
@@ -12458,6 +12447,27 @@ body:not(.night) .rich-text strong {
   transform: none !important;
 }
 
+/* ═════════════════════════════════════════════════════════════════════
+   MOBILE LANDING PAGE: SMOOTH HEADER SLIDE AUTO-HIDE
+   - Slides up offscreen when scrolling down or idle on section
+   - Slides smoothly back down when scrolling up or tapping top
+   ═════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .spiritual-header {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.28s ease,
+                background 0.3s ease,
+                border-color 0.3s ease,
+                box-shadow 0.3s ease !important;
+  }
 
-
-
+  .spiritual-header.is-taskbar-hidden,
+  .night .spiritual-header.is-taskbar-hidden,
+  .spiritual-page.night .spiritual-header.is-taskbar-hidden,
+  .spiritual-page .spiritual-header.is-taskbar-hidden {
+    transform: translate(-50%, -130%) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+}
