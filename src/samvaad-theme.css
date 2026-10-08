@@ -5939,9 +5939,9 @@ select:focus-visible,
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
-    flex: 1 1 auto !important;
-    height: calc(100% - 32px) !important;
-    max-height: calc(100% - 32px) !important;
+    flex: 1 1 0% !important;
+    height: 100% !important;
+    max-height: 100% !important;
     min-height: 0 !important;
     display: flex !important;
     flex-direction: column !important;
@@ -5951,7 +5951,7 @@ select:focus-visible,
     width: 100% !important;
     height: 100% !important;
     min-height: 0 !important;
-    flex: 1 1 auto !important;
+    flex: 1 1 0% !important;
     display: flex !important;
     flex-direction: column !important;
     border-radius: 18px !important;
@@ -6008,8 +6008,8 @@ select:focus-visible,
     flex-shrink: 0 !important;
   }
   .chat-demo-body {
-    flex: 1 1 auto !important;
-    height: 100% !important;
+    flex: 1 1 0% !important;
+    height: auto !important;
     max-height: none !important;
     min-height: 0 !important;
     padding: 10px 10px !important;
@@ -6441,27 +6441,29 @@ select:focus-visible,
    ABOUT US / CREATOR SECTION STYLES
    ============================================================ */
 
-.about-us-section {
-  padding: clamp(20px, 3vh, 36px) max(20px, calc((100vw - 1100px) / 2)) clamp(20px, 3vh, 36px) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  position: relative !important;
-  height: 100vh !important;
-  height: 100dvh !important;
-  min-height: 100dvh !important;
-  max-height: 100dvh !important;
-  box-sizing: border-box !important;
-  scroll-snap-align: start !important;
-  scroll-snap-stop: normal !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  scrollbar-width: none !important;
-}
+@media (min-width: 769px) {
+  .about-us-section {
+    padding: clamp(20px, 3vh, 36px) max(20px, calc((100vw - 1100px) / 2)) clamp(20px, 3vh, 36px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    position: relative !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    box-sizing: border-box !important;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: normal !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: none !important;
+  }
 
-.about-us-section.heading-hidden {
-  justify-content: center !important;
+  .about-us-section.heading-hidden {
+    justify-content: center !important;
+  }
 }
 
 .about-us-section::-webkit-scrollbar {
@@ -6548,67 +6550,100 @@ select:focus-visible,
               margin 600ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.creator-social-actions {
+.creator-social-actions,
+.about-action-cluster {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid rgba(254, 200, 75, 0.18);
+  width: 100%;
 }
 
-.creator-action-btn {
+.about-connect-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.creator-action-btn,
+.about-social-pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 18px;
+  padding: 8px 18px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
   transition: all 200ms ease;
+  white-space: nowrap;
 }
 
-.creator-linkedin-btn {
+.creator-linkedin-btn,
+.about-linkedin-pill {
+  background: rgba(10, 102, 194, 0.18);
+  color: #93c5fd !important;
+  border: 1px solid rgba(10, 102, 194, 0.45);
+}
+
+.creator-linkedin-btn:hover,
+.about-linkedin-pill:hover {
   background: #0A66C2;
   color: #FFFFFF !important;
-  border: 1px solid #0A66C2;
+  transform: translateY(-2px);
   box-shadow: 0 4px 14px rgba(10, 102, 194, 0.35);
 }
 
-.creator-linkedin-btn:hover {
-  background: #004182;
-  border-color: #004182;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(10, 102, 194, 0.45);
-}
-
-.creator-email-btn {
-  background: rgba(255, 255, 255, 0.08);
-  color: #F4E9D4 !important;
+.creator-email-btn,
+.about-email-pill {
+  background: rgba(245, 158, 11, 0.14);
+  color: #FEF08A !important;
   border: 1px solid rgba(254, 200, 75, 0.35);
   backdrop-filter: blur(8px);
 }
 
-.spiritual-page:not(.night) .creator-email-btn {
-  background: rgba(255, 255, 255, 0.85);
-  color: #4A2E14 !important;
-  border-color: rgba(217, 119, 6, 0.35);
+.spiritual-page:not(.night) .creator-linkedin-btn,
+.spiritual-page:not(.night) .about-linkedin-pill {
+  background: rgba(10, 102, 194, 0.08);
+  color: #0A66C2 !important;
+  border: 1px solid rgba(10, 102, 194, 0.3);
 }
 
-.creator-email-btn:hover {
-  background: rgba(254, 200, 75, 0.18);
+.spiritual-page:not(.night) .creator-linkedin-btn:hover,
+.spiritual-page:not(.night) .about-linkedin-pill:hover {
+  background: #0A66C2;
+  color: #FFFFFF !important;
+}
+
+.spiritual-page:not(.night) .creator-email-btn,
+.spiritual-page:not(.night) .about-email-pill {
+  background: rgba(217, 119, 6, 0.08);
+  color: #92400e !important;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+}
+
+.creator-email-btn:hover,
+.about-email-pill:hover {
+  background: rgba(254, 200, 75, 0.22);
   border-color: #FEC84B;
   transform: translateY(-2px);
   color: #FFE9B8 !important;
 }
 
-.spiritual-page:not(.night) .creator-email-btn:hover {
-  background: #FFF8E1;
+.spiritual-page:not(.night) .creator-email-btn:hover,
+.spiritual-page:not(.night) .about-email-pill:hover {
+  background: rgba(217, 119, 6, 0.16);
   border-color: #D97706;
-  color: #92400E !important;
+  color: #78350F !important;
+}
+
+.about-primary-cta {
+  cursor: pointer;
 }
 
 .landing-user-pill:hover {
@@ -12625,27 +12660,32 @@ body:not(.night) .rich-text strong {
 
 /* ═════════════════════════════════════════════════════════════════════
    MOBILE ABOUT US SECTION: DYNAMIC SCREEN FIT (IDENTICAL TO OVERVIEW)
-   - Matches .chat-overview-section behavior exactly
-   - Collapses heading automatically
-   - Sleek single-row scrollable pills
-   - Compact footer actions so the typing window gets 100% visible height
+   - Matches .chat-overview-section behavior exactly: locked inside 100dvh
+   - Auto-fitting container with zero cutoff on any phone screen
+   - Beautifully balanced and aligned action buttons:
+     Row 1: 3-column equal grid for Question Pills
+     Row 2: 50/50 Grid for LinkedIn & Email
+     Row 3: 100% Full-Width Primary Live Samvaad CTA Button
    ═════════════════════════════════════════════ */
 @media (max-width: 768px) {
   .spiritual-page .phase#education,
-  .about-us-section {
+  .about-us-section,
+  .spiritual-page .phase#overview,
+  .chat-overview-section {
     height: 100svh !important;
     height: 100dvh !important;
     min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
-    padding: 8px 8px 10px !important;
+    padding: 8px 8px max(12px, env(safe-area-inset-bottom)) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
     box-sizing: border-box !important;
   }
 
-  .about-us-section .about-heading-wrap {
+  .about-us-section .about-heading-wrap,
+  .chat-overview-section .overview-heading-wrap {
     margin: 0 0 4px !important;
     padding: 0 !important;
     text-align: center !important;
@@ -12653,134 +12693,126 @@ body:not(.night) .rich-text strong {
   }
 
   .about-us-section.heading-hidden .about-heading-wrap,
-  .about-us-section .about-heading-wrap.is-backward-removing {
+  .about-us-section .about-heading-wrap.is-backward-removing,
+  .chat-overview-section.heading-hidden .overview-heading-wrap,
+  .chat-overview-section .overview-heading-wrap.is-backward-removing {
     display: none !important;
     max-height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
   }
 
-  .about-us-chat-container {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 auto !important;
-    flex: 1 1 0 !important;
-    height: calc(100% - 32px) !important;
-    max-height: calc(100% - 32px) !important;
-    min-height: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: flex-start !important;
-  }
-
-  .about-us-chat-container .chat-demo-window {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    flex: 1 1 auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    border-radius: 18px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
-    overflow: hidden !important;
-  }
-
-  .about-us-chat-container .chat-demo-body {
-    flex: 1 1 0 !important;
-    height: auto !important;
-    max-height: none !important;
-    min-height: 0 !important;
-    padding: 8px 10px !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
-
-  .about-us-chat-container .chat-demo-controls {
-    padding: 5px 10px 6px !important;
-    flex-shrink: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 4px !important;
-  }
-
-  .about-us-chat-container .chat-demo-controls-label {
-    margin-bottom: 2px !important;
-    font-size: 9.5px !important;
-  }
-
-  .about-us-chat-container .chat-demo-pills {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    scrollbar-width: none !important;
-    gap: 5px !important;
-    padding-bottom: 2px !important;
-    flex-shrink: 0 !important;
-  }
-
-  .about-us-chat-container .chat-demo-pills::-webkit-scrollbar {
-    display: none !important;
-  }
-
-  .about-us-chat-container .chat-demo-pill {
-    white-space: nowrap !important;
-    font-size: 11px !important;
-    padding: 5px 9px !important;
-    flex-shrink: 0 !important;
-  }
-
-  .about-us-chat-container .creator-social-actions {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
+  /* About Us 3 Question Selector Pills: Equal 3-Column Grid */
+  .about-demo-pills {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
     gap: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .about-demo-pills .chat-demo-pill {
+    width: 100% !important;
+    padding: 6px 4px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+
+  /* About Us Action Cluster & Buttons Alignment */
+  .about-action-cluster {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    width: 100% !important;
     margin-top: 4px !important;
     padding-top: 4px !important;
-    border-top: 1px solid rgba(254, 200, 75, 0.15) !important;
-    width: 100% !important;
+    border-top: 1px solid rgba(254, 200, 75, 0.16) !important;
+    box-sizing: border-box !important;
     flex-shrink: 0 !important;
   }
 
-  .about-us-chat-container .creator-social-pair {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 5px !important;
-    flex: 0 0 auto !important;
+  .about-connect-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 7px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
-  .about-us-chat-container .creator-action-btn {
-    height: 32px !important;
-    min-height: 32px !important;
-    padding: 0 8px !important;
-    font-size: 11px !important;
-    border-radius: 999px !important;
+  .about-social-pill {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    white-space: nowrap !important;
-    box-sizing: border-box !important;
-    flex: 0 0 auto !important;
-  }
-
-  .about-us-chat-container .creator-social-actions .rust-button.cta-button {
-    flex: 1 1 auto !important;
-    width: auto !important;
-    min-width: 0 !important;
-    min-height: 32px !important;
-    height: 32px !important;
+    gap: 6px !important;
+    height: 33px !important;
+    min-height: 33px !important;
     padding: 0 10px !important;
     font-size: 11.5px !important;
+    font-weight: 600 !important;
+    border-radius: 999px !important;
+    text-decoration: none !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+  }
+
+  .about-linkedin-pill {
+    background: rgba(10, 102, 194, 0.22) !important;
+    border: 1px solid rgba(10, 102, 194, 0.45) !important;
+    color: #93c5fd !important;
+  }
+
+  .about-linkedin-pill:active {
+    background: rgba(10, 102, 194, 0.35) !important;
+    transform: scale(0.97) !important;
+  }
+
+  .about-email-pill {
+    background: rgba(245, 158, 11, 0.14) !important;
+    border: 1px solid rgba(245, 158, 11, 0.35) !important;
+    color: #fef08a !important;
+  }
+
+  .about-email-pill:active {
+    background: rgba(245, 158, 11, 0.25) !important;
+    transform: scale(0.97) !important;
+  }
+
+  :root[data-theme='light'] .about-linkedin-pill,
+  .spiritual-page:not(.night) .about-linkedin-pill {
+    background: rgba(10, 102, 194, 0.08) !important;
+    border: 1px solid rgba(10, 102, 194, 0.35) !important;
+    color: #0A66C2 !important;
+  }
+
+  :root[data-theme='light'] .about-email-pill,
+  .spiritual-page:not(.night) .about-email-pill {
+    background: rgba(245, 158, 11, 0.08) !important;
+    border: 1px solid rgba(217, 119, 6, 0.3) !important;
+    color: #92400e !important;
+  }
+
+  .about-primary-cta {
+    width: 100% !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 0 14px !important;
+    font-size: 12.5px !important;
     font-weight: 700 !important;
     border-radius: 999px !important;
     margin-top: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    gap: 6px !important;
     white-space: nowrap !important;
+    box-sizing: border-box !important;
+    background: linear-gradient(135deg, #E68A00 0%, #B4560A 100%) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.4) !important;
   }
 }
 

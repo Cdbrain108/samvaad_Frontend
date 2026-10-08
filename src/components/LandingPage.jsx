@@ -589,7 +589,7 @@ This platform serves as an interactive learning playground. Guidance here is ref
   }, [activeTab, isVisible, selected.a])
 
   return (
-    <div ref={containerRef} className="chat-demo-container about-us-chat-container">
+    <div ref={containerRef} className="chat-demo-container">
       <div className="chat-demo-window">
         {/* Chat Window Top Bar */}
         <div className="chat-demo-topbar">
@@ -662,7 +662,7 @@ This platform serves as an interactive learning playground. Guidance here is ref
         {/* Question Selector Tabs & Contact CTA Buttons */}
         <div className="chat-demo-controls">
           <span className="chat-demo-controls-label">Explore the creator's vision &amp; background:</span>
-          <div className="chat-demo-pills">
+          <div className="chat-demo-pills about-demo-pills">
             {conversations.map((item, idx) => (
               <button
                 key={item.id}
@@ -675,40 +675,40 @@ This platform serves as an interactive learning playground. Guidance here is ref
             ))}
           </div>
 
-          {/* Social & Connect Action Buttons */}
-          <div className="creator-social-actions">
-            <div className="creator-social-pair">
+          {/* Perfectly Aligned Action Buttons Cluster */}
+          <div className="about-action-cluster">
+            <div className="about-connect-row">
               <a
                 href="https://www.linkedin.com/in/anuj-kesharwani-3a5245206/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="creator-action-btn creator-linkedin-btn"
+                className="about-social-pill about-linkedin-pill"
                 title="Connect with Anuj Kesharwani on LinkedIn"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45a1.65 1.65 0 0 0-1.66 1.66 1.66 1.66 0 0 0 1.66 1.66 1.66 1.66 0 0 0 1.66-1.66 1.65 1.65 0 0 0-1.66-1.66Z" />
                 </svg>
-                <span className="creator-btn-text-full">Connect on LinkedIn</span>
-                <span className="creator-btn-text-mobile">LinkedIn</span>
+                <span>LinkedIn</span>
               </a>
 
               <a
                 href="mailto:anujkeshari786@gmail.com"
-                className="creator-action-btn creator-email-btn"
+                className="about-social-pill about-email-pill"
                 title="Send email to Anuj Kesharwani"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <rect width="20" height="16" x="2" y="4" rx="2" />
                   <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                 </svg>
-                <span className="creator-btn-text-full">Email: anujkeshari786@gmail.com</span>
-                <span className="creator-btn-text-mobile">Email</span>
+                <span>Email</span>
               </a>
             </div>
 
-            <button className="rust-button cta-button" onClick={onEnter}>
-              <span aria-hidden="true">🙏</span> <span className="creator-btn-text-full">Start Live Samvaad</span><span className="creator-btn-text-mobile">Live Samvaad</span> <span aria-hidden="true">→</span>
-            </button>
+            <div className="chat-demo-footer-action">
+              <button className="rust-button cta-button about-primary-cta" onClick={onEnter}>
+                <span aria-hidden="true">🙏</span> Start Live Samvaad <span aria-hidden="true">→</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1488,7 +1488,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         {/* ============================================================
             PAGE 6 · ABOUT US & CREATOR'S PASSION PROJECT
             ============================================================ */}
-        <section className={`about-us-section phase${aboutHeadingDismissed ? ' heading-hidden' : ''}`} id="education">
+        <section className={`about-us-section chat-overview-section phase${aboutHeadingDismissed ? ' heading-hidden' : ''}`} id="education">
           <div className={`overview-heading-wrap about-heading-wrap${aboutHeadingDismissed ? ' is-backward-removing' : ''}`}>
             <Reveal className="spiritual-section-heading">
               <span>परिचय एवं ध्येय · About Us</span>
