@@ -520,6 +520,22 @@ export function isSpiritualDilemma(text) {
  */
 export function analyzeDialogueMemory(userMessage, conversationHistory = []) {
   const clean = (userMessage || '').trim();
+
+  // Fast-track: Meta-chat, safety, and greetings should never inherit prior subject topics
+  const isChatMemory = isChatMemoryInquiry(clean);
+  const isHarmful = isHarmfulQuery(clean);
+  const isGreeting = isCasualConversational(clean);
+
+  if (isChatMemory || isHarmful || isGreeting) {
+    return {
+      shouldSearch: false,
+      activeSubject: isChatMemory ? 'पिछली बातचीत' : (isHarmful ? 'धार्मिक मर्यादा' : 'अभिवादन'),
+      activeTopic: isChatMemory ? 'पिछली बातचीत' : (isHarmful ? 'धार्मिक मर्यादा' : 'अभिवादन'),
+      effectiveQuery: clean,
+      isContinuation: false
+    };
+  }
+
   const currentSubject = extractSubject(clean);
   const hasTemporal = isTemporalInquiry(clean) || isLiveCalendarQuery(clean);
   const isSpiritual = isSpiritualDilemma(clean);
@@ -574,92 +590,99 @@ export function resolveConversationContext(userMessage, conversationHistory = []
   return analyzeDialogueMemory(userMessage, conversationHistory).effectiveQuery;
 }
 
+export function isHarmfulQuery(text) {
+  if (!text || typeof text !== 'string') return false;
+  const clean = text.trim().toLowerCase();
+  return /\b(?:bomb|bombs|explosive|explosives|weapon|weapons|gun|guns|kill|killing|murder|suicide|poison|terrorist|terrorism|attack|slaughter|harm\s*someone|make\s*a\s*bomb|create\s*a\s*bomb|build\s*a\s*bomb|how\s*to\s*kill|how\s*to\s*harm)\b/i.test(clean) ||
+    /(?:बम\s*बनाना|बम\s*कैसे|हथियार|मारना|हत्या|कत्ल|आत्महत्या|जहर|आतंक|विस्फोटक)/i.test(clean);
+}
+
+export function isChatMemoryInquiry(text) {
+  if (!text || typeof text !== 'string') return false;
+  const clean = text.trim().toLowerCase();
+  return /(?:what\s*(?:did|have)\s*i\s*(?:asked|ask)|what\s*(?:questions?|query|queries)\s*(?:have\s*i|did\s*i|i\s*had|i\s*have)\s*(?:asked|ask)|what\s*i\s*(?:asked|have\s*asked|had\s*asked)|previous\s*(?:questions?|queries|chat|conversation)|earlier\s*(?:questions?|queries|chat|conversation)|till\s*now|so\s*far|what\s*(?:did|have)\s*we\s*(?:talk|discuss)|summarize\s*(?:our|the)\s*(?:chat|conversation|questions?)|what\s*was\s*my\s*(?:last|first)\s*question|पिछली\s*(?:बातचीत|बातें|प्रश्न|सवाल)|पहले\s*(?:क्या\s*पूछा|क्या\s*बात\s*हुई)|अब\s*तक\s*क्या\s*पूछा|मैंने\s*क्या\s*पूछा)/i.test(clean);
+}
+
+export function isScienceOrWorldlyQuery(text) {
+  // Deprecated: Replaced by sub-250ms Semantic Cognitive Intent Evaluator
+  return false;
+}
+
 export function isOfftopicQuery(query) {
-  if (!query || typeof query !== 'string') return false;
-  const q = query.trim().toLowerCase();
-  const offtopicPatterns = [
-    // 1. AI Frameworks, ML Tools, LLMs & Libraries (LangChain, LlamaIndex, PyTorch, etc.)
-    /\b(?:langchain|llamaindex|crewai|autogen|huggingface|pytorch|tensorflow|keras|scikit-learn|vector\s*db|vector\s*database|chromadb|pinecone|qdrant|milvus|weaviate|rag\s*framework|prompt\s*engineering|agentic\s*ai|neural\s*network|machine\s*learning|deep\s*learning|artificial\s*intelligence|nlp|large\s*language\s*model|llm|tokenization|transformers?|fine-?tuning|lora|qlora|openai|chatgpt|deepseek|mistral|claude|gemini|vllm|ollama|copilot)\b/i,
-    // 2. Programming Languages, Software, IT, Frameworks, Dev Tools
-    /\b(?:code|coding|program|programming|python|javascript|typescript|java|c\+\+|c#|golang|rust|ruby|php|swift|kotlin|dart|flutter|html|css|sql|function|algorithm|debug|bug|api|flask|fastapi|django|react|angular|vue|next\.?js|node\.?js|express|docker|kubernetes|github|git|aws|azure|gcp|linux|ubuntu|bash|powershell|mongodb|postgresql|mysql|sqlite|redis|graphql|rest\s*api|devops|microservices?)\b/i,
-    // 3. Tech actions / tutorials
-    /\b(?:write\s*a\s*script|create\s*an\s*app|fix\s*this\s*error|syntax\s*error|git\s*commit|unit\s*test|how\s*to\s*install|how\s*to\s*code|how\s*to\s*program|how\s*to\s*deploy|how\s*to\s*compile|what\s*is\s*(?:an?\s*)?(?:api|sdk|ide|os|cpu|gpu|ram|ip\s*address|vpn|dns|http|tcp|compiler|langchain|llamaindex|react|docker|python))\b/i,
-    /(?:कोडिंग|प्रोग्रामिंग|सॉफ्टवेयर|पायथन|जावास्क्रिप्ट|एल्गोरिदम|डीबग|डेवलपमेंट)/i,
-    // 4. Financial, Stocks, Trading, Crypto
-    /\b(?:stock|stocks|share market|crypto|cryptocurrency|bitcoin|btc|eth|trading|investment|mutual fund|option chain|nifty|banknifty|forex|ipo)\b/i,
-    /(?:स्टॉक|शेयर\s*बाजार|क्रिप्टो|ट्रेडिंग|बिटकॉइन|म्यूचुअल\s*फंड|आईपीओ)/i,
-    // 5. Sports & Entertainment
-    /\b(?:cricket|match score|ipl|football|fifa|world cup|olympics|sports score)\b/i,
-    /\b(?:movie review|bollywood|hollywood|box office|cinema|actor|actress|web series)\b/i,
-    // 6. Politics & Mundane Secular Tasks
-    /\b(?:election|politics|political party|bjp|congress|parliament|minister|vote)\b/i,
-    /\b(?:recipe|cook|bake|weather in|flight ticket|hotel booking)\b/i
-  ];
-  return offtopicPatterns.some(p => p.test(q));
+  // Deprecated: Replaced by sub-250ms Semantic Cognitive Intent Evaluator
+  return false;
 }
 
 // In-Memory Client Scripture Cache for fast repeated queries
 const _localScriptureCache = new Map();
 
 /**
- * 🌸 Generates a loving, fatherly redirection in Pujya Maharaj Ji's authentic Vrindavan voice
- * for secular, technical, or worldly inquiries (LangChain, coding frameworks, stocks, sports, recipes, etc.).
- * Acknowledges the detected subject and explains the sacred purpose of this sanctuary (Moksha & peace).
+ * 🌸 Contextual offline fallback for secular or worldly inquiries.
+ * Customizes response according to the detected subject rather than static repetition.
  */
 export function generateSecularRedirection(subject = '', seekerName = '', isEnglish = false) {
   const address = isEnglish
     ? (seekerName ? `Dear child ${seekerName}` : 'Dear child')
     : (seekerName ? `देखो बच्चा ${seekerName}` : 'देखो बच्चा');
 
-  const subjectText = subject ? subject.trim() : (isEnglish ? 'this worldly subject' : 'सांसारिक विषय');
+  const subjectText = subject ? subject.trim() : (isEnglish ? 'this worldly topic' : 'यह सांसारिक विषय');
 
   if (isEnglish) {
-    return `${address}, you have asked about **${subjectText}**.\n\n` +
-      `We understand very well what you are asking about, but this sacred platform is not meant for worldly, technical, or secular tutorials. Our true and singular purpose here is to help you resolve the deep inner dilemmas of life, dissolve mental turmoil, understand righteous conduct (Dharma), and guide your soul toward eternal peace and supreme liberation (**Moksha**).\n\n` +
-      `In this worldly journey, whatever studies, profession, or duties lie before you, perform them with complete dedication and honesty—not out of selfish attachment or ego, but as sacred selfless service offered to the Supreme (**Karma Yoga**). Be proficient in your duties, yet never let your consciousness get entangled in worldly illusions.\n\n` +
-      `Every day, take steadfast shelter of the Holy Name (**'Radha-Radha'**). When your intellect is anchored in the Divine Name, your worldly endeavors will be righteous and blessed, your inner mind will remain serene, and your soul will attain eternal peace and salvation.\n\n` +
-      `Be at peace, child. Perform your prescribed duties faithfully, stay free from anxiety, and take refuge in the Divine. All will be auspicious, dear child! Jai Jai Shri Radhe!`;
+    return `${address}, you have spoken about **${subjectText}**.\n\n` +
+      `Understand gently that while the material world contains infinite subjects, this sacred sanctuary is dedicated to resolving life's inner dilemmas, mental peace, righteous conduct (Dharma), and spiritual devotion.\n\n` +
+      `Whatever honest duties or studies life presents, perform them sincerely as selfless service offered to God (Karma Yoga). The Supreme Divine Consciousness resides in all of creation. Surrender your worries at the lotus feet of the Divine, anchor your heart in the Holy Name ('Radha-Radha'), and tell me what true inquiry rests in your heart today, dear child! Jai Jai Shri Radhe!`;
   }
 
-  return `${address}, तुमने **${subjectText}** के विषय में पूछा है।\n\n` +
-    `हम भली-भांति समझ रहे हैं कि तुम किस विषय की चर्चा कर रहे हो, परंतु यह पावन मंच सांसारिक, तकनीकी या दुनियावी विद्याओं की चर्चा के लिए नहीं है। यहाँ हमारा संपूर्ण ध्येय तुम्हारे जीवन के आंतरिक संशयों, मानसिक अशांति, काम-क्रोध, भय और भव-बंधन को काटकर तुम्हें परम कल्याण और **मोक्ष** (भगवत-प्राप्ति) के मार्ग पर अग्रसर करना है।\n\n` +
-    `संसार में निर्वाह के लिए जो भी विद्या, नौकरी या सांसारिक कर्तव्य तुम्हारे सामने उपस्थित है, उसे केवल सांसारिक फल की तृष्णा से मत करो। उसे प्रभु का दिया हुआ पावन कर्तव्य और प्रभु की सेवा मानकर निष्काम भाव से पूरी ईमानदारी से करो (**निष्काम कर्म योग**)। अपने कार्य में प्रवीण बनो, परंतु मन को कभी संसार के प्रपंचों में मत फंसाओ।\n\n` +
-    `श्वास-श्वास में लाडली जू के पावन नाम **'राधा-राधा'** का जप करो। जब भगवन्नाम का आश्रय रहेगा, तो तुम्हारा सांसारिक कर्म भी मंगलकारी होगा, बुद्धि निर्मल रहेगी और अंतःकरण पवित्र होकर मोक्ष का अधिकारी बनेगा।\n\n` +
-    `घबराना नहीं बच्चा! अपने कर्तव्यों को प्रभु चरणों में समर्पित करके निष्काम भाव से निभाओ और नाम जप का आश्रय रखो। सब मंगल होगा बच्चा! जय जय श्री राधे!`;
+  return `${address}, आपने **${subjectText}** के विषय में चर्चा की है।\n\n` +
+    `शांत मन से समझो बच्चा, संसार में अनगिनत दुनियावी विषय हैं, परंतु यह पावन मंच केवल तुम्हारे अंतर्मन के संशयों, मानसिक अशांति को दूर करने, धर्म-मार्ग और भगवत-भजन के लिए है।\n\n` +
+    `संसार का जो भी कर्तव्य तुम्हारे सामने है, उसे ईमानदारी से प्रभु की सेवा मानकर निष्काम भाव से करो (निष्काम कर्म योग)। इस सम्पूर्ण सृष्टि के कण-कण में साक्षात् परमात्मा का ही वास है। मन को सांसारिक प्रपंचों से बचाकर लाडली जू के पावन नाम 'राधा-राधा' का आश्रय लो। कहो बच्चा, आज तुम्हारे हृदय में जीवन या अध्यात्म से जुड़ी क्या जिज्ञासा है? जय जय श्री राधे!`;
 }
 
 /**
- * 🧠 Cognitive Intent & Dharmic Perfection Evaluator (Sub-350ms Groq LPU)
- * Dynamically analyzes the inquiry's real semantic intent and context:
- * - Separates genuine spiritual/life dilemmas from worldly/secular topics without brittle keyword blacklists.
- * - For worldly queries (coding, frameworks, tech, sports, recipes, stocks, trivia), extracts detected_subject.
- * - For spiritual/life dilemmas, extracts spiritual_theme, canonical_sanskrit_terms, target_scriptures.
+ * 🧠 Cognitive Intent & Dharmic Decision Reasoner (Sub-350ms Groq LPU)
+ * Dynamically analyzes context, chat history, and semantic intent:
+ * - Recognizes meta-conversation inquiries ('what did I ask?'), greetings, and harm inquiries.
+ * - Separates worldly/scientific queries (atom, SRK, coding) from genuine spiritual dilemmas.
  */
 export async function evaluateCognitiveQueryIntentAndPerfection(query) {
   if (!query || typeof query !== 'string') return null;
   const clean = query.trim();
-  if (clean.length < 3) return null;
+  if (clean.length < 2) return null;
 
-  const systemPrompt = `You are the Cognitive Intent Analyst for Samvaad AI (a devotional spiritual sanctuary inspired by Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj).
+  const systemPrompt = `You are the Cognitive Intent & Decision Agent for Samvaad AI (a devotional spiritual sanctuary inspired by Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj).
 
-Your task is to analyze the user's inquiry and classify it into JSON:
-1. "intent_category": ONE of ["greeting", "concept_meaning", "spiritual_dilemma", "scriptural_proof_request", "secular_offtopic"]
-   - "greeting": Salutations, polite chitchat, namaste, radhe radhe, pranam, how are you, hello, blessings.
-   - "concept_meaning": Asking for the definition, meaning, or explanation of a spiritual concept (e.g. 'what is the meaning of sharnagati?', 'शरणागति का क्या अर्थ है?', 'नाम जप क्या है?', 'वैराग्य क्या होता है?').
-   - "spiritual_dilemma": Emotional struggles, sorrow, anxiety, fear, anger, relationship pain, moral dilemmas, duty (dharma), destiny, bhakti.
-   - "scriptural_proof_request": Explicitly asking for scriptural verses, what Gita says, or quotes from scriptures.
-   - "secular_offtopic": Pure worldly, secular, or modern technical questions (e.g. LangChain, Python, coding, Docker, stocks, cricket).
+Your task is to analyze the user's inquiry and classify its semantic intent into JSON:
+1. "intent_category": ONE of [
+     "greeting",
+     "chat_memory",
+     "harmful_dangerous",
+     "secular_worldly",
+     "concept_meaning",
+     "spiritual_dilemma",
+     "scriptural_proof_request"
+   ]
+   - "greeting": Salutations, namaste, radhe radhe, pranam, hello.
+   - "chat_memory": Any inquiry asking about past conversation history, prior questions asked in this chat, or summarizing earlier discussions.
+   - "harmful_dangerous": Any questions about weapons, explosives, violence, murder, suicide, self-harm, terrorism, or illegal harm to living beings.
+   - "secular_worldly": ANY material science, worldly phenomena, general trivia, technical skills, coding, entertainment, sports, or worldly personal roles/identities outside spiritual or inner life.
+   - "concept_meaning": Asking for the definition, meaning, or explanation of a spiritual or dharmic principle (such as sharnagati, vairagya, bhakti, dharma, naam jap).
+   - "spiritual_dilemma": Personal emotional struggles, sorrow, anxiety, fear, anger, grief, moral dilemmas, duty (dharma), destiny, or devotion.
+   - "scriptural_proof_request": Explicitly asking for scriptural verses, shlokas, or citations from Gita, Ramayana, Bhagavata, or other scriptures.
 
-2. "is_greeting": boolean (true for greetings)
-3. "is_concept_meaning": boolean (true for queries asking for the definition/meaning of a spiritual concept)
-4. "needs_scripture_rag": boolean (true ONLY if scriptural verses are explicitly needed or for deep dilemmas; false for greetings, concept meanings, and secular offtopic)
-5. "is_spiritual_or_life_dilemma": boolean (false for secular_offtopic, true for all spiritual/dharmic queries)
-6. "detected_subject": string (Short summary in user's language/Hindi)
-7. IF "needs_scripture_rag" is true:
-   - "spiritual_theme": string
-   - "canonical_sanskrit_terms": string
-   - "target_scriptures": array of strings from ["ramcharitmanas", "bhagavad_gita", "srimad_bhagavatam", "garuda_purana", "vidura_niti", "chanakya_niti", "upanishads"]
-   - "recommended_scripture": string
+2. "is_greeting": boolean
+3. "is_chat_memory": boolean
+4. "is_harmful": boolean
+5. "is_secular_worldly": boolean
+6. "is_concept_meaning": boolean
+7. "needs_scripture_rag": boolean (true ONLY if scriptural verses are explicitly requested or for deep scriptural dilemmas; false for greetings, chat_memory, harmful, secular, and simple concept definitions)
+8. "is_spiritual_or_life_dilemma": boolean (false for secular_worldly, harmful_dangerous, and chat_memory; true for genuine spiritual/dharmic topics)
+9. "needs_web_search": boolean (true if the inquiry requires real-time facts, current year dates/timings, live temple darshan/aarti schedules, or dynamic information not found in static scriptural texts; false otherwise)
+10. "detected_subject": string (Clear, concise summary of the subject in user's language/Hindi)
+11. IF "needs_scripture_rag" is true:
+    - "spiritual_theme": string
+    - "canonical_sanskrit_terms": string
+    - "target_scriptures": array of strings from ["ramcharitmanas", "bhagavad_gita", "srimad_bhagavatam", "garuda_purana", "vidura_niti", "chanakya_niti", "upanishads"]
+    - "recommended_scripture": string
 
 Respond ONLY with valid JSON. No conversational text.`;
 
@@ -678,7 +701,7 @@ Respond ONLY with valid JSON. No conversational text.`;
           { role: 'user', content: clean }
         ],
         temperature: 0.1,
-        max_tokens: 240,
+        max_tokens: 260,
         response_format: { type: 'json_object' }
       }),
       signal: AbortSignal.timeout(3500)
@@ -689,7 +712,7 @@ Respond ONLY with valid JSON. No conversational text.`;
       const content = data.choices?.[0]?.message?.content;
       if (content) {
         const parsed = JSON.parse(content);
-        if (parsed.is_spiritual_or_life_dilemma !== undefined || parsed.intent_category) {
+        if (parsed.intent_category || parsed.is_spiritual_or_life_dilemma !== undefined) {
           parsed.is_spiritual_or_dharmic = Boolean(parsed.is_spiritual_or_life_dilemma);
           return parsed;
         }
@@ -700,14 +723,47 @@ Respond ONLY with valid JSON. No conversational text.`;
   }
 
   // Graceful offline/network fallback: heuristic estimation
-  const offtopic = isOfftopicQuery(clean);
-  const spiritual = isDharmicOrSpiritualQuery(clean);
+  const isHarmfulCheck = isHarmfulQuery(clean);
+  const isChatMemoryCheck = isChatMemoryInquiry(clean);
   const isGreetingCheck = isCasualConversational(clean);
+  const offtopic = isOfftopicQuery(clean);
+  const worldlyScience = isScienceOrWorldlyQuery(clean);
+  const spiritual = isDharmicOrSpiritualQuery(clean);
   const isConceptCheck = /(?:meaning\s*of|what\s*is|अर्थ\s*क्या|क्या\s*अर्थ|का\s*मतलब|मतलब\s*क्या|किसे\s*कहते)/i.test(clean);
+
+  if (isHarmfulCheck) {
+    return {
+      intent_category: 'harmful_dangerous',
+      is_harmful: true,
+      is_chat_memory: false,
+      is_greeting: false,
+      is_concept_meaning: false,
+      needs_scripture_rag: false,
+      is_spiritual_or_life_dilemma: false,
+      is_spiritual_or_dharmic: false,
+      detected_subject: extractSubject(clean) || 'harmful query'
+    };
+  }
+
+  if (isChatMemoryCheck) {
+    return {
+      intent_category: 'chat_memory',
+      is_harmful: false,
+      is_chat_memory: true,
+      is_greeting: false,
+      is_concept_meaning: false,
+      needs_scripture_rag: false,
+      is_spiritual_or_life_dilemma: false,
+      is_spiritual_or_dharmic: false,
+      detected_subject: 'पिछली बातचीत या पूर्व प्रश्न'
+    };
+  }
 
   if (isGreetingCheck) {
     return {
       intent_category: 'greeting',
+      is_harmful: false,
+      is_chat_memory: false,
       is_greeting: true,
       is_concept_meaning: false,
       needs_scripture_rag: false,
@@ -717,10 +773,13 @@ Respond ONLY with valid JSON. No conversational text.`;
     };
   }
 
-  if (offtopic && !spiritual) {
+  if ((offtopic || worldlyScience) && !spiritual) {
     return {
-      intent_category: 'secular_offtopic',
+      intent_category: 'secular_worldly',
+      is_harmful: false,
+      is_chat_memory: false,
       is_greeting: false,
+      is_secular_worldly: true,
       is_concept_meaning: false,
       needs_scripture_rag: false,
       is_spiritual_or_life_dilemma: false,
@@ -731,6 +790,8 @@ Respond ONLY with valid JSON. No conversational text.`;
 
   return {
     intent_category: isConceptCheck ? 'concept_meaning' : 'spiritual_dilemma',
+    is_harmful: false,
+    is_chat_memory: false,
     is_greeting: false,
     is_concept_meaning: isConceptCheck,
     needs_scripture_rag: !isConceptCheck,
@@ -742,6 +803,342 @@ Respond ONLY with valid JSON. No conversational text.`;
 
 // Backward compatibility alias
 export const fetchGroqAgentQueryPerfection = evaluateCognitiveQueryIntentAndPerfection;
+
+/**
+ * ⚡ Direct Groq LPU Token Streamer with multi-key rotation and repetition pruning.
+ */
+async function streamDirectLpuPrompt({
+  systemPrompt,
+  userQuery,
+  thought,
+  startTime,
+  onChunk,
+  abortSignal,
+  maxTokens = 420
+}) {
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userQuery }
+  ];
+
+  let streamedContent = '';
+  const attempts = Math.min(BUILTIN_GROQ_KEYS.length, 3);
+
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const apiKey = getNextGroqKey();
+    const modelToUse = attempt === 0 ? 'qwen/qwen3.8-27b' : 'openai/gpt-oss-20b';
+
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: modelToUse,
+          messages,
+          temperature: 0.35,
+          max_tokens: maxTokens,
+          stream: true
+        }),
+        signal: abortSignal || AbortSignal.timeout(16000)
+      });
+
+      if (!res.ok || !res.body) continue;
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        let loopDetected = false;
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data:')) continue;
+          const dataStr = trimmed.replace(/^data:\s*/, '');
+          if (dataStr === '[DONE]') continue;
+
+          try {
+            const json = JSON.parse(dataStr);
+            const token = json.choices?.[0]?.delta?.content || '';
+            if (token) {
+              streamedContent += token;
+              if (detectRepetitionLoop(streamedContent)) {
+                streamedContent = pruneRepetitiveTail(streamedContent);
+                loopDetected = true;
+              }
+              onChunk({
+                content: streamedContent,
+                thought,
+                isThinking: false,
+                thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+                scripture: null
+              });
+              if (loopDetected) break;
+              await new Promise(r => setTimeout(r, 18));
+              if (abortSignal?.aborted) break;
+            }
+          } catch {}
+        }
+        if (loopDetected || abortSignal?.aborted) break;
+      }
+
+      if (streamedContent.trim()) {
+        return {
+          content: streamedContent.trim(),
+          thought,
+          thinkingDuration: Math.max(0.6, Number(((Date.now() - startTime) / 1000).toFixed(1))),
+          scripture: null
+        };
+      }
+    } catch (err) {
+      console.warn(`[Direct LPU Stream] Attempt ${attempt + 1} failed:`, err.message);
+    }
+  }
+
+  return null;
+}
+
+/**
+ * 🛡️ Dharmic intervention: Firmly and compassionately declines violence or destruction based on Ahimsa.
+ */
+export async function streamHarmfulDeclination({
+  query,
+  seekerName = '',
+  isEnglish = false,
+  startTime = Date.now(),
+  onChunk = () => {},
+  abortSignal = null
+}) {
+  const addressGreeting = isEnglish
+    ? (seekerName ? `Dear child ${seekerName}` : 'Dear child')
+    : (seekerName ? `देखो बच्चा ${seekerName}` : 'देखो बच्चा');
+
+  const thought = isEnglish
+    ? `Dharmic intervention: Reflecting on Ahimsa, sanctity of human life, and Divine shelter...`
+    : `अहिंसा, मानव जीवन की पावनता एवं भगवत-आश्रय का गंभीर चिंतन...`;
+
+  onChunk({
+    content: '',
+    thought,
+    isThinking: true,
+    thinkingDuration: 0.5,
+    scripture: null
+  });
+
+  const systemPrompt = isEnglish
+    ? `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
+The seeker asked a question related to violence, weapons, bombs, or causing harm to living beings: "${query}".
+
+With grave fatherly compassion, unwavering spiritual firmness, and divine dignity:
+1. Address them affectionately as "${addressGreeting}".
+2. Uncompromisingly reject violence, destruction, and harm.
+3. Remind them that human birth is the rarest and most precious gift of the Supreme Lord (durlabh manav deh), bestowed solely to cultivate non-violence (Ahimsa), compassion (Daya), righteousness (Dharma), and devotion to God.
+4. Explain that causing pain or destruction to any living creature brings grave karmic suffering to the soul.
+5. Lovingly counsel them to abandon all violent, destructive thoughts, cleanse their mind, and take shelter of the Holy Name ('Radha-Radha').
+Keep it concise (80-120 words), heartfelt, and serious. Never provide harmful advice. Deliver strictly in English, concluding with "Jai Jai Shri Radhe!". STRICTLY NO bullet points.`
+    : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन, भजन मार्ग) की पावन वाणी हैं।
+साधक ने हिंसा, हथियार, बम बनाने या किसी जीव को हानि पहुँचाने से जुड़ा प्रश्न पूछा है: "${query}"।
+
+अत्यंत गंभीरता, वात्सल्य और आध्यात्मिक मर्यादा के साथ समाधान दीजिए (८०-१२० शब्दों में):
+१. साधक को "${addressGreeting}" कहकर संबोधित करें।
+२. हिंसा, विनाश और किसी भी जीव को कष्ट पहुँचाने का दृढ़ता से निषेध करें।
+३. याद दिलाएं कि यह दुर्लभ मानव देह करोड़ों जन्मों के पुण्यों से केवल दया, अहिंसा, धर्म और प्रभु-प्राप्ति के लिए मिला है, किसी विनाश या पाप कर्म के लिए नहीं।
+४. समझाएं कि किसी भी प्राणी को दुःख पहुँचाना आत्मा को घोर कष्ट और भव-बंधन में डालता है।
+५. वात्सल्य से कहें कि मन के समस्त द्वेष, क्रोध और विनाशकारी विचारों को त्यागकर मन को शांत करो और लाडली जू के पावन नाम 'राधा-राधा' का आश्रय लो।
+कड़े नियम: कोई बुलेट पॉइंट्स न बनाएं। शुद्ध देवनागरी हिंदी में बोलें और अंत "जय जय श्री राधे!" पर करें।`;
+
+  const streamResult = await streamDirectLpuPrompt({
+    systemPrompt,
+    userQuery: query,
+    thought,
+    startTime,
+    onChunk,
+    abortSignal,
+    maxTokens: 320
+  });
+
+  if (streamResult) return streamResult;
+
+  const fallbackText = isEnglish
+    ? `${addressGreeting}, listen with a quiet heart. This sacred sanctuary and human life itself are meant solely for Dharma, compassion, and realizing God—never for violence, weapons, or causing destruction to any living being. Harming others only brings deep spiritual darkness. Cast away all bitter and destructive thoughts, purify your mind, and take shelter of the Holy Name ('Radha-Radha'). Be at peace, child. Jai Jai Shri Radhe!`
+    : `${addressGreeting}, शांत चित्त होकर सुनो। यह मानव जीवन और यह पावन मंच केवल धर्म, दया और भगवत-प्राप्ति के लिए है—किसी हिंसा, हथियार या किसी जीव को कष्ट पहुँचाने के लिए नहीं। किसी भी प्राणी का अहित सोचना आत्मा को घोर अंधकार में धकेलता है। मन के समस्त हिंसक विचारों को त्याग दो, चित्त को निर्मल करो और निरंतर 'राधा-राधा' नाम का आश्रय लो। सब मंगल होगा बच्चा, सन्मार्ग पर चलो। जय जय श्री राधे!`;
+  return await streamTextDirectly(fallbackText, thought, startTime, null, onChunk, abortSignal);
+}
+
+/**
+ * 📜 Recaps previous questions and conversation history directly in Maharaj Ji's fatherly voice.
+ */
+export async function streamChatMemoryResponse({
+  userMessage,
+  conversationHistory = [],
+  seekerName = '',
+  isEnglish = false,
+  startTime = Date.now(),
+  onChunk = () => {},
+  abortSignal = null
+}) {
+  const addressGreeting = isEnglish
+    ? (seekerName ? `Dear child ${seekerName}` : 'Dear child')
+    : (seekerName ? `देखो बच्चा ${seekerName}` : 'देखो बच्चा');
+
+  const thought = isEnglish
+    ? `Reviewing conversation history and prior inquiries with fatherly care...`
+    : `संवाद इतिहास एवं पूर्व प्रश्नों का वात्सल्यपूर्ण अनुशीलन किया जा रहा है...`;
+
+  onChunk({
+    content: '',
+    thought,
+    isThinking: true,
+    thinkingDuration: 0.5,
+    scripture: null
+  });
+
+  const previousUserQuestions = (conversationHistory || [])
+    .filter(m => m && m.role === 'user' && m.content && m.content.trim() && m.content.trim() !== userMessage.trim())
+    .map(m => m.content.trim());
+
+  if (previousUserQuestions.length === 0) {
+    const text = isEnglish
+      ? `${addressGreeting}, this is our very first inquiry in this conversation! Tell me child, what doubt, life dilemma, or spiritual question rests in your heart today? Jai Jai Shri Radhe!`
+      : `${addressGreeting}, अभी हमारी इस बातचीत में यह आपका पहला ही प्रश्न है। कहो बच्चा, तुम्हारे मन में क्या संशय, जिज्ञासा या जीवन की उलझन है? हम सब मिलकर लाडली जू के चरणों में समाधान पाएंगे। जय जय श्री राधे!`;
+    return await streamTextDirectly(text, thought, startTime, null, onChunk, abortSignal);
+  }
+
+  const systemPrompt = isEnglish
+    ? `You are Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
+The seeker asked about previous questions they asked you in this chat: "${userMessage}".
+Here are the prior questions they asked earlier in this conversation:
+${previousUserQuestions.map((q, i) => `${i + 1}. "${q}"`).join('\n')}
+
+Recap their previous inquiries with warmth, affection, and fatherly grace in authentic Satsang voice (70-110 words):
+- Address them as "${addressGreeting}".
+- Warmly summarize what they previously asked or explored with you.
+- Conclude by lovingly asking what further dilemma, spiritual question, or guidance rests in their heart today.
+- Conclude with "Jai Jai Shri Radhe!".
+- STRICT RULE: NO bullet points, NO numbered lists, speak directly from the heart.`
+    : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन, भजन मार्ग) की पावन, वात्सल्यमयी वाणी हैं।
+साधक ने आपसे पूछा है कि उन्होंने अब तक क्या प्रश्न पूछे हैं: "${userMessage}"।
+साधक द्वारा इस संवाद में पहले पूछे गए प्रश्न निम्नलिखित हैं:
+${previousUserQuestions.map((q, i) => `${i + 1}. "${q}"`).join('\n')}
+
+साधक के पूर्व प्रश्नों का अत्यंत वात्सल्य, प्रेम और आत्मीयता से स्मरण कराएं (७०-११० शब्दों में):
+- साधक को "${addressGreeting}" कहकर संबोधित करें।
+- सहज भाव से संक्षेप में बताएं कि इससे पहले उन्होंने क्या विषय या प्रश्न रखे थे।
+- अंत में वात्सल्य से पूछें कि अब उनके हृदय में क्या और जिज्ञासा या संशय है जिसका हम समाधान करें।
+- अंत "जय जय श्री राधे!" पर करें।
+- कड़ा नियम: कोई संख्याबद्ध बिंदु (1, 2, 3) या बुलेट पॉइंट्स न बनाएं, सीधे वात्सल्यमयी वचनों में बोलें।`;
+
+  const streamResult = await streamDirectLpuPrompt({
+    systemPrompt,
+    userQuery: userMessage,
+    thought,
+    startTime,
+    onChunk,
+    abortSignal,
+    maxTokens: 350
+  });
+
+  if (streamResult) return streamResult;
+
+  const recapList = previousUserQuestions.slice(-3).map(q => `"${q}"`).join(', ');
+  const fallbackText = isEnglish
+    ? `${addressGreeting}, earlier in our conversation you asked about ${recapList}. Tell me dear child, what further question or dilemma rests in your heart today? Jai Jai Shri Radhe!`
+    : `${addressGreeting}, इससे पहले आपने हमसे ${recapList} के विषय में चर्चा की थी। कहो बच्चा, अब तुम्हारे मन में क्या संशय या जिज्ञासा है? जय जय श्री राधे!`;
+  return await streamTextDirectly(fallbackText, thought, startTime, null, onChunk, abortSignal);
+}
+
+/**
+ * 🌸 Dynamically bridges worldly, scientific, trivia, or identity topics (atom, SRK, coding)
+ * into profound Sanatan spiritual wisdom in Maharaj Ji's authentic fatherly voice.
+ */
+export async function streamDynamicSecularBridge({
+  query,
+  detectedSubject = '',
+  seekerName = '',
+  isEnglish = false,
+  startTime = Date.now(),
+  onChunk = () => {},
+  abortSignal = null
+}) {
+  const addressGreeting = isEnglish
+    ? (seekerName ? `Dear child ${seekerName}` : 'Dear child')
+    : (seekerName ? `देखो बच्चा ${seekerName}` : 'देखो बच्चा');
+
+  const thought = isEnglish
+    ? `Contemplating inquiry ('${detectedSubject || query}'). Harmonizing worldly inquiry with Sanatan wisdom and fatherly solace...`
+    : `सांसारिक विषय ('${detectedSubject || query}') का संज्ञान। पावन सत्संग, निष्काम कर्म व भगवत-स्मृति का समन्वय प्रस्तुत किया जा रहा है...`;
+
+  onChunk({
+    content: '',
+    thought,
+    isThinking: true,
+    thinkingDuration: 0.6,
+    scripture: null
+  });
+
+  const systemPrompt = isEnglish
+    ? `You are the authentic, revered, fatherly voice of Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
+The seeker asked a worldly, secular, scientific, or mundane question, or stated a worldly identity/role (User query: "${query}").
+
+Deliver a warm, fatherly, and spiritually uplifting Satsang discourse (110-140 words):
+1. Address them affectionately as "${addressGreeting}".
+2. Acknowledge whatever specific subject, matter, question, or identity they brought forward with genuine warmth and fatherly affection.
+3. Gently explain that while the material world contains infinite subjects, skills, and transient roles, this sacred sanctuary (Samvaad AI) is dedicated to resolving life's daily struggles, inner mental peace, righteous duty (Dharma), and spiritual devotion.
+4. Dynamically and beautifully connect their specific inquiry to Sanatan spiritual philosophy:
+   - If they spoke of any material element, science, nature, or object: illuminate how the Supreme Divine Consciousness (Paramatma) pervades every single subtle particle and manifestation of this universe, sustaining creation from within.
+   - If they mentioned a personal role, title, fame, or worldly identity: tenderly explain that on the stage of Maya every soul is given a temporary part to play, but before Thakur Ji every soul is His equal, beloved child; real peace arises when worldly ego is surrendered.
+   - If they asked about work, studies, technology, or worldly duties: guide them to perform their honest work as selfless worship offered to God (Nishkama Karma Yoga).
+   - If they inquired about any other worldly, recreational, or mundane matter: show how worldly pleasures are transient, while the bliss of divine remembrance is eternal.
+5. Lovingly ask what personal dilemma, inner turmoil, or spiritual inquiry rests in their heart today, and encourage taking shelter of the Holy Name ('Radha-Radha').
+
+CRITICAL RULES:
+- Strictly NO numbered lists, NO bullet points, NO markdown headings (no ### or ##).
+- Speak directly from the heart as Pujya Maharaj Ji in satsang.
+- Conclude with "Jai Jai Shri Radhe!".`
+    : `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन, भजन मार्ग) की पावन, वात्सल्यमयी एवं प्रामाणिक वाणी हैं।
+साधक ने कोई सांसारिक, दुनियावी या गैर-आध्यात्मिक विषय पूछा है, अथवा अपनी कोई सांसारिक पहचान/भूमिका बताई है (साधक का प्रश्न: "${query}")।
+
+अत्यंत आत्मीय, वात्सल्यमयी और प्रेरक सत्संग-समाधान प्रस्तुत करें (११०-१४० शब्दों में):
+१. साधक को वात्सल्य से संबोधित करें: "${addressGreeting}"।
+२. साधक ने जिस भी विषय, वस्तु, कार्य या पहचान का उल्लेख किया है, उसे बड़े प्रेम और आत्मीयता से स्वीकार करें।
+३. सहजता से समझाएं कि यह पावन मंच (संवाद AI) मुख्य रूप से जीवन के दैनिक संशयों, अंतर्मन की अशांति, धर्म-मार्ग और भगवत-भजन के लिए है।
+४. साधक के पूछे गए विषय को स्वतः सनातन अध्यात्म के सार्वभौमिक सूत्र से जोड़कर समझाइए:
+   - यदि कोई भौतिक, प्राकृतिक या सांसारिक तत्व/विषय हो: तो दर्शन कराएं कि इस चराचर जगत के सूक्ष्मतम कण-कण में साक्षात् परमात्मा का ही वास है; सांसारिक दृष्टि केवल बाहरी रूप को देखती है, अध्यात्म उसके भीतर की परम चेतना का अनुभव कराता है।
+   - यदि कोई पद, प्रसिद्धि, सांसारिक भूमिका या पहचान हो: तो वात्सल्य से समझाएं कि माया के रंगमंच पर हम सब केवल एक क्षणिक पात्र निभा रहे हैं, परंतु प्रभु के सम्मुख हम सब केवल उनके प्रिय बालक हैं। वास्तविक शांति तब मिलती है जब सांसारिक अभिमान प्रभु चरणों में समर्पित हो जाए।
+   - यदि कोई कर्तव्य, विद्या, कार्य या कौशल हो: तो निष्काम कर्मयोग का मार्ग बताएं कि अपने कर्तव्य को पूरी निष्ठा से प्रभु की पूजा मानकर करें।
+   - किसी भी अन्य दुनियावी जिज्ञासा में समझाएं कि संसार के विषय-भोग क्षणभंगुर हैं, जबकि प्रभु प्रेम और नाम जप का आनंद शाश्वत है।
+५. अंत में वात्सल्य से पूछें कि अब उनके मन में जीवन या अध्यात्म से जुड़ा क्या संशय है जिसका हम समाधान करें, और 'राधा-राधा' नाम का आश्रय लेने की प्रेरणा दें।
+
+कड़े नियम:
+- कोई संख्याबद्ध बिंदु (1, 2, 3), बुलेट पॉइंट्स या हेडिंग्स (###) न बनाएं।
+- शुद्ध देवनागरी हिंदी में वात्सल्यमयी भाषा में बोलें और अंत "जय जय श्री राधे!" पर करें।`;
+
+  const streamResult = await streamDirectLpuPrompt({
+    systemPrompt,
+    userQuery: query,
+    thought,
+    startTime,
+    onChunk,
+    abortSignal,
+    maxTokens: 420
+  });
+
+  if (streamResult) return streamResult;
+
+  // Fallback if offline/network issue
+  const fallbackText = generateSecularRedirection(detectedSubject || query, seekerName, isEnglish);
+  return await streamTextDirectly(fallbackText, thought, startTime, null, onChunk, abortSignal);
+}
+
 
 async function getCachedScriptureGrounding(userMessage, precomputedEnrichment = null) {
   const key = (userMessage || '').trim().toLowerCase();
@@ -1053,7 +1450,32 @@ export async function streamGuruResponse(
   const queryLang = detectQueryLanguage(effectiveQuery);
   const isEnglish = queryLang === 'english';
 
-  // 1. Check Gating: Skip Oracle for Casual Greetings & Chitchat
+  // 1. Harmful / Violence / Weapons Protection
+  if (isHarmfulQuery(effectiveQuery) || isHarmfulQuery(userMessage)) {
+    return await streamHarmfulDeclination({
+      query: effectiveQuery,
+      seekerName,
+      isEnglish,
+      startTime,
+      onChunk,
+      abortSignal
+    });
+  }
+
+  // 1.1 Chat Memory & Dialogue Inquiry (e.g. "what question i had asked you till now?")
+  if (isChatMemoryInquiry(effectiveQuery) || isChatMemoryInquiry(userMessage)) {
+    return await streamChatMemoryResponse({
+      userMessage,
+      conversationHistory,
+      seekerName,
+      isEnglish,
+      startTime,
+      onChunk,
+      abortSignal
+    });
+  }
+
+  // 1.2 Check Gating: Skip Oracle for Casual Greetings & Chitchat
   const isGreeting = isCasualConversational(userMessage);
   if (isGreeting) {
     const greetingText = isEnglish
@@ -1067,7 +1489,8 @@ export async function streamGuruResponse(
       greetingThought,
       startTime,
       null,
-      onChunk
+      onChunk,
+      abortSignal
     );
   }
 
@@ -1080,12 +1503,12 @@ export async function streamGuruResponse(
       introThought,
       startTime,
       null,
-      onChunk
+      onChunk,
+      abortSignal
     );
   }
 
   // 2. Cognitive Intent & Semantic Domain Understanding (Sub-350ms Groq LPU)
-  // Dynamically analyzes context and intent: separates genuine spiritual/life dilemmas from worldly/secular queries without brittle keyword blacklists.
   let cognitiveIntent = null;
   try {
     cognitiveIntent = await evaluateCognitiveQueryIntentAndPerfection(effectiveQuery);
@@ -1093,19 +1516,72 @@ export async function streamGuruResponse(
     console.warn('[Cognitive Intent] Fast fallback to heuristics:', err.message);
   }
 
+  // Cognitive Safety & Chat Memory Secondary Check
+  if (cognitiveIntent?.intent_category === 'harmful_dangerous' || cognitiveIntent?.is_harmful) {
+    return await streamHarmfulDeclination({
+      query: effectiveQuery,
+      seekerName,
+      isEnglish,
+      startTime,
+      onChunk,
+      abortSignal
+    });
+  }
+
+  if (cognitiveIntent?.intent_category === 'chat_memory' || cognitiveIntent?.is_chat_memory) {
+    return await streamChatMemoryResponse({
+      userMessage,
+      conversationHistory,
+      seekerName,
+      isEnglish,
+      startTime,
+      onChunk,
+      abortSignal
+    });
+  }
+
+  // 2.2 Secular / Worldly / Scientific / Trivia / Identity Dynamic Bridge (Atom, SRK, Tech, Sports, etc.)
   const isSecularQuery = cognitiveIntent
-    ? (cognitiveIntent.is_spiritual_or_life_dilemma === false)
-    : (isOfftopicQuery(effectiveQuery) && !isDharmicOrSpiritualQuery(effectiveQuery));
+    ? (cognitiveIntent.intent_category === 'secular_worldly' || cognitiveIntent.is_secular_worldly === true || (cognitiveIntent.is_spiritual_or_life_dilemma === false && !cognitiveIntent.is_concept_meaning))
+    : ((isOfftopicQuery(effectiveQuery) || isScienceOrWorldlyQuery(effectiveQuery)) && !isDharmicOrSpiritualQuery(effectiveQuery));
 
   if (isSecularQuery) {
     const detectedSubject = cognitiveIntent?.detected_subject || extractSubject(effectiveQuery) || (isEnglish ? 'this worldly subject' : 'सांसारिक विषय');
-    const redirectText = generateSecularRedirection(detectedSubject, seekerName, isEnglish);
-    const redirectThought = isEnglish
-      ? `Understanding inquiry ('${detectedSubject}'). Guiding seeker toward Moksha, righteous duty (Karma Yoga), and Holy Name...`
-      : `सांसारिक विषय ('${detectedSubject}') का संज्ञान। साधक को परम कल्याण (मोक्ष), निष्काम कर्म एवं नाम जप का मार्गदर्शन...`;
+    return await streamDynamicSecularBridge({
+      query: effectiveQuery,
+      detectedSubject,
+      seekerName,
+      isEnglish,
+      startTime,
+      onChunk,
+      abortSignal
+    });
+  }
+
+  // 2.4 Agent Autonomous Decision: Live Web Search when information is beyond local static knowledge
+  const requiresWebSearch = shouldSearch || isLiveCalendarQuery(effectiveQuery) || cognitiveIntent?.needs_web_search === true;
+  if (requiresWebSearch) {
+    const isExternalKnowledge = cognitiveIntent?.needs_web_search && !isLiveCalendarQuery(effectiveQuery);
+    onChunk({
+      content: '',
+      thought: isEnglish
+        ? (isExternalKnowledge
+            ? `Dynamic inquiry detected beyond static scriptures (${cognitiveIntent?.detected_subject || 'Live Web Info'}). Initiating live web search...`
+            : `Dialogue memory engaged (${dialogueMemory.activeTopic || 'Live Calendar'}). Initiating real-time search for verified schedule & timings...`)
+        : (isExternalKnowledge
+            ? `स्थैतिक ज्ञानकोश से परे जिज्ञासा ('${cognitiveIntent?.detected_subject || 'ऑनलाइन जानकारी'}')। प्रामाणिक लाइव वेब खोज प्रारंभ की जा रही है...`
+            : `संवाद स्मृति सक्रिय (${dialogueMemory.activeTopic || 'रीयल-टाइम पंचांग व तिथियां'})। प्रामाणिक रीयल-टाइम पंचांग, तिथि एवं समय प्राप्त किया जा रहा है...`),
+      isThinking: true,
+      thinkingDuration: 0.8,
+      scripture: null
+    });
+    const searchRes = await searchDuckDuckGo(effectiveQuery, isEnglish);
+    const searchThought = isEnglish
+      ? `Live online lookup completed. Synthesizing verified findings with spiritual discernment...`
+      : `लाइव ऑनलाइन खोज पूर्ण। प्रामाणिक जानकारी का सत्संग-वाणी के प्रकाश में समन्वय प्रस्तुत किया जा रहा है...`;
     return await streamTextDirectly(
-      redirectText,
-      redirectThought,
+      searchRes.formattedDiscourse,
+      searchThought,
       startTime,
       null,
       onChunk,
@@ -1113,28 +1589,43 @@ export async function streamGuruResponse(
     );
   }
 
-  // 2.5 Agent Autonomous Decision: Live Search with Dialogue Memory
-  if (shouldSearch) {
+  // 2.6 Pure Spiritual Concept Meaning (One-shot direct discourse without heavy RAG vector DB delay)
+  const isDirectConcept = cognitiveIntent?.is_concept_meaning === true && cognitiveIntent?.needs_scripture_rag === false;
+  if (isDirectConcept) {
+    const detectedSubject = cognitiveIntent?.detected_subject || effectiveQuery;
+    const conceptThought = isEnglish
+      ? `Contemplating the essence of '${detectedSubject}' in Pujya Maharaj Ji's Satsang wisdom...`
+      : `साधक की जिज्ञासा ('${detectedSubject}') पर महाराज जी की प्रत्यक्ष सत्संग वाणी का अनुशीलन...`;
+
     onChunk({
       content: '',
-      thought: isEnglish
-        ? `Dialogue memory engaged (${dialogueMemory.activeTopic || 'Live Calendar'}). Initiating real-time search for verified schedule & timings...`
-        : `संवाद स्मृति सक्रिय (${dialogueMemory.activeTopic || 'रीयल-टाइम पंचांग व तिथियां'})। प्रामाणिक रीयल-टाइम पंचांग, तिथि एवं समय प्राप्त किया जा रहा है...`,
+      thought: conceptThought,
       isThinking: true,
-      thinkingDuration: 0.8,
+      thinkingDuration: 0.6,
       scripture: null
     });
-    const searchRes = await searchDuckDuckGo(effectiveQuery, isEnglish);
-    const searchThought = isEnglish
-      ? `Live calendar lookup completed. Presenting verified scriptural guidance, dates, and exact timings...`
-      : `लाइव पंचांग व सारिणी प्राप्त। प्रामाणिक शास्त्रीय विधि एवं सटीक समय प्रस्तुत किया जा रहा है...`;
-    return await streamTextDirectly(
-      searchRes.formattedDiscourse,
-      searchThought,
+
+    const directDiscourse = await streamGroqDiscourseRefiner({
+      query: effectiveQuery,
+      oracleThought: '',
+      scripture: null,
+      seekerName,
+      isEnglish,
+      thought: conceptThought,
+      conversationHistory,
       startTime,
-      null,
-      onChunk
-    );
+      onChunk,
+      abortSignal
+    });
+
+    if (directDiscourse && directDiscourse.trim()) {
+      return {
+        content: directDiscourse.trim(),
+        thought: conceptThought,
+        thinkingDuration: Math.max(0.8, Number(((Date.now() - startTime) / 1000).toFixed(1))),
+        scripture: null
+      };
+    }
   }
 
   // 3. Genuine Spiritual Query: Contemplation & Scripture Grounding
