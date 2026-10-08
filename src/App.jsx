@@ -56,16 +56,16 @@ function RespondingIndicator({ isDeep = false, userQuery = '' }) {
   const targetPhrase = useMemo(() => {
     if (studyQuery) {
       return isEnglish
-        ? '📚 If you are a student, please chant that mantra everyday: "Om Aeng Om Ma Saraswatyai Namah" (ॐ ऐं ॐ माँ सरस्वत्यै नमः)...'
-        : '📚 यदि आप एक विद्यार्थी हैं, तो नित्य इस पावन मन्त्र का जप करें: "ॐ ऐं ॐ माँ सरस्वत्यै नमः"...';
+        ? '📚 Devoted Study Guidance...'
+        : '📚 नित्य पावन अध्ययन चिंतन...';
     }
 
     if (isEnglish) {
-      return '🌸 Remembering Shri Radha... 📿 Hare Krishna Hare Krishna Krishna Krishna Hare Hare, Hare Rama Hare Rama Rama Rama Hare Hare...';
+      return 'Guru ji is responding...';
     }
 
-    return '🌸 श्री राधा नाम स्मरण... 📿 हरे कृष्ण हरे कृष्ण कृष्ण कृष्ण हरे हरे | हरे राम हरे राम राम राम हरे हरे...';
-  }, [userQuery, isEnglish, studyQuery]);
+    return 'गुरु जी चिंतन कर रहे हैं...';
+  }, [isEnglish, studyQuery]);
 
   const [displayedText, setDisplayedText] = useState('');
 
@@ -947,14 +947,13 @@ export default function App() {
       setIsResponding(true);
     }
 
-    // Automatically head screen view directly at generation process starting point (query + answer start)
+    // Smoothly keep the generating assistant response in view at the bottom without jumping to the top
     requestAnimationFrame(() => {
-      if (contentAreaRef.current) {
-        const userNodes = contentAreaRef.current.querySelectorAll('.message.user');
-        const latestUserMsg = userNodes[userNodes.length - 1];
-        if (latestUserMsg) {
-          latestUserMsg.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+      if (contentAreaRef.current && !userScrolledUpRef.current) {
+        contentAreaRef.current.scrollTo({
+          top: contentAreaRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
       }
     });
 

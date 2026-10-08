@@ -211,9 +211,9 @@ button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-
 }
 
 .composer-wrap { width: min(840px, calc(100% - 60px)); align-self: center; padding: 0 0 18px; }
-.composer { display: flex; align-items: flex-end; gap: 10px; padding: 10px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface-solid); box-shadow: 0 16px 42px rgba(55, 45, 26, 0.1); }
+.composer { display: flex; align-items: flex-end; gap: 8px; padding: 6px 8px 6px 14px; border: 1px solid var(--line); border-radius: 22px; background: var(--surface-solid); box-shadow: 0 16px 42px rgba(55, 45, 26, 0.1); }
 .composer:focus-within { border-color: rgba(231, 99, 54, 0.4); box-shadow: 0 16px 42px rgba(55, 45, 26, 0.1), 0 0 0 3px var(--accent-soft), 0 0 26px rgba(231, 99, 54, 0.14); }
-.composer textarea { flex: 1; min-height: 40px; max-height: 144px; resize: none; padding: 10px 4px 7px; border: 0; outline: 0; background: transparent; color: var(--text); line-height: 1.5; }
+.composer textarea { flex: 1; min-height: 36px; max-height: 136px; resize: none; padding: 7px 4px; border: 0; outline: 0; background: transparent; color: var(--text); line-height: 1.45; box-sizing: border-box; }
 .composer textarea::placeholder { color: var(--muted); }
 .composer-action { flex: 0 0 auto; border: 0; background: transparent; color: var(--muted); }
 .send-button { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border: 0; border-radius: 13px; background: var(--accent); color: white; cursor: pointer; transition: transform 160ms ease, opacity 160ms ease; }
@@ -1820,10 +1820,67 @@ html, body { max-width: 100%; overflow-x: hidden; }
   scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
 }
 
-/* Always-visible Oracle stream preview — 2-3 lines buffer space */
-.reasoning-stream-preview {
-  padding: 8px 14px 6px;
+/* ── Active Running Operation Showcase in Collapsed View ── */
+.reasoning-running-op-bar {
+  padding: 5px 12px 6px;
+  display: flex;
+  align-items: center;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.reasoning-running-op-bar:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.running-op-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  color: #fef08a;
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  animation: runningOpFadeIn 0.3s ease-out;
+  max-width: 100%;
+}
+
+@keyframes runningOpFadeIn {
+  from { opacity: 0; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.running-op-pulsing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+  animation: claudeDotPulse 1.2s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+.running-op-icon {
+  font-size: 0.82rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.running-op-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Always-visible Oracle stream preview — 2 lines buffer space with typing animation */
+.reasoning-stream-preview {
+  padding: 6px 12px 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   cursor: pointer;
   transition: background 0.2s ease;
 }
@@ -1833,13 +1890,13 @@ html, body { max-width: 100%; overflow-x: hidden; }
 }
 
 .reasoning-text-stream.stream-preview-always {
-  max-height: 62px;
+  max-height: 48px;
   overflow-y: hidden;
   position: relative;
   font-size: 0.77rem;
-  line-height: 1.55;
-  mask-image: linear-gradient(to bottom, black 55%, rgba(0,0,0,0.35) 82%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 55%, rgba(0,0,0,0.35) 82%, transparent 100%);
+  line-height: 1.5;
+  mask-image: linear-gradient(to bottom, black 65%, rgba(0,0,0,0.3) 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 65%, rgba(0,0,0,0.3) 85%, transparent 100%);
 }
 
 .reasoning-expand-bar {
@@ -3503,6 +3560,25 @@ html, body { max-width: 100%; overflow-x: hidden; }
 :root[data-theme='light'] .claude-timer-badge {
   background: rgba(245, 158, 11, 0.14) !important;
   color: #92400e !important;
+}
+
+:root[data-theme='light'] .reasoning-running-op-bar {
+  border-top-color: rgba(217, 119, 6, 0.12) !important;
+}
+
+:root[data-theme='light'] .running-op-badge {
+  background: rgba(245, 158, 11, 0.14) !important;
+  border-color: rgba(217, 119, 6, 0.35) !important;
+  color: #78350f !important;
+  font-weight: 600 !important;
+}
+
+:root[data-theme='light'] .reasoning-stream-preview {
+  border-top-color: rgba(217, 119, 6, 0.12) !important;
+}
+
+:root[data-theme='light'] .reasoning-text-stream.stream-preview-always {
+  color: #57534e !important;
 }
 
 :root[data-theme='light'] .thinking-done .claude-timer-badge {

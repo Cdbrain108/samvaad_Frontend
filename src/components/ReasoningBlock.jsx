@@ -64,8 +64,8 @@ export default function ReasoningBlock({
   isEnglish = false,
   needsScriptureRag = undefined,
 }) {
-  // Active and open during live thinking; auto-collapsed into neat summary badge when finished
-  const [isOpen, setIsOpen] = useState(Boolean(isThinking));
+  // Collapsed by default so it stays sleek and never overpowers the screen; seeker can tap anytime to expand
+  const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isScriptureOpen, setIsScriptureOpen] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -97,7 +97,6 @@ export default function ReasoningBlock({
   useEffect(() => {
     let interval = null;
     if (isThinking) {
-      setIsOpen(true);
       if (!startTimeRef.current) {
         startTimeRef.current = Date.now();
       }
@@ -107,7 +106,6 @@ export default function ReasoningBlock({
         }
       }, 100);
     } else {
-      setIsOpen(false);
       if (duration > 0) {
         setElapsed(duration);
       }
@@ -333,9 +331,30 @@ export default function ReasoningBlock({
         )}
       </AnimatePresence>
 
-      {/* Thinking Deliberation Body: Stepper collapses, but stream is always visible */}
+      {/* Thinking Deliberation Body: Stepper collapses, but active operation & stream preview are showcased */}
 
-      {/* ── Always-Visible Oracle Stream Preview (2-3 lines buffer space) when collapsed ── */}
+      {/* ── Active Running Operation Showcase in Collapsed View ── */}
+      {isThinking && stages && stages[Math.min(currentStageIdx, stages.length - 1)] && !isOpen && (
+        <div
+          className="reasoning-running-op-bar"
+          onClick={() => setIsOpen(true)}
+          role="button"
+          tabIndex={0}
+          title={isEnglishView ? 'Click to expand full deliberation' : 'क्लिक करके पूर्ण चिंतन देखें'}
+        >
+          <div className="running-op-badge">
+            <span className="running-op-pulsing-dot" aria-hidden="true" />
+            <span className="running-op-icon" aria-hidden="true">
+              {stages[Math.min(currentStageIdx, stages.length - 1)].icon}
+            </span>
+            <span className="running-op-label">
+              {stages[Math.min(currentStageIdx, stages.length - 1)].label}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* ── Always-Visible Oracle Stream Preview (2 lines buffer space with typing animation) when collapsed ── */}
       {thought && !isOpen && (
         <div
           className="reasoning-stream-preview"

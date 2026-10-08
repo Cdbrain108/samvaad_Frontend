@@ -17,8 +17,10 @@ export default function Composer({
   useEffect(() => {
     const textarea = textareaRef.current
     if (!textarea) return
-    textarea.style.height = 'auto'
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 144)}px`
+    textarea.style.height = '0px'
+    const scrollH = textarea.scrollHeight
+    const nextHeight = Math.min(Math.max(scrollH, 36), 136)
+    textarea.style.height = `${nextHeight}px`
   }, [value])
 
   const handleSend = (e) => {
@@ -37,7 +39,7 @@ export default function Composer({
       // Instantly clear textarea and reset its height so user feels zero send delay
       onChange('')
       if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto'
+        textareaRef.current.style.height = '36px'
       }
       onSubmit(textToSend)
       setTimeout(() => {
