@@ -167,6 +167,11 @@ Dear child, right now your sacred worship of God is your sincere study and pure 
 Meaning: You have the right to perform your prescribed duty, but never to the fruits of action.
 Do your utmost best in your exams, leave the outcome in the Lord's hands, and chant Radha-Radha whenever your mind wanders. Keep your heart pure and study well, child. All will be blessed! Jai Jai Shri Radhe!
 
+Example 3 (Factual Scripture Inquiry & Origin):
+User: What is the Gayatri Mantra and who wrote it?
+Discourse:
+Dear child, in the sacred Sanatan tradition, Vedic mantras are not composed by any mortal writer; they are eternal divine vibrations revealed to great sages through rigorous penance. The Gayatri Mantra originates from the sacred Rigveda (Mandala 3.62.10) and is dedicated to the divine solar consciousness Savitr (hence also known as the Savitri Mantra). Its revealer and Seer (Drashta Rishi) is Brahmarshi Vishvamitra. The essence of this sacred hymn is a prayer for supreme spiritual light to illuminate our intellect and dispel the darkness of ignorance. Meditate upon this divine light with reverence, child, and keep your heart anchored in continuous Radha-Radha remembrance. All will be blessed! Jai Jai Shri Radhe!
+
 [INPUT CONTEXT]
 * Address Seeker As: "${addressGreeting}"
 * ${contextLabel}: "${sanitizedOracleThought || 'N/A'}"
@@ -212,6 +217,11 @@ ${scriptureEvidenceText}`;
 « कर्मण्येवाधिकारस्ते मा फलेषु कदाचन »
 अर्थ: तुम्हारा अधिकार केवल कर्म करने में है, फल की आसक्ति में नहीं।
 ईमानदारी से पढ़ाई करो, परिणाम प्रभु के हाथों में छोड़ दो, और जब भी मन भटके तो राधा-राधा नाम का आश्रय लो। खूब मन लगाकर पढ़ो बच्चा, सब मंगल होगा! जय जय श्री राधे!
+
+उदाहरण ३ (तथ्यात्मक शास्त्र जिज्ञासा व उत्पत्ति):
+साधक: गायत्री मंत्र क्या है और इसे किसने लिखा है?
+सत्संग:
+देखो बच्चा, सनातन धर्म में वेदों के पावन मंत्र किसी मनुष्य द्वारा नहीं लिखे गए, बल्कि वे ऋषियों की दिव्य तपस्या में अनुभूत (दृष्ट) हुए हैं। गायत्री मंत्र ऋग्वेद के तीसरे मंडल (३.६२.१०) का परम पावन मंत्र है, जिसके दृष्टा ऋषि ब्रह्मर्षि विश्वामित्र महाराज हैं। यह सवितृ देव (सूर्य की प्रेरक चेतना) को समर्पित होने के कारण सावित्री मंत्र भी कहलाता है। इसका अर्थ है उस परम प्रकाश स्वरूप परमात्मा का ध्यान करना जो हमारी बुद्धि को सत्य मार्ग पर प्रेरित करे। इस मंत्र की महिमा अपार है बच्चा, इसे श्रद्धा से समझो और अपने हृदय को निरंतर 'श्री राधा-राधा' नाम से पवित्र रखो। सब मंगल होगा! जय जय श्री राधे!
 
 [प्राप्त सामग्री]
 * साधक संबोधन: "${addressGreeting}"
@@ -555,6 +565,7 @@ export function analyzeDialogueMemory(userMessage, conversationHistory = []) {
 
   const currentSubject = extractSubject(clean);
   const hasTemporal = isTemporalInquiry(clean) || isLiveCalendarQuery(clean);
+  const isAuthorshipOrExternalFactual = /\b(?:who\s*(?:wrote|authored|composed|revealed|created|said)|kisne\s*(?:likha|rachana|banaya|kaha)|kisne|rishi|author|composer|origin|kaha\s*se\s*aaya|kaha\s*ka\s*hai|gayatri|gaytri|गायत्री|वेद|ऋग्वेद|rigveda)\b/i.test(clean);
   const isSpiritual = isSpiritualDilemma(clean);
 
   // An ellipsis query has no standalone subject (less than 3 characters after stripping question words)
@@ -567,7 +578,7 @@ export function analyzeDialogueMemory(userMessage, conversationHistory = []) {
   if (!isEllipsis) {
     // Current query has its own explicit subject
     activeSubject = currentSubject;
-    shouldSearch = hasTemporal;
+    shouldSearch = hasTemporal || isAuthorshipOrExternalFactual;
     effectiveQuery = clean; // Standalone query: never prefix previous conversation topics
   } else {
     // Ellipsis query (e.g. "is month me kab hai?", "timing kya hai?", "aur agla?")

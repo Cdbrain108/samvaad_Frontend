@@ -372,6 +372,38 @@ ${matched.rulesHi}`;
 }
 
 /**
+ * 🕉️ Canonical Sanatan & Vedic Ground-Truth Facts
+ * Guarantees zero hallucination for fundamental scriptural pillars regardless of network speeds.
+ */
+const CANONICAL_SANATAN_FACTS = [
+  {
+    regex: /(?:gayatri|gaytri|गायत्री|सावित्री|savitri)/i,
+    factEn: "[Gayatri Mantra]: The Gayatri Mantra (Savitri Mantra) is a sacred hymn from Rigveda (Mandala 3, Sukta 62, Verse 10: Rigveda 3.62.10). Dedicated to the Vedic solar deity Savitr, its revealer and Seer (Drashta Rishi) is Brahmarshi Vishvamitra. It was not authored by Brahma, Shiva, or any mortal poet.",
+    factHi: "[गायत्री मन्त्र]: गायत्री मन्त्र (सावित्री मन्त्र) ऋग्वेद के तीसरे मण्डल (३.६२.१०) का पावन मन्त्र है, जो सवितृ देव (सूर्य) को समर्पित है। इसके दृष्टा ऋषि ब्रह्मर्षि विश्वामित्र महाराज हैं। यह किसी मनुष्य या अन्य देवता द्वारा लिखा नहीं गया, बल्कि विश्वामित्र जी की तपस्या में प्रकट दिव्य वैदिक ऋचा है।"
+  },
+  {
+    regex: /(?:mahamrityunjaya|maha\s*mrityunjaya|महामृत्युंजय|mrityunjaya)/i,
+    factEn: "[Mahamrityunjaya Mantra]: Sacred hymn from Rigveda (Mandala 7.59.12), revealed by Sage Vashistha / Sage Markandeya, dedicated to Lord Shiva (Tryambaka).",
+    factHi: "[महामृत्युंजय मन्त्र]: ऋग्वेद (७.५९.१२) का पावन मन्त्र है, जिसके दृष्टा महर्षि वशिष्ठ / महर्षि मार्कण्डेय हैं तथा यह भगवान शिव (त्र्यम्बक) को समर्पित है।"
+  },
+  {
+    regex: /(?:valmiki|वाल्मीकि|रामायण\s*किसने)/i,
+    factEn: "[Valmiki Ramayana]: The original Sanskrit Adi Kavya Ramayana was composed by Maharshi Valmiki.",
+    factHi: "[रामायण]: मूल संस्कृत आदिकाव्य रामायण के रचयिता महर्षि वाल्मीकि जी हैं।"
+  },
+  {
+    regex: /(?:ramcharitmanas|hanuman\s*chalisa|रामचरितमानस|हनुमान\s*चालीसा)/i,
+    factEn: "[Ramcharitmanas & Hanuman Chalisa]: Composed in Awadhi by Goswami Tulsidas Ji.",
+    factHi: "[रामचरितमानस व हनुमान चालीसा]: अवधी भाषा में गोस्वामी तुलसीदास जी द्वारा रचित हैं।"
+  },
+  {
+    regex: /(?:mahabharata|ved\s*vyas|vyasa|18\s*puran|अठारह\s*पुराण|महाभारत\s*किसने)/i,
+    factEn: "[Mahabharata & 18 Puranas]: Composed and compiled by Maharshi Krishna Dvaipayana Ved Vyasa.",
+    factHi: "[महाभारत व १८ पुराण]: महर्षि कृष्ण द्वैपायन वेदव्यास जी द्वारा रचित व संकलित हैं।"
+  }
+];
+
+/**
  * Queries DuckDuckGo and Wikipedia APIs for live real-time web facts
  */
 async function fetchMultiSourceWebSnippets(query, searchSubject = '') {
@@ -464,12 +496,24 @@ async function fetchMultiSourceWebSnippets(query, searchSubject = '') {
       }
     } catch {}
   }
-  if (summaries.length > 0) {
-    // Authoritative page extracts take top priority over noisy snippet fragments
-    return [...summaries, ...searchResults.slice(0, 1)];
+
+  let finalSnippets = summaries.length > 0
+    ? [...summaries, ...searchResults.slice(0, 1)]
+    : searchResults;
+
+  // 4. Grounding Safeguard: Always inject canonical truth if query matches fundamental Vedic pillars
+  const isDevanagariQuery = /[\u0900-\u097F]/.test(clean);
+  for (const item of CANONICAL_SANATAN_FACTS) {
+    if (item.regex.test(clean) || (searchSubject && item.regex.test(searchSubject))) {
+      const fact = isDevanagariQuery ? item.factHi : item.factEn;
+      if (!finalSnippets.some(s => s.toLowerCase().includes('vishvamitra') || s.toLowerCase().includes('विश्वामित्र'))) {
+        finalSnippets.unshift(fact);
+      }
+      break;
+    }
   }
 
-  return searchResults;
+  return finalSnippets;
 }
 
 /**
