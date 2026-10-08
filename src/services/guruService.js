@@ -1092,11 +1092,10 @@ Deliver a warm, fatherly, and spiritually uplifting Satsang discourse (110-140 w
 1. Address them affectionately as "${addressGreeting}".
 2. Acknowledge whatever specific subject, matter, question, or identity they brought forward with genuine warmth and fatherly affection.
 3. Gently explain that while the material world contains infinite subjects, skills, and transient roles, this sacred sanctuary (Samvaad AI) is dedicated to resolving life's daily struggles, inner mental peace, righteous duty (Dharma), and spiritual devotion.
-4. Dynamically and beautifully connect their specific inquiry to Sanatan spiritual philosophy:
-   - If they spoke of any material element, science, nature, or object: illuminate how the Supreme Divine Consciousness (Paramatma) pervades every single subtle particle and manifestation of this universe, sustaining creation from within.
-   - If they mentioned a personal role, title, fame, or worldly identity: tenderly explain that on the stage of Maya every soul is given a temporary part to play, but before Thakur Ji every soul is His equal, beloved child; real peace arises when worldly ego is surrendered.
-   - If they asked about work, studies, technology, or worldly duties: guide them to perform their honest work as selfless worship offered to God (Nishkama Karma Yoga).
-   - If they inquired about any other worldly, recreational, or mundane matter: show how worldly pleasures are transient, while the bliss of divine remembrance is eternal.
+4. Dynamically discover and illuminate the spiritual essence of whatever topic, entity, question, or identity they brought forward:
+   - Lovingly reveal how within that very topic, object, role, or phenomenon, the supreme presence of Paramatma or the transient play of Maya is unfolding.
+   - Transform their secular curiosity into spiritual contemplation without giving a canned or generic answer.
+   - Explain how all worldly manifestations pass away, while inner peace, righteous duty (Karma Yoga), and divine remembrance remain eternal.
 5. Lovingly ask what personal dilemma, inner turmoil, or spiritual inquiry rests in their heart today, and encourage taking shelter of the Holy Name ('Radha-Radha').
 
 CRITICAL RULES:
@@ -1110,11 +1109,10 @@ CRITICAL RULES:
 १. साधक को वात्सल्य से संबोधित करें: "${addressGreeting}"।
 २. साधक ने जिस भी विषय, वस्तु, कार्य या पहचान का उल्लेख किया है, उसे बड़े प्रेम और आत्मीयता से स्वीकार करें।
 ३. सहजता से समझाएं कि यह पावन मंच (संवाद AI) मुख्य रूप से जीवन के दैनिक संशयों, अंतर्मन की अशांति, धर्म-मार्ग और भगवत-भजन के लिए है।
-४. साधक के पूछे गए विषय को स्वतः सनातन अध्यात्म के सार्वभौमिक सूत्र से जोड़कर समझाइए:
-   - यदि कोई भौतिक, प्राकृतिक या सांसारिक तत्व/विषय हो: तो दर्शन कराएं कि इस चराचर जगत के सूक्ष्मतम कण-कण में साक्षात् परमात्मा का ही वास है; सांसारिक दृष्टि केवल बाहरी रूप को देखती है, अध्यात्म उसके भीतर की परम चेतना का अनुभव कराता है।
-   - यदि कोई पद, प्रसिद्धि, सांसारिक भूमिका या पहचान हो: तो वात्सल्य से समझाएं कि माया के रंगमंच पर हम सब केवल एक क्षणिक पात्र निभा रहे हैं, परंतु प्रभु के सम्मुख हम सब केवल उनके प्रिय बालक हैं। वास्तविक शांति तब मिलती है जब सांसारिक अभिमान प्रभु चरणों में समर्पित हो जाए।
-   - यदि कोई कर्तव्य, विद्या, कार्य या कौशल हो: तो निष्काम कर्मयोग का मार्ग बताएं कि अपने कर्तव्य को पूरी निष्ठा से प्रभु की पूजा मानकर करें।
-   - किसी भी अन्य दुनियावी जिज्ञासा में समझाएं कि संसार के विषय-भोग क्षणभंगुर हैं, जबकि प्रभु प्रेम और नाम जप का आनंद शाश्वत है।
+४. साधक ने जो भी सांसारिक विषय, वस्तु, कार्य, पहचान या प्रसंग पूछा है, उसका सहज ही आध्यात्मिक मर्म उजागर करें:
+   - अत्यंत आत्मीयता से समझाएं कि उस पूछे गए विषय या प्रपंच के भीतर भी साक्षात् परमात्मा की ही सत्ता और माया की लीला कार्य कर रही है।
+   - उनकी सांसारिक जिज्ञासा को बिना किसी पूर्व-निर्धारित या बंधी-बंधाई प्रतिक्रिया के, जीवंत सत्संग-दृष्टि में परिवर्तित करें।
+   - समझाएं कि संसार के समस्त भौतिक रूप और भूमिकाएं क्षणभंगुर हैं, जबकि निष्काम कर्म, अंतर्मन की शांति और भगवन्नाम का आश्रय ही परम शाश्वत सत्य है।
 ५. अंत में वात्सल्य से पूछें कि अब उनके मन में जीवन या अध्यात्म से जुड़ा क्या संशय है जिसका हम समाधान करें, और 'राधा-राधा' नाम का आश्रय लेने की प्रेरणा दें।
 
 कड़े नियम:
@@ -1578,11 +1576,61 @@ export async function streamGuruResponse(
     const searchThought = isEnglish
       ? `Live online lookup completed. Synthesizing verified findings with spiritual discernment...`
       : `लाइव ऑनलाइन खोज पूर्ण। प्रामाणिक जानकारी का सत्संग-वाणी के प्रकाश में समन्वय प्रस्तुत किया जा रहा है...`;
+
+    // 🌟 If it is a structured calendar (Ekadashi, Grahan, Festival dates, Temple darshan), stream the structured schedule directly
+    if (searchRes.isStructuredSchedule) {
+      return await streamTextDirectly(
+        searchRes.formattedDiscourse,
+        searchThought,
+        startTime,
+        null,
+        onChunk,
+        abortSignal
+      );
+    }
+
+    // 🌟 For factual spiritual/dharmic inquiries (e.g. Gayatri Mantra, unindexed text, temple history):
+    // Refine verified search snippets into Maharaj Ji's authentic, warm fatherly Satsang discourse!
+    const searchContext = searchRes.snippets.length > 0
+      ? searchRes.snippets.join('\n')
+      : searchRes.formattedDiscourse;
+
+    const webScriptureCandidate = {
+      reference: `🌐 ${cognitiveIntent?.detected_subject || 'लाइव वेब शोध'} (Live Web)`,
+      original_text: (searchRes.snippets[0] || '').slice(0, 240),
+      hindi_meaning: searchContext.slice(0, 360),
+      english_translation: searchContext.slice(0, 360),
+      score: 0.95,
+      source: 'live_web_search'
+    };
+
+    const refinedDiscourse = await streamGroqDiscourseRefiner({
+      query: effectiveQuery,
+      oracleThought: `[Verified Live Web Search Findings for '${effectiveQuery}']:\n${searchContext}\n\nDeliver a complete, warm, fatherly Satsang response in Pujya Maharaj Ji's authentic voice, explaining the essence, origin, and spiritual significance clearly and compassionately.`,
+      scripture: webScriptureCandidate,
+      seekerName,
+      isEnglish,
+      thought: searchThought,
+      conversationHistory,
+      startTime,
+      onChunk,
+      abortSignal
+    });
+
+    if (refinedDiscourse && refinedDiscourse.trim()) {
+      return {
+        content: refinedDiscourse.trim(),
+        thought: searchThought,
+        thinkingDuration: Math.max(1.0, Number(((Date.now() - startTime) / 1000).toFixed(1))),
+        scripture: webScriptureCandidate
+      };
+    }
+
     return await streamTextDirectly(
       searchRes.formattedDiscourse,
       searchThought,
       startTime,
-      null,
+      webScriptureCandidate,
       onChunk,
       abortSignal
     );
@@ -1651,7 +1699,8 @@ export async function streamGuruResponse(
   // If seeker asked for a verse/shloka not present in local 29-scripture index, search live web
   const seekerWantsVerse = cognitiveIntent?.needs_scripture_rag ||
     cognitiveIntent?.is_scriptural_proof_request ||
-    cognitiveIntent?.intent_category === 'scriptural_proof_request';
+    cognitiveIntent?.intent_category === 'scriptural_proof_request' ||
+    /(?:verse|verses|shlok|shloka|shlokas|doha|chaupai|stotram|mantra|सूक्त|श्लोक|दोहा|चौपाई|अर्थ|मंत्र|proof|प्रमाण|gita|ramayan|ashtavakra|yoga\s*vasistha|upanishad|gayatri|गायत्री|kisne|likha|who\s*wrote|ved|veda|rigveda)/i.test(effectiveQuery);
 
   if (!scripture && seekerWantsVerse) {
     currentThought += isEnglish

@@ -483,6 +483,7 @@ ${snippetsBlock || `आपकी जिज्ञासा (**${clean}**) के 
     query: clean,
     hasLiveResults: searchResults.length > 0,
     snippets: searchResults,
+    isStructuredSchedule: Boolean(isFestival || isEkadashi || isGrahan || isTemple || isPanchang),
     formattedDiscourse
   };
 }
