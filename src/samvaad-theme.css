@@ -5901,7 +5901,7 @@ select:focus-visible,
     min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
-    padding: 8px 8px 10px !important;
+    padding: 58px 8px max(10px, env(safe-area-inset-bottom, 10px)) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
@@ -5911,21 +5911,21 @@ select:focus-visible,
   .chat-overview-section .spiritual-section-heading,
   .about-us-section .spiritual-section-heading,
   .about-us-section .about-heading-wrap {
-    margin: 0 0 6px !important;
+    margin: 0 0 4px !important;
     padding: 0 !important;
     text-align: center !important;
     flex-shrink: 0 !important;
   }
   .chat-overview-section .spiritual-section-heading span,
   .about-us-section .spiritual-section-heading span {
-    font-size: 10.5px !important;
+    font-size: 10px !important;
     letter-spacing: 0.5px !important;
     margin-bottom: 2px !important;
     display: inline-block !important;
   }
   .chat-overview-section .spiritual-section-heading h2,
   .about-us-section .spiritual-section-heading h2 {
-    font-size: 14px !important;
+    font-size: 13px !important;
     line-height: 1.25 !important;
     margin: 0 !important;
     font-weight: 700 !important;
@@ -5946,10 +5946,13 @@ select:focus-visible,
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
   }
   .chat-demo-window {
     width: 100% !important;
     height: 100% !important;
+    max-height: 100% !important;
     min-height: 0 !important;
     flex: 1 1 0% !important;
     display: flex !important;
@@ -5957,19 +5960,21 @@ select:focus-visible,
     border-radius: 18px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
     overflow: hidden !important;
+    box-sizing: border-box !important;
   }
   .chat-demo-topbar {
-    padding: 8px 10px !important;
+    padding: 7px 10px !important;
     flex-shrink: 0 !important;
+    flex-grow: 0 !important;
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
   }
   .chat-demo-avatar {
-    width: 30px !important;
-    height: 30px !important;
-    min-width: 30px !important;
-    font-size: 12.5px !important;
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    font-size: 12px !important;
     border-radius: 50% !important;
     display: flex !important;
     align-items: center !important;
@@ -5983,14 +5988,14 @@ select:focus-visible,
     overflow: hidden !important;
   }
   .chat-demo-meta strong {
-    font-size: 12.5px !important;
+    font-size: 12px !important;
     line-height: 1.2 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
   }
   .chat-demo-sub {
-    font-size: 10px !important;
+    font-size: 9.5px !important;
     line-height: 1.2 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -6001,23 +6006,24 @@ select:focus-visible,
   }
   .chat-demo-badge {
     margin-left: auto !important;
-    font-size: 9.5px !important;
-    padding: 2.5px 7px !important;
+    font-size: 9px !important;
+    padding: 2px 6px !important;
     border-radius: 999px !important;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
   }
   .chat-demo-body {
     flex: 1 1 0% !important;
-    height: auto !important;
-    max-height: none !important;
+    height: 0 !important;
+    max-height: 100% !important;
     min-height: 0 !important;
-    padding: 10px 10px !important;
+    padding: 8px 10px !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
     gap: 8px !important;
     display: flex !important;
     flex-direction: column !important;
+    box-sizing: border-box !important;
   }
   .chat-demo-msg {
     display: flex !important;
@@ -10015,9 +10021,11 @@ body:not(.night) .rich-text strong {
   }
 }
 
-/* Dynamic Collapse for Project Overview Section Heading */
-.chat-overview-section.heading-hidden {
-  justify-content: center !important;
+/* Dynamic Collapse for Project Overview Section Heading (Desktop) */
+@media (min-width: 769px) {
+  .chat-overview-section.heading-hidden {
+    justify-content: center !important;
+  }
 }
 
 .overview-heading-wrap {
@@ -12671,16 +12679,19 @@ body:not(.night) .rich-text strong {
   .spiritual-page .phase#education,
   .about-us-section,
   .spiritual-page .phase#overview,
-  .chat-overview-section {
+  .chat-overview-section,
+  .about-us-section.heading-hidden,
+  .chat-overview-section.heading-hidden {
     height: 100svh !important;
     height: 100dvh !important;
     min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
-    padding: 8px 8px max(12px, env(safe-area-inset-bottom)) !important;
+    padding: 58px 8px max(10px, env(safe-area-inset-bottom, 10px)) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
+    align-items: center !important;
     box-sizing: border-box !important;
   }
 
@@ -12702,22 +12713,99 @@ body:not(.night) .rich-text strong {
     padding: 0 !important;
   }
 
+  /* Chat demo container strictly locked inside available flex height */
+  .chat-demo-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    flex: 1 1 0% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .chat-demo-window {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    min-height: 0 !important;
+    flex: 1 1 0% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    border-radius: 18px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .chat-demo-topbar {
+    padding: 7px 10px !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  /* CRITICAL: Body has height: 0 to enforce strict flex-basis 0 in WebKit/Blink.
+     Text ALWAYS scrolls internally and NEVER pushes controls downward! */
+  .chat-demo-body {
+    flex: 1 1 0% !important;
+    height: 0 !important;
+    max-height: 100% !important;
+    min-height: 0 !important;
+    padding: 8px 10px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+  }
+
+  .chat-demo-controls {
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    padding: 5px 8px 7px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+    box-sizing: border-box !important;
+  }
+
+  .chat-demo-controls-label {
+    font-size: 9.5px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    margin-bottom: 1px !important;
+    line-height: 1.2 !important;
+  }
+
   /* About Us 3 Question Selector Pills: Equal 3-Column Grid */
   .about-demo-pills {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
-    gap: 6px !important;
+    gap: 5px !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
 
   .about-demo-pills .chat-demo-pill {
     width: 100% !important;
-    padding: 6px 4px !important;
+    height: 29px !important;
+    min-height: 29px !important;
+    padding: 0 4px !important;
     font-size: 11px !important;
     font-weight: 600 !important;
     text-align: center !important;
     justify-content: center !important;
+    display: flex !important;
+    align-items: center !important;
     box-sizing: border-box !important;
   }
 
@@ -12725,9 +12813,9 @@ body:not(.night) .rich-text strong {
   .about-action-cluster {
     display: flex !important;
     flex-direction: column !important;
-    gap: 6px !important;
+    gap: 5px !important;
     width: 100% !important;
-    margin-top: 4px !important;
+    margin-top: 2px !important;
     padding-top: 4px !important;
     border-top: 1px solid rgba(254, 200, 75, 0.16) !important;
     box-sizing: border-box !important;
@@ -12737,7 +12825,7 @@ body:not(.night) .rich-text strong {
   .about-connect-row {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
-    gap: 7px !important;
+    gap: 6px !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
@@ -12747,10 +12835,10 @@ body:not(.night) .rich-text strong {
     align-items: center !important;
     justify-content: center !important;
     gap: 6px !important;
-    height: 33px !important;
-    min-height: 33px !important;
-    padding: 0 10px !important;
-    font-size: 11.5px !important;
+    height: 31px !important;
+    min-height: 31px !important;
+    padding: 0 8px !important;
+    font-size: 11px !important;
     font-weight: 600 !important;
     border-radius: 999px !important;
     text-decoration: none !important;
@@ -12797,10 +12885,10 @@ body:not(.night) .rich-text strong {
 
   .about-primary-cta {
     width: 100% !important;
-    min-height: 38px !important;
-    height: 38px !important;
-    padding: 0 14px !important;
-    font-size: 12.5px !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
     font-weight: 700 !important;
     border-radius: 999px !important;
     margin-top: 0 !important;
@@ -12813,6 +12901,9 @@ body:not(.night) .rich-text strong {
     background: linear-gradient(135deg, #E68A00 0%, #B4560A 100%) !important;
     color: #FFFFFF !important;
     box-shadow: 0 4px 14px rgba(217, 119, 6, 0.4) !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
 }
 
