@@ -100,12 +100,16 @@ export function intelligentSegmentResponse(text) {
       balanced.push(trimmed);
       continue;
     }
-    const sentences = trimmed.match(/[^.!?।]+[.!?।]+(?:["”']|\s+|$)/g) || [trimmed];
+    // Safe sentence splitter:
+    // Split only at punctuation । or ! or ? or . (where . is not preceded by digit/Devanagari digit)
+    const splitRegex = /(?<=[।!?]|(?<![\d\u0966-\u096F])\.)(?=[\"”']?\s+|$)/;
+    const sentences = trimmed.split(splitRegex).map(s => s.trim()).filter(Boolean);
+
     if (sentences.length >= 4 && trimmed.length > 220) {
       let chunk = '';
       let sCount = 0;
       for (const s of sentences) {
-        chunk += s;
+        chunk += (chunk ? ' ' : '') + s;
         sCount++;
         if (sCount >= 2 && chunk.length > 120) {
           balanced.push(chunk.trim());
