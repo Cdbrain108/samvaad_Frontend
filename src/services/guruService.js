@@ -63,8 +63,7 @@ const GROQ_CHUNKS = [
   ['g' + 'sk_uFh6w6lMLqrqc', 'OSFCY63WGdyb3FYwzaFXUH9aQpUdOUMIyYIrpHq'],
   ['g' + 'sk_7G1aGGymxAo3T', 'PyxmrTHWGdyb3FYhwz47JMh6DacysIthw57G0Rx'],
   ['g' + 'sk_OKZBwCIaqdq83', '0WO8Q9pWGdyb3FYPQ6rFCPwBAej8mZTAYBMzqfC'],
-  ['g' + 'sk_s5kh2jnTzIOCS', 'k7THDxjWGdyb3FYjjbmrek3aRVUBHMdXqJjhjJq'],
-  ['g' + 'sk_d7LQL8u4mrbKm', 'MEnYbLgWGdyb3FYYkEaVrqxptiCTLoOVkdZl0pD']
+  ['g' + 'sk_s5kh2jnTzIOCS', 'k7THDxjWGdyb3FYjjbmrek3aRVUBHMdXqJjhjJq']
 ];
 
 const BUILTIN_GROQ_KEYS = GROQ_CHUNKS.map(([prefix, suffix]) => `${prefix}${suffix}`);
@@ -708,55 +707,58 @@ Analyze the user inquiry and return valid JSON:
 
 Respond ONLY with valid JSON. No markdown backticks, no conversational text.`;
 
-  const apiKey = getNextGroqKey();
-  try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'qwen/qwen3.8-27b',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: clean }
-        ],
-        temperature: 0.1,
-        max_tokens: 260,
-        response_format: { type: 'json_object' }
-      }),
-      signal: AbortSignal.timeout(3500)
-    });
+  const attempts = Math.min(BUILTIN_GROQ_KEYS.length, 3);
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const apiKey = getNextGroqKey();
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'qwen/qwen3.8-27b',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: clean }
+          ],
+          temperature: 0.1,
+          max_tokens: 260,
+          response_format: { type: 'json_object' }
+        }),
+        signal: AbortSignal.timeout(3500)
+      });
 
-    if (res.ok) {
-      const data = await res.json();
-      const content = data.choices?.[0]?.message?.content;
-      if (content) {
-        let cleanJson = content.trim();
-        if (cleanJson.includes('{') && cleanJson.includes('}')) {
-          cleanJson = cleanJson.slice(cleanJson.indexOf('{'), cleanJson.lastIndexOf('}') + 1);
-        }
-        const parsed = JSON.parse(cleanJson);
-        if (parsed.primary_tool || parsed.intent_category || parsed.needs_web_search !== undefined) {
-          const tool = parsed.primary_tool || parsed.intent_category || 'oracle_satsang';
-          parsed.primary_tool = tool;
-          parsed.intent_category = tool;
-          parsed.needs_web_search = Boolean(parsed.needs_web_search || tool === 'live_web_search');
-          parsed.needs_scripture_rag = Boolean(parsed.needs_scripture_rag || tool === 'rag_scripture');
-          parsed.is_factual_inquiry = Boolean(parsed.is_factual_inquiry);
-          parsed.is_secular_worldly = (tool === 'secular_bridge');
-          parsed.is_harmful = (tool === 'harmful_dangerous');
-          parsed.is_greeting = (tool === 'direct_chat' && !parsed.is_chat_memory);
-          parsed.is_spiritual_or_dharmic = (tool === 'oracle_satsang' || tool === 'rag_scripture' || tool === 'live_web_search');
-          parsed.detected_subject = parsed.detected_subject || clean;
-          parsed.search_query = parsed.search_query || clean;
-          return parsed;
+      if (res.ok) {
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content) {
+          let cleanJson = content.trim();
+          if (cleanJson.includes('{') && cleanJson.includes('}')) {
+            cleanJson = cleanJson.slice(cleanJson.indexOf('{'), cleanJson.lastIndexOf('}') + 1);
+          }
+          const parsed = JSON.parse(cleanJson);
+          if (parsed.primary_tool || parsed.intent_category || parsed.needs_web_search !== undefined) {
+            const tool = parsed.primary_tool || parsed.intent_category || 'oracle_satsang';
+            parsed.primary_tool = tool;
+            parsed.intent_category = tool;
+            parsed.needs_web_search = Boolean(parsed.needs_web_search || tool === 'live_web_search');
+            parsed.needs_scripture_rag = Boolean(parsed.needs_scripture_rag || tool === 'rag_scripture');
+            parsed.is_factual_inquiry = Boolean(parsed.is_factual_inquiry);
+            parsed.is_secular_worldly = (tool === 'secular_bridge');
+            parsed.is_harmful = (tool === 'harmful_dangerous');
+            parsed.is_greeting = (tool === 'direct_chat' && !parsed.is_chat_memory);
+            parsed.is_spiritual_or_dharmic = (tool === 'oracle_satsang' || tool === 'rag_scripture' || tool === 'live_web_search');
+            parsed.detected_subject = parsed.detected_subject || clean;
+            parsed.search_query = parsed.search_query || clean;
+            return parsed;
+          }
         }
       }
+    } catch (err) {
+      console.warn(`[Cognitive Intent] Attempt ${attempt + 1} fallback:`, err.message);
     }
-  } catch (err) {
-    console.warn('[Cognitive Intent] Fast fallback to heuristics:', err.message);
   }
 
   // Graceful offline/network fallback: heuristic estimation
@@ -767,6 +769,25 @@ Respond ONLY with valid JSON. No markdown backticks, no conversational text.`;
   const worldlyScience = isScienceOrWorldlyQuery(clean);
   const spiritual = isDharmicOrSpiritualQuery(clean);
   const isConceptCheck = /(?:meaning\s*of|what\s*is|अर्थ\s*क्या|क्या\s*अर्थ|का\s*मतलब|मतलब\s*क्या|किसे\s*कहते)/i.test(clean);
+  const isFactualAuthorCheck = /\b(?:who\s*(?:wrote|authored|composed|revealed|created|said)|kisne\s*(?:likha|rachana|banaya|kaha)|kisne|rishi|author|composer|origin|kaha\s*se\s*aaya|kaha\s*ka\s*hai|mandal|sukta|ved|veda|rigveda|gayatri|atharvaveda|samaveda|yajurveda|shiva\s*purana)\b/i.test(clean);
+
+  if (isFactualAuthorCheck) {
+    return {
+      intent_category: 'live_web_search',
+      primary_tool: 'live_web_search',
+      needs_web_search: true,
+      needs_scripture_rag: false,
+      is_factual_inquiry: true,
+      is_harmful: false,
+      is_chat_memory: false,
+      is_greeting: false,
+      is_concept_meaning: false,
+      is_spiritual_or_life_dilemma: false,
+      is_spiritual_or_dharmic: true,
+      detected_subject: clean,
+      search_query: clean
+    };
+  }
 
   if (isHarmfulCheck) {
     return {

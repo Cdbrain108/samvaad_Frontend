@@ -395,10 +395,18 @@ async function fetchMultiSourceWebSnippets(query, searchSubject = '') {
     }
   } catch {}
 
+  const cleanedEntity = queryToSearch
+    .replace(/\b(?:authorship|author|composer|origin|written\s+by|who\s+wrote|who\s+composed|who\s+revealed|who\s+is|what\s+is|meaning\s+of|kya\s+hai|ise\s+kisne\s+likha\s+hai|kisne\s+likha\s+hai|kisne\s+likha|kisne\s+racha|kaha\s+se\s+aaya|kaha\s+ka\s+hai|kya\s+arth\s+hai|batao|batayein|tell\s+me\s+about|about|and)\b/gi, ' ')
+    .replace(/[^\w\s\u0900-\u097F]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/\bgaytri\b/gi, 'Gayatri')
+    .trim();
+  const wikiTarget = cleanedEntity.length >= 3 ? cleanedEntity : queryToSearch;
+
   // 2. Wikipedia Search API (Native CORS enabled by Wikimedia) + Page Summaries
   const titlesToFetch = [];
   try {
-    const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(queryToSearch)}&format=json&origin=*`;
+    const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(wikiTarget)}&format=json&origin=*`;
     const wRes = await fetch(wikiUrl, {
       headers: { 'Api-User-Agent': 'SamvaadAI/2.0 (contact@samvaad.ai)' },
       signal: AbortSignal.timeout(3000)
@@ -417,9 +425,9 @@ async function fetchMultiSourceWebSnippets(query, searchSubject = '') {
   } catch {}
 
   // 2b. Hindi Wikipedia if Devanagari present or Hindi query
-  if (/[\u0900-\u097F]/.test(clean) || /[\u0900-\u097F]/.test(queryToSearch)) {
+  if (/[\u0900-\u097F]/.test(clean) || /[\u0900-\u097F]/.test(wikiTarget)) {
     try {
-      const hiWikiUrl = `https://hi.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(clean)}&format=json&origin=*`;
+      const hiWikiUrl = `https://hi.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(wikiTarget)}&format=json&origin=*`;
       const hiRes = await fetch(hiWikiUrl, {
         headers: { 'Api-User-Agent': 'SamvaadAI/2.0 (contact@samvaad.ai)' },
         signal: AbortSignal.timeout(3000)
@@ -439,9 +447,10 @@ async function fetchMultiSourceWebSnippets(query, searchSubject = '') {
   }
 
   // 3. Fetch deep page summaries for top Wikipedia hits
-  for (const { title, lang } of titlesToFetch.slice(0, 2)) {
+  const summaries = [];
+  for (const { title, lang } of titlesToFetch.slice(0, 3)) {
     try {
-      const sumUrl = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+      const sumUrl = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/\s+/g, '_'))}`;
       const sRes = await fetch(sumUrl, {
         headers: { 'Api-User-Agent': 'SamvaadAI/2.0 (contact@samvaad.ai)' },
         signal: AbortSignal.timeout(2500)
@@ -449,10 +458,13 @@ async function fetchMultiSourceWebSnippets(query, searchSubject = '') {
       if (sRes.ok) {
         const sData = await sRes.json();
         if (sData.extract && sData.extract.length > 30) {
-          searchResults.unshift(`${title}: ${sData.extract}`);
+          summaries.push(`[${title}]: ${sData.extract}`);
         }
       }
     } catch {}
+  }
+  if (summaries.length > 0) {
+    searchResults.unshift(...summaries);
   }
 
   return searchResults;
