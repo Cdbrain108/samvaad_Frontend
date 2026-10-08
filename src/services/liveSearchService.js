@@ -374,13 +374,14 @@ ${matched.rulesHi}`;
 /**
  * Queries DuckDuckGo and Wikipedia APIs for live real-time web facts
  */
-async function fetchMultiSourceWebSnippets(query) {
+async function fetchMultiSourceWebSnippets(query, searchSubject = '') {
   const clean = (query || '').trim();
   const searchResults = [];
+  const queryToSearch = (searchSubject && searchSubject.trim().length >= 3) ? searchSubject.trim() : clean;
 
   // 1. DuckDuckGo Instant Answer API
   try {
-    const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(clean + ' 2026')}&format=json&no_html=1&skip_disambig=1`;
+    const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(queryToSearch + ' 2026')}&format=json&no_html=1&skip_disambig=1`;
     const res = await fetch(ddgUrl, { signal: AbortSignal.timeout(3000) });
     if (res.ok) {
       const data = await res.json();
@@ -394,14 +395,19 @@ async function fetchMultiSourceWebSnippets(query) {
     }
   } catch {}
 
-  // 2. Wikipedia Search API (Native CORS enabled by Wikimedia)
+  // 2. Wikipedia Search API (Native CORS enabled by Wikimedia) + Page Summaries
+  const titlesToFetch = [];
   try {
-    const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(clean)}&format=json&origin=*`;
-    const wRes = await fetch(wikiUrl, { signal: AbortSignal.timeout(3000) });
+    const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(queryToSearch)}&format=json&origin=*`;
+    const wRes = await fetch(wikiUrl, {
+      headers: { 'Api-User-Agent': 'SamvaadAI/2.0 (contact@samvaad.ai)' },
+      signal: AbortSignal.timeout(3000)
+    });
     if (wRes.ok) {
       const data = await wRes.json();
       const items = data?.query?.search || [];
       for (const it of items.slice(0, 2)) {
+        if (it.title) titlesToFetch.push({ title: it.title, lang: 'en' });
         if (it.snippet) {
           const cleaned = it.snippet.replace(/<[^>]+>/g, '').trim();
           if (cleaned.length > 20) searchResults.push(`${it.title}: ${cleaned}`);
@@ -410,13 +416,52 @@ async function fetchMultiSourceWebSnippets(query) {
     }
   } catch {}
 
+  // 2b. Hindi Wikipedia if Devanagari present or Hindi query
+  if (/[\u0900-\u097F]/.test(clean) || /[\u0900-\u097F]/.test(queryToSearch)) {
+    try {
+      const hiWikiUrl = `https://hi.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(clean)}&format=json&origin=*`;
+      const hiRes = await fetch(hiWikiUrl, {
+        headers: { 'Api-User-Agent': 'SamvaadAI/2.0 (contact@samvaad.ai)' },
+        signal: AbortSignal.timeout(3000)
+      });
+      if (hiRes.ok) {
+        const data = await hiRes.json();
+        const items = data?.query?.search || [];
+        for (const it of items.slice(0, 2)) {
+          if (it.title) titlesToFetch.push({ title: it.title, lang: 'hi' });
+          if (it.snippet) {
+            const cleaned = it.snippet.replace(/<[^>]+>/g, '').trim();
+            if (cleaned.length > 20) searchResults.push(`${it.title}: ${cleaned}`);
+          }
+        }
+      }
+    } catch {}
+  }
+
+  // 3. Fetch deep page summaries for top Wikipedia hits
+  for (const { title, lang } of titlesToFetch.slice(0, 2)) {
+    try {
+      const sumUrl = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+      const sRes = await fetch(sumUrl, {
+        headers: { 'Api-User-Agent': 'SamvaadAI/2.0 (contact@samvaad.ai)' },
+        signal: AbortSignal.timeout(2500)
+      });
+      if (sRes.ok) {
+        const sData = await sRes.json();
+        if (sData.extract && sData.extract.length > 30) {
+          searchResults.unshift(`${title}: ${sData.extract}`);
+        }
+      }
+    } catch {}
+  }
+
   return searchResults;
 }
 
 /**
  * Autonomous Live Search Engine with Dialogue Memory & Multi-Source Verification
  */
-export async function searchDuckDuckGo(query, isEnglishForce = null) {
+export async function searchDuckDuckGo(query, isEnglishForce = null, searchSubject = '') {
   const clean = (query || '').trim();
 
   // Determine language preference
@@ -428,7 +473,7 @@ export async function searchDuckDuckGo(query, isEnglishForce = null) {
   }
 
   // 1. Fetch live multi-source web results
-  const searchResults = await fetchMultiSourceWebSnippets(clean);
+  const searchResults = await fetchMultiSourceWebSnippets(clean, searchSubject);
 
   // 2. Identify domain with strict word-boundary matching (prevents 'navratri' matching 'vrat' in ekadashi!)
   const isFestival = /\b(?:navratri|navaratri|navratre|दुर्गा\s*पूजा|diwali|deepavali|दीपावली|दिवाली|dhanteras|धनतेरस|holi|होली|janmashtami|जन्माष्टमी|radhashtami|राधाष्टमी|shivratri|शिवरात्रि|ram\s*navami|रामनवमी|dussehra|दशहरा|raksha\s*bandhan|रक्षाबंधन|guru\s*purnima|chhath|छठ|karwa\s*chauth|करवा\s*चौथ)\b/i.test(clean);

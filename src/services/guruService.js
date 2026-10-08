@@ -662,41 +662,51 @@ export async function evaluateCognitiveQueryIntentAndPerfection(query) {
   const clean = query.trim();
   if (clean.length < 2) return null;
 
-  const systemPrompt = `You are the Cognitive Knowledge & Routing Reasoner for Samvaad AI.
+  const systemPrompt = `You are the Autonomous Knowledge & Tool Router Agent for Samvaad AI.
 
-SYSTEM CAPABILITY ARCHITECTURE:
-1. Oracle Contemplation (Fine-Tuned Maharaj Ji Model): Deep spiritual solace, emotional healing, anxiety, grief, life dilemmas, detachment (vairagya), and Holy Name devotion ('Radha-Radha').
-2. Local Scripture RAG (Vector Database): Indexed collection of 29 classical Sanatan scriptures (Bhagavad Gita, Ramcharitmanas, Srimad Bhagavatam, Garuda Purana, Vidura Niti, Chanakya Niti, Upanishads) containing 150K+ verses.
-3. Live Web Search Engine (DuckDuckGo + Wikipedia): Autonomous online search. Used whenever:
-   - The user asks for a verse, shloka, stotram, or scripture that is NOT in our 29 static scriptures (e.g. Ashtavakra Gita, Yoga Vasistha, Shiva Purana, specific stutis/mantras), OR
-   - The user asks for real-time temporal facts, today's tithi/panchang, current year calendar dates, eclipse timings, or live temple darshan/aarti hours, OR
-   - Any spiritual or dharmic factual query where static scripture knowledge is insufficient.
+SAMVAAD AI CAPABILITY & KNOWLEDGE BOUNDARIES:
+1. "oracle_satsang": Pujya Maharaj Ji's internal spiritual contemplation model.
+   - SCOPE: Personal emotional turmoil, life suffering, anxiety, grief, moral dilemmas, restless mind (mann ki ashanti), anger/lust/ego, detachment (vairagya), selfless duty (Karma Yoga), surrender (sharnagati), and Holy Name chanting ('Radha-Radha').
+   - LIMITATION: Does NOT contain external encyclopedic facts, historical details, or unindexed scriptures.
 
-Classify the user inquiry into JSON:
-1. "intent_category": ONE of [
-     "greeting",
-     "chat_memory",
-     "harmful_dangerous",
-     "secular_worldly",
-     "concept_meaning",
-     "spiritual_dilemma",
-     "scriptural_proof_request"
-   ]
-2. "knowledge_source": ONE of ["oracle_satsang", "rag_scripture", "live_web_search", "direct_chat"]
-   - "rag_scripture": classical scripture verses/meanings within our 29 scriptures.
-   - "live_web_search": real-time dates/panchang/timings, OR verses/texts outside our 29 scriptures.
-   - "oracle_satsang": emotional dilemmas, life suffering, devotion, surrender, duty.
-   - "direct_chat": greetings, chat memory recap, or simple spiritual definitions.
-3. "needs_web_search": boolean (true if inquiry requires live search; false otherwise)
-4. "needs_scripture_rag": boolean (true if user requests scripture verses or scriptural proof; false otherwise)
-5. "is_scriptural_proof_request": boolean
-6. "detected_subject": string (Clear summary of the subject in user's language/Hindi)
-7. IF "needs_scripture_rag" is true:
-    - "spiritual_theme": string
-    - "target_scriptures": array of strings from ["ramcharitmanas", "bhagavad_gita", "srimad_bhagavatam", "garuda_purana", "vidura_niti", "chanakya_niti", "upanishads"]
-    - "recommended_scripture": string
+2. "rag_scripture": Local vector database of 150,000+ poetic verse shlokas strictly across 29 classical scriptures:
+   - Bhagavad Gita (700 verses)
+   - Ramcharitmanas (~12,000 verses/dohas)
+   - Srimad Bhagavatam (~18,000 verses)
+   - Garuda Purana, Vidura Niti, Chanakya Niti
+   - 11 Principal Upanishads (Isha, Kena, Katha, Prashna, Mundaka, Mandukya, Taittiriya, Aitareya, Chandogya, Brihadaranyaka, Shvetashvatara)
+   - STRICT LIMITATION: This database ONLY contains isolated verses from these 29 scriptures. It does NOT contain:
+     * Authorship or origin of mantras/texts (e.g. who composed or revealed a mantra)
+     * Rigveda, Samaveda, Yajurveda, Atharvaveda
+     * Shiva Purana, Devi Bhagavatam, Skanda Purana, or other unindexed Puranas
+     * Ashtavakra Gita, Yoga Vasistha, Mahabharata full text, Valmiki Ramayana original
+     * Genealogies of Rishis, temple histories, story details, or factual dates
 
-Respond ONLY with valid JSON. No conversational text.`;
+3. "live_web_search": Autonomous Real-Time Online Search Tool (DuckDuckGo + Wikipedia).
+   - MANDATORY TO CHOOSE THIS TOOL WHENEVER:
+     * The seeker asks ANY FACTUAL or GENERIC query where local 29-scripture shlokas cannot provide the complete answer (e.g. who wrote/revealed a mantra or text, origins, authors, rishis, gurus, parents, history, stories, locations, dates, timings, counts).
+     * The seeker asks about ANY scripture, mantra, stotram, or book OUTSIDE our 29 static scriptures (e.g. Gayatri Mantra origin/revealer/Rigveda, Shiva Purana, Ashtavakra Gita, Yoga Vasistha, specific stutis).
+     * The seeker asks a generic cultural, dharmic, or religious question where Samvaad's 29-scripture verse store doesn't have the factual answer.
+     * Real-time temporal facts: today's tithi/panchang, Ekadashi dates, eclipse timings, festival dates, temple darshan/aarti hours.
+
+4. "secular_bridge": Any worldly, non-spiritual, or modern topic (science, atoms, technology, celebrities, movies, sports, politics, etc.).
+   - Dynamically bridges it to spiritual wisdom and selfless duty without canned replies.
+
+5. "direct_chat": Greetings, salutations, or chat history recap.
+
+6. "harmful_dangerous": Any violence, weapons, bombs, suicide, or destruction.
+
+Analyze the user inquiry and return valid JSON:
+{
+  "primary_tool": "oracle_satsang" | "rag_scripture" | "live_web_search" | "secular_bridge" | "direct_chat" | "harmful_dangerous",
+  "needs_web_search": boolean,
+  "needs_scripture_rag": boolean,
+  "is_factual_inquiry": boolean,
+  "reasoning": string,
+  "detected_subject": string
+}
+
+Respond ONLY with valid JSON. No markdown backticks, no conversational text.`;
 
   const apiKey = getNextGroqKey();
   try {
@@ -723,9 +733,24 @@ Respond ONLY with valid JSON. No conversational text.`;
       const data = await res.json();
       const content = data.choices?.[0]?.message?.content;
       if (content) {
-        const parsed = JSON.parse(content);
-        if (parsed.intent_category || parsed.is_spiritual_or_life_dilemma !== undefined) {
-          parsed.is_spiritual_or_dharmic = Boolean(parsed.is_spiritual_or_life_dilemma);
+        let cleanJson = content.trim();
+        if (cleanJson.includes('{') && cleanJson.includes('}')) {
+          cleanJson = cleanJson.slice(cleanJson.indexOf('{'), cleanJson.lastIndexOf('}') + 1);
+        }
+        const parsed = JSON.parse(cleanJson);
+        if (parsed.primary_tool || parsed.intent_category || parsed.needs_web_search !== undefined) {
+          const tool = parsed.primary_tool || parsed.intent_category || 'oracle_satsang';
+          parsed.primary_tool = tool;
+          parsed.intent_category = tool;
+          parsed.needs_web_search = Boolean(parsed.needs_web_search || tool === 'live_web_search');
+          parsed.needs_scripture_rag = Boolean(parsed.needs_scripture_rag || tool === 'rag_scripture');
+          parsed.is_factual_inquiry = Boolean(parsed.is_factual_inquiry);
+          parsed.is_secular_worldly = (tool === 'secular_bridge');
+          parsed.is_harmful = (tool === 'harmful_dangerous');
+          parsed.is_greeting = (tool === 'direct_chat' && !parsed.is_chat_memory);
+          parsed.is_spiritual_or_dharmic = (tool === 'oracle_satsang' || tool === 'rag_scripture' || tool === 'live_web_search');
+          parsed.detected_subject = parsed.detected_subject || clean;
+          parsed.search_query = parsed.search_query || clean;
           return parsed;
         }
       }
@@ -1460,8 +1485,16 @@ export async function streamGuruResponse(
   const queryLang = detectQueryLanguage(effectiveQuery);
   const isEnglish = queryLang === 'english';
 
-  // 1. Harmful / Violence / Weapons Protection
-  if (isHarmfulQuery(effectiveQuery) || isHarmfulQuery(userMessage)) {
+  // 1. Cognitive Intent & Autonomous Tool Decision (Sub-250ms Groq LPU)
+  let cognitiveIntent = null;
+  try {
+    cognitiveIntent = await evaluateCognitiveQueryIntentAndPerfection(effectiveQuery);
+  } catch (err) {
+    console.warn('[Cognitive Intent] Fast fallback to heuristics:', err.message);
+  }
+
+  // 1.1 Harmful / Violence / Weapons Protection (Agentic Decision + Safety Guardrail)
+  if (cognitiveIntent?.is_harmful || isHarmfulQuery(effectiveQuery) || isHarmfulQuery(userMessage)) {
     return await streamHarmfulDeclination({
       query: effectiveQuery,
       seekerName,
@@ -1472,8 +1505,22 @@ export async function streamGuruResponse(
     });
   }
 
-  // 1.1 Chat Memory & Dialogue Inquiry (e.g. "what question i had asked you till now?")
-  if (isChatMemoryInquiry(effectiveQuery) || isChatMemoryInquiry(userMessage)) {
+  // 1.2 Introduction & Creator Knowledge Tool (Who are you, Anuj Kesharwani, architecture, dataset, RAG)
+  if (isIntroductionOrCreatorQuery(effectiveQuery, conversationHistory)) {
+    const introText = getProjectIntroduction(effectiveQuery, isEnglish, seekerName, conversationHistory);
+    const introThought = getIntroductionThought(effectiveQuery, isEnglish, conversationHistory);
+    return await streamTextDirectly(
+      introText,
+      introThought,
+      startTime,
+      null,
+      onChunk,
+      abortSignal
+    );
+  }
+
+  // 1.3 Chat Memory & Prior Conversation Inquiry
+  if (cognitiveIntent?.is_chat_memory || isChatMemoryInquiry(effectiveQuery) || isChatMemoryInquiry(userMessage)) {
     return await streamChatMemoryResponse({
       userMessage,
       conversationHistory,
@@ -1485,8 +1532,8 @@ export async function streamGuruResponse(
     });
   }
 
-  // 1.2 Check Gating: Skip Oracle for Casual Greetings & Chitchat
-  const isGreeting = isCasualConversational(userMessage);
+  // 1.4 Casual Greetings & Salutations (Skip Oracle for pure greetings)
+  const isGreeting = (cognitiveIntent?.is_greeting || isCasualConversational(userMessage)) && !cognitiveIntent?.needs_web_search;
   if (isGreeting) {
     const greetingText = isEnglish
       ? "Radhe Radhe! May Shri Radha Rani bless you with profound peace, pure devotion, and holy name shelter. Tell me, dear child, what inquiry rests in your heart today?"
@@ -1504,56 +1551,10 @@ export async function streamGuruResponse(
     );
   }
 
-  // 1.5 Introduction & Creator Knowledge Tool (Who are you, Anuj Kesharwani, architecture, dataset, RAG)
-  if (isIntroductionOrCreatorQuery(effectiveQuery, conversationHistory)) {
-    const introText = getProjectIntroduction(effectiveQuery, isEnglish, seekerName, conversationHistory);
-    const introThought = getIntroductionThought(effectiveQuery, isEnglish, conversationHistory);
-    return await streamTextDirectly(
-      introText,
-      introThought,
-      startTime,
-      null,
-      onChunk,
-      abortSignal
-    );
-  }
-
-  // 2. Cognitive Intent & Semantic Domain Understanding (Sub-350ms Groq LPU)
-  let cognitiveIntent = null;
-  try {
-    cognitiveIntent = await evaluateCognitiveQueryIntentAndPerfection(effectiveQuery);
-  } catch (err) {
-    console.warn('[Cognitive Intent] Fast fallback to heuristics:', err.message);
-  }
-
-  // Cognitive Safety & Chat Memory Secondary Check
-  if (cognitiveIntent?.intent_category === 'harmful_dangerous' || cognitiveIntent?.is_harmful) {
-    return await streamHarmfulDeclination({
-      query: effectiveQuery,
-      seekerName,
-      isEnglish,
-      startTime,
-      onChunk,
-      abortSignal
-    });
-  }
-
-  if (cognitiveIntent?.intent_category === 'chat_memory' || cognitiveIntent?.is_chat_memory) {
-    return await streamChatMemoryResponse({
-      userMessage,
-      conversationHistory,
-      seekerName,
-      isEnglish,
-      startTime,
-      onChunk,
-      abortSignal
-    });
-  }
-
-  // 2.2 Secular / Worldly / Scientific / Trivia / Identity Dynamic Bridge (Atom, SRK, Tech, Sports, etc.)
-  const isSecularQuery = cognitiveIntent
-    ? (cognitiveIntent.intent_category === 'secular_worldly' || cognitiveIntent.is_secular_worldly === true || (cognitiveIntent.is_spiritual_or_life_dilemma === false && !cognitiveIntent.is_concept_meaning))
-    : ((isOfftopicQuery(effectiveQuery) || isScienceOrWorldlyQuery(effectiveQuery)) && !isDharmicOrSpiritualQuery(effectiveQuery));
+  // 1.5 Dynamic Secular / Worldly / Scientific Bridge (Science, SRK, tech, sports, etc.)
+  const isSecularQuery = cognitiveIntent?.is_secular_worldly === true ||
+    cognitiveIntent?.primary_tool === 'secular_bridge' ||
+    cognitiveIntent?.intent_category === 'secular_worldly';
 
   if (isSecularQuery) {
     const detectedSubject = cognitiveIntent?.detected_subject || extractSubject(effectiveQuery) || (isEnglish ? 'this worldly subject' : 'सांसारिक विषय');
@@ -1568,12 +1569,14 @@ export async function streamGuruResponse(
     });
   }
 
-  // 2.4 Agent Autonomous Decision: Live Web Search when information is beyond local static knowledge
-  const isFactualScripturalQuery = /\b(?:kisne\s*(?:likha|likhi|likhe|racha|rachna|bola|boli|kaha|bataiye|banaya|prakat\s*kiya)|who\s*(?:wrote|composed|authored|revealed|spoke|said|created)|kaun\s*(?:the|tha|thi|hai|hain|rishi|guru|mata|pita)|who\s*(?:is|was|were)|kahan\s*se\s*hai|kaha\s*se\s*hai|which\s*(?:scripture|text|chapter|mandal|veda)|kis\s*(?:granth|ved|mandal|adhyaya|sukta)\s*me)\b/i.test(effectiveQuery);
+  // 2. Agent Autonomous Decision: Live Web Search when the agent determines information is beyond local static knowledge
+  const requiresWebSearch = shouldSearch ||
+    cognitiveIntent?.needs_web_search === true ||
+    cognitiveIntent?.primary_tool === 'live_web_search' ||
+    cognitiveIntent?.knowledge_source === 'live_web_search';
 
-  const requiresWebSearch = shouldSearch || isLiveCalendarQuery(effectiveQuery) || isFactualScripturalQuery || cognitiveIntent?.needs_web_search === true;
   if (requiresWebSearch) {
-    const isExternalKnowledge = (cognitiveIntent?.needs_web_search || isFactualScripturalQuery) && !isLiveCalendarQuery(effectiveQuery);
+    const isExternalKnowledge = Boolean(cognitiveIntent?.needs_web_search || cognitiveIntent?.primary_tool === 'live_web_search');
     onChunk({
       content: '',
       thought: isEnglish
@@ -1587,7 +1590,8 @@ export async function streamGuruResponse(
       thinkingDuration: 0.8,
       scripture: null
     });
-    const searchRes = await searchDuckDuckGo(effectiveQuery, isEnglish);
+    const searchTarget = cognitiveIntent?.search_query || cognitiveIntent?.detected_subject || '';
+    const searchRes = await searchDuckDuckGo(effectiveQuery, isEnglish, searchTarget);
     const searchThought = isEnglish
       ? `Live online lookup completed. Synthesizing verified findings with spiritual discernment...`
       : `लाइव ऑनलाइन खोज पूर्ण। प्रामाणिक जानकारी का सत्संग-वाणी के प्रकाश में समन्वय प्रस्तुत किया जा रहा है...`;
@@ -1713,9 +1717,9 @@ export async function streamGuruResponse(
   // 🌟 DYNAMIC KNOWLEDGE GAP RESOLUTION FOR SCRIPTURES:
   // If seeker asked for a verse/shloka not present in local 29-scripture index, search live web
   const seekerWantsVerse = cognitiveIntent?.needs_scripture_rag ||
+    cognitiveIntent?.primary_tool === 'rag_scripture' ||
     cognitiveIntent?.is_scriptural_proof_request ||
-    cognitiveIntent?.intent_category === 'scriptural_proof_request' ||
-    /(?:verse|verses|shlok|shloka|shlokas|doha|chaupai|stotram|mantra|सूक्त|श्लोक|दोहा|चौपाई|अर्थ|मंत्र|proof|प्रमाण|gita|ramayan|ashtavakra|yoga\s*vasistha|upanishad|gayatri|गायत्री|kisne|likha|who\s*wrote|ved|veda|rigveda)/i.test(effectiveQuery);
+    cognitiveIntent?.intent_category === 'scriptural_proof_request';
 
   if (!scripture && seekerWantsVerse) {
     currentThought += isEnglish
