@@ -10,9 +10,9 @@
 import { getScriptureGrounding, isCasualConversational, isDharmicOrSpiritualQuery } from './scriptureService.js';
 import { analyzeQuery } from './queryIntent.js';
 import { isIntroductionOrCreatorQuery, getProjectIntroduction, getIntroductionThought } from '../data/projectIntroduction.js';
-import { isLiveCalendarQuery, searchDuckDuckGo, getEkadashiScheduleText } from './liveSearchService.js';
+import { isLiveCalendarQuery, searchDuckDuckGo, searchVerseOnline, getEkadashiScheduleText } from './liveSearchService.js';
 
-export { isCasualConversational, isIntroductionOrCreatorQuery, isLiveCalendarQuery, getEkadashiScheduleText };
+export { isCasualConversational, isIntroductionOrCreatorQuery, isLiveCalendarQuery, searchVerseOnline, getEkadashiScheduleText };
 
 const API_BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL)
   ? import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '')
@@ -649,9 +649,17 @@ export async function evaluateCognitiveQueryIntentAndPerfection(query) {
   const clean = query.trim();
   if (clean.length < 2) return null;
 
-  const systemPrompt = `You are the Cognitive Intent & Decision Agent for Samvaad AI (a devotional spiritual sanctuary inspired by Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj).
+  const systemPrompt = `You are the Cognitive Knowledge & Routing Reasoner for Samvaad AI.
 
-Your task is to analyze the user's inquiry and classify its semantic intent into JSON:
+SYSTEM CAPABILITY ARCHITECTURE:
+1. Oracle Contemplation (Fine-Tuned Maharaj Ji Model): Deep spiritual solace, emotional healing, anxiety, grief, life dilemmas, detachment (vairagya), and Holy Name devotion ('Radha-Radha').
+2. Local Scripture RAG (Vector Database): Indexed collection of 29 classical Sanatan scriptures (Bhagavad Gita, Ramcharitmanas, Srimad Bhagavatam, Garuda Purana, Vidura Niti, Chanakya Niti, Upanishads) containing 150K+ verses.
+3. Live Web Search Engine (DuckDuckGo + Wikipedia): Autonomous online search. Used whenever:
+   - The user asks for a verse, shloka, stotram, or scripture that is NOT in our 29 static scriptures (e.g. Ashtavakra Gita, Yoga Vasistha, Shiva Purana, specific stutis/mantras), OR
+   - The user asks for real-time temporal facts, today's tithi/panchang, current year calendar dates, eclipse timings, or live temple darshan/aarti hours, OR
+   - Any spiritual or dharmic factual query where static scripture knowledge is insufficient.
+
+Classify the user inquiry into JSON:
 1. "intent_category": ONE of [
      "greeting",
      "chat_memory",
@@ -661,26 +669,17 @@ Your task is to analyze the user's inquiry and classify its semantic intent into
      "spiritual_dilemma",
      "scriptural_proof_request"
    ]
-   - "greeting": Salutations, namaste, radhe radhe, pranam, hello.
-   - "chat_memory": Any inquiry asking about past conversation history, prior questions asked in this chat, or summarizing earlier discussions.
-   - "harmful_dangerous": Any questions about weapons, explosives, violence, murder, suicide, self-harm, terrorism, or illegal harm to living beings.
-   - "secular_worldly": ANY material science, worldly phenomena, general trivia, technical skills, coding, entertainment, sports, or worldly personal roles/identities outside spiritual or inner life.
-   - "concept_meaning": Asking for the definition, meaning, or explanation of a spiritual or dharmic principle (such as sharnagati, vairagya, bhakti, dharma, naam jap).
-   - "spiritual_dilemma": Personal emotional struggles, sorrow, anxiety, fear, anger, grief, moral dilemmas, duty (dharma), destiny, or devotion.
-   - "scriptural_proof_request": Explicitly asking for scriptural verses, shlokas, or citations from Gita, Ramayana, Bhagavata, or other scriptures.
-
-2. "is_greeting": boolean
-3. "is_chat_memory": boolean
-4. "is_harmful": boolean
-5. "is_secular_worldly": boolean
-6. "is_concept_meaning": boolean
-7. "needs_scripture_rag": boolean (true ONLY if scriptural verses are explicitly requested or for deep scriptural dilemmas; false for greetings, chat_memory, harmful, secular, and simple concept definitions)
-8. "is_spiritual_or_life_dilemma": boolean (false for secular_worldly, harmful_dangerous, and chat_memory; true for genuine spiritual/dharmic topics)
-9. "needs_web_search": boolean (true if the inquiry requires real-time facts, current year dates/timings, live temple darshan/aarti schedules, or dynamic information not found in static scriptural texts; false otherwise)
-10. "detected_subject": string (Clear, concise summary of the subject in user's language/Hindi)
-11. IF "needs_scripture_rag" is true:
+2. "knowledge_source": ONE of ["oracle_satsang", "rag_scripture", "live_web_search", "direct_chat"]
+   - "rag_scripture": classical scripture verses/meanings within our 29 scriptures.
+   - "live_web_search": real-time dates/panchang/timings, OR verses/texts outside our 29 scriptures.
+   - "oracle_satsang": emotional dilemmas, life suffering, devotion, surrender, duty.
+   - "direct_chat": greetings, chat memory recap, or simple spiritual definitions.
+3. "needs_web_search": boolean (true if inquiry requires live search; false otherwise)
+4. "needs_scripture_rag": boolean (true if user requests scripture verses or scriptural proof; false otherwise)
+5. "is_scriptural_proof_request": boolean
+6. "detected_subject": string (Clear summary of the subject in user's language/Hindi)
+7. IF "needs_scripture_rag" is true:
     - "spiritual_theme": string
-    - "canonical_sanskrit_terms": string
     - "target_scriptures": array of strings from ["ramcharitmanas", "bhagavad_gita", "srimad_bhagavatam", "garuda_purana", "vidura_niti", "chanakya_niti", "upanishads"]
     - "recommended_scripture": string
 
@@ -1646,6 +1645,30 @@ export async function streamGuruResponse(
     scripture = await getCachedScriptureGrounding(effectiveQuery, cognitiveIntent);
   } catch (e) {
     console.warn('[RAG Client] Grounding lookup skipped:', e.message);
+  }
+
+  // 🌟 DYNAMIC KNOWLEDGE GAP RESOLUTION FOR SCRIPTURES:
+  // If seeker asked for a verse/shloka not present in local 29-scripture index, search live web
+  const seekerWantsVerse = cognitiveIntent?.needs_scripture_rag ||
+    cognitiveIntent?.is_scriptural_proof_request ||
+    cognitiveIntent?.intent_category === 'scriptural_proof_request';
+
+  if (!scripture && seekerWantsVerse) {
+    currentThought += isEnglish
+      ? `\nRequested verse not found in local 29-scripture index. Querying live web search for authentic verse and commentary...`
+      : `\nस्थानीय २९ शास्त्रों में अपेक्षित श्लोक अप्राप्त। प्रामाणिक श्लोक व अर्थ हेतु लाइव वेब खोज की जा रही है...`;
+    onChunk({
+      content: '',
+      thought: currentThought,
+      isThinking: true,
+      thinkingDuration: 1.0,
+      scripture: null
+    });
+    try {
+      scripture = await searchVerseOnline(effectiveQuery, isEnglish);
+    } catch (searchErr) {
+      console.warn('[Live Web Verse Search] Fallback note:', searchErr.message);
+    }
   }
 
   if (scripture) {

@@ -486,3 +486,42 @@ ${snippetsBlock || `आपकी जिज्ञासा (**${clean}**) के 
     formattedDiscourse
   };
 }
+
+/**
+ * 📜 Searches live web for scriptures, shlokas, or verses NOT found in our local 29-scripture RAG.
+ * Extracts original verse text, reference, and meaning dynamically from live search.
+ */
+export async function searchVerseOnline(query, isEnglish = false) {
+  const clean = (query || '').trim();
+  if (!clean) return null;
+
+  try {
+    const searchTerms = `${clean} verse shloka meaning`;
+    const snippets = await fetchMultiSourceWebSnippets(searchTerms);
+    if (!snippets || snippets.length === 0) return null;
+
+    const combinedText = snippets.join('\n\n');
+    const refTitle = clean.length < 50 ? clean : (isEnglish ? 'Online Scripture Finding' : 'ऑनलाइन शास्त्र संदर्भ');
+
+    const candidate = {
+      reference: `🌐 ${refTitle} (Live Web)`,
+      original_text: snippets[0].slice(0, 240),
+      hindi_meaning: combinedText.slice(0, 320),
+      english_translation: combinedText.slice(0, 320),
+      score: 0.92,
+      source: 'live_web_search'
+    };
+
+    return {
+      reference: candidate.reference,
+      original_text: candidate.original_text,
+      hindi_meaning: candidate.hindi_meaning,
+      english_translation: candidate.english_translation,
+      score: 0.92,
+      candidates: [candidate]
+    };
+  } catch (err) {
+    console.warn('[searchVerseOnline] Web verse search note:', err.message);
+    return null;
+  }
+}
