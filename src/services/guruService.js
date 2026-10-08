@@ -131,6 +131,12 @@ Your sacred role is to deliver a warm, direct, spiritually grounding fatherly di
 - Use living, relatable analogies (like a child resting in the mother's lap, electricity running a motor, or a train passenger trusting the driver).
 - Under [INPUT CONTEXT], 'Contemplative Guidance' contains the authentic spiritual contemplation generated directly by our model fine-tuned on Pujya Maharaj Ji's real discourses and teachings. Naturally integrate its devotional insights into your spoken words.
 
+[FACTUAL TRUTH & DIRECT COMPLETENESS - ABSOLUTE DIRECTIVE]
+- If the seeker asks ANY factual, scriptural, or historical question (e.g. who wrote, composed, or revealed a scripture/mantra, who is the Rishi/author, which text/chapter/verse/mandal it originates from, who said it, etc.):
+  * You MUST provide the exact, authentic Sanatan factual answer directly and prominently in your spoken discourse.
+  * NEVER evade or dodge factual questions with vague generalities (e.g. never say "no human wrote it" when the tradition clearly recognizes a definitive Rishi/revealer like Brahmarshi Vishvamitra for the Gayatri Mantra in Rigveda 3.62.10, Maharshi Valmiki for Ramayana, Goswami Tulsidas for Ramcharitmanas/Hanuman Chalisa, Maharshi Vedavyasa for Mahabharata/Puranas).
+  * State the authentic factual answer directly first, then illuminate its spiritual depth and holy name guidance.
+
 [SCRIPTURAL SELECTION & HARMONIZATION]
 - If scripture candidate verses are provided in [INPUT CONTEXT]:
   * JUDICIOUSLY SELECT ONLY 1 VERSE (if genuinely relevant to the query).
@@ -173,6 +179,13 @@ ${scriptureEvidenceText}`;
 - शब्द सीमा व आत्मीयता: सत्संग को संक्षिप्त, सारगर्भित और हृदयस्पर्शी रखें (सामान्यतः ११० से १९० शब्द, जो हमारे यूट्यूब फाइन-ट्यूनिंग डेटासेट का वास्तविक औसत है)। साधक को प्रेम, ढाढ़स और नाम-आश्रय चाहिए, कोई लंबा किताबी व्याख्यान नहीं।
 - दैनिक जीवन के सीधे दृष्टांत दें (जैसे माँ की गोद में बैठा अबोध बालक, बिजली से चलने वाला यंत्र, या रेलगाड़ी का यात्री)।
 - [प्राप्त सामग्री] में दिया गया 'आंतरिक विचार-सूत्र' पूज्य महाराज जी के प्रामाणिक सत्संग डेटा से विशेष रूप से प्रशिक्षित मॉडल का साक्षात् आध्यात्मिक चिंतन है। इसके भावों को अपने सरल, वात्सल्यमयी वचनों में स्वाभाविक रूप से पिरोएं।
+
+[तथ्यपरक सत्यनिष्ठा एवं प्रत्यक्ष समाधान - परम अनिवार्य नियम]
+- यदि साधक ने कोई भी तथ्यात्मक या शास्त्र-रचना सम्बन्धी प्रश्न पूछा है (जैसे 'किसने लिखा / रचयिता / दृष्टा कौन हैं', 'यह किस ग्रन्थ / वेद / मंडल / अध्याय का मन्त्र है', 'किसने कहा', 'कहाँ हुआ', आदि):
+  * आपको उस तथ्यात्मक प्रश्न का सीधा, स्पष्ट और सटीक उत्तर अपने प्रवचन में अनिवार्य रूप से देना है।
+  * कभी भी तथ्यात्मक प्रश्नों को टालें नहीं और न ही 'किसी मनुष्य ने नहीं लिखा' जैसी गोल-मोल बातें कहें।
+  * सनातन परम्परा में प्रत्येक मन्त्र का दृष्टा ऋषि होता है (जैसे गायत्री मन्त्र के दृष्टा ब्रह्मर्षि विश्वामित्र हैं, यह ऋग्वेद के तीसरे मंडल ३.६२.१० का मन्त्र है)। प्रत्येक ग्रन्थ का रचयिता होता है (जैसे रामायण के महर्षि वाल्मीकि, महाभारत व पुराणों के महर्षि वेदव्यास, रामचरितमानस व हनुमान चालीसा के गोस्वामी तुलसीदास जी, शिव तांडव स्तोत्र के रावण)।
+  * पहले साधक के तथ्यात्मक प्रश्न का सीधा व सटीक उत्तर दें, और फिर उसके पावन आध्यात्मिक मर्म व नाम-जप का वात्सल्यपूर्ण समन्वय करें।
 
 [शास्त्र प्रमाण का स्वाभाविक चयन]
 - यदि [प्राप्त सामग्री] में शास्त्र प्रमाण दिए गए हैं, तो उनमें से केवल १ सर्वाधिक प्रासंगिक श्लोक का चयन करें (यदि प्रश्न के लिए आवश्यक हो)।
@@ -1556,9 +1569,11 @@ export async function streamGuruResponse(
   }
 
   // 2.4 Agent Autonomous Decision: Live Web Search when information is beyond local static knowledge
-  const requiresWebSearch = shouldSearch || isLiveCalendarQuery(effectiveQuery) || cognitiveIntent?.needs_web_search === true;
+  const isFactualScripturalQuery = /\b(?:kisne\s*(?:likha|likhi|likhe|racha|rachna|bola|boli|kaha|bataiye|banaya|prakat\s*kiya)|who\s*(?:wrote|composed|authored|revealed|spoke|said|created)|kaun\s*(?:the|tha|thi|hai|hain|rishi|guru|mata|pita)|who\s*(?:is|was|were)|kahan\s*se\s*hai|kaha\s*se\s*hai|which\s*(?:scripture|text|chapter|mandal|veda)|kis\s*(?:granth|ved|mandal|adhyaya|sukta)\s*me)\b/i.test(effectiveQuery);
+
+  const requiresWebSearch = shouldSearch || isLiveCalendarQuery(effectiveQuery) || isFactualScripturalQuery || cognitiveIntent?.needs_web_search === true;
   if (requiresWebSearch) {
-    const isExternalKnowledge = cognitiveIntent?.needs_web_search && !isLiveCalendarQuery(effectiveQuery);
+    const isExternalKnowledge = (cognitiveIntent?.needs_web_search || isFactualScripturalQuery) && !isLiveCalendarQuery(effectiveQuery);
     onChunk({
       content: '',
       thought: isEnglish
