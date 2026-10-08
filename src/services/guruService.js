@@ -494,16 +494,7 @@ export function detectQueryLanguage(text) {
 }
 
 // Stopwords and interrogatives stripped to extract core subject noun phrase
-const INTERROGATIVE_STOPWORDS = new RegExp(
-  '\\b(?:when\\s*is|when\\s*does|when\\s*will|when|what\\s*is|what\\s*are|what|how\\s*about|where\\s*is|where|which|' +
-  'kab\\s*hai|kab\\s*se|kab\\s*hoga|kab\\s*hogi|kab|kya\\s*hai|kya|kaise|kaha|kahan|kitne\\s*baje|kitna\\s*samay|' +
-  'date\\s*of|dates\\s*of|date|dates|timing\\s*of|timings\\s*of|timing|timings|samay|schedule|tarikh|' +
-  'aaj\\s*ka|aaj|kal\\s*ka|kal|today|tomorrow|this\\s*month|is\\s*month|is\\s*mahine|iss\\s*mahine|this\\s*year|is\\s*saal|' +
-  'next|upcoming|agla|agli|agle|wala|wali|wale|shuru|start|starts|starting|khatam|end|ends|ending|' +
-  'batao|bataiye|kahiye|please\\s*tell\\s*me|please\\s*tell|tell\\s*me|tell|info|details|hai|hain|hoga|hogi|hote|hota|hoti|' +
-  'the|a|an|in|on|at|of|for|to|me|mein|aur|phir|par|se|ka|ki|ke|ko|karein|kare|karo)\\b',
-  'gi'
-);
+const INTERROGATIVE_STOPWORDS = /\b(?:when\s*is|when\s*does|when\s*will|when|what\s*is|what\s*are|what|how\s*about|where\s*is|where|which|who\s*wrote\s*it|who\s*wrote|wrote\s*it|who|whom|whose|is\s*that|is\s*it|is\s*this|is|are|was|were|do|does|did|can|could|would|should|will|shall|that|this|it|its|there|really|actually|true|helpful|good|bad|beneficial|useful|or|not|yes|no|so|about|with|without|kab\s*hai|kab\s*se|kab\s*hoga|kab\s*hogi|kab|kya\s*hai|kya|kaise|kaha|kahan|kitne\s*baje|kitna\s*samay|date\s*of|dates\s*of|date|dates|timing\s*of|timings\s*of|timing|timings|samay|schedule|tarikh|aaj\s*ka|aaj|kal\s*ka|kal|today|tomorrow|this\s*month|is\s*month|is\s*mahine|iss\s*mahine|this\s*year|is\s*saal|next|upcoming|agla|agli|agle|wala|wali|wale|shuru|start|starts|starting|khatam|end|ends|ending|batao|bataiye|kahiye|please\s*tell\s*me|please\s*tell|tell\s*me|tell|info|details|hai|hain|hoga|hogi|hote|hota|hoti|the|a|an|in|on|at|of|for|to|me|mein|aur|phir|par|se|ka|ki|ke|ko|karein|kare|karo|bhi|hi)\b/gi;
 
 /**
  * Extracts the core subject noun phrase from ANY message without hardcoding keywords.
@@ -513,8 +504,21 @@ export function extractSubject(text) {
   return text
     .replace(/[?!.,;:()\-—]/g, ' ')
     .replace(INTERROGATIVE_STOPWORDS, ' ')
+    .replace(INTERROGATIVE_STOPWORDS, ' ')
+    .replace(/\b(?:kisne\s*likha\s*tha|kisne\s*likha\s*hai|kisne\s*likha|likha\s*tha|likha\s*hai)\b/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/**
+ * Detects whether a query is an anaphoric referential follow-up (using pronouns or follow-up evaluation).
+ */
+export function isReferentialFollowUp(text) {
+  if (!text || typeof text !== 'string') return false;
+  const clean = text.trim().toLowerCase();
+  const hasPronoun = /\b(that|this|it|its|they|them|he|she|his|her|ye|yeh|wo|voh|is|iss|iska|iski|iske|us|uss|uska|uski|uske|unka|unki|unke|ispar|uspar|isme|usme|aisa|waisa)\b/i.test(clean);
+  const isFollowUp = /^(?:is\s+(?:that|this|it)|does\s+(?:that|this|it)|can\s+(?:we|i|one)|why\s+(?:so|is\s+that|did)|how\s+to|what\s+is\s+its|what\s+about|kya\s+(?:ye|yeh|wo|voh|aisa)|iske\s+(?:fayde|labh)|isse\s+kya|kaise\s+karein|kyu\s+karein|kitni\s+baar|helpful|beneficial|fayda)/i.test(clean);
+  return hasPronoun || isFollowUp;
 }
 
 /**
@@ -536,14 +540,13 @@ export function isSpiritualDilemma(text) {
 /**
  * 🧠 Generic Agent Dialogue Memory & Search Reasoner
  * ==================================================
- * 1. Standalone vs Ellipsis:
- *    - If query has its own subject (e.g. "when does navratri start?", "Chhath puja kab hai?"),
- *      it is standalone. Old topics are NEVER prepended.
- *    - If query is an ellipsis (e.g. "is month me kab hai?", "timing kya hai?"),
- *      it inherits the ongoing subject from conversation history.
+ * 1. Standalone vs Ellipsis/Follow-up:
+ *    - If query is an anaphoric follow-up ("is that really helpful?", "why?", "how to do it?") or has no standalone subject,
+ *      it inherits the ongoing topic from conversation history.
+ *    - If query has its own explicit entity (e.g. "when does navratri start?"), it is standalone.
  * 2. Search Decision:
- *    - Automatically searches when temporal / schedule facts are required for ANY topic.
- *    - Gracefully routes to Satsang contemplation when the user asks an inner spiritual dilemma.
+ *    - Automatically searches when temporal / schedule facts or external authorship facts are required.
+ *    - Gracefully routes to Satsang contemplation when the user asks an inner spiritual dilemma or devotional inquiry.
  */
 export function analyzeDialogueMemory(userMessage, conversationHistory = []) {
   const clean = (userMessage || '').trim();
@@ -564,43 +567,57 @@ export function analyzeDialogueMemory(userMessage, conversationHistory = []) {
   }
 
   const currentSubject = extractSubject(clean);
+  const isReferential = isReferentialFollowUp(clean);
   const hasTemporal = isTemporalInquiry(clean) || isLiveCalendarQuery(clean);
   const isAuthorshipOrExternalFactual = /\b(?:who\s*(?:wrote|authored|composed|revealed|created|said)|kisne\s*(?:likha|rachana|banaya|kaha)|kisne|rishi|author|composer|origin|kaha\s*se\s*aaya|kaha\s*ka\s*hai|gayatri|gaytri|गायत्री|वेद|ऋग्वेद|rigveda)\b/i.test(clean);
   const isSpiritual = isSpiritualDilemma(clean);
 
-  // An ellipsis query has no standalone subject (less than 3 characters after stripping question words)
-  const isEllipsis = currentSubject.length < 3;
+  // An ellipsis query has no standalone subject or uses referential pronouns like 'that', 'this', 'it'
+  const isEllipsis = currentSubject.length < 3 || isReferential;
 
   let activeSubject = currentSubject;
   let effectiveQuery = clean;
   let shouldSearch = false;
 
   if (!isEllipsis) {
-    // Current query has its own explicit subject
+    // Current query has its own explicit standalone subject
     activeSubject = currentSubject;
     shouldSearch = hasTemporal || isAuthorshipOrExternalFactual;
-    effectiveQuery = clean; // Standalone query: never prefix previous conversation topics
+    effectiveQuery = clean;
   } else {
-    // Ellipsis query (e.g. "is month me kab hai?", "timing kya hai?", "aur agla?")
-    // Find the most recent subject being discussed in conversation history
+    // Follow-up query (e.g. "is that really helpful?", "is month me kab hai?", "why?")
+    // Find the most recent subject being discussed in conversation history (prioritizing user queries)
     if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
       for (let i = conversationHistory.length - 1; i >= 0; i--) {
-        const prevText = conversationHistory[i]?.content || '';
-        const prevSubject = extractSubject(prevText);
-        if (prevSubject.length >= 3) {
-          activeSubject = prevSubject;
-          break;
+        if (conversationHistory[i]?.role === 'user') {
+          const uText = conversationHistory[i]?.content || '';
+          const uSub = extractSubject(uText);
+          if (uSub.length >= 3 && !isReferentialFollowUp(uSub)) {
+            activeSubject = uSub;
+            break;
+          }
+        }
+      }
+      if (!activeSubject) {
+        for (let i = conversationHistory.length - 1; i >= 0; i--) {
+          const prevText = conversationHistory[i]?.content || '';
+          const prevSubject = extractSubject(prevText);
+          if (prevSubject.length >= 3 && !isReferentialFollowUp(prevSubject)) {
+            activeSubject = prevSubject.slice(0, 40);
+            break;
+          }
         }
       }
     }
 
+    if (activeSubject) {
+      effectiveQuery = `${activeSubject}: ${clean}`;
+    }
+
     if (isSpiritual && !hasTemporal) {
-      shouldSearch = false; // Spiritual topic shift: route to Satsang guidance
-    } else if (hasTemporal || isEllipsis) {
-      shouldSearch = Boolean(activeSubject) || hasTemporal;
-      if (activeSubject) {
-        effectiveQuery = `${activeSubject} ${clean}`;
-      }
+      shouldSearch = false;
+    } else {
+      shouldSearch = hasTemporal;
     }
   }
 
@@ -672,7 +689,7 @@ export function generateSecularRedirection(subject = '', seekerName = '', isEngl
  * - Recognizes meta-conversation inquiries ('what did I ask?'), greetings, and harm inquiries.
  * - Separates worldly/scientific queries (atom, SRK, coding) from genuine spiritual dilemmas.
  */
-export async function evaluateCognitiveQueryIntentAndPerfection(query) {
+export async function evaluateCognitiveQueryIntentAndPerfection(query, conversationHistory = []) {
   if (!query || typeof query !== 'string') return null;
   const clean = query.trim();
   if (clean.length < 2) return null;
@@ -681,39 +698,37 @@ export async function evaluateCognitiveQueryIntentAndPerfection(query) {
 
 SAMVAAD AI CAPABILITY & KNOWLEDGE BOUNDARIES:
 1. "oracle_satsang": Pujya Maharaj Ji's internal spiritual contemplation model.
-   - SCOPE: Personal emotional turmoil, life suffering, anxiety, grief, moral dilemmas, restless mind (mann ki ashanti), anger/lust/ego, detachment (vairagya), selfless duty (Karma Yoga), surrender (sharnagati), and Holy Name chanting ('Radha-Radha').
+   - SCOPE: Personal spiritual practices, prayer efficacy, faith, benefits of reciting holy names/chalisa/stotras (e.g. reciting Hanuman Chalisa, Mahamrityunjaya), emotional turmoil, life suffering, anxiety, grief, moral dilemmas, restless mind, surrender, and Holy Name chanting ('Radha-Radha').
    - LIMITATION: Does NOT contain external encyclopedic facts, historical details, or unindexed scriptures.
 
 2. "rag_scripture": Local vector database of 150,000+ poetic verse shlokas strictly across 29 classical scriptures:
-   - Bhagavad Gita (700 verses)
-   - Ramcharitmanas (~12,000 verses/dohas)
-   - Srimad Bhagavatam (~18,000 verses)
-   - Garuda Purana, Vidura Niti, Chanakya Niti
-   - 11 Principal Upanishads (Isha, Kena, Katha, Prashna, Mundaka, Mandukya, Taittiriya, Aitareya, Chandogya, Brihadaranyaka, Shvetashvatara)
-   - STRICT LIMITATION: This database ONLY contains isolated verses from these 29 scriptures. It does NOT contain:
-     * Authorship or origin of mantras/texts (e.g. who composed or revealed a mantra)
-     * Rigveda, Samaveda, Yajurveda, Atharvaveda
-     * Shiva Purana, Devi Bhagavatam, Skanda Purana, or other unindexed Puranas
-     * Ashtavakra Gita, Yoga Vasistha, Mahabharata full text, Valmiki Ramayana original
-     * Genealogies of Rishis, temple histories, story details, or factual dates
+   - Bhagavad Gita, Ramcharitmanas, Srimad Bhagavatam, Garuda Purana, Vidura Niti, Chanakya Niti, 11 Principal Upanishads.
+   - STRICT LIMITATION: This database ONLY contains isolated verses from these 29 scriptures.
 
 3. "live_web_search": Autonomous Real-Time Online Search Tool (DuckDuckGo + Wikipedia).
    - MANDATORY TO CHOOSE THIS TOOL WHENEVER:
-     * The seeker asks ANY FACTUAL or GENERIC query where local 29-scripture shlokas cannot provide the complete answer (e.g. who wrote/revealed a mantra or text, origins, authors, rishis, gurus, parents, history, stories, locations, dates, timings, counts).
-     * The seeker asks about ANY scripture, mantra, stotram, or book OUTSIDE our 29 static scriptures (e.g. Gayatri Mantra origin/revealer/Rigveda, Shiva Purana, Ashtavakra Gita, Yoga Vasistha, specific stutis).
-     * The seeker asks a generic cultural, dharmic, or religious question where Samvaad's 29-scripture verse store doesn't have the factual answer.
+     * The seeker asks ANY FACTUAL or GENERIC query outside our 29 static scriptures (e.g. who wrote/revealed a mantra or text, origins, authors, rishis, history, dates).
      * Real-time temporal facts: today's tithi/panchang, Ekadashi dates, eclipse timings, festival dates, temple darshan/aarti hours.
 
-4. "secular_bridge": Any worldly, non-spiritual, or modern topic (science, atoms, technology, celebrities, movies, sports, politics, etc.).
-   - Dynamically bridges it to spiritual wisdom and selfless duty without canned replies.
+4. "secular_bridge": Any worldly, non-spiritual, or modern topic (science, tech, celebrities, sports).
 
 5. "direct_chat": Greetings, salutations, or chat history recap.
 
 6. "harmful_dangerous": Any violence, weapons, bombs, suicide, or destruction.
 
+MULTI-TURN CONVERSATION CONTEXT & ANAPHORA RESOLUTION:
+When conversation history is provided, analyze the user's latest query IN CONTEXT of the preceding dialogue.
+If the seeker uses pronouns ('that', 'it', 'this', 'ye', 'wo', 'iska') or asks follow-up questions ('is that really helpful?', 'why?', 'how to do it?', 'benefits?'):
+1. Identify the ongoing subject from prior turns (e.g. if the previous discussion was about 'Hanuman Chalisa', resolve 'that' -> 'Hanuman Chalisa').
+2. Return "resolved_query" combining the ongoing topic with the new question (e.g. "Is reciting Hanuman Chalisa really helpful or beneficial?").
+3. Return "active_subject" as the entity being discussed.
+4. Route appropriately based on the resolved question (e.g. asking if reciting Hanuman Chalisa is helpful falls under 'oracle_satsang').
+
 Analyze the user inquiry and return valid JSON:
 {
   "primary_tool": "oracle_satsang" | "rag_scripture" | "live_web_search" | "secular_bridge" | "direct_chat" | "harmful_dangerous",
+  "resolved_query": string,
+  "active_subject": string,
   "needs_web_search": boolean,
   "needs_scripture_rag": boolean,
   "is_factual_inquiry": boolean,
@@ -722,6 +737,20 @@ Analyze the user inquiry and return valid JSON:
 }
 
 Respond ONLY with valid JSON. No markdown backticks, no conversational text.`;
+
+  const recentHistory = (conversationHistory || [])
+    .slice(-4)
+    .filter(m => m && m.content && (m.role === 'user' || m.role === 'assistant'))
+    .map(m => ({
+      role: m.role === 'user' ? 'user' : 'assistant',
+      content: m.content.length > 250 ? m.content.slice(0, 250) + '...' : m.content
+    }));
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    ...recentHistory,
+    { role: 'user', content: clean }
+  ];
 
   const attempts = Math.min(BUILTIN_GROQ_KEYS.length, 3);
   for (let attempt = 0; attempt < attempts; attempt++) {
@@ -735,12 +764,9 @@ Respond ONLY with valid JSON. No markdown backticks, no conversational text.`;
         },
         body: JSON.stringify({
           model: 'qwen/qwen3.8-27b',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: clean }
-          ],
+          messages,
           temperature: 0.1,
-          max_tokens: 260,
+          max_tokens: 280,
           response_format: { type: 'json_object' }
         }),
         signal: AbortSignal.timeout(3500)
@@ -766,8 +792,13 @@ Respond ONLY with valid JSON. No markdown backticks, no conversational text.`;
             parsed.is_harmful = (tool === 'harmful_dangerous');
             parsed.is_greeting = (tool === 'direct_chat' && !parsed.is_chat_memory);
             parsed.is_spiritual_or_dharmic = (tool === 'oracle_satsang' || tool === 'rag_scripture' || tool === 'live_web_search');
-            parsed.detected_subject = parsed.detected_subject || clean;
+            parsed.detected_subject = parsed.active_subject || parsed.detected_subject || clean;
             parsed.search_query = parsed.search_query || clean;
+            if (parsed.resolved_query && typeof parsed.resolved_query === 'string' && parsed.resolved_query.trim().length > 3) {
+              parsed.resolved_query = parsed.resolved_query.trim();
+            } else {
+              parsed.resolved_query = clean;
+            }
             return parsed;
           }
         }
@@ -1517,18 +1548,24 @@ export async function streamGuruResponse(
   
   // 0. Agent Dialogue Memory: Tracks active topic, search state, and resolves contextual queries
   const dialogueMemory = analyzeDialogueMemory(userMessage, conversationHistory);
-  const effectiveQuery = dialogueMemory.effectiveQuery;
+  let effectiveQuery = dialogueMemory.effectiveQuery;
   const shouldSearch = dialogueMemory.shouldSearch;
-  const queryLang = detectQueryLanguage(effectiveQuery);
-  const isEnglish = queryLang === 'english';
 
   // 1. Cognitive Intent & Autonomous Tool Decision (Sub-250ms Groq LPU)
   let cognitiveIntent = null;
   try {
-    cognitiveIntent = await evaluateCognitiveQueryIntentAndPerfection(effectiveQuery);
+    cognitiveIntent = await evaluateCognitiveQueryIntentAndPerfection(effectiveQuery, conversationHistory);
   } catch (err) {
     console.warn('[Cognitive Intent] Fast fallback to heuristics:', err.message);
   }
+
+  // If cognitive router resolved an anaphoric / follow-up query with conversation history, adopt it!
+  if (cognitiveIntent?.resolved_query && cognitiveIntent.resolved_query.trim().length > effectiveQuery.length) {
+    effectiveQuery = cognitiveIntent.resolved_query.trim();
+  }
+
+  const queryLang = detectQueryLanguage(effectiveQuery);
+  const isEnglish = queryLang === 'english';
 
   // 1.1 Harmful / Violence / Weapons Protection (Agentic Decision + Safety Guardrail)
   if (cognitiveIntent?.is_harmful || isHarmfulQuery(effectiveQuery) || isHarmfulQuery(userMessage)) {
