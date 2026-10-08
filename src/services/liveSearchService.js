@@ -446,25 +446,27 @@ async function fetchMultiSourceWebSnippets(query, searchSubject = '') {
     } catch {}
   }
 
-  // 3. Fetch deep page summaries for top Wikipedia hits
+  // 3. Fetch deep page intro extracts using Wikimedia Action API (100% CORS-permitted with origin=*)
   const summaries = [];
   for (const { title, lang } of titlesToFetch.slice(0, 3)) {
     try {
-      const sumUrl = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/\s+/g, '_'))}`;
-      const sRes = await fetch(sumUrl, {
-        headers: { 'Api-User-Agent': 'SamvaadAI/2.0 (contact@samvaad.ai)' },
-        signal: AbortSignal.timeout(2500)
-      });
-      if (sRes.ok) {
-        const sData = await sRes.json();
-        if (sData.extract && sData.extract.length > 30) {
-          summaries.push(`[${title}]: ${sData.extract}`);
+      const extractUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&titles=${encodeURIComponent(title.replace(/\s+/g, '_'))}&format=json&origin=*`;
+      const eRes = await fetch(extractUrl, { signal: AbortSignal.timeout(3000) });
+      if (eRes.ok) {
+        const eData = await eRes.json();
+        const pages = eData?.query?.pages || {};
+        for (const pid of Object.keys(pages)) {
+          const ext = pages[pid]?.extract?.trim();
+          if (ext && ext.length > 30) {
+            summaries.push(`[${title}]: ${ext.slice(0, 500)}`);
+          }
         }
       }
     } catch {}
   }
   if (summaries.length > 0) {
-    searchResults.unshift(...summaries);
+    // Authoritative page extracts take top priority over noisy snippet fragments
+    return [...summaries, ...searchResults.slice(0, 1)];
   }
 
   return searchResults;
