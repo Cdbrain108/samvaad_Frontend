@@ -10019,16 +10019,19 @@ body:not(.night) .rich-text strong {
 }
 
 @media (max-width: 768px) {
-  .chat-overview-section.heading-hidden .overview-heading-wrap,
   .chat-overview-section.heading-hidden .overview-heading-wrap.is-backward-removing,
-  .about-us-section.heading-hidden .about-heading-wrap,
   .about-us-section.heading-hidden .about-heading-wrap.is-backward-removing {
-    display: none !important;
+    opacity: 0 !important;
+    transform: perspective(900px) translateZ(-140px) translateY(-32px) scale(0.86) !important;
+    filter: blur(8px) !important;
     max-height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
   }
 }
+
 
 /* ═════════════════════════════════════════════════════════════════════
    CLAUDE-STYLE OPEN CHAT CANVAS (PC) & DEDICATED MOBILE CARD BOX
@@ -12634,20 +12637,23 @@ body:not(.night) .rich-text strong {
    ═════════════════════════════════════════════ */
 @media (max-width: 768px) {
   .spiritual-page .phase#education,
-  .about-us-section,
-  .about-us-section.heading-hidden,
-  .spiritual-page .phase#education.heading-hidden {
+  .about-us-section {
     height: 100svh !important;
     height: 100dvh !important;
     min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
-    padding: 8px 8px max(10px, env(safe-area-inset-bottom, 10px)) !important;
+    padding: 8px 8px max(12px, env(safe-area-inset-bottom, 12px)) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
     align-items: center !important;
     box-sizing: border-box !important;
+  }
+
+  .about-us-section.heading-hidden,
+  .spiritual-page .phase#education.heading-hidden {
+    justify-content: center !important;
   }
 
   .about-us-section .about-heading-wrap {
@@ -12657,13 +12663,17 @@ body:not(.night) .rich-text strong {
     flex-shrink: 0 !important;
   }
 
-  .about-us-section.heading-hidden .about-heading-wrap,
+  .about-us-section.heading-hidden .about-heading-wrap.is-backward-removing,
   .about-us-section .about-heading-wrap.is-backward-removing,
-  .spiritual-page .phase#education.heading-hidden .about-heading-wrap {
-    display: none !important;
+  .spiritual-page .phase#education.heading-hidden .about-heading-wrap.is-backward-removing {
+    opacity: 0 !important;
+    transform: perspective(900px) translateZ(-140px) translateY(-32px) scale(0.86) !important;
+    filter: blur(8px) !important;
     max-height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
   }
 
   .about-us-chat-container,
@@ -12672,9 +12682,9 @@ body:not(.night) .rich-text strong {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
-    flex: 1 1 0% !important;
-    height: 100% !important;
-    max-height: 100% !important;
+    flex: 1 1 auto !important;
+    height: calc(100% - 32px) !important;
+    max-height: calc(100% - 32px) !important;
     min-height: 0 !important;
     display: flex !important;
     flex-direction: column !important;
