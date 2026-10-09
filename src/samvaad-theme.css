@@ -5901,11 +5901,20 @@ select:focus-visible,
     min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
-    padding: 8px 8px 10px !important;
+    padding: 6px 8px max(10px, env(safe-area-inset-bottom, 10px)) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
+    align-items: center !important;
     box-sizing: border-box !important;
+  }
+
+  .chat-overview-section.heading-hidden,
+  .about-us-section.heading-hidden,
+  .spiritual-page .phase#overview.heading-hidden,
+  .spiritual-page .phase#education.heading-hidden {
+    justify-content: flex-start !important;
+    padding: 6px 8px max(10px, env(safe-area-inset-bottom, 10px)) !important;
   }
 
   .chat-overview-section .spiritual-section-heading,
@@ -5939,24 +5948,28 @@ select:focus-visible,
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
-    flex: 1 1 auto !important;
-    height: calc(100% - 32px) !important;
-    max-height: calc(100% - 32px) !important;
+    flex: 1 1 0% !important;
+    height: 100% !important;
+    max-height: 100% !important;
     min-height: 0 !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
   }
   .chat-demo-window {
     width: 100% !important;
     height: 100% !important;
+    max-height: 100% !important;
     min-height: 0 !important;
-    flex: 1 1 auto !important;
+    flex: 1 1 0% !important;
     display: flex !important;
     flex-direction: column !important;
-    border-radius: 18px !important;
+    border-radius: 16px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
     overflow: hidden !important;
+    box-sizing: border-box !important;
   }
   .chat-demo-topbar {
     padding: 8px 10px !important;
@@ -6008,16 +6021,17 @@ select:focus-visible,
     flex-shrink: 0 !important;
   }
   .chat-demo-body {
-    flex: 1 1 auto !important;
-    height: 100% !important;
-    max-height: none !important;
+    flex: 1 1 0% !important;
+    height: 0 !important;
+    max-height: 100% !important;
     min-height: 0 !important;
-    padding: 10px 10px !important;
+    padding: 8px 10px !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
     gap: 8px !important;
     display: flex !important;
     flex-direction: column !important;
+    box-sizing: border-box !important;
   }
   .chat-demo-msg {
     display: flex !important;
@@ -9982,9 +9996,11 @@ body:not(.night) .rich-text strong {
   }
 }
 
-/* Dynamic Collapse for Project Overview Section Heading */
-.chat-overview-section.heading-hidden {
-  justify-content: center !important;
+/* Dynamic Collapse for Project Overview Section Heading (Desktop) */
+@media (min-width: 769px) {
+  .chat-overview-section.heading-hidden {
+    justify-content: center !important;
+  }
 }
 
 .overview-heading-wrap {
@@ -12643,7 +12659,7 @@ body:not(.night) .rich-text strong {
     min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
-    padding: 8px 8px max(12px, env(safe-area-inset-bottom, 12px)) !important;
+    padding: 6px 8px max(10px, env(safe-area-inset-bottom, 10px)) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
@@ -12653,7 +12669,8 @@ body:not(.night) .rich-text strong {
 
   .about-us-section.heading-hidden,
   .spiritual-page .phase#education.heading-hidden {
-    justify-content: center !important;
+    justify-content: flex-start !important;
+    padding: 6px 8px max(10px, env(safe-area-inset-bottom, 10px)) !important;
   }
 
   .about-us-section .about-heading-wrap {
@@ -12682,9 +12699,9 @@ body:not(.night) .rich-text strong {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
-    flex: 1 1 auto !important;
-    height: calc(100% - 32px) !important;
-    max-height: calc(100% - 32px) !important;
+    flex: 1 1 0% !important;
+    height: 100% !important;
+    max-height: 100% !important;
     min-height: 0 !important;
     display: flex !important;
     flex-direction: column !important;
@@ -12696,22 +12713,23 @@ body:not(.night) .rich-text strong {
   .about-us-chat-container .chat-demo-window {
     width: 100% !important;
     height: 100% !important;
+    max-height: 100% !important;
     min-height: 0 !important;
-    flex: 1 1 auto !important;
+    flex: 1 1 0% !important;
     display: flex !important;
     flex-direction: column !important;
-    border-radius: 18px !important;
+    border-radius: 16px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
   }
 
   .about-us-chat-container .chat-demo-body {
-    flex: 1 1 auto !important;
-    height: 100% !important;
-    max-height: none !important;
+    flex: 1 1 0% !important;
+    height: 0 !important;
+    max-height: 100% !important;
     min-height: 0 !important;
-    padding: 10px 10px !important;
+    padding: 8px 10px !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
     gap: 8px !important;
@@ -12723,10 +12741,10 @@ body:not(.night) .rich-text strong {
   .about-us-chat-container .chat-demo-controls {
     flex-shrink: 0 !important;
     flex-grow: 0 !important;
-    padding: 6px 10px 8px !important;
+    padding: 5px 8px 6px !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 5px !important;
+    gap: 4px !important;
     box-sizing: border-box !important;
   }
 

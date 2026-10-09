@@ -794,9 +794,15 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   // 2. When active section changes (landing into a particular section):
   useEffect(() => {
     const isFirstPage = active === 0
-    showTaskbar(isFirstPage ? 5000 : 2000)
-
     const currentPhase = phases[active]?.id
+    const isChatSection = currentPhase === 'education' || currentPhase === 'overview'
+
+    if (isChatSection) {
+      hideTaskbar()
+    } else {
+      showTaskbar(isFirstPage ? 5000 : 2000)
+    }
+
     if (currentPhase !== 'education') {
       setAboutHeadingDismissed(false)
     }
@@ -823,6 +829,11 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
 
       lastScrollTop = currentScroll
       const isFirstPage = activeRef.current === 0
+      const currentPhase = phases[activeRef.current]?.id
+      if (currentPhase === 'education' || currentPhase === 'overview') {
+        hideTaskbar()
+        return
+      }
 
       // When near the top of the landing page: always show
       if (currentScroll <= 40) {
@@ -844,6 +855,10 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
 
     // Touch swipe detection for mobile UI
     const handleTouchStart = (e) => {
+      const currentPhase = phases[activeRef.current]?.id
+      if (currentPhase === 'education' || currentPhase === 'overview') {
+        return
+      }
       touchStartY = e.touches[0].clientY
       if (touchStartY <= 60) {
         showTaskbar(activeRef.current === 0 ? 5000 : 3000)
@@ -851,6 +866,10 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     }
 
     const handleTouchMove = (e) => {
+      const currentPhase = phases[activeRef.current]?.id
+      if (currentPhase === 'education' || currentPhase === 'overview') {
+        return
+      }
       const currentY = e.touches[0].clientY
       const deltaY = currentY - touchStartY
       const isFirstPage = activeRef.current === 0
@@ -865,6 +884,10 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
     }
 
     const handlePointerTop = (e) => {
+      const currentPhase = phases[activeRef.current]?.id
+      if (currentPhase === 'education' || currentPhase === 'overview') {
+        return
+      }
       const y = e.touches ? e.touches[0].clientY : e.clientY
       if (y <= 50) {
         showTaskbar(activeRef.current === 0 ? 5000 : 3000)
