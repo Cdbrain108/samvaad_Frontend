@@ -45,9 +45,10 @@ try {
     mkdirSync(ghAssets, { recursive: true });
   }
 
-  // 4. Copy new dist into the worktree
-  cpSync(join(dist, 'index.html'), join(worktreeDir, 'index.html'), { force: true });
-  cpSync(join(dist, 'assets'), ghAssets, { recursive: true, force: true });
+  // 4. Copy new dist into the worktree (index.html, sw.js, manifest.webmanifest, icon.svg, assets, audio)
+  cpSync(dist, worktreeDir, { recursive: true, force: true });
+  const { writeFileSync } = await import('fs');
+  writeFileSync(join(worktreeDir, '.nojekyll'), '');
 
   // 5. Commit and push gh-pages
   run('git add -A', worktreeDir);
