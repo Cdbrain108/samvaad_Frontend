@@ -6460,8 +6460,10 @@ select:focus-visible,
   scrollbar-width: none !important;
 }
 
-.about-us-section.heading-hidden {
-  justify-content: center !important;
+@media (min-width: 769px) {
+  .about-us-section.heading-hidden {
+    justify-content: center !important;
+  }
 }
 
 .about-us-section::-webkit-scrollbar {
@@ -12632,16 +12634,19 @@ body:not(.night) .rich-text strong {
    ═════════════════════════════════════════════ */
 @media (max-width: 768px) {
   .spiritual-page .phase#education,
-  .about-us-section {
+  .about-us-section,
+  .about-us-section.heading-hidden,
+  .spiritual-page .phase#education.heading-hidden {
     height: 100svh !important;
     height: 100dvh !important;
     min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
-    padding: 8px 8px 10px !important;
+    padding: 8px 8px max(10px, env(safe-area-inset-bottom, 10px)) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
+    align-items: center !important;
     box-sizing: border-box !important;
   }
 
@@ -12653,31 +12658,29 @@ body:not(.night) .rich-text strong {
   }
 
   .about-us-section.heading-hidden .about-heading-wrap,
-  .about-us-section .about-heading-wrap.is-backward-removing {
+  .about-us-section .about-heading-wrap.is-backward-removing,
+  .spiritual-page .phase#education.heading-hidden .about-heading-wrap {
     display: none !important;
     max-height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
   }
 
-  .about-us-chat-container {
+  .about-us-chat-container,
+  .about-us-section.heading-hidden .about-us-chat-container,
+  .spiritual-page .phase#education .about-us-chat-container {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
     flex: 1 1 0% !important;
-    height: calc(100% - 32px) !important;
-    max-height: calc(100% - 32px) !important;
+    height: 100% !important;
+    max-height: 100% !important;
     min-height: 0 !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
-  }
-
-  .about-us-section.heading-hidden .about-us-chat-container {
-    height: 100% !important;
-    max-height: 100% !important;
   }
 
   .about-us-chat-container .chat-demo-window {
