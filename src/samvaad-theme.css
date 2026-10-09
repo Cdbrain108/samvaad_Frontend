@@ -12696,25 +12696,22 @@ body:not(.night) .rich-text strong {
   .about-us-chat-container .chat-demo-window {
     width: 100% !important;
     height: 100% !important;
-    max-height: 100% !important;
     min-height: 0 !important;
-    flex: 1 1 0% !important;
+    flex: 1 1 auto !important;
     display: flex !important;
     flex-direction: column !important;
     border-radius: 18px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
   }
 
-  /* CRITICAL: Body has height: 0 to enforce strict flex-basis 0 in WebKit/Blink.
-     Text ALWAYS scrolls internally and NEVER pushes controls downward! */
   .about-us-chat-container .chat-demo-body {
-    flex: 1 1 0% !important;
-    height: 0 !important;
-    max-height: 100% !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    max-height: none !important;
     min-height: 0 !important;
-    padding: 8px 10px !important;
+    padding: 10px 10px !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
     gap: 8px !important;
@@ -12726,10 +12723,10 @@ body:not(.night) .rich-text strong {
   .about-us-chat-container .chat-demo-controls {
     flex-shrink: 0 !important;
     flex-grow: 0 !important;
-    padding: 5px 8px 6px !important;
+    padding: 6px 10px 8px !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 4px !important;
+    gap: 5px !important;
     box-sizing: border-box !important;
   }
 

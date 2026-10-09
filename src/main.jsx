@@ -18,8 +18,22 @@ createRoot(document.getElementById('root')).render(
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     const swUrl = new URL(`${import.meta.env.BASE_URL}sw.js`, window.location.href)
-    navigator.serviceWorker.register(swUrl).catch((err) => {
-      console.warn('[pwa] Service worker registration failed:', err)
-    })
+    navigator.serviceWorker
+      .register(swUrl)
+      .then((reg) => {
+        reg.update().catch(() => {})
+      })
+      .catch((err) => {
+        console.warn('[pwa] Service worker registration failed:', err)
+      })
+  })
+
+  let refreshing = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true
+      window.location.reload()
+    }
   })
 }
+

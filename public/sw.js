@@ -11,7 +11,7 @@
  *    passes straight through and is never cached.
  */
 
-const VERSION = 'v4';
+const VERSION = 'v6';
 const SHELL_CACHE = `samvaad-shell-${VERSION}`;
 const ASSET_CACHE = `samvaad-assets-${VERSION}`;
 
@@ -37,7 +37,10 @@ self.addEventListener('activate', (event) => {
         Promise.all(
           keys
             .filter((key) => key !== SHELL_CACHE && key !== ASSET_CACHE)
-            .map((key) => caches.delete(key))
+            .map((key) => {
+              console.log('[sw] Deleting old cache:', key);
+              return caches.delete(key);
+            })
         )
       )
       .then(() => self.clients.claim())
@@ -61,7 +64,7 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
+      fetch(request, { cache: 'no-cache' })
         .then((response) => {
           const copy = response.clone();
           caches
