@@ -6441,26 +6441,26 @@ select:focus-visible,
    ABOUT US / CREATOR SECTION STYLES
    ============================================================ */
 
-.about-us-section {
-  padding: clamp(20px, 3vh, 36px) max(20px, calc((100vw - 1100px) / 2)) clamp(20px, 3vh, 36px) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  position: relative !important;
-  height: 100vh !important;
-  height: 100dvh !important;
-  min-height: 100dvh !important;
-  max-height: 100dvh !important;
-  box-sizing: border-box !important;
-  scroll-snap-align: start !important;
-  scroll-snap-stop: normal !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  scrollbar-width: none !important;
-}
-
 @media (min-width: 769px) {
+  .about-us-section {
+    padding: clamp(20px, 3vh, 36px) max(20px, calc((100vw - 1100px) / 2)) clamp(20px, 3vh, 36px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    position: relative !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    box-sizing: border-box !important;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: normal !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: none !important;
+  }
+
   .about-us-section.heading-hidden {
     justify-content: center !important;
   }
@@ -12858,13 +12858,6 @@ body:not(.night) .rich-text strong {
   }
 }
 
-/* Floating pill hidden permanently on About Us section */
-.about-us-section ~ .floating-try-samvaad-pill,
-.phase#education ~ .floating-try-samvaad-pill {
-  display: none !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
 
 .creator-btn-text-mobile,
 .chat-demo-pill-label-mobile {

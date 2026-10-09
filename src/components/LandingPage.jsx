@@ -1488,7 +1488,7 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         {/* ============================================================
             PAGE 6 · ABOUT US & CREATOR'S PASSION PROJECT
             ============================================================ */}
-        <section className={`about-us-section phase${aboutHeadingDismissed ? ' heading-hidden' : ''}`} id="education">
+        <section className={`chat-overview-section about-us-section phase${aboutHeadingDismissed ? ' heading-hidden' : ''}`} id="education">
           <div className={`overview-heading-wrap about-heading-wrap${aboutHeadingDismissed ? ' is-backward-removing' : ''}`}>
             <Reveal className="spiritual-section-heading">
               <span>परिचय एवं ध्येय · About Us</span>
@@ -1510,21 +1510,19 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
       </main>
 
       {/* Floating Live Samvaad Quick-Access Pill — appears after staying >1.5s in a section */}
-      {phases[active]?.id !== 'education' && (
-        <button
-          className={`floating-try-samvaad-pill ${showFloatingPill ? 'is-visible' : ''}`}
-          onClick={onEnter}
-          aria-label="Try Samvaad · Ask a question in live chat"
-          title="Start Live Samvaad Chat"
-          type="button"
-        >
-          <span className="floating-pill-icon" aria-hidden="true">🪷</span>
-          <span className="floating-pill-text">
-            <strong>Try Samvaad</strong>
-            <small>Ask a Question →</small>
-          </span>
-        </button>
-      )}
+      <button
+        className={`floating-try-samvaad-pill ${showFloatingPill ? 'is-visible' : ''}`}
+        onClick={onEnter}
+        aria-label="Try Samvaad · Ask a question in live chat"
+        title="Start Live Samvaad Chat"
+        type="button"
+      >
+        <span className="floating-pill-icon" aria-hidden="true">🪷</span>
+        <span className="floating-pill-text">
+          <strong>Try Samvaad</strong>
+          <small>Ask a Question →</small>
+        </span>
+      </button>
 
       {/* Bhajan Marg YouTube Video Exit Confirmation Modal */}
       <AnimatePresence>
