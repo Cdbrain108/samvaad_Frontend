@@ -5901,7 +5901,7 @@ select:focus-visible,
     min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
-    padding: 58px 8px max(10px, env(safe-area-inset-bottom, 10px)) !important;
+    padding: 8px 8px 10px !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
@@ -5911,21 +5911,21 @@ select:focus-visible,
   .chat-overview-section .spiritual-section-heading,
   .about-us-section .spiritual-section-heading,
   .about-us-section .about-heading-wrap {
-    margin: 0 0 4px !important;
+    margin: 0 0 6px !important;
     padding: 0 !important;
     text-align: center !important;
     flex-shrink: 0 !important;
   }
   .chat-overview-section .spiritual-section-heading span,
   .about-us-section .spiritual-section-heading span {
-    font-size: 10px !important;
+    font-size: 10.5px !important;
     letter-spacing: 0.5px !important;
     margin-bottom: 2px !important;
     display: inline-block !important;
   }
   .chat-overview-section .spiritual-section-heading h2,
   .about-us-section .spiritual-section-heading h2 {
-    font-size: 13px !important;
+    font-size: 14px !important;
     line-height: 1.25 !important;
     margin: 0 !important;
     font-weight: 700 !important;
@@ -5939,42 +5939,37 @@ select:focus-visible,
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
-    flex: 1 1 0% !important;
-    height: 100% !important;
-    max-height: 100% !important;
+    flex: 1 1 auto !important;
+    height: calc(100% - 32px) !important;
+    max-height: calc(100% - 32px) !important;
     min-height: 0 !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
   }
   .chat-demo-window {
     width: 100% !important;
     height: 100% !important;
-    max-height: 100% !important;
     min-height: 0 !important;
-    flex: 1 1 0% !important;
+    flex: 1 1 auto !important;
     display: flex !important;
     flex-direction: column !important;
     border-radius: 18px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
     overflow: hidden !important;
-    box-sizing: border-box !important;
   }
   .chat-demo-topbar {
-    padding: 7px 10px !important;
+    padding: 8px 10px !important;
     flex-shrink: 0 !important;
-    flex-grow: 0 !important;
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
   }
   .chat-demo-avatar {
-    width: 28px !important;
-    height: 28px !important;
-    min-width: 28px !important;
-    font-size: 12px !important;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    font-size: 12.5px !important;
     border-radius: 50% !important;
     display: flex !important;
     align-items: center !important;
@@ -5988,14 +5983,14 @@ select:focus-visible,
     overflow: hidden !important;
   }
   .chat-demo-meta strong {
-    font-size: 12px !important;
+    font-size: 12.5px !important;
     line-height: 1.2 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
   }
   .chat-demo-sub {
-    font-size: 9.5px !important;
+    font-size: 10px !important;
     line-height: 1.2 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -6006,24 +6001,23 @@ select:focus-visible,
   }
   .chat-demo-badge {
     margin-left: auto !important;
-    font-size: 9px !important;
-    padding: 2px 6px !important;
+    font-size: 9.5px !important;
+    padding: 2.5px 7px !important;
     border-radius: 999px !important;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
   }
   .chat-demo-body {
-    flex: 1 1 0% !important;
-    height: 0 !important;
-    max-height: 100% !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    max-height: none !important;
     min-height: 0 !important;
-    padding: 8px 10px !important;
+    padding: 10px 10px !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
     gap: 8px !important;
     display: flex !important;
     flex-direction: column !important;
-    box-sizing: border-box !important;
   }
   .chat-demo-msg {
     display: flex !important;
@@ -6447,29 +6441,27 @@ select:focus-visible,
    ABOUT US / CREATOR SECTION STYLES
    ============================================================ */
 
-@media (min-width: 769px) {
-  .about-us-section {
-    padding: clamp(20px, 3vh, 36px) max(20px, calc((100vw - 1100px) / 2)) clamp(20px, 3vh, 36px) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    position: relative !important;
-    height: 100vh !important;
-    height: 100dvh !important;
-    min-height: 100dvh !important;
-    max-height: 100dvh !important;
-    box-sizing: border-box !important;
-    scroll-snap-align: start !important;
-    scroll-snap-stop: normal !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    scrollbar-width: none !important;
-  }
+.about-us-section {
+  padding: clamp(20px, 3vh, 36px) max(20px, calc((100vw - 1100px) / 2)) clamp(20px, 3vh, 36px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  position: relative !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  max-height: 100dvh !important;
+  box-sizing: border-box !important;
+  scroll-snap-align: start !important;
+  scroll-snap-stop: normal !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: none !important;
+}
 
-  .about-us-section.heading-hidden {
-    justify-content: center !important;
-  }
+.about-us-section.heading-hidden {
+  justify-content: center !important;
 }
 
 .about-us-section::-webkit-scrollbar {
@@ -6556,100 +6548,67 @@ select:focus-visible,
               margin 600ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.creator-social-actions,
-.about-action-cluster {
+.creator-social-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid rgba(254, 200, 75, 0.18);
-  width: 100%;
 }
 
-.about-connect-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.creator-action-btn,
-.about-social-pill {
+.creator-action-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 18px;
+  padding: 9px 18px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
   transition: all 200ms ease;
-  white-space: nowrap;
 }
 
-.creator-linkedin-btn,
-.about-linkedin-pill {
-  background: rgba(10, 102, 194, 0.18);
-  color: #93c5fd !important;
-  border: 1px solid rgba(10, 102, 194, 0.45);
-}
-
-.creator-linkedin-btn:hover,
-.about-linkedin-pill:hover {
+.creator-linkedin-btn {
   background: #0A66C2;
   color: #FFFFFF !important;
-  transform: translateY(-2px);
+  border: 1px solid #0A66C2;
   box-shadow: 0 4px 14px rgba(10, 102, 194, 0.35);
 }
 
-.creator-email-btn,
-.about-email-pill {
-  background: rgba(245, 158, 11, 0.14);
-  color: #FEF08A !important;
+.creator-linkedin-btn:hover {
+  background: #004182;
+  border-color: #004182;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(10, 102, 194, 0.45);
+}
+
+.creator-email-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #F4E9D4 !important;
   border: 1px solid rgba(254, 200, 75, 0.35);
   backdrop-filter: blur(8px);
 }
 
-.spiritual-page:not(.night) .creator-linkedin-btn,
-.spiritual-page:not(.night) .about-linkedin-pill {
-  background: rgba(10, 102, 194, 0.08);
-  color: #0A66C2 !important;
-  border: 1px solid rgba(10, 102, 194, 0.3);
+.spiritual-page:not(.night) .creator-email-btn {
+  background: rgba(255, 255, 255, 0.85);
+  color: #4A2E14 !important;
+  border-color: rgba(217, 119, 6, 0.35);
 }
 
-.spiritual-page:not(.night) .creator-linkedin-btn:hover,
-.spiritual-page:not(.night) .about-linkedin-pill:hover {
-  background: #0A66C2;
-  color: #FFFFFF !important;
-}
-
-.spiritual-page:not(.night) .creator-email-btn,
-.spiritual-page:not(.night) .about-email-pill {
-  background: rgba(217, 119, 6, 0.08);
-  color: #92400e !important;
-  border: 1px solid rgba(217, 119, 6, 0.3);
-}
-
-.creator-email-btn:hover,
-.about-email-pill:hover {
-  background: rgba(254, 200, 75, 0.22);
+.creator-email-btn:hover {
+  background: rgba(254, 200, 75, 0.18);
   border-color: #FEC84B;
   transform: translateY(-2px);
   color: #FFE9B8 !important;
 }
 
-.spiritual-page:not(.night) .creator-email-btn:hover,
-.spiritual-page:not(.night) .about-email-pill:hover {
-  background: rgba(217, 119, 6, 0.16);
+.spiritual-page:not(.night) .creator-email-btn:hover {
+  background: #FFF8E1;
   border-color: #D97706;
-  color: #78350F !important;
-}
-
-.about-primary-cta {
-  cursor: pointer;
+  color: #92400E !important;
 }
 
 .landing-user-pill:hover {
@@ -10021,11 +9980,9 @@ body:not(.night) .rich-text strong {
   }
 }
 
-/* Dynamic Collapse for Project Overview Section Heading (Desktop) */
-@media (min-width: 769px) {
-  .chat-overview-section.heading-hidden {
-    justify-content: center !important;
-  }
+/* Dynamic Collapse for Project Overview Section Heading */
+.chat-overview-section.heading-hidden {
+  justify-content: center !important;
 }
 
 .overview-heading-wrap {
@@ -12668,35 +12625,27 @@ body:not(.night) .rich-text strong {
 
 /* ═════════════════════════════════════════════════════════════════════
    MOBILE ABOUT US SECTION: DYNAMIC SCREEN FIT (IDENTICAL TO OVERVIEW)
-   - Matches .chat-overview-section behavior exactly: locked inside 100dvh
-   - Auto-fitting container with zero cutoff on any phone screen
-   - Beautifully balanced and aligned action buttons:
-     Row 1: 3-column equal grid for Question Pills
-     Row 2: 50/50 Grid for LinkedIn & Email
-     Row 3: 100% Full-Width Primary Live Samvaad CTA Button
+   - Matches .chat-overview-section behavior exactly
+   - Collapses heading automatically
+   - Sleek single-row scrollable pills
+   - Compact footer actions so the typing window gets 100% visible height
    ═════════════════════════════════════════════ */
 @media (max-width: 768px) {
   .spiritual-page .phase#education,
-  .about-us-section,
-  .spiritual-page .phase#overview,
-  .chat-overview-section,
-  .about-us-section.heading-hidden,
-  .chat-overview-section.heading-hidden {
+  .about-us-section {
     height: 100svh !important;
     height: 100dvh !important;
     min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
-    padding: 58px 8px max(10px, env(safe-area-inset-bottom, 10px)) !important;
+    padding: 8px 8px 10px !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
-    align-items: center !important;
     box-sizing: border-box !important;
   }
 
-  .about-us-section .about-heading-wrap,
-  .chat-overview-section .overview-heading-wrap {
+  .about-us-section .about-heading-wrap {
     margin: 0 0 4px !important;
     padding: 0 !important;
     text-align: center !important;
@@ -12704,23 +12653,20 @@ body:not(.night) .rich-text strong {
   }
 
   .about-us-section.heading-hidden .about-heading-wrap,
-  .about-us-section .about-heading-wrap.is-backward-removing,
-  .chat-overview-section.heading-hidden .overview-heading-wrap,
-  .chat-overview-section .overview-heading-wrap.is-backward-removing {
+  .about-us-section .about-heading-wrap.is-backward-removing {
     display: none !important;
     max-height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
   }
 
-  /* Chat demo container strictly locked inside available flex height */
-  .chat-demo-container {
+  .about-us-chat-container {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
     flex: 1 1 0% !important;
-    height: 100% !important;
-    max-height: 100% !important;
+    height: calc(100% - 32px) !important;
+    max-height: calc(100% - 32px) !important;
     min-height: 0 !important;
     display: flex !important;
     flex-direction: column !important;
@@ -12729,7 +12675,12 @@ body:not(.night) .rich-text strong {
     box-sizing: border-box !important;
   }
 
-  .chat-demo-window {
+  .about-us-section.heading-hidden .about-us-chat-container {
+    height: 100% !important;
+    max-height: 100% !important;
+  }
+
+  .about-us-chat-container .chat-demo-window {
     width: 100% !important;
     height: 100% !important;
     max-height: 100% !important;
@@ -12738,22 +12689,14 @@ body:not(.night) .rich-text strong {
     display: flex !important;
     flex-direction: column !important;
     border-radius: 18px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
   }
 
-  .chat-demo-topbar {
-    padding: 7px 10px !important;
-    flex-shrink: 0 !important;
-    flex-grow: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-  }
-
   /* CRITICAL: Body has height: 0 to enforce strict flex-basis 0 in WebKit/Blink.
      Text ALWAYS scrolls internally and NEVER pushes controls downward! */
-  .chat-demo-body {
+  .about-us-chat-container .chat-demo-body {
     flex: 1 1 0% !important;
     height: 0 !important;
     max-height: 100% !important;
@@ -12767,38 +12710,38 @@ body:not(.night) .rich-text strong {
     box-sizing: border-box !important;
   }
 
-  .chat-demo-controls {
+  .about-us-chat-container .chat-demo-controls {
     flex-shrink: 0 !important;
     flex-grow: 0 !important;
-    padding: 5px 8px 7px !important;
+    padding: 5px 8px 6px !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 5px !important;
+    gap: 4px !important;
     box-sizing: border-box !important;
   }
 
-  .chat-demo-controls-label {
+  .about-us-chat-container .chat-demo-controls-label {
+    margin-bottom: 2px !important;
     font-size: 9.5px !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.06em !important;
-    margin-bottom: 1px !important;
     line-height: 1.2 !important;
   }
 
   /* About Us 3 Question Selector Pills: Equal 3-Column Grid */
-  .about-demo-pills {
+  .about-us-chat-container .chat-demo-pills {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
-    gap: 5px !important;
+    gap: 4px !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
 
-  .about-demo-pills .chat-demo-pill {
+  .about-us-chat-container .chat-demo-pill {
     width: 100% !important;
-    height: 29px !important;
-    min-height: 29px !important;
+    height: 28px !important;
+    min-height: 28px !important;
     padding: 0 4px !important;
     font-size: 11px !important;
     font-weight: 600 !important;
@@ -12807,22 +12750,25 @@ body:not(.night) .rich-text strong {
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
+    white-space: nowrap !important;
   }
 
-  /* About Us Action Cluster & Buttons Alignment */
-  .about-action-cluster {
+  /* About Us Action Buttons: Two-Row Stack (Social Pair on Top, CTA below) */
+  .about-us-chat-container .creator-social-actions {
     display: flex !important;
     flex-direction: column !important;
-    gap: 5px !important;
-    width: 100% !important;
-    margin-top: 2px !important;
+    align-items: center !important;
+    gap: 4px !important;
+    margin-top: 3px !important;
     padding-top: 4px !important;
     border-top: 1px solid rgba(254, 200, 75, 0.16) !important;
-    box-sizing: border-box !important;
+    width: 100% !important;
     flex-shrink: 0 !important;
+    box-sizing: border-box !important;
   }
 
-  .about-connect-row {
+  /* Row 2: LinkedIn & Email in equal 50/50 Grid */
+  .about-us-chat-container .creator-social-pair {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     gap: 6px !important;
@@ -12830,63 +12776,65 @@ body:not(.night) .rich-text strong {
     box-sizing: border-box !important;
   }
 
-  .about-social-pill {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 6px !important;
-    height: 31px !important;
-    min-height: 31px !important;
+  .about-us-chat-container .creator-action-btn {
+    height: 30px !important;
+    min-height: 30px !important;
     padding: 0 8px !important;
     font-size: 11px !important;
     font-weight: 600 !important;
     border-radius: 999px !important;
-    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    white-space: nowrap !important;
     box-sizing: border-box !important;
     transition: all 0.2s ease !important;
-    white-space: nowrap !important;
+    text-decoration: none !important;
   }
 
-  .about-linkedin-pill {
+  .about-us-chat-container .creator-linkedin-btn {
     background: rgba(10, 102, 194, 0.22) !important;
     border: 1px solid rgba(10, 102, 194, 0.45) !important;
     color: #93c5fd !important;
   }
 
-  .about-linkedin-pill:active {
+  .about-us-chat-container .creator-linkedin-btn:active {
     background: rgba(10, 102, 194, 0.35) !important;
     transform: scale(0.97) !important;
   }
 
-  .about-email-pill {
+  .about-us-chat-container .creator-email-btn {
     background: rgba(245, 158, 11, 0.14) !important;
     border: 1px solid rgba(245, 158, 11, 0.35) !important;
     color: #fef08a !important;
   }
 
-  .about-email-pill:active {
+  .about-us-chat-container .creator-email-btn:active {
     background: rgba(245, 158, 11, 0.25) !important;
     transform: scale(0.97) !important;
   }
 
-  :root[data-theme='light'] .about-linkedin-pill,
-  .spiritual-page:not(.night) .about-linkedin-pill {
+  :root[data-theme='light'] .about-us-chat-container .creator-linkedin-btn,
+  .spiritual-page:not(.night) .about-us-chat-container .creator-linkedin-btn {
     background: rgba(10, 102, 194, 0.08) !important;
     border: 1px solid rgba(10, 102, 194, 0.35) !important;
     color: #0A66C2 !important;
   }
 
-  :root[data-theme='light'] .about-email-pill,
-  .spiritual-page:not(.night) .about-email-pill {
+  :root[data-theme='light'] .about-us-chat-container .creator-email-btn,
+  .spiritual-page:not(.night) .about-us-chat-container .creator-email-btn {
     background: rgba(245, 158, 11, 0.08) !important;
     border: 1px solid rgba(217, 119, 6, 0.3) !important;
     color: #92400e !important;
   }
 
-  .about-primary-cta {
+  /* Row 3: Full-Width Primary Live Samvaad CTA Button (Touch Accessible) */
+  .about-us-chat-container .creator-social-actions .rust-button.cta-button {
     width: 100% !important;
-    min-height: 36px !important;
-    height: 36px !important;
+    min-width: 100% !important;
+    min-height: 34px !important;
+    height: 34px !important;
     padding: 0 12px !important;
     font-size: 12px !important;
     font-weight: 700 !important;
