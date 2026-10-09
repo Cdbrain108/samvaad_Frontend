@@ -1,0 +1,22 @@
+{
+  "name": "Samvaad · Devotional Q&A Learning Playground",
+  "short_name": "Samvaad",
+  "description": "A personal educational playground that learns from 4000+ Bhajan Marg Q&A discourses to answer devotional questions in a warm, calm style.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#090C19",
+  "theme_color": "#090C19",
+  "categories": ["education", "lifestyle"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
