@@ -778,6 +778,11 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
   const scheduleFloatingPill = () => {
     if (floatingTimerRef.current) clearTimeout(floatingTimerRef.current)
     setShowFloatingPill(false)
+    const currentPhase = phases[activeRef.current]?.id
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+    if (isMobile && (currentPhase === 'education' || currentPhase === 'overview')) {
+      return
+    }
     floatingTimerRef.current = setTimeout(() => {
       setShowFloatingPill(true)
     }, 1500)

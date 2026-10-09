@@ -12861,25 +12861,36 @@ body:not(.night) .rich-text strong {
   .about-us-chat-container .creator-social-actions .rust-button.cta-button {
     width: 100% !important;
     min-width: 100% !important;
-    min-height: 34px !important;
-    height: 34px !important;
-    padding: 0 12px !important;
-    font-size: 12px !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 0 16px !important;
+    font-size: 13px !important;
     font-weight: 700 !important;
+    letter-spacing: 0.02em !important;
     border-radius: 999px !important;
-    margin-top: 0 !important;
+    margin-top: 2px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 6px !important;
+    gap: 8px !important;
     white-space: nowrap !important;
     box-sizing: border-box !important;
     background: linear-gradient(135deg, #E68A00 0%, #B4560A 100%) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.4) !important;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.45) !important;
     cursor: pointer !important;
     touch-action: manipulation !important;
     -webkit-tap-highlight-color: transparent !important;
+  }
+
+  /* Prevent floating quick-access pill from overlapping primary CTA button on mobile chat sections */
+  .spiritual-page:has(.phase#overview.is-active) .floating-try-samvaad-pill,
+  .spiritual-page:has(.phase#education.is-active) .floating-try-samvaad-pill,
+  .chat-overview-section ~ .floating-try-samvaad-pill,
+  .about-us-section ~ .floating-try-samvaad-pill {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 }
 
