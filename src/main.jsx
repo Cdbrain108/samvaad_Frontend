@@ -17,7 +17,7 @@ createRoot(document.getElementById('root')).render(
 // hosting (GitHub Pages), where the app is not at the domain root.
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    const swUrl = new URL(`${import.meta.env.BASE_URL}sw.js?v=9`, window.location.href)
+    const swUrl = new URL(`${import.meta.env.BASE_URL}sw.js?v=10`, window.location.href)
     navigator.serviceWorker
       .register(swUrl)
       .then((reg) => {

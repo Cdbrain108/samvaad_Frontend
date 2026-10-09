@@ -11,7 +11,7 @@
  *    passes straight through and is never cached.
  */
 
-const VERSION = 'v9';
+const VERSION = 'v10';
 const SHELL_CACHE = `samvaad-shell-${VERSION}`;
 const ASSET_CACHE = `samvaad-assets-${VERSION}`;
 

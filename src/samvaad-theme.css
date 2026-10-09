@@ -6150,17 +6150,17 @@ select:focus-visible,
   .creator-social-pair {
     display: flex !important;
     flex-direction: row !important;
-    gap: 6px !important;
+    gap: 8px !important;
     width: 100% !important;
     flex-shrink: 0 !important;
   }
   .creator-action-btn {
     flex: 1 1 50% !important;
     width: 50% !important;
-    min-height: 32px !important;
-    height: 32px !important;
-    padding: 4px 8px !important;
-    font-size: 11px !important;
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
     font-weight: 600 !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -6566,12 +6566,24 @@ select:focus-visible,
 
 .creator-social-actions {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 12px;
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid rgba(254, 200, 75, 0.18);
+  width: 100%;
+}
+
+.creator-social-pair {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.creator-social-pair .creator-action-btn {
+  flex: 1;
+  justify-content: center;
 }
 
 .creator-action-btn {
@@ -12799,62 +12811,66 @@ body:not(.night) .rich-text strong {
   .about-us-chat-container .creator-social-pair {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
-    gap: 6px !important;
+    gap: 8px !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
 
   .about-us-chat-container .creator-action-btn {
-    height: 30px !important;
-    min-height: 30px !important;
-    padding: 0 8px !important;
-    font-size: 11px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
     font-weight: 600 !important;
     border-radius: 999px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 6px !important;
+    gap: 8px !important;
     white-space: nowrap !important;
     box-sizing: border-box !important;
     transition: all 0.2s ease !important;
     text-decoration: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
   }
 
   .about-us-chat-container .creator-linkedin-btn {
-    background: rgba(10, 102, 194, 0.22) !important;
-    border: 1px solid rgba(10, 102, 194, 0.45) !important;
-    color: #93c5fd !important;
+    background: #0A66C2 !important;
+    border: 1px solid #0A66C2 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 2px 10px rgba(10, 102, 194, 0.35) !important;
   }
 
   .about-us-chat-container .creator-linkedin-btn:active {
-    background: rgba(10, 102, 194, 0.35) !important;
+    background: #004182 !important;
     transform: scale(0.97) !important;
   }
 
   .about-us-chat-container .creator-email-btn {
-    background: rgba(245, 158, 11, 0.14) !important;
-    border: 1px solid rgba(245, 158, 11, 0.35) !important;
+    background: rgba(254, 200, 75, 0.14) !important;
+    border: 1px solid rgba(254, 200, 75, 0.4) !important;
     color: #fef08a !important;
   }
 
   .about-us-chat-container .creator-email-btn:active {
-    background: rgba(245, 158, 11, 0.25) !important;
+    background: rgba(254, 200, 75, 0.25) !important;
     transform: scale(0.97) !important;
   }
 
   :root[data-theme='light'] .about-us-chat-container .creator-linkedin-btn,
   .spiritual-page:not(.night) .about-us-chat-container .creator-linkedin-btn {
-    background: rgba(10, 102, 194, 0.08) !important;
-    border: 1px solid rgba(10, 102, 194, 0.35) !important;
-    color: #0A66C2 !important;
+    background: #0A66C2 !important;
+    border: 1px solid #0A66C2 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 2px 10px rgba(10, 102, 194, 0.25) !important;
   }
 
   :root[data-theme='light'] .about-us-chat-container .creator-email-btn,
   .spiritual-page:not(.night) .about-us-chat-container .creator-email-btn {
-    background: rgba(245, 158, 11, 0.08) !important;
-    border: 1px solid rgba(217, 119, 6, 0.3) !important;
+    background: #FFFDF5 !important;
+    border: 1px solid rgba(217, 119, 6, 0.38) !important;
     color: #92400e !important;
+    box-shadow: 0 2px 8px rgba(180, 83, 9, 0.08) !important;
   }
 
   /* Row 3: Full-Width Primary Live Samvaad CTA Button (Touch Accessible) */
