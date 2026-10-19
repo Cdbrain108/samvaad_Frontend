@@ -706,8 +706,8 @@ This platform serves as an interactive learning playground. Guidance here is ref
               </a>
             </div>
 
-            <button className="rust-button cta-button" onClick={onEnter}>
-              <span aria-hidden="true">🙏</span> <span className="creator-btn-text-full">Start Live Samvaad</span><span className="creator-btn-text-mobile">Live Samvaad</span> <span aria-hidden="true">→</span>
+            <button className="rust-button cta-button" onClick={onEnter} aria-label="Try Samvaad · Live Chat">
+              <span aria-hidden="true">🙏</span> <span className="creator-btn-text-full">Start Live Samvaad</span><span className="creator-btn-text-mobile">Try Samvaad</span> <span aria-hidden="true">→</span>
             </button>
           </div>
         </div>
@@ -1530,20 +1530,22 @@ export default function LandingPage({ onEnter, onAsk, onSignIn, darkMode, onTogg
         </section>
       </main>
 
-      {/* Floating Live Samvaad Quick-Access Pill — appears after staying >1.5s in a section */}
-      <button
-        className={`floating-try-samvaad-pill ${showFloatingPill ? 'is-visible' : ''}`}
-        onClick={onEnter}
-        aria-label="Try Samvaad · Ask a question in live chat"
-        title="Start Live Samvaad Chat"
-        type="button"
-      >
-        <span className="floating-pill-icon" aria-hidden="true">🪷</span>
-        <span className="floating-pill-text">
-          <strong>Try Samvaad</strong>
-          <small>Ask a Question →</small>
-        </span>
-      </button>
+      {/* Floating Live Samvaad Quick-Access Pill — appears after staying >1.5s in a section (hidden on chat demo sections) */}
+      {phases[active]?.id !== 'education' && phases[active]?.id !== 'overview' && (
+        <button
+          className={`floating-try-samvaad-pill ${showFloatingPill ? 'is-visible' : ''}`}
+          onClick={onEnter}
+          aria-label="Try Samvaad · Ask a question in live chat"
+          title="Start Live Samvaad Chat"
+          type="button"
+        >
+          <span className="floating-pill-icon" aria-hidden="true">🪷</span>
+          <span className="floating-pill-text">
+            <strong>Try Samvaad</strong>
+            <small>Ask a Question →</small>
+          </span>
+        </button>
+      )}
 
       {/* Bhajan Marg YouTube Video Exit Confirmation Modal */}
       <AnimatePresence>

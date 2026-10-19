@@ -386,8 +386,8 @@ export const SCRIPTURE_DATABASE = [
     context_intro_hi: 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण मन की शक्ति व आत्मोद्धार पर कहते हैं कि —',
     context_intro_en: 'Just as Bhagavan Shri Krishna guides on conquering despair through the mind in the Bhagavad Gita —',
     keywords: [
-      'अवसाद', 'निराशा', 'निराश', 'जीवन से निराश', 'डिप्रेशन', 'मन टूट गया', 'उदास', 'हताश', 'हताशा', 'आत्मविश्वास टूट गया', 'हौसला टूटना', 'जीने की इच्छा नहीं',
-      'depression', 'depressed', 'overcoming sadness', 'hopeless', 'despair', 'feeling low', 'self doubt', 'lost hope',
+      'अवसाद', 'निराशा', 'निराश', 'जीवन से निराश', 'डिप्रेशन', 'मन टूट गया', 'उदास', 'हताश', 'हताशा', 'आत्मविश्वास टूट गया', 'हौसला टूटना', 'जीने की इच्छा नहीं', 'मरने का मन',
+      'depression', 'depressed', 'overcoming sadness', 'hopeless', 'despair', 'feeling low', 'self doubt', 'lost hope', 'feel like dying', 'want to die', 'career failure', 'struggling to get a job', 'job search', 'cant get a job',
       'డిప్రెషన్', 'నిరాశ',
       'nirasha', 'nirash', 'depression ho raha hai', 'udas hu'
     ]
@@ -1135,6 +1135,45 @@ export const SCRIPTURE_DATABASE = [
     context_intro_en: 'Just as Sage Shukadeva reveals the supreme grace of Holy Name chanting in Kaliyuga in Srimad Bhagavatam —',
     keywords: [
       'कलेर्दोषनिधे', 'कीर्तनादेव कृष्णस्य', 'श्रीमद्भागवतम् १२.३.५१', 'नाम संकीर्तन', 'kaler dosha nidhe', 'kirtanadeva krishnasya'
+    ]
+  },
+
+  // 37. Shri Ramcharitmanas - Rarity & Supreme Sanctity of Human Birth (बड़े भाग मानुष तनु पावा)
+  {
+    id: 'rcm_durlabh_manav_tanu',
+    scripture_id: 'ramcharitmanas',
+    reference: 'श्रीरामचरितमानस उत्तरकाण्ड ४३.१ (Ramcharitmanas Uttarkand 43.1)',
+    original_text: 'बड़े भाग मानुष तनु पावा। सुर दुर्लभ सब ग्रंथन्हि गावा॥ साधन धाम मोच्छ कर द्वारा। पाइ न जेहिं परलोक संवारा॥ सो परत्र दुख पावइ सिर धुनि धुनि पछिताइ। कालहि कर्महि ईस्वरहि मिथ्या दोष लगाइ॥',
+    hindi_meaning: 'बड़े भाग्य से यह दुर्लभ मनुष्य शरीर प्राप्त हुआ है, जिसकी महिमा समस्त शास्त्रों ने गाई है और जो देवताओं को भी दुर्लभ है। यह मानव देह साधन का धाम और मोक्ष का द्वार है। इसे पाकर भी यदि मनुष्य अपने कल्याण का साधन न करे, और सांसारिक असफलताओं या दुखों से घबराकर इस पावन जीवन को व्यर्थ खोए, तो वह भारी भूल करता है। सांसारिक हार-जीत आती-जाती रहती है, परंतु मानव जीवन ईश्वर की अहैतुकी कृपा है।',
+    english_translation: 'By immense good fortune one attains this rare human form, which all scriptures proclaim is coveted even by celestial beings. It is the sanctified vessel for spiritual realization and the gateway to ultimate liberation. Having received this precious gift, one should never despair or throw it away over transient worldly failures. Material setbacks are transient, but human life is God\'s highest grace.',
+    context_intro_hi: 'जैसे श्रीरामचरितमानस में भगवान श्री राम प्रजा को मानव जीवन की सर्वोच्च पावनता व दुर्लभता समझाते हुए कहते हैं कि —',
+    context_intro_en: 'Just as Bhagavan Shri Rama illuminates the supreme sanctity and rarity of human birth in Shri Ramcharitmanas —',
+    keywords: [
+      'बड़े भाग मानुष तनु पावा', 'मानव देह', 'दुर्लभ मानव जीवन', 'सुर दुर्लभ', 'साधन धाम', 'मानव जीवन',
+      'durlabh manav deh', 'manav jeevan', 'value of life', 'human birth', 'sanctity of life',
+      'feel like dying', 'want to die', 'feel to die', 'feeling to die', 'feel dying', 'suicide', 'suicidal',
+      'life failure', 'career failure', 'failed in exam', 'job struggle', 'cant get a job', 'cannot get a job',
+      'unable to crack', 'crack and get a job', 'get a job', 'tried my best', 'trying my best', 'hopeless',
+      'giving up on life', 'मरने का मन', 'जीने की इच्छा', 'जीवन से निराश', 'why should i live', 'worthless',
+      'lost hope in life', 'failed in life'
+    ]
+  },
+
+  // 38. Bhagavad Gita - Self-Elevation & Overcoming Despair (उद्धरेदात्मनात्मानं)
+  {
+    id: 'gita_6_5_uddhared',
+    scripture_id: 'bhagavad_gita',
+    reference: 'श्रीमद्भगवद्गीता ६.५ (Bhagavad Gita 6.5 · आत्मोद्धार व अवसाद निवारण)',
+    original_text: 'उद्धरेदात्मनात्मानं नात्मानमवसादयेत्। आत्मैव ह्यात्मनो बन्धुरात्मैव रिपुरात्मनः॥',
+    hindi_meaning: 'मनुष्य को चाहिए कि वह अपने मन और बुद्धि द्वारा अपना उद्धार करे, कभी भी अपने-आप को अवसाद (निराशा, हीनभावना) में न गिराए। क्योंकि मनुष्य स्वयं ही अपना सबसे बड़ा मित्र है और स्वयं ही अपना सबसे बड़ा शत्रु है।',
+    english_translation: 'One must elevate oneself through the power of one’s own mind, and not degrade oneself into despair or depression. For the mind alone is the true friend of the self, and the mind alone is the enemy of the self.',
+    context_intro_hi: 'जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण निराशा व अवसाद को दूर करते हुए आत्मोद्धार का संदेश देते हैं —',
+    context_intro_en: 'As Bhagavan Shri Krishna urges fearless self-elevation over despair in the Bhagavad Gita —',
+    keywords: [
+      'उद्धरेदात्मनात्मानं', 'नात्मानमवसादयेत्', 'gita 6.5', 'depression', 'despair', 'hopeless', 'feel like dying',
+      'feel to die', 'feeling to die', 'feel dying', 'cannot get a job', 'cant get a job', 'unable to crack',
+      'crack and get a job', 'career struggle', 'career failure', 'tried my best', 'trying my best', 'failure',
+      'demotivated', 'give up', 'giving up', 'आत्मोद्धार', 'निराशा', 'अवसाद'
     ]
   }
 ];

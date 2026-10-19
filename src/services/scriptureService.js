@@ -96,9 +96,9 @@ export function isCasualConversational(query) {
  */
 export const SCRIPTURAL_TERMS = /(?:\b(?:gita|geeta|ramayan|ramayana|ramcharitmanas|bhagavat|bhagavatam|puran|purana|puranas|veda|vedas|upanishad|upanishads|mahabharata|smriti|niti|sukta|stotra|mantra|mantras|shlok|shloka|shlokas|verses?|scriptures?)\b|गीता|रामायण|रामचरितमानस|भागवत|पुराण|वेद|उपनिषद|उपनिषद्|महाभारत|स्मृति|नीति|सूक्त|स्तोत्र|मंत्र|श्लोक|प्रमाण|शास्त्र)/iu;
 
-export const DHARMIC_CONCEPTS = /(?:\b(?:god|lord|krishna|rama|shiva|vishnu|radha|deity|divine|moksha|mukti|dharma|adharma|karma|maya|aatma|atman|soul|souls|brahman|bhakti|satsang|sadhana|naam|japa|vairagya|guru|gurus|sin|sins|virtue|heaven|hell|death|dying|mortality|fear\s*of\s*death|afterlife|reincarnation|deluge|destiny)\b|भगवान|ईश्वर|प्रभु|परमात्मा|श्रीकृष्ण|कृष्ण|राम|शिव|विष्णु|राधा|हनुमान|दुर्गा|गणेश|मोक्ष|मुक्ति|धर्म|अधर्म|कर्म|कर्मफल|माया|आत्मा|ब्रह्म|भक्ति|सत्संग|साधना|नाम\s*जप|नाम\s*महिमा|वैराग्य|त्याग|संन्यास|गुरु|दीक्षा|पाप|पुण्य|स्वर्ग|नरक|मृत्यु|परलोक|यमराज|यमलोक|जन्म|पुनर्जन्म|संसार|प्रलय|सत्य)/iu;
+export const DHARMIC_CONCEPTS = /(?:\b(?:god|lord|krishna|rama|shiva|vishnu|radha|deity|divine|moksha|mukti|dharma|adharma|karma|maya|aatma|atman|soul|souls|brahman|bhakti|satsang|sadhana|naam|japa|vairagya|guru|gurus|sin|sins|virtue|heaven|hell|death|die|dying|suicide|suicidal|mortality|fear\s*of\s*death|afterlife|reincarnation|deluge|destiny)\b|भगवान|ईश्वर|प्रभु|परमात्मा|श्रीकृष्ण|कृष्ण|राम|शिव|विष्णु|राधा|हनुमान|दुर्गा|गणेश|मोक्ष|मुक्ति|धर्म|अधर्म|कर्म|कर्मफल|माया|आत्मा|ब्रह्म|भक्ति|सत्संग|साधना|नाम\s*जप|नाम\s*महिमा|वैराग्य|त्याग|संन्यास|गुरु|दीक्षा|पाप|पुण्य|स्वर्ग|नरक|मृत्यु|परलोक|यमराज|यमलोक|जन्म|पुनर्जन्म|संसार|प्रलय|सत्य)/iu;
 
-export const SPIRITUAL_EMOTIONS = /(?:\b(?:inner\s*peace|peace\s*of\s*mind|anger|lust|greed|ego|jealousy|anxiety|tensions?|depression|grief|sorrow|suffering|suffer|sufferings|loneliness|betrayal|forgiveness|revenge|purpose\s*of\s*(?:human\s*)?life|meaning\s*of\s*life|divine\s*love|meditation|prayer|prayers|surrender)\b|मन\s*अशांत|मन\s*की\s*शांति|मानसिक\s*शांति|क्रोध|काम|काम-वासना|वासना|लोभ|मोह|अहंकार|घमंड|ईर्ष्या|भय|चिंता|अवसाद|दुःख|दुख|कष्ट|पीड़ा|अकेलापन|धोखा|विश्वासघात|क्षमा|प्रतिशोध|बदला|जीवन\s*का\s*उद्देश्य|जीवन\s*का\s*लक्ष्य|जीवन\s*का\s*सार|जीने\s*की\s*वजह|सच्चा\s*प्रेम|भगवद्-प्रेम|ध्यान|प्रार्थना|शरण|शरणागति)/iu;
+export const SPIRITUAL_EMOTIONS = /(?:\b(?:inner\s*peace|peace\s*of\s*mind|anger|lust|greed|ego|jealousy|anxiety|tensions?|depression|grief|sorrow|suffering|suffer|sufferings|loneliness|nobody\s*loves\s*me|unloved|heartbroken|hopeless|feel\s*(?:like\s*|to\s*)?(?:dying|die)|feel\s*to\s*die|want\s*to\s*die|give\s*up\s*on\s*life|cant\s*(?:able\s*to\s*)?(?:get|find|crack)\s*a\s*job|struggling\s*to\s*get\s*a\s*job|career\s*(?:despair|hopelessness|failure)|betrayal|forgiveness|revenge|purpose\s*of\s*(?:human\s*)?life|meaning\s*of\s*life|divine\s*love|meditation|prayer|prayers|surrender)\b|मन\s*अशांत|मन\s*की\s*शांति|मानसिक\s*शांति|क्रोध|काम|काम-वासना|वासना|लोभ|मोह|अहंकार|घमंड|ईर्ष्या|भय|चिंता|अवसाद|दुःख|दुख|कष्ट|पीड़ा|अकेलापन|अकेला\s*हूं|अकेली\s*हूं|कोई\s*प्यार\s*नहीं\s*करता|मरने\s*का\s*मन|जीने\s*की\s*इच्छा\s*नहीं|धोखा|विश्वासघात|क्षमा|प्रतिशोध|बदला|जीवन\s*का\s*उद्देश्य|जीवन\s*का\s*लक्ष्य|जीवन\s*का\s*सार|जीने\s*की\s*वजह|सच्चा\s*प्रेम|भगवद्-प्रेम|ध्यान|प्रार्थना|शरण|शरणागति)/iu;
 
 export function isDharmicOrSpiritualQuery(query) {
   if (!query || typeof query !== 'string') return false;
@@ -114,11 +114,19 @@ export function isSecularOrTechnical(query, groqEnrichment = null) {
   return !isDharmicOrSpiritualQuery(query);
 }
 
-const RAG_ENDPOINT = 'http://54.252.47.101/rag/search';
+function getRagEndpoint() {
+  try {
+    const custom = typeof localStorage !== 'undefined' ? localStorage.getItem('samvaad_oracle_url') : '';
+    if (custom && custom.trim()) {
+      return `${custom.trim().replace(/\/$/, '')}/rag/search`;
+    }
+  } catch {}
+  return 'https://immature-zen-earthen.ngrok-free.dev/rag/search';
+}
 
 /**
- * Queries the live SOTA 1024-d Qdrant Vector Database on AWS
- * Executes intfloat/multilingual-e5-large semantic search in sub-250ms
+ * Queries the live SOTA Qdrant Vector Database on the unified Oracle service
+ * Executes semantic search in sub-250ms via /rag/search
  *
  * Scripture routing and candidate count both come from the shared
  * deterministic intent layer (queryIntent.js -> query_intent_rules.json), so
@@ -130,7 +138,7 @@ async function queryOracleVectorRAG(query, originalUserQuery = '') {
   if (typeof fetch === 'undefined') return [];
 
   const controller = new AbortController();
-  // Extended timeout: 12000ms ensures Multi-Source Scripture RAG multilingual-e5 search never aborts prematurely
+  // Extended timeout: 12000ms ensures Multi-Source Scripture RAG multilingual search never aborts prematurely
   const timeoutId = setTimeout(() => controller.abort(), 12000);
 
   const textForFilter = originalUserQuery ? `${query} ${originalUserQuery}` : query;
@@ -150,7 +158,7 @@ async function queryOracleVectorRAG(query, originalUserQuery = '') {
   const cleanQ = normalizeQuery(originalUserQuery || query);
 
   try {
-    const res = await fetch(RAG_ENDPOINT, {
+    const res = await fetch(getRagEndpoint(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -175,8 +183,8 @@ async function queryOracleVectorRAG(query, originalUserQuery = '') {
       const vecScore = Number(c.score ?? c.vector_score ?? 0);
       const rrScore = c.rerank_score != null ? Number(c.rerank_score ?? c.rerankScore) : null;
 
-      // Rejection floor: only reject if dense vector score is clearly poor
-      if (vecScore < 0.60) continue;
+      // Rejection floor: only reject if dense vector score is clearly poor (dense vector scores for natural long queries typically range between 0.20-0.45)
+      if (vecScore < 0.18) continue;
 
       const hindiMean = normalizeScriptureMeaning((c.hindi_meaning || '').trim());
       const engMean = normalizeScriptureMeaning((c.english_translation || '').trim());
@@ -809,7 +817,7 @@ async function resolveScriptureGrounding(query, groqEnrichment = null) {
     // CRITICAL: Supporting candidates MUST meet strict absolute relevance (>= 0.65)
     // AND relative score thresholds (>= 75% of primary). Never drag in low-scoring/irrelevant
     // verses just to fulfill a diversity quota!
-    const MIN_SUPPORTING_SCORE = 0.65;
+    const MIN_SUPPORTING_SCORE = Math.min(0.20, topScore * 0.7);
     const MIN_RELATIVE_SCORE = topScore * 0.75;
     const isQualifyingSupporting = (cand) => {
       const s = cand.score || 0;

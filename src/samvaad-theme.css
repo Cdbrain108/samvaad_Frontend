@@ -6148,17 +6148,20 @@ select:focus-visible,
     flex-shrink: 0 !important;
   }
   .creator-social-pair {
-    display: flex !important;
-    flex-direction: row !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
     gap: 8px !important;
     width: 100% !important;
+    box-sizing: border-box !important;
     flex-shrink: 0 !important;
   }
   .creator-action-btn {
-    flex: 1 1 50% !important;
-    width: 50% !important;
-    min-height: 34px !important;
-    height: 34px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 1 1 100% !important;
+    min-height: 35px !important;
+    height: 35px !important;
     padding: 0 12px !important;
     font-size: 12px !important;
     font-weight: 600 !important;
@@ -12670,8 +12673,10 @@ body:not(.night) .rich-text strong {
     height: 100dvh !important;
     min-height: 100dvh !important;
     max-height: 100dvh !important;
-    overflow: hidden !important;
-    padding: 6px 8px max(10px, env(safe-area-inset-bottom, 10px)) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 6px 10px max(18px, env(safe-area-inset-bottom, 18px)) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
@@ -12682,7 +12687,7 @@ body:not(.night) .rich-text strong {
   .about-us-section.heading-hidden,
   .spiritual-page .phase#education.heading-hidden {
     justify-content: flex-start !important;
-    padding: 6px 8px max(10px, env(safe-area-inset-bottom, 10px)) !important;
+    padding: 6px 10px max(18px, env(safe-area-inset-bottom, 18px)) !important;
   }
 
   .about-us-section .about-heading-wrap {
@@ -12712,7 +12717,7 @@ body:not(.night) .rich-text strong {
     max-width: 100% !important;
     margin: 0 auto !important;
     flex: 1 1 0% !important;
-    height: 100% !important;
+    height: auto !important;
     max-height: 100% !important;
     min-height: 0 !important;
     display: flex !important;
@@ -12753,10 +12758,10 @@ body:not(.night) .rich-text strong {
   .about-us-chat-container .chat-demo-controls {
     flex-shrink: 0 !important;
     flex-grow: 0 !important;
-    padding: 5px 8px 6px !important;
+    padding: 6px 10px 10px !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 4px !important;
+    gap: 5px !important;
     box-sizing: border-box !important;
   }
 
@@ -12773,15 +12778,15 @@ body:not(.night) .rich-text strong {
   .about-us-chat-container .chat-demo-pills {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
-    gap: 4px !important;
+    gap: 5px !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
 
   .about-us-chat-container .chat-demo-pill {
     width: 100% !important;
-    height: 28px !important;
-    min-height: 28px !important;
+    height: 29px !important;
+    min-height: 29px !important;
     padding: 0 4px !important;
     font-size: 11px !important;
     font-weight: 600 !important;
@@ -12798,16 +12803,16 @@ body:not(.night) .rich-text strong {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    gap: 4px !important;
-    margin-top: 3px !important;
-    padding-top: 4px !important;
+    gap: 6px !important;
+    margin-top: 4px !important;
+    padding-top: 5px !important;
     border-top: 1px solid rgba(254, 200, 75, 0.16) !important;
     width: 100% !important;
     flex-shrink: 0 !important;
     box-sizing: border-box !important;
   }
 
-  /* Row 2: LinkedIn & Email in equal 50/50 Grid */
+  /* Row 2: LinkedIn & Email in equal 50/50 Grid — Perfectly Captures and Fills the Bar */
   .about-us-chat-container .creator-social-pair {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -12816,9 +12821,14 @@ body:not(.night) .rich-text strong {
     box-sizing: border-box !important;
   }
 
+  .about-us-chat-container .creator-social-pair .creator-action-btn,
   .about-us-chat-container .creator-action-btn {
-    height: 34px !important;
-    min-height: 34px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 1 1 100% !important;
+    height: 35px !important;
+    min-height: 35px !important;
     padding: 0 12px !important;
     font-size: 12px !important;
     font-weight: 600 !important;
@@ -12826,7 +12836,7 @@ body:not(.night) .rich-text strong {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 8px !important;
+    gap: 7px !important;
     white-space: nowrap !important;
     box-sizing: border-box !important;
     transition: all 0.2s ease !important;
@@ -12843,18 +12853,19 @@ body:not(.night) .rich-text strong {
 
   .about-us-chat-container .creator-linkedin-btn:active {
     background: #004182 !important;
-    transform: scale(0.97) !important;
+    transform: scale(0.98) !important;
   }
 
   .about-us-chat-container .creator-email-btn {
-    background: rgba(254, 200, 75, 0.14) !important;
-    border: 1px solid rgba(254, 200, 75, 0.4) !important;
-    color: #fef08a !important;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(217, 119, 6, 0.12) 100%) !important;
+    border: 1.5px solid rgba(254, 200, 75, 0.45) !important;
+    color: #FEF08A !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
   }
 
   .about-us-chat-container .creator-email-btn:active {
     background: rgba(254, 200, 75, 0.25) !important;
-    transform: scale(0.97) !important;
+    transform: scale(0.98) !important;
   }
 
   :root[data-theme='light'] .about-us-chat-container .creator-linkedin-btn,
@@ -12867,13 +12878,19 @@ body:not(.night) .rich-text strong {
 
   :root[data-theme='light'] .about-us-chat-container .creator-email-btn,
   .spiritual-page:not(.night) .about-us-chat-container .creator-email-btn {
-    background: #FFFDF5 !important;
-    border: 1px solid rgba(217, 119, 6, 0.38) !important;
-    color: #92400e !important;
-    box-shadow: 0 2px 8px rgba(180, 83, 9, 0.08) !important;
+    background: linear-gradient(135deg, rgba(254, 243, 199, 0.88) 0%, rgba(253, 230, 138, 0.72) 100%) !important;
+    border: 1.5px solid rgba(217, 119, 6, 0.45) !important;
+    color: #78350F !important;
+    box-shadow: 0 2px 8px rgba(180, 83, 9, 0.12) !important;
   }
 
-  /* Row 3: Full-Width Primary Live Samvaad CTA Button (Touch Accessible) */
+  :root[data-theme='light'] .about-us-chat-container .creator-email-btn:active,
+  .spiritual-page:not(.night) .about-us-chat-container .creator-email-btn:active {
+    background: linear-gradient(135deg, rgba(253, 230, 138, 0.95) 0%, rgba(252, 211, 77, 0.85) 100%) !important;
+    transform: scale(0.98) !important;
+  }
+
+  /* Row 3: Full-Width Primary Try Samvaad CTA Button (Touch Accessible, fully visible) */
   .about-us-chat-container .creator-social-actions .rust-button.cta-button {
     width: 100% !important;
     min-width: 100% !important;
@@ -12884,7 +12901,7 @@ body:not(.night) .rich-text strong {
     font-weight: 700 !important;
     letter-spacing: 0.02em !important;
     border-radius: 999px !important;
-    margin-top: 2px !important;
+    margin-top: 1px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;

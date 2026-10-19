@@ -14,8 +14,9 @@ const LIVE_CALENDAR_PATTERNS = [
   /(?:grahan.*sutak|sutak.*kab\s*lagega|sutak\s*timings?|chandra\s*grahan|surya\s*grahan|ग्रहण.*सूतक|सूतक\s*कब\s*लगेगा|सूतक\s*में\s*क्या\s*करें|सूर्य\s*ग्रहण|चंद्र\s*ग्रहण|solar\s*eclipse|lunar\s*eclipse)/i,
   // 3. Panchang, Tithi, Vrat & Muhurat
   /(?:aaj\s*ka\s*panchang|today.*tithi|आज\s*का\s*पंचांग|आज\s*की\s*तिथि|प्रदोष\s*व्रत|पूर्णिमा\s*कब\s*है|अमावस्या\s*कब\s*है|pradosh\s*vrat|purnima\s*date|amavasya\s*date|shubh\s*muhurat|शुभ\s*मुहूर्त|राहुकाल)/i,
-  // 4. Festivals
-  /(?:when\s*is|kab\s*hai|कब\s*है).*(?:diwali|holi|navratri|janmashtami|radhashtami|shivratri|ram\s*navami|hanuman\s*jayanti|raksha\s*bandhan|guru\s*purnima|दीपावली|होली|जन्माष्टमी|राधाष्टमी|शिवरात्रि|नवरात्रि)/i,
+  // 4. Festivals & Holy Dates
+  /(?:when\s*is|kab\s*hai|कब\s*है|date\s*of|exact\s*date|tarikh|तारीख|timing).*(?:diwali|deepavali|dipawali|holi|navratri|navaratri|janmashtami|radhashtami|shivratri|ram\s*navami|hanuman\s*jayanti|raksha\s*bandhan|guru\s*purnima|chhath|छठ|karwa\s*chauth|करवा\s*चौथ|dhanteras|धनतेरस|दीपावली|दिवाली|होली|जन्माष्टमी|राधाष्टमी|शिवरात्रि|नवरात्रि)/i,
+  /(?:diwali|deepavali|dipawali|holi|navratri|navaratri|janmashtami|radhashtami|shivratri|ram\s*navami|hanuman\s*jayanti|raksha\s*bandhan|guru\s*purnima|chhath|छठ|karwa\s*chauth|करवा\s*चौथ|dhanteras|धनतेरस|दीपावली|दिवाली|होली|जन्माष्टमी|राधाष्टमी|शिवरात्रि|नवरात्रि).*(?:when\s*is|kab\s*hai|कब\s*है|date|tarikh|तारीख|timing|kab|कब)/i,
   // 5. Vrindavan & Temple Darshan timings
   /(?:bankey\s*bihari|radha\s*vallabh|radharani|barsana|prem\s*mandir|iskcon|nidhivan|बांके\s*बिहारी|राधा\s*वल्लभ|राधारानी|बरसाना|प्रेम\s*मंदिर).*?(?:darshan|timing|open|close|aarti|दर्शन|समय|कपाट|आरती)/i,
   // 6. Explicit live web search triggers
@@ -343,7 +344,7 @@ export function getFestivalScheduleText(query, isEnglish = false) {
   const q = (query || '').toLowerCase();
   let matched = FESTIVAL_CALENDAR_DB.find(f => {
     if (f.key === 'navratri') return /(?:navratri|navaratri|navratre|दुर्गा\s*पूजा|durga)/i.test(q);
-    if (f.key === 'diwali') return /(?:diwali|deepavali|दीपावली|दिवाली|dhanteras|धनतेरस)/i.test(q);
+    if (f.key === 'diwali') return /(?:diwali|deepavali|dipawali|दीपावली|दिवाली|dhanteras|धनतेरस)/i.test(q);
     if (f.key === 'janmashtami') return /(?:janmashtami|जन्माष्टमी|gokulashtami)/i.test(q);
     if (f.key === 'radhashtami') return /(?:radhashtami|राधाष्टमी|लाडली)/i.test(q);
     if (f.key === 'holi') return /(?:holi|होली|रंगभरी)/i.test(q);
@@ -534,7 +535,7 @@ export async function searchDuckDuckGo(query, isEnglishForce = null, searchSubje
   const searchResults = await fetchMultiSourceWebSnippets(clean, searchSubject);
 
   // 2. Identify domain with strict word-boundary matching (prevents 'navratri' matching 'vrat' in ekadashi!)
-  const isFestival = /\b(?:navratri|navaratri|navratre|दुर्गा\s*पूजा|diwali|deepavali|दीपावली|दिवाली|dhanteras|धनतेरस|holi|होली|janmashtami|जन्माष्टमी|radhashtami|राधाष्टमी|shivratri|शिवरात्रि|ram\s*navami|रामनवमी|dussehra|दशहरा|raksha\s*bandhan|रक्षाबंधन|guru\s*purnima|chhath|छठ|karwa\s*chauth|करवा\s*चौथ)\b/i.test(clean);
+  const isFestival = /\b(?:navratri|navaratri|navratre|दुर्गा\s*पूजा|diwali|deepavali|dipawali|दीपावली|दिवाली|dhanteras|धनतेरस|holi|होली|janmashtami|जन्माष्टमी|radhashtami|राधाष्टमी|shivratri|शिवरात्रि|ram\s*navami|रामनवमी|dussehra|दशहरा|raksha\s*bandhan|रक्षाबंधन|guru\s*purnima|chhath|छठ|karwa\s*chauth|करवा\s*चौथ)\b/i.test(clean);
   const isEkadashi = /\b(?:ekadashi|एकादशी|parana|पारण)\b/i.test(clean) && !isFestival;
   const isGrahan = /\b(?:grahan|sutak|ग्रहण|सूतक|eclipse)\b/i.test(clean);
   const isTemple = /\b(?:bankey\s*bihari|radha\s*vallabh|radharani|barsana|prem\s*mandir|iskcon|darshan|aarti|कपाट|दर्शन|मंदिर|आरती)\b/i.test(clean);
@@ -550,25 +551,25 @@ export async function searchDuckDuckGo(query, isEnglishForce = null, searchSubje
   if (isFestival) {
     const festivalSchedule = getFestivalScheduleText(clean, isEnglish);
     formattedDiscourse = isEnglish
-      ? `${festivalSchedule}${snippetsBlock}\n\n*Pujya Maharaj Ji's Teaching: Every sacred festival is a divine opportunity to detach our senses from worldly illusions and immerse our soul in Shri Radha Rani's lotus feet with continuous Holy Name chanting ('Radha-Radha').*`
-      : `${festivalSchedule}${snippetsBlock}\n\n*पूज्य महाराज जी की सीख: पावन पर्व और उत्सव सांसारिक दिखावे के लिए नहीं, बल्कि अपनी इंद्रियों को विषयों से हटाकर भगवान के चरणों में समर्पित करने के लिए हैं बच्चा। निरंतर 'श्री राधा-राधा' नाम जप में लीन रहें, सब मंगल होगा।*`;
+      ? `${festivalSchedule}\n\n*Pujya Maharaj Ji's Teaching: Every sacred festival is a divine opportunity to detach our senses from worldly illusions and immerse our soul in Shri Radha Rani's lotus feet with continuous Holy Name chanting ('Radha-Radha').*`
+      : `${festivalSchedule}\n\n*पूज्य महाराज जी की सीख: पावन पर्व और उत्सव सांसारिक दिखावे के लिए नहीं, बल्कि अपनी इंद्रियों को विषयों से हटाकर भगवान के चरणों में समर्पित करने के लिए हैं बच्चा। निरंतर 'श्री राधा-राधा' नाम जप में लीन रहें, सब मंगल होगा।*`;
   } else if (isEkadashi) {
     const ekadashiSchedule = getEkadashiScheduleText(clean, isEnglish);
     formattedDiscourse = isEnglish
-      ? `${ekadashiSchedule}${snippetsBlock}\n\n*Pujya Maharaj Ji's Teaching: Ekadashi is not mere physical fasting, dear soul; it is dedicating 24 hours of mind, speech, and senses to Shri Radha's lotus feet with continuous Holy Name chanting.*`
-      : `${ekadashiSchedule}${snippetsBlock}\n\n*पूज्य महाराज जी की सीख: एकादशी केवल भूखे रहने का नाम नहीं है बच्चा, बल्कि अपनी इंद्रियों को विषयों से हटाकर मन और वाणी को श्री जी के चरणों में लगाने का पावन पर्व है। निरंतर 'श्री राधा-राधा' नाम जपते रहें।*`;
+      ? `${ekadashiSchedule}\n\n*Pujya Maharaj Ji's Teaching: Ekadashi is not mere physical fasting, dear soul; it is dedicating 24 hours of mind, speech, and senses to Shri Radha's lotus feet with continuous Holy Name chanting.*`
+      : `${ekadashiSchedule}\n\n*पूज्य महाराज जी की सीख: एकादशी केवल भूखे रहने का नाम नहीं है बच्चा, बल्कि अपनी इंद्रियों को विषयों से हटाकर मन और वाणी को श्री जी के चरणों में लगाने का पावन पर्व है। निरंतर 'श्री राधा-राधा' नाम जपते रहें।*`;
   } else if (isGrahan) {
     formattedDiscourse = isEnglish
-      ? `${DHARMIC_CALENDAR_KNOWLEDGE.grahanSutak.vidhiEnglish}${snippetsBlock}\n\n*Pujya Maharaj Ji's Teaching: Never be frightened during eclipse hours, dear child. The external shadow is fleeting, but the power of the Holy Name is infinite. Spend these hours immersed in 'Radha-Radha' chanting.*`
-      : `${DHARMIC_CALENDAR_KNOWLEDGE.grahanSutak.vidhiHindi}${snippetsBlock}\n\n*पूज्य महाराज जी की सीख: ग्रहण काल में भयभीत होने की आवश्यकता नहीं है बच्चा। यह काल नाम जप और साधना के लिए सर्वोत्तम माना गया है। निरंतर 'राधे-राधे' जपते रहें, सब मंगल होगा।*`;
+      ? `${DHARMIC_CALENDAR_KNOWLEDGE.grahanSutak.vidhiEnglish}\n\n*Pujya Maharaj Ji's Teaching: Never be frightened during eclipse hours, dear child. The external shadow is fleeting, but the power of the Holy Name is infinite. Spend these hours immersed in 'Radha-Radha' chanting.*`
+      : `${DHARMIC_CALENDAR_KNOWLEDGE.grahanSutak.vidhiHindi}\n\n*पूज्य महाराज जी की सीख: ग्रहण काल में भयभीत होने की आवश्यकता नहीं है बच्चा। यह काल नाम जप और साधना के लिए सर्वोत्तम माना गया है। निरंतर 'राधे-राधे' जपते रहें, सब मंगल होगा।*`;
   } else if (isTemple) {
     formattedDiscourse = isEnglish
-      ? `${DHARMIC_CALENDAR_KNOWLEDGE.templeTimings.bankeyBihariEn}${snippetsBlock}\n\n*Pujya Maharaj Ji's Reminder: While visiting holy Vrindavan Dham, approach the Divine with humble prayer and reverence. Chant Radha-Radha with every step.*`
-      : `${DHARMIC_CALENDAR_KNOWLEDGE.templeTimings.bankeyBihariHi}\n\n${DHARMIC_CALENDAR_KNOWLEDGE.templeTimings.radhavallabhHi}${snippetsBlock}\n\n*पूज्य महाराज जी की सीख: वृंदावन धाम में दर्शन करते समय चित्त को शांत और नम्र रखें। लाडली जू के चरणों का ध्यान करते हुए निरंतर 'राधा-राधा' जपें।*`;
+      ? `${DHARMIC_CALENDAR_KNOWLEDGE.templeTimings.bankeyBihariEn}\n\n*Pujya Maharaj Ji's Reminder: While visiting holy Vrindavan Dham, approach the Divine with humble prayer and reverence. Chant Radha-Radha with every step.*`
+      : `${DHARMIC_CALENDAR_KNOWLEDGE.templeTimings.bankeyBihariHi}\n\n${DHARMIC_CALENDAR_KNOWLEDGE.templeTimings.radhavallabhHi}\n\n*पूज्य महाराज जी की सीख: वृंदावन धाम में दर्शन करते समय चित्त को शांत और नम्र रखें। लाडली जू के चरणों का ध्यान करते हुए निरंतर 'राधा-राधा' जपें।*`;
   } else if (isPanchang) {
     formattedDiscourse = isEnglish
-      ? `${DHARMIC_CALENDAR_KNOWLEDGE.panchang.guidelinesEn}${snippetsBlock}\n\n*Spiritual Guidance: Anchor your day in early morning prayer and Holy Name chanting ('Radha-Radha'). Duty performed with devotion is the highest worship.*`
-      : `${DHARMIC_CALENDAR_KNOWLEDGE.panchang.guidelinesHi}${snippetsBlock}\n\n*पूज्य महाराज जी की सीख: बच्चा, जो साधक निरंतर नाम जप करता है, उसके लिए प्रत्येक दिन और प्रत्येक मुहूर्त मंगलमय बन जाता है। 'श्री राधा-राधा' का आश्रय रखें।*`;
+      ? `${DHARMIC_CALENDAR_KNOWLEDGE.panchang.guidelinesEn}\n\n*Spiritual Guidance: Anchor your day in early morning prayer and Holy Name chanting ('Radha-Radha'). Duty performed with devotion is the highest worship.*`
+      : `${DHARMIC_CALENDAR_KNOWLEDGE.panchang.guidelinesHi}\n\n*पूज्य महाराज जी की सीख: बच्चा, जो साधक निरंतर नाम जप करता है, उसके लिए प्रत्येक दिन और प्रत्येक मुहूर्त मंगलमय बन जाता है। 'श्री राधा-राधा' का आश्रय रखें।*`;
   } else {
     // Dynamic real-time guidance for ANY query (Chhath Puja, Kumbh, Karwa Chauth, etc.)
     formattedDiscourse = isEnglish

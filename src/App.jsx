@@ -643,18 +643,22 @@ export default function App() {
     const unsubscribe = onAuthStateChange(async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // 1. Check LocalStorage for user profile info first for instant availability
-        const localProfile = localStorage.getItem(`samvad_user_profile_${currentUser.uid}`);
-        let hasProfile = false;
-        if (localProfile) {
-          try {
-            const parsed = JSON.parse(localProfile);
-            if (parsed && parsed.fullName) {
-              setUserProfile(parsed);
-              setShowOnboarding(false);
-              hasProfile = true;
-            }
-          } catch (e) { }
+        // 1. Check local storage for user profile info first for instant availability
+        let existingProfile = null;
+        try {
+          const s1 = localStorage.getItem(`samvad_user_profile_${currentUser.uid}`);
+          const s2 = localStorage.getItem(`samvaad_prof_${currentUser.uid}`);
+          const s3 = localStorage.getItem('samvaad_permanent_profile');
+          const cand = s1 || s2 || s3;
+          if (cand) {
+            const parsed = JSON.parse(cand);
+            if (parsed && parsed.fullName) existingProfile = parsed;
+          }
+        } catch (e) { }
+
+        if (existingProfile && existingProfile.fullName) {
+          setUserProfile(existingProfile);
+          setShowOnboarding(false);
         }
 
         // Fetch latest profile from Firestore
@@ -664,9 +668,29 @@ export default function App() {
           setShowOnboarding(false);
           try {
             localStorage.setItem(`samvad_user_profile_${currentUser.uid}`, JSON.stringify(profileRes.profile));
+            localStorage.setItem(`samvaad_prof_${currentUser.uid}`, JSON.stringify(profileRes.profile));
+            localStorage.setItem('samvaad_permanent_profile', JSON.stringify(profileRes.profile));
           } catch (e) { }
-        } else if (!hasProfile) {
+        } else if (existingProfile && existingProfile.fullName) {
+          // If we had it locally but Firestore lacked it, save it one-time to Firestore
+          setUserProfile(existingProfile);
+          setShowOnboarding(false);
+          await saveUserProfileInfo(currentUser.uid, existingProfile);
+        } else if (currentUser.displayName) {
+          // One-time auto-store account holder name from Firebase Auth (e.g. Google Sign-In)
+          const autoProfile = {
+            fullName: currentUser.displayName,
+            age: '',
+            isStudent: false,
+            updatedAt: new Date().toISOString()
+          };
+          setUserProfile(autoProfile);
+          setShowOnboarding(false);
+          await saveUserProfileInfo(currentUser.uid, autoProfile);
+        } else if (!existingProfile?.fullName) {
           setShowOnboarding(true);
+        } else {
+          setShowOnboarding(false);
         }
 
         // 2. Load user's conversations from LocalStorage first for instant offline availability
@@ -698,9 +722,12 @@ export default function App() {
           email: 'devotee@samvaad.local'
         };
         setUser(guestUser);
-        // Clear any accumulated guest history — guests get session-only, no persistence
+        // Clear any accumulated guest history & profiles — guests get session-only, no cross-contamination
         try {
           localStorage.removeItem('samvad_chats_devotee_local');
+          localStorage.removeItem('samvad_user_profile_devotee_local');
+          localStorage.removeItem('samvaad_prof_devotee_local');
+          localStorage.removeItem('samvaad_mem_devotee_local');
         } catch (e) { }
         setConversations([]);
         setMessages([]);
@@ -720,10 +747,14 @@ export default function App() {
   const handleOnboardingSubmit = async (profileData) => {
     setUserProfile(profileData);
     setShowOnboarding(false);
-    if (user) {
-      try {
+    try {
+      localStorage.setItem('samvaad_permanent_profile', JSON.stringify(profileData));
+      if (user) {
         localStorage.setItem(`samvad_user_profile_${user.uid}`, JSON.stringify(profileData));
-      } catch (e) { }
+        localStorage.setItem(`samvaad_prof_${user.uid}`, JSON.stringify(profileData));
+      }
+    } catch (e) { }
+    if (user && user.uid !== 'devotee_local') {
       await saveUserProfileInfo(user.uid, profileData);
     }
   };
@@ -988,6 +1019,11 @@ export default function App() {
       let receivedAnyChunk = false;
       setIsStreaming(true);
 
+      // Account holder name: passed directly from the authenticated Firebase login profile
+      const accountHolderName = (user && user.uid !== 'devotee_local')
+        ? (userProfile?.fullName || user.displayName || '').trim().split(/\s+/)[0]
+        : '';
+
       const streamResult = await streamGuruResponse(
         message,
         messages,
@@ -1019,7 +1055,8 @@ export default function App() {
             }]);
           }
         },
-        abortController.signal
+        abortController.signal,
+        accountHolderName
       );
 
       setIsResponding(false);
@@ -1145,9 +1182,40 @@ export default function App() {
       }
       const memResult = await getUserMemory(signedInUser.uid);
       if (!memResult.error) setUserMemory(memResult.memory);
+      // Check existing local and remote profile
+      let existingProfile = null;
+      try {
+        const s1 = localStorage.getItem(`samvad_user_profile_${signedInUser.uid}`);
+        const s2 = localStorage.getItem(`samvaad_prof_${signedInUser.uid}`);
+        const s3 = localStorage.getItem('samvaad_permanent_profile');
+        const cand = s1 || s2 || s3;
+        if (cand) {
+          const parsed = JSON.parse(cand);
+          if (parsed && parsed.fullName) existingProfile = parsed;
+        }
+      } catch (e) { }
+
       const profileRes = await getUserProfileInfo(signedInUser.uid);
-      if (profileRes.profile && profileRes.profile.fullName) {
-        setUserProfile(profileRes.profile);
+      const activeProfile = (profileRes.profile && profileRes.profile.fullName)
+        ? profileRes.profile
+        : existingProfile;
+
+      if (activeProfile && activeProfile.fullName) {
+        setUserProfile(activeProfile);
+        setShowOnboarding(false);
+        if (!profileRes.profile?.fullName) {
+          await saveUserProfileInfo(signedInUser.uid, activeProfile);
+        }
+      } else if (signedInUser.displayName) {
+        const autoProfile = {
+          fullName: signedInUser.displayName,
+          age: '',
+          isStudent: false,
+          updatedAt: new Date().toISOString()
+        };
+        setUserProfile(autoProfile);
+        setShowOnboarding(false);
+        await saveUserProfileInfo(signedInUser.uid, autoProfile);
       } else {
         setShowOnboarding(true);
       }

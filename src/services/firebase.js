@@ -275,33 +275,49 @@ export const saveUserMemory = async (userId, memoryData) => {
   }
 };
 
-// User Profile Info (Full Name & Age)
+// User Profile Info (Full Name & Age) - Permanent Persistent Storage
 export const getUserProfileInfo = async (userId) => {
-  if (!db) {
-    try {
-      const stored = localStorage.getItem(`samvaad_prof_${userId}`);
-      return { profile: stored ? JSON.parse(stored) : null, error: null };
-    } catch {
-      return { profile: null, error: null };
+  let localFound = null;
+  try {
+    const s1 = localStorage.getItem(`samvaad_prof_${userId}`);
+    const s2 = localStorage.getItem(`samvad_user_profile_${userId}`);
+    const s3 = localStorage.getItem('samvaad_permanent_profile');
+    const cand = s1 || s2 || s3;
+    if (cand) {
+      localFound = JSON.parse(cand);
     }
+  } catch {}
+
+  if (!db) {
+    return { profile: localFound, error: null };
   }
   try {
     const profileRef = doc(db, 'users', userId, 'profile', 'info');
     const docSnap = await getDoc(profileRef);
     if (docSnap.exists()) {
-      return { profile: docSnap.data(), error: null };
+      const data = docSnap.data();
+      // Mirror to local caches
+      try {
+        localStorage.setItem(`samvaad_prof_${userId}`, JSON.stringify(data));
+        localStorage.setItem(`samvad_user_profile_${userId}`, JSON.stringify(data));
+        localStorage.setItem('samvaad_permanent_profile', JSON.stringify(data));
+      } catch {}
+      return { profile: data, error: null };
     }
-    return { profile: null, error: null };
+    return { profile: localFound, error: null };
   } catch (error) {
-    return { profile: null, error: error.message };
+    return { profile: localFound, error: error.message };
   }
 };
 
 export const saveUserProfileInfo = async (userId, profileData) => {
+  try {
+    localStorage.setItem(`samvaad_prof_${userId}`, JSON.stringify(profileData));
+    localStorage.setItem(`samvad_user_profile_${userId}`, JSON.stringify(profileData));
+    localStorage.setItem('samvaad_permanent_profile', JSON.stringify(profileData));
+  } catch {}
+
   if (!db) {
-    try {
-      localStorage.setItem(`samvaad_prof_${userId}`, JSON.stringify(profileData));
-    } catch {}
     return { error: null };
   }
   try {

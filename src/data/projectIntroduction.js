@@ -53,10 +53,11 @@ export function categorizeIntroQuery(query, conversationHistory = []) {
   const clean = query.trim().toLowerCase();
 
   // 1. Creator / Developer questions
-  // Matches: "who is the creator of that project", "who made this project", "who is your creator", "who created it", "who am i", etc.
+  // Matches: "who is the creator of that project", "who made this project", "who is your creator", "kisne banaya", "creator kaun hai", etc.
   if (
     /\b(?:who\s*(?:created|made|built|developed|designed|founded)\s*(?:you|this|that|it|(?:this|that|the)\s*(?:project|app|website|system|bot|model))|who\s*is\s*(?:your|(?:the|this|that)\s*(?:project'?s?|app'?s?|bot'?s?))\s*(?:creator|maker|developer|author|engineer|founder|architect)|who\s*is\s*(?:the\s*)?(?:creator|maker|developer|author|founder|architect)\s*(?:of\s*(?:you|this|that|it|(?:this|that|the)\s*(?:project|app|system|bot|website)))?|anuj\s*kesharwani|anuj|kesharwani|keshari|who\s*(?:am\s*i|are\s*you\s*talking\s*to)|do\s*you\s*know\s*me)\b/i.test(clean) ||
-    /(?:आपको\s*किसने\s*बनाया|किसने\s*बनाया|किसने\s*डेवलप\s*किया|निर्माता\s*कौन\s*है|डेवलपर\s*कौन\s*है|किसका\s*प्रोजेक्ट\s*है|इस\s*प्रोजेक्ट\s*(?:का|के)\s*(?:निर्माता|डेवलपर|क्रिएटर)|अनुज\s*केसरवानी|अनुज|मैं\s*कौन\s*हूँ|मुझे\s*जानते\s*हो)/i.test(clean)
+    /(?:आपको\s*किसने\s*बनाया|किसने\s*बनाया|किसने\s*डेवलप\s*किया|निर्माता\s*कौन\s*है|डेवलपर\s*कौन\s*है|किसका\s*प्रोजेक्ट\s*है|इस\s*प्रोजेक्ट\s*(?:का|के)\s*(?:निर्माता|डेवलपर|क्रिएटर)|अनुज\s*केसरवानी|अनुज|मैं\s*कौन\s*हूँ|मुझे\s*जानते\s*हो)/i.test(clean) ||
+    /\b(?:(?:kisne|kiske\s*dwara)\s*(?:banaya|develop\s*kiya|banaya\s*hai|create\s*kiya)|(?:creator|developer|maker)\s*(?:k(?:au|ou|o)n\s*(?:hai|hain)|kaun)|kiska\s*project\s*hai|(?:ye|yeh|is|iss)\s*project\s*(?:ko\s*)?(?:kisne|kiske)\s*(?:banaya|develop\s*kiya))\b/i.test(clean)
   ) {
     return 'creator';
   }
@@ -65,7 +66,11 @@ export function categorizeIntroQuery(query, conversationHistory = []) {
   if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
     const lastBotMsg = [...conversationHistory].reverse().find(m => m.role === 'assistant')?.content || '';
     if (lastBotMsg.includes('Samvaad AI') || lastBotMsg.includes('संवाद AI')) {
-      if (/\b(?:creator|maker|developer|who\s*made|who\s*built|who\s*created|founder)\b/i.test(clean) || /(?:निर्माता|डेवलपर|किसने\s*बनाया)/i.test(clean)) {
+      if (
+        /\b(?:creator|maker|developer|who\s*made|who\s*built|who\s*created|founder)\b/i.test(clean) ||
+        /(?:निर्माता|डेवलपर|किसने\s*बनाया)/i.test(clean) ||
+        /\b(?:kisne\s*banaya|creator\s*k(?:au|ou|o)n)\b/i.test(clean)
+      ) {
         return 'creator';
       }
     }
@@ -74,7 +79,8 @@ export function categorizeIntroQuery(query, conversationHistory = []) {
   // 2. Data Pipeline / Training Data / QA generation / Agentic System questions
   if (
     /\b(?:how\s*(?:did\s*you\s*get|were\s*you\s*created\s*with)\s*qa|which\s*data|what\s*data|dataset|how\s*many\s*(?:satsangs?|discourses?)|agentic|agents|multiagent|transcrib|vtt|youtube)\b/i.test(clean) ||
-    /(?:डेटा\s*कहाँ\s*से|डेटासेट|कैसे\s*तैयार\s*किया|प्रश्नोत्तरी\s*डेटा|सत्संग\s*डेटा|एजेंट|यूट्यूब)/i.test(clean)
+    /(?:डेटा\s*कहाँ\s*से|डेटासेट|कैसे\s*तैयार\s*किया|प्रश्नोत्तरी\s*डेटा|सत्संग\s*डेटा|एजेंट|यूट्यूब)/i.test(clean) ||
+    /\b(?:data\s*(?:kahan\s*se|kaise\s*banaya|kahan\s*se\s*aaya|dataset)|dataset\s*kya\s*hai|qa\s*kaise\s*banaya)\b/i.test(clean)
   ) {
     return 'data';
   }
@@ -82,24 +88,26 @@ export function categorizeIntroQuery(query, conversationHistory = []) {
   // 3. Architecture / Model / Fine-tuning / RAG & LLM Knowledge questions
   if (
     /\b(?:how\s*were\s*you\s*trained|which\s*model|what\s*model|fine-?tuned|gemma|gcloud|google\s*cloud|oracle\s*cloud|rag\s*(?:system|knowledge|corpus)?|how\s*does\s*rag\s*work|architecture|what\s*(?:kinda|kind\s*of)?\s*(?:rag|llm|knowledge)|(?:rag|llm)\s*knowledge|knowledge\s*base)\b/i.test(clean) ||
-    /(?:ट्रेनिंग\s*कैसे\s*हुई|कौनसा\s*मॉडल|जेम्मा|राॅग|आरएजी|आर्किटेक्चर|नॉलेज|ज्ञान\s*स्रोत|क्या\s*ज्ञान\s*है|आरएजी\s*और\s*एलएलएम)/i.test(clean)
+    /(?:ट्रेनिंग\s*कैसे\s*हुई|कौनसा\s*मॉडल|जेम्मा|राॅग|आरएजी|आर्किटेक्चर|नॉलेज|ज्ञान\s*स्रोत|क्या\s*ज्ञान\s*है|आरएजी\s*और\s*एलएलएम)/i.test(clean) ||
+    /\b(?:k(?:au|ou|o)nsa\s*model|model\s*k(?:au|ou|o)nsa\s*hai|architecture\s*kya\s*hai|rag\s*kaise\s*kaam\s*karta\s*hai|kaise\s*train\s*kiya)\b/i.test(clean)
   ) {
     return 'architecture';
   }
 
-  // 4. Identity questions ("Who are you") -> ONLY tell what Samvaad project is and what it is for
+  // 4. Identity questions ("Who are you" / "Aap kaun ho") -> ONLY tell what Samvaad project is and what it is for
   if (
     /\b(?:who\s*(?:are|r)\s*(?:you|u)|what\s*(?:are|r)\s*(?:you|u)|who\s*you\s*are|who\s*are\s*u|who\s*u\s*are|who\s*is\s*this|who\s*am\s*i\s*talking\s*to|who\s*is\s*speaking|are\s*you\s*(?:an?\s*)?(?:ai|bot|premanand|guru|maharaj)|tell\s*me\s*about\s*(?:yourself|you)|introduce\s*yourself|your\s*name|what\s*is\s*your\s*name|who\s*you\b)/i.test(clean) ||
-    /(?:आप\s*कौन\s*(?:हैं|हो)?|तुम\s*कौन\s*(?:हो|हैं)?|तू\s*कौन\s*है|कौन\s*हो\s*तुम|कौन\s*हैं\s*आप|कौन\s*हो\s*भाई|अपना\s*परिचय|अपने\s*बारे\s*में\s*बताओ|तुम्हारा\s*नाम|आपका\s*नाम|आप\s*क्या\s*हो|क्या\s*नाम\s*है)/i.test(clean) ||
-    /\b(?:aap\s*k[ao]n\s*h[ao]|ap\s*k[ao]n\s*h[ao]|k[ao]n\s*h[ao]\s*aap|k[ao]n\s*h[ao]\s*tum|tum\s*k[ao]n\s*h[ao]|apna\s*parichay|aap\s*kya\s*ho|ap\s*kya\s*ho|naam\s*kya\s*hai|kya\s*naam\s*hai)\b/i.test(clean)
+    /(?:आप\s*कौन\s*(?:हैं|हो)?|तुम\s*कौन\s*(?:हो|हैं)?|तू\s*कौन\s*है|कौन\s*हो\s*तुम|कौन\s*हैं\s*आप|कौन\s*हो\s*आप|कौन\s*हो\s*भाई|अपना\s*परिचय|अपने\s*बारे\s*में\s*(?:बताओ|बताएं|बताइए)|तुम्हारा\s*नाम|आपका\s*नाम|आप\s*क्या\s*हो|आप\s*क्या\s*हैं|क्या\s*नाम\s*है)/i.test(clean) ||
+    /\b(?:(?:aap|ap|tum|tu)\s*(?:k(?:au|ou|o)n|kya)\s*(?:ho|hai|hain)|(?:k(?:au|ou|o)n|kya)\s*(?:ho|hai|hain)\s*(?:aap|ap|tum|tu)|(?:apna|apne)\s*(?:parichay|ba?are\s*me\s*(?:batao|bataiye|batao?)|intro)|(?:aapka|apka|tumhara|tera)?\s*naam\s*kya\s*hai|kya\s*naam\s*hai(?:\s*(?:aapka|apka|tumhara))?)\b/i.test(clean)
   ) {
     return 'identity';
   }
 
   // 5. Full Project Overview questions
   if (
-    /\b(?:what\s*is\s*(?:this\s*)?(?:project|samvaad|samvad)|about\s*(?:this\s*)?project|about\s*samvaad|how\s*does\s*samvaad\s*work)\b/i.test(clean) ||
-    /(?:संवाद\s*क्या\s*है|यह\s*प्रोजेक्ट\s*क्या\s*है|इस\s*प्रोजेक्ट\s*के\s*बारे\s*में|प्रोजेक्ट\s*की\s*जानकारी)/i.test(clean)
+    /\b(?:what\s*is\s*(?:this\s*)?(?:project|samvaad|samvad|app|website)|about\s*(?:this\s*)?(?:project|samvaad|samvad|app)|what\s*(?:does|is)\s*(?:samvaad|samvad)\s*(?:do|work)?|how\s*does\s*(?:samvaad|samvad|this\s*project)\s*work|tell\s*me\s*about\s*(?:this\s*project|samvaad|samvad)|(?:project|samvaad|samvad)\s*overview|(?:project|samvaad)\s*details)\b/i.test(clean) ||
+    /(?:(?:यह|ये|इस|इस\s*प्रोजेक्ट)?\s*(?:प्रोजेक्ट|संवाद|ऐप)\s*(?:क्या\s*है|के\s*बारे\s*में|की\s*जानकारी|कैसे\s*काम\s*करता\s*है)|संवाद\s*क्या\s*है|प्रोजेक्ट\s*क्या\s*है|प्रोजेक्ट\s*के\s*बारे\s*में|इस\s*प्रोजेक्ट\s*के\s*बारे\s*में|संवाद\s*के\s*बारे\s*में)/i.test(clean) ||
+    /\b(?:(?:(?:ye|yeh|is|iss)\s*(?:project|samvaad|samvad|app)?\s*(?:kya\s*hai|ke\s*ba?are\s*me\s*(?:batao|bataiye)|ka\s*overview|samjhao|kaise\s*kaam\s*karta\s*hai))|(?:(?:project|samvaad|samvad)\s*(?:kya\s*hai|ke\s*ba?are\s*me\s*(?:batao|bataiye)|overview|details|kaise\s*kaam\s*karta\s*hai)))\b/i.test(clean)
   ) {
     return 'project_overview';
   }
@@ -311,20 +319,64 @@ Samvaad AI operates on a sophisticated tripartite knowledge architecture:
 
   // ── 5. PROJECT OVERVIEW ──
   if (isEnglish) {
-    return `### 🙏 Welcome to Samvaad AI (संवाद)
+    return `### 🙏 Radhe Radhe! Welcome to Samvaad AI (संवाद)
 
-**Samvaad AI** is an authentic, compassionate spiritual and philosophical conversational intelligence rooted in Sanatana Dharma, inspired by the divine teachings of **Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj** (Vrindavan, Bhajan Marg).
+**Samvaad AI** is an authentic, compassionate spiritual and philosophical conversational intelligence rooted in Sanatana Dharma, inspired by the divine teachings and discourses of **Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj** (Vrindavan, Bhajan Marg).
 
-* **Creator:** Built by **Anuj Kesharwani** (Aspiring Gen AI & Agentic AI Developer, [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)) as an independent passion project.
-* **Data & Model:** Built using a multi-agent pipeline processing ~4,000 YouTube transcripts into natural QA pairs, fine-tuning **Gemma 4 E4B IT** on Google Cloud (GCP) / Oracle Cloud, and grounding responses in a multi-source RAG across 175,000+ verses from 29 scriptures.
-* **Core Purpose:** To provide fatherly, serene guidance for life's dilemmas, mental peace, righteous duties, and holy name chanting ('Radha-Radha').`;
+---
+
+#### 🌟 1. Core Mission & Spiritual Purpose
+* **Emotional Healing & Dilemma Resolution:** Providing calm, grounded, fatherly guidance on everyday struggles—anxiety, grief, anger, fear, and relationships in the compassionate voice of Pujya Maharaj Ji ('My child' / 'बच्चा').
+* **Dharmic Living & Righteous Duty:** Guiding students, householders, and seekers to execute daily responsibilities (Karma Yoga) sincerely as divine worship.
+* **Holy Name & Surrender:** Inspiring ceaseless Holy Name chanting (**Naam Jap: 'Radha-Radha'** / Hare Krishna) and unconditional surrender to Divine Grace.
+
+---
+
+#### 👨‍💻 2. Creator & Engineering Vision
+* **Creator:** Conceived and engineered by **Anuj Kesharwani** (Aspiring Gen AI & Agentic AI Developer, [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)) as an independent passion project.
+* **Vision:** Bridging timeless Vedic wisdom and revered Sant-Vani with state-of-the-art Generative and Agentic AI architectures.
+
+---
+
+#### ⚙️ 3. Technical Architecture & Knowledge Systems
+* **Autonomous Multi-Agent Data Pipeline:** Cleaned and structured ~4,000 raw YouTube transcripts into authentic conversational Q&A pairs with exact video timestamp anchors.
+* **Fine-Tuned Gemma 4:** **Gemma 4 E4B IT** fine-tuned on Google Cloud (GCP) and Oracle Cloud CPU VM via LoRA/QLoRA.
+* **Hybrid Scripture RAG:** Indexed corpus across 29 scriptures covering **175,000+ sacred verses** (Bhagavad Gita, Ramcharitmanas, Upanishads, Bhagavata Purana, Vidura Niti, etc.) with Qdrant vector semantic search + BM25 + FlashRank cross-encoder reranking.
+* **Dual Inference Engines:** **🧘 Deep Mode** (Oracle VM hosted fine-tuned model with 4-stage Chain-of-Thought) and **⚡ Fast Mode** (Groq LPU ultra-low latency ~1s inference).
+* **Real-Time Live Search:** Automatic web search integration for dynamic Hindu Panchang, Ekadashi dates, Eclipse timings, and Vrindavan temple darshan schedules.
+
+---
+
+Tell me, dear seeker, what inquiry rests in your heart today?`;
   }
 
-  return `### 🙏 'संवाद AI' (Samvaad AI) — एक परिचय
+  return `### 🙏 जय श्री राधे! 'संवाद AI' (Samvaad AI) — प्रोजेक्ट का संपूर्ण परिचय
 
-**संवाद AI** सनातन धर्म और **पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन, भजन मार्ग)** की पावन शिक्षाओं पर आधारित एक प्रामाणिक आध्यात्मिक AI साथी है।
+**'संवाद AI'** सनातन धर्म के शाश्वत सिद्धांतों और **पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन, भजन मार्ग)** के पावन एकांतिक सत्संगों से प्रेरित एक प्रामाणिक, संवेदनशील एवं दार्शनिक आध्यात्मिक AI साथी है।
 
-* **निर्माता:** इसे **अनुज केसरवानी** (Aspiring Gen AI & Agentic AI Developer, [anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com)) ने एक स्वतंत्र प्रोजेक्ट के रूप में विकसित किया है।
-* **मॉडल एवं डेटा:** ~4,000 यूट्यूब वीडियो ट्रांसक्रिप्ट्स से मल्टी-एजेंट सिस्टम द्वारा स्वाभाविक प्रश्नोत्तरी तैयार कर Google Cloud / Oracle VM पर **Gemma 4 E4B IT** मॉडल को फाइन-ट्यून किया गया है, तथा 29 शास्त्रों के 1,75,000+ श्लोकों का RAG ज्ञानकोश जोड़ा गया है।
-* **उद्देश्य:** साधकों व जिज्ञासुओं को जीवन के संशयों में पूज्य महाराज जी के वात्सल्य भाव से मार्गदर्शन देना और निरंतर नाम जप की प्रेरणा देना।`;
+---
+
+#### 🌟 1. मूल उद्देश्य एवं पावन संकल्प (Core Mission)
+* **जीवन संशयों का निवारण:** तनाव, चिंता, मोह, अवसाद, क्रोध एवं पारिवारिक उलझनों में पूज्य महाराज जी की वात्सल्यमयी ('बच्चा') वाणी के प्रकाश में समाधान देना।
+* **निष्काम कर्म एवं धर्म पालन:** विद्यार्थियों, युवाओं व गृहस्थों को अपने दैनिक कर्तव्यों को भगवत सेवा मानकर निष्काम भाव से करने की प्रेरणा।
+* **नाम जप एवं शरणागति:** निरंतर भगवन्नाम जप (**'श्री राधा-राधा'** / हरे कृष्ण) का दृढ़ आश्रय और प्रभु चरणों में अनन्य शरणागति।
+
+---
+
+#### 👨‍💻 2. निर्माता एवं परिकल्पना (Creator & Engineering Vision)
+* **निर्माता:** **अनुज केसरवानी** (Anuj Kesharwani) — Aspiring Gen AI & Agentic AI Developer ([anujkeshari786@gmail.com](mailto:anujkeshari786@gmail.com))।
+* **विजन:** प्राचीन वैदिक ज्ञान व संत-वाणी को अत्याधुनिक जेनेरेटिव एवं एजेंटिक AI तकनीकों के साथ जोड़कर एक ऐसा प्रामाणिक संवाद मंच तैयार करना जो जन-जन के हृदय को शांति दे सके।
+
+---
+
+#### ⚙️ 3. तकनीकी संरचना एवं ज्ञानकोश (Technical Architecture & Data)
+* **ऑटोनॉमस मल्टी-एजेंट डेटा पाइपलाइन:** पूज्य महाराज जी के ~4,000 यूट्यूब सत्संग वीडियो के रॉ ट्रांसक्रिप्ट्स को मल्टी-एजेंट सिस्टम द्वारा शुद्ध व स्वाभाविक प्रश्नोत्तरी (Q&A) में रूपांतरित किया गया।
+* **फाइन-ट्यून्ड मॉडल (Gemma 4):** Google Cloud (GCP) एवं Oracle Cloud VM पर **Gemma 4 E4B IT** मॉडल को LoRA/QLoRA तकनीक से विशेष रूप से ट्रेन किया गया है।
+* **हाइब्रिड RAG ज्ञानकोश:** 29 सनातन धर्मग्रंथों (श्रीमद्भगवद्गीता, श्रीरामचरितमानस, उपनिषद, भागवत महापुराण, विदुर नीति आदि) के **1,75,000+ पावन श्लोकों** का सिमेंटिक वेक्टर (Qdrant) + BM25 + FlashRank रीरैंकिंग आधारित प्रामाणिक स्रोत।
+* **दोहरे इन्फरेंस इंजन:** **🧘 Deep Mode** (Oracle VM पर 4-स्तरीय चिंतन) एवं **⚡ Fast Mode** (Groq LPU पर अति-तीव्र ~1s प्रतिक्रिया)।
+* **रीयल-टाइम पंचांग व लाइव सर्च:** आज की तिथि, एकादशी व्रत, ग्रहण काल व वृंदावन मंदिर दर्शन समय हेतु लाइव सर्च एकीकरण।
+
+---
+
+कहो बच्चा, आज तुम्हारे मन में क्या संशय या जिज्ञासा है?`;
 }
