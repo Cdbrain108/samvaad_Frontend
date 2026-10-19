@@ -42,6 +42,11 @@ export function intelligentSegmentResponse(text) {
 
   let processed = text.replace(/\r\n/g, '\n');
 
+  // Normalize unicode narrow/non-breaking spaces and hyphens
+  processed = processed
+    .replace(/[\u202F\u00A0\u2000-\u200A]/g, ' ')
+    .replace(/[\u2011\u2012]/g, '-');
+
   // Strip newlines immediately preceding punctuation
   processed = processed.replace(/\n\s*([.,;!?।])/g, '$1');
 
@@ -62,6 +67,37 @@ export function intelligentSegmentResponse(text) {
   // Separate inline numbered points
   processed = processed.replace(/([.!?।»”"])\s+(\d{1,2}[.)]\s+)(?=[A-Z*«"“(\u0900-\u097F])/g, '$1\n$2');
 
+  // Universal Decoupling of inline quoted scripture verses with translation / meaning:
+  // e.g. 'As the Bhagavad-Gita reminds us, “Uddhare dātmanātmānaṁ na ātmanam avasādayet” – you must lift yourself...'
+  // or 'गीता में भगवान कहते हैं, “उद्धरेदात्मानमात्मानं...” - अपने मन से...'
+  const inlineScriptureVerseRegex = /(?:([A-Za-z\u0900-\u0963\u0966-\u097F][^\n.!?।]*?(?:Gita|Bhagavad|Upanishad|Veda|Purana|Scripture|Krishna|Shri Krishna|Lord|Maharaj|Sage|Rishi|Sanatan|गीता|भगवद्|उपनिषद|वेद|पुराण|शास्त्र|भगवान|प्रभु|श्रीकृष्ण|श्रीराम|तुलसीदास)[^\n:,"“”]*?[:,\s]+))?["“«]([^\n"“”»]+)["”»]\s*(?:[–—\-:]|\s*(?:which means|meaning|अर्थात|अर्थात्|भावार्थ|अर्थ)\s*[:—\-–]?|[.,;!?।]\s*(?:which means|meaning|अर्थात|अर्थात्|भावार्थ|अर्थ)\s*[:—\-–]?)\s*([A-Za-z\u0900-\u097F][^.!?।\n]+[.!?।])/giu;
+
+  processed = processed.replace(inlineScriptureVerseRegex, (match, intro, verse, meaning) => {
+    const cleanIntro = intro ? intro.replace(/^[.!?।,\s]+/, '').trim().replace(/[:,\s]+$/, ':') : '';
+    const cleanVerse = verse.trim();
+    let cleanMeaning = meaning.trim().replace(/^(?:[–—\-:]|which means|meaning|अर्थात|अर्थात्|भावार्थ|अर्थ)\s*[:—\-–]?\s*/i, '');
+    if (cleanMeaning.length > 0) {
+      cleanMeaning = cleanMeaning.charAt(0).toUpperCase() + cleanMeaning.slice(1);
+    }
+    const isEnglish = /^[A-Za-z]/.test(cleanMeaning);
+    const prefix = isEnglish ? 'Meaning: ' : 'अर्थ: ';
+    return `${cleanIntro ? '\n\n' + cleanIntro + '\n\n' : '\n\n'}« ${cleanVerse} »\n\n${prefix}${cleanMeaning}\n\n`;
+  });
+
+  // Also decouple standalone quoted Sanskrit/IAST verses followed by dash or meaning even without explicit scripture name in intro:
+  const inlineSanskritVerseRegex = /(?:^|[\s.!?।])["“]([^\n"“”]*?(?:[āīūṛṝḷḹēōṁṃḥñṅṇṭḍśṣ]|[\u0900-\u0963\u0966-\u097F]{4,})[^\n"“”]*?)["”]\s*(?:[–—\-:]|\s*(?:which means|meaning|अर्थात|अर्थात्|भावार्थ|अर्थ)\s*[:—\-–]?)\s*([A-Za-z\u0900-\u097F][^.!?।\n]+[.!?।])/giu;
+
+  processed = processed.replace(inlineSanskritVerseRegex, (match, verse, meaning) => {
+    const cleanVerse = verse.trim();
+    let cleanMeaning = meaning.trim().replace(/^(?:[–—\-:]|which means|meaning|अर्थात|अर्थात्|भावार्थ|अर्थ)\s*[:—\-–]?\s*/i, '');
+    if (cleanMeaning.length > 0) {
+      cleanMeaning = cleanMeaning.charAt(0).toUpperCase() + cleanMeaning.slice(1);
+    }
+    const isEnglish = /^[A-Za-z]/.test(cleanMeaning);
+    const prefix = isEnglish ? 'Meaning: ' : 'अर्थ: ';
+    return `\n\n« ${cleanVerse} »\n\n${prefix}${cleanMeaning}\n\n`;
+  });
+
   // 1. Isolate any inline Sanskrit verse containing double danda ॥ wrapped in quotes or preceded by कि / :
   processed = processed.replace(/\s*["“]([^\n"“”]*?॥+[^\n"“”]*?)["”]\s*/gu, '\n\n« $1 »\n\n');
 
@@ -73,7 +109,10 @@ export function intelligentSegmentResponse(text) {
   processed = processed.replace(/((?:\*\*|\*|__)*(?:Meaning|अर्थात्|भावार्थ|अर्थ)[^\n]+?["”»])\s+(?=(?:देखो|सुनो|बेटा|वत्स|प्रिय|तुम्हारा|तुम्हारी|हर काम|जब तुम|याद रखो|अब|इसलिए|इस प्रकार|अतः|Remember|In your|Dear|Child|Therefore|[A-Z\u0900-\u097F]))/gi, '$1\n\n');
   
   // If Arthat ends with punctuation and is followed by transition discourse, separate into discourse paragraph
-  processed = processed.replace(/((?:\*\*|\*|__)*(?:Meaning|अर्थात्|भावार्थ|अर्थ)[^\n]+?[।!?]["”»]?)\s+(?=(?:देखो\s*बच्चा|सुनो\s*बच्चा|बेटा|वत्स|प्रिय\s*बच्चा|इसलिए|इस\s*प्रकार|अतः|याद\s*रखो|इस\s*श्लोक|यह\s*श्लोक|Remember,\s*child|My\s*child|Therefore)[\sA-Za-z\u0900-\u097F])/gi, '$1\n\n');
+  processed = processed.replace(/((?:\*\*|\*|__)*(?:Meaning|अर्थात्|भावार्थ|अर्थ)[^\n]+?[।!?]["”»]?)\s+(?=(?:देखो\s*बच्चा|सुनो\s*बच्चा|बेटा|वत्स|प्रिय\s*बच्चा|इसलिए|इस\s*प्रकार|अतः|याद\s*रखो|इस\s*श्लोक|यह\s*श्लोक|Remember,\s*child|My\s*child|Therefore|Let\s+each|Keep\s+your|In\s+that)[\sA-Za-z\u0900-\u097F])/gi, '$1\n\n');
+
+  // Isolate Jai Jai Shri Radhe
+  processed = processed.replace(/([.!?।])\s*(?=Jai\s*Jai\s*Shri\s*Radhe|जय\s*जय\s*श्री\s*राधे)/gi, '$1\n\n');
 
   // After shloka meaning quote, isolate next practice section
   processed = processed.replace(/(["”»])\s+(?=(?:For your daily practice|As a daily practice|Daily practice|For daily contemplation|Each morning|Throughout the day|दैनिक साधना|प्रतिदिन|सुबह|साधना अभ्यास)[\s:,])/gi, '$1\n\n');

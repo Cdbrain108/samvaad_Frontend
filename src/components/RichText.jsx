@@ -56,9 +56,10 @@ export default function RichText({ content, streaming = false }) {
       // Check if line is shlok
       const isShlok = !isArthat && (
         (trimmed.includes('«') && trimmed.includes('»')) ||
+        (trimmed.startsWith('«') || trimmed.startsWith('**«')) ||
         (trimmed.includes('॥') && (trimmed.startsWith('**') || trimmed.endsWith('**') || trimmed.startsWith('«') || trimmed.startsWith('"') || trimmed.startsWith('“'))) ||
         (/^[«\*]+[\u0900-\u097F\s,।'॥\-]+[»\*]+$/.test(trimmed) && trimmed.length > 20) ||
-        (currentShlok !== null && (trimmed.includes('॥') || trimmed.endsWith('»**') || trimmed.endsWith('»') || trimmed.endsWith('**')))
+        (currentShlok !== null && (trimmed.includes('॥') || trimmed.endsWith('»**') || trimmed.endsWith('»') || trimmed.endsWith('**') || trimmed.includes('»')))
       );
 
       if (isShlok) {
