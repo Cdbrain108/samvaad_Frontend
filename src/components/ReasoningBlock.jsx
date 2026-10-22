@@ -59,6 +59,7 @@ const WISDOM_PEARLS_EN = [
 export default function ReasoningBlock({
   thought = '',
   isThinking = false,
+  isFraming = false,
   duration = 0,
   scripture = null,
   isEnglish = false,
@@ -196,10 +197,14 @@ export default function ReasoningBlock({
 
             <span className="reasoning-title-text">
               <span className="reasoning-title-desktop">
-                {isThinking ? 'चिंतन प्रक्रिया (Spiritual Deliberation)' : 'चिंतन संपन्न (Thought Process)'}
+                {isFraming
+                  ? (isEnglishView ? 'Deliberation Complete • Framing Answer...' : 'चिंतन संपन्न • उत्तर स्वरूप तैयार हो रहा है...')
+                  : (isThinking ? 'चिंतन प्रक्रिया (Spiritual Deliberation)' : 'चिंतन संपन्न (Thought Process)')}
               </span>
               <span className="reasoning-title-mobile">
-                {isThinking ? (isEnglishView ? 'Deliberating' : 'चिंतन प्रक्रिया') : (isEnglishView ? 'Thought Complete' : 'चिंतन संपन्न')}
+                {isFraming
+                  ? (isEnglishView ? 'Framing Answer' : 'स्वरूप संजो रहे हैं')
+                  : (isThinking ? (isEnglishView ? 'Deliberating' : 'चिंतन प्रक्रिया') : (isEnglishView ? 'Thought Complete' : 'चिंतन संपन्न'))}
               </span>
             </span>
 

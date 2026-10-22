@@ -49,23 +49,29 @@ function CopyButton({ text }) {
   );
 }
 
-function RespondingIndicator({ isDeep = false, userQuery = '' }) {
-  const isEnglish = detectQueryLanguage(userQuery) === 'english';
+function RespondingIndicator({ isDeep = false, isFraming = false, userQuery = '', isEnglish = false }) {
+  const isEng = Boolean(isEnglish || detectQueryLanguage(userQuery) === 'english');
   const studyQuery = isStudyQuery(userQuery);
 
   const targetPhrase = useMemo(() => {
+    if (isFraming) {
+      return isEng
+        ? '🌸 Harmonizing divine counsel & framing answer...'
+        : '🌸 पूज्य महाराज जी उत्तर स्वरूप दे रहे हैं...';
+    }
+
     if (studyQuery) {
-      return isEnglish
+      return isEng
         ? '📚 Devoted Study Guidance...'
         : '📚 नित्य पावन अध्ययन चिंतन...';
     }
 
-    if (isEnglish) {
+    if (isEng) {
       return 'Guru ji is responding...';
     }
 
     return 'गुरु जी चिंतन कर रहे हैं...';
-  }, [isEnglish, studyQuery]);
+  }, [isEng, studyQuery, isFraming]);
 
   const [displayedText, setDisplayedText] = useState('');
 
@@ -1049,6 +1055,8 @@ export default function App() {
               subsequentContent: update.subsequentContent || '',
               thought: update.thought !== undefined ? update.thought : assistantMsg.thought,
               isThinking: update.isThinking !== undefined ? Boolean(update.isThinking) : assistantMsg.isThinking,
+              isFraming: Boolean(update.isFraming),
+              isEnglish: update.isEnglish !== undefined ? Boolean(update.isEnglish) : assistantMsg.isEnglish,
               thinkingDuration: update.thinkingDuration || 0,
               oracleActive: Boolean(update.oracleActive),
               scripture: update.scripture || null
@@ -1492,22 +1500,25 @@ export default function App() {
                         <ReasoningBlock
                           thought={message.thought}
                           isThinking={message.isThinking}
+                          isFraming={message.isFraming}
                           duration={message.thinkingDuration}
                           scripture={message.scripture}
-                          isEnglish={index > 0 && messages[index - 1] ? detectQueryLanguage(messages[index - 1].content || '') === 'english' : false}
+                          isEnglish={Boolean(message.isEnglish || (index > 0 && messages[index - 1] ? detectQueryLanguage(messages[index - 1].content || '') === 'english' : false))}
                         />
                       )}
 
                       {/* Open Typography flowing directly inside the Sacred Card Window */}
                       {message.content ? (
                         <div className="rich-text">
-                          <RichText content={message.content} streaming={isLastAssistant && (isStreaming || message.isThinking)} />
+                          <RichText content={message.content} streaming={isLastAssistant && (isStreaming || message.isThinking || message.isFraming)} />
                         </div>
                       ) : (
-                        isLastAssistant && (isStreaming || isResponding) && !message.oracleActive && !(message.thought && message.thought.includes('\n\n')) && (
+                        isLastAssistant && (isStreaming || isResponding) && (
                           <div style={{ marginTop: (message.thought || message.isThinking) ? '14px' : '0px' }}>
                             <RespondingIndicator
                               isDeep={inferenceMode === 'deep'}
+                              isFraming={Boolean(message.isFraming || (!message.isThinking && message.thought && !message.content))}
+                              isEnglish={Boolean(message.isEnglish || (index > 0 && messages[index - 1] ? detectQueryLanguage(messages[index - 1].content || '') === 'english' : false))}
                               userQuery={index > 0 && messages[index - 1] ? messages[index - 1].content || '' : ''}
                             />
                           </div>

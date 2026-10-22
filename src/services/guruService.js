@@ -140,10 +140,12 @@ async function streamGroqDiscourseRefiner({
     systemPrompt = `You are the authentic, revered, fatherly voice of Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
 Your sacred role is to deliver a warm, direct, spiritually grounding fatherly discourse addressing the seeker's inquiry.
 
-[DYNAMIC LANGUAGE COGNITION (स्वतः भाषा संज्ञान)]
-- Detect the seeker's inquiry language and script autonomously:
-  * If the seeker writes in English: Deliver the discourse in warm, fatherly English, beginning with "${addressGreeting}".
-  * If the seeker writes in Hindi (Devanagari) or Hinglish (Hindi written in Roman alphabet, e.g. "mera man shant nahi hai", "kya karu"): You MUST deliver the discourse in authentic Devanagari Hindi, beginning with "देखो बच्चा ${activeAccountName || ''}," and concluding with "जय जय श्री राधे!". Never reply to a Hindi/Hinglish inquiry in English!
+[ABSOLUTE LANGUAGE DIRECTIVE: 100% ENGLISH RESPONSE MANDATE]
+- The seeker has submitted their inquiry in English.
+- You MUST generate your ENTIRE discourse strictly and exclusively in heartfelt, fatherly English.
+- NEVER switch to Hindi or Devanagari script for your sentences. Every word of explanation, solace, practical counsel, and guidance must be in pure English.
+- Standalone Sanskrit shlokas (if relevant) must be placed on their own line inside « ... » accompanied immediately by their English meaning.
+- Begin directly with "${addressGreeting}" and conclude with "Jai Jai Shri Radhe!".
 
 [CRITICAL VOICE & DATASET WORDING STANDARDS - ABSOLUTE DIRECTIVE]
 - Maharaj Ji speaks directly from his heart as a loving spiritual father ("${addressGreeting}...").
@@ -263,10 +265,14 @@ ${scriptureEvidenceText}`;
       content: m.content
     }));
 
+  const effectiveUserQuery = isEnglish
+    ? `[MANDATORY DIRECTIVE: The seeker asked in English. Please reply 100% strictly in warm, fatherly English. Do not write in Hindi]:\n\n${query}`
+    : query;
+
   const messages = [
     { role: 'system', content: systemPrompt },
     ...historyMessages,
-    { role: 'user', content: query }
+    { role: 'user', content: effectiveUserQuery }
   ];
 
   let streamedContent = '';
@@ -1556,6 +1562,13 @@ ${scripture ? `Scripture: ${scripture.reference || ''} - ${scripture.english_tra
 }
 
 async function streamOracleThoughtDeliberation(userMessage, conversationHistory, scripture, baseThought, startTime, isEnglish, onChunk) {
+  // If the inquiry is in English, immediately stream authentic, fatherly English contemplation via Groq LPU.
+  // The fine-tuned Oracle model (ai-guru-v10-4) is fine-tuned strictly on Devanagari Hindi satsangs,
+  // so delegating English inquiries guarantees 100% pure English reasoning and zero language leakage.
+  if (isEnglish) {
+    return await streamGroqThoughtFallback(userMessage, scripture, baseThought, startTime, onChunk);
+  }
+
   const oracleBase = getOracleUrl() || 'https://immature-zen-earthen.ngrok-free.dev';
   const endpoint = `${oracleBase.replace(/\/$/, '')}/v1/chat/completions`;
 
@@ -2041,11 +2054,13 @@ export async function streamGuruResponse(
     }
   }
 
-  // Finalize thinking state: Reasoning Block completed with full thought
+  // Finalize thinking state: Transition smoothly to framing final discourse
   onChunk({
     content: '',
     thought: currentThought,
     isThinking: false,
+    isFraming: true,
+    isEnglish: isEnglish,
     thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
     scripture
   });
@@ -2055,10 +2070,15 @@ export async function streamGuruResponse(
   let streamedContent = '';
   let backendSuccess = false;
   const isLocalHost = API_BASE_URL.includes('localhost') || API_BASE_URL.includes('127.0.0.1');
+  const isBrowserLocal = typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  // Skip localhost probe if browser is running on GitHub Pages / remote origin, preventing a 2.4s frozen delay
+  const shouldAttemptLocalBackend = !isLocalHost || isBrowserLocal;
   const backendTimeout = inferenceMode === 'crew'
     ? 25000
     : (isLocalHost ? 2400 : Math.min(8000, Math.max(3000, 16000 - (Date.now() - startTime))));
 
+  if (shouldAttemptLocalBackend) {
   try {
     const streamEndpoint = `${API_BASE_URL}/api/generate/stream`;
     const formattedMessages = [
@@ -2141,6 +2161,7 @@ export async function streamGuruResponse(
   } catch (err) {
     console.info('[Backend Stream] Local backend unavailable, delegating to direct Groq Refiner LPU:', err.message);
   }
+  }
 
   // 5. Multi-Agent CrewAI or Groq Satsang Refiner & Reviewer:
   if (!backendSuccess || !streamedContent.trim()) {
@@ -2181,6 +2202,26 @@ export async function streamGuruResponse(
       });
 
       if (groqDiscourse && groqDiscourse.trim()) {
+        // If content was not already streamed word-by-word, animate it down smoothly with perfect cadence
+        if (!streamedContent || streamedContent.trim() !== groqDiscourse.trim()) {
+          const words = groqDiscourse.trim().split(/(\s+)/);
+          let animatedAcc = '';
+          for (let i = 0; i < words.length; i++) {
+            if (abortSignal?.aborted) break;
+            animatedAcc += words[i];
+            if (i % 2 === 0 || i === words.length - 1) {
+              onChunk({
+                content: animatedAcc,
+                thought: currentThought,
+                isThinking: false,
+                isFraming: false,
+                thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+                scripture
+              });
+              await new Promise(r => setTimeout(r, 16));
+            }
+          }
+        }
         streamedContent = groqDiscourse.trim();
         backendSuccess = true;
       }
