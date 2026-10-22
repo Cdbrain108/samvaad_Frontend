@@ -1,0 +1,86 @@
+{
+  "version": "1.0.0",
+  "description": "Shared query-intent rules for Samvaad. Single source of truth for verse-count intent and exact scripture routing, consumed by BOTH rag_engine/query_intent.py (backend) and frontend/src/services/scriptureService.js. Keep the two pipelines aligned by editing ONLY this file.",
+
+  "policy": {
+    "default_verse_count": 1,
+    "max_verse_count": 8,
+    "note": "Multi-verse is STRICTLY OPT-IN. verse_count > 1 only when the seeker explicitly asks for a number of verses, or uses an unambiguous plural-ask phrase from explicit_multi_phrases. Every other query keeps the single-primary-verse satsang behaviour."
+  },
+
+  "countable_nouns": [
+    "question", "questions", "verse", "verses", "shlok", "shloka", "shlokas", "shloks",
+    "sloka", "slokas", "mantra", "mantras", "quote", "quotes", "reference", "references",
+    "example", "examples", "teaching", "teachings", "point", "points",
+    "prashn", "prashna", "prashan", "sawal", "shlokon", "doha", "dohe",
+    "प्रश्न", "प्रश्नों", "श्लोक", "श्लोकों", "सवाल", "मंत्र", "मन्त्र",
+    "दोहा", "दोहे", "सन्दर्भ", "संदर्भ", "उदाहरण", "बातें", "वाक्य", "शिक्षा"
+  ],
+
+  "number_words": {
+    "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8,
+    "ek": 1, "do": 2, "teen": 3, "char": 4, "chaar": 4, "paanch": 5, "panch": 5,
+    "chhah": 6, "chhe": 6, "saat": 7, "aath": 8,
+    "१": 1, "२": 2, "३": 3, "४": 4, "५": 5, "६": 6, "७": 7, "८": 8,
+    "एक": 1, "दो": 2, "तीन": 3, "चार": 4, "पाँच": 5, "पांच": 5,
+    "छह": 6, "छः": 6, "सात": 7, "आठ": 8
+  },
+
+  "explicit_multi_phrases": [
+    "multiple verses", "multiple shlok", "multiple shloka", "multiple quotes", "multiple references",
+    "several verses", "several shlok", "several quotes", "a few verses", "a few shlok",
+    "list of verses", "list the verses", "list some verses", "list of shlok", "list some shlok",
+    "many verses", "many shlok", "more than one verse", "more verses", "some verses", "some shlokas",
+    "kuch shlok", "kai shlok", "kayi shlok", "bahut se shlok", "sare shlok", "saare shlok",
+    "कुछ श्लोक", "कई श्लोक", "अनेक श्लोक", "सभी श्लोक", "बहुत से श्लोक",
+    "कुछ प्रश्न", "कई प्रश्न", "कुछ संदर्भ", "कुछ सन्दर्भ"
+  ],
+
+  "scriptures": {
+    "bhagavad_gita":     { "filter": "bhagavad_gita",     "label": "Bhagavad Gita",     "aliases": ["bhagavad gita", "bhagwad gita", "bhagavadgita", "srimad bhagavad gita", "gita", "geeta", "भगवद्गीता", "भगवद् गीता", "श्रीमद्भगवद्गीता", "गीता"] },
+    "ramcharitmanas":    { "filter": "ramcharitmanas",    "label": "Ramcharitmanas",    "aliases": ["ramcharitmanas", "ram charit manas", "ramcharit manas", "manas", "tulsidas", "रामचरितमानस", "रामचरित मानस", "मानस", "तुलसीदास"] },
+    "valmiki_ramayana":  { "filter": "valmiki_ramayana",  "label": "Valmiki Ramayana",  "aliases": ["valmiki ramayana", "valmiki ramayan", "valmiki", "ramayana", "ramayan", "वाल्मीकि रामायण", "वाल्मीकि", "रामायण"] },
+    "mahabharata":       { "filter": "mahabharata",       "label": "Mahabharata",       "aliases": ["mahabharata", "mahabharat", "महाभारत"] },
+
+    "garuda_purana":     { "filter": "garuda_purana",     "label": "Garuda Purana",     "aliases": ["garuda purana", "garuda puran", "garud purana", "garud puran", "garun puran", "garun purana", "garuda", "garud", "garun", "गरुड़ पुराण", "गरुड पुराण", "गरुण पुराण", "गरुड़पुराण", "गरुड़", "गरुड", "गरुण"] },
+    "shiva_purana":      { "filter": "shiva_purana",      "label": "Shiva Purana",      "aliases": ["shiva purana", "shiva puran", "shiv purana", "shiv puran", "शिव पुराण", "शिवपुराण"] },
+    "bhagavata_purana":  { "filter": "bhagavata_purana",  "label": "Bhagavata Purana",  "aliases": ["bhagavata purana", "bhagavat purana", "bhagwat puran", "srimad bhagavatam", "bhagavatam", "भागवत पुराण", "श्रीमद्भागवत", "भागवतपुराण"] },
+    "vishnu_purana":     { "filter": "vishnu_purana",     "label": "Vishnu Purana",     "aliases": ["vishnu purana", "vishnu puran", "विष्णु पुराण", "विष्णुपुराण"] },
+    "agni_purana":       { "filter": "agni_purana",       "label": "Agni Purana",       "aliases": ["agni purana", "agni puran", "अग्नि पुराण"] },
+    "matsya_purana":     { "filter": "matsya_purana",     "label": "Matsya Purana",     "aliases": ["matsya purana", "matsya puran", "मत्स्य पुराण"] },
+    "kurma_purana":      { "filter": "kurma_purana",      "label": "Kurma Purana",      "aliases": ["kurma purana", "kurma puran", "koorma puran", "कूर्म पुराण"] },
+    "vamana_purana":     { "filter": "vamana_purana",     "label": "Vamana Purana",     "aliases": ["vamana purana", "vaman puran", "वामन पुराण"] },
+    "vayu_purana":       { "filter": "vayu_purana",       "label": "Vayu Purana",       "aliases": ["vayu purana", "vayu puran", "वायु पुराण"] },
+    "skanda_purana":     { "filter": "skanda_purana",     "label": "Skanda Purana",     "aliases": ["skanda purana", "skand puran", "स्कन्द पुराण", "स्कंद पुराण"] },
+    "narada_purana":     { "filter": "narada_purana",     "label": "Narada Purana",     "aliases": ["narada purana", "narad puran", "नारद पुराण"] },
+    "narasimha_purana":  { "filter": "narasimha_purana",  "label": "Narasimha Purana",  "aliases": ["narasimha purana", "narsimha puran", "नरसिंह पुराण"] },
+    "markandeya_purana": { "filter": "markandeya_purana", "label": "Markandeya Purana", "aliases": ["markandeya purana", "markandey puran", "मार्कण्डेय पुराण"] },
+    "brahma_purana":     { "filter": "brahma_purana",     "label": "Brahma Purana",     "aliases": ["brahma purana", "brahma puran", "ब्रह्म पुराण"] },
+    "brahmanda_purana":  { "filter": "brahmanda_purana",  "label": "Brahmanda Purana",  "aliases": ["brahmanda purana", "brahmand puran", "ब्रह्माण्ड पुराण", "ब्रह्मांड पुराण"] },
+    "padma_purana":      { "filter": "padma_purana",      "label": "Padma Purana",      "aliases": ["padma purana", "padma puran", "पद्म पुराण"] },
+    "devi_bhagavata":    { "filter": "devi_bhagavata",    "label": "Devi Bhagavata",    "aliases": ["devi bhagavata", "devi bhagvat", "devi purana", "devi puran", "देवी भागवत", "देवी पुराण"] },
+
+    "rigveda":           { "filter": "rigveda",           "label": "Rigveda",           "aliases": ["rigveda", "rig veda", "rigved", "ऋग्वेद", "रिग्वेद"] },
+    "samaveda":          { "filter": "samaveda",          "label": "Samaveda",          "aliases": ["samaveda", "sama veda", "samved", "saamved", "सामवेद"] },
+    "yajurveda":         { "filter": "yajurveda",         "label": "Yajurveda",         "aliases": ["yajurveda", "yajur veda", "yajurved", "यजुर्वेद"] },
+    "atharvaveda":       { "filter": "atharvaveda",       "label": "Atharvaveda",       "aliases": ["atharvaveda", "atharva veda", "atharvaved", "अथर्ववेद"] },
+
+    "chanakya_niti":     { "filter": "chanakya_niti",     "label": "Chanakya Niti",     "aliases": ["chanakya niti", "chanakya neeti", "chanakya", "चाणक्य नीति", "चाणक्य"] },
+    "vidura_niti":       { "filter": "vidura_niti",       "label": "Vidura Niti",       "aliases": ["vidura niti", "vidur niti", "vidura", "vidur", "विदुर नीति", "विदुर"] }
+  },
+
+  "generic_buckets": {
+    "purana": { "label": "Puranas", "aliases": ["purana", "puranas", "puran", "purans", "पुराण", "पुराणों"] },
+    "veda":   { "label": "Vedas",   "aliases": ["veda", "vedas", "ved", "vedon", "वेद", "वेदों"] }
+  },
+
+  "unindexed_do_not_route": {
+    "note": "Named in concept_taxonomy.json target_scriptures but with NO file in rag_scriptures/corpus/by_scripture, therefore no Qdrant collection. Deliberately absent from the maps above: the gateway's anti-contamination rule returns EMPTY for a scripture filter that matches no collection, so routing to one of these would silently destroy grounding.",
+    "ids": ["katha_upanishad", "taittiriya_upanishad", "yoga_vasistha", "narada_bhakti_sutra", "manusmriti"]
+  },
+
+  "known_collection_hazards": {
+    "samaveda": "The stem 'samaveda' also substring-matches the collection scripture_samaveda_corrupt_backup. aws_rag_gateway.py filters out any collection ending in _corrupt_backup before querying.",
+    "bhagavata": "Never use the bare stem 'bhagavata' as a filter: it matches BOTH scripture_bhagavata_purana and scripture_devi_bhagavata. Always use the full ids."
+  }
+}

@@ -283,7 +283,7 @@ export const SCRIPTURE_DATABASE = [
       'मेहनत', 'परिश्रम', 'कड़ी मेहनत', 'सफलता नहीं मिल रही', 'असफल', 'असफलता', 'कर्म का फल', 'मेहनत का फल', 'सफलता कब मिलेगी', 'निराशा कर्म', 'परीक्षा फल', 'सफलता', 'सफलता कैसे पाएँ', 'सफल जीवन', 'कामयाबी', 'सफल कैसे बनें',
       'hard work', 'working hard', 'work hard', 'no success', 'not getting success', 'failed', 'failure', 'results', 'fruits of action', 'effort', 'struggling career', 'reward', 'unsuccessful', 'success', 'successful', 'succesfull', 'success in life', 'successful in life', 'succesfull in life', 'how to become successful', 'become successful', 'how to be successful', 'career growth',
       'కష్టపడి', 'కష్టం', 'పనిచేస్తున్నాను', 'విజయం', 'విజయము', 'ఫలితం', 'సఫలత', 'ఓటమి', 'కష్టానికి ప్రతిఫలం',
-      'mehnat kar raha hu', 'safalta nahi mil rahi', 'fal nahi mil raha', 'hardwork', 'karm fal', 'karm ka phal', 'karm ka fal', 'karm ka phal kab milta hai', 'karm ka fal kab milta hai', 'kamyaabi', 'safalta kaise paye'
+      'sadhan', 'safal', 'safalta', 'jeevan me safal', 'sabse aacha sadhan', 'sabse accha sadhan', 'safalta ka sadhan', 'safal hone ke liye', 'mehnat kar raha hu', 'safalta nahi mil rahi', 'fal nahi mil raha', 'hardwork', 'karm fal', 'karm ka phal', 'karm ka fal', 'karm ka phal kab milta hai', 'karm ka fal kab milta hai', 'kamyaabi', 'safalta kaise paye'
     ]
   },
 
@@ -1119,7 +1119,7 @@ export const SCRIPTURE_DATABASE = [
     context_intro_hi: 'जैसे श्रीरामचरितमानस में गोस्वामी तुलसीदास जी कलियुग में भगवत प्राप्ति का सर्वोत्तम साधन बताते हुए कहते हैं कि —',
     context_intro_en: 'Just as Goswami Tulsidas Ji proclaims the supreme path to God-realization in Kaliyuga in Shri Ramcharitmanas —',
     keywords: [
-      'कलिजुग केवल नाम अधारा', 'कलयुग', 'कलियुग', 'नाम जप', 'हरिनाम', 'राधा नाम', 'कृपानिधि नामा', 'kaliyug', 'naam jaap'
+      'कलिजुग केवल नाम अधारा', 'सर्वोत्तम साधन', 'परम साधन', 'कल्याण का साधन', 'जीवन में सफलता का साधन', 'कलयुग', 'कलियुग', 'नाम जप', 'हरिनाम', 'राधा नाम', 'कृपानिधि नामा', 'kaliyug', 'naam jaap', 'sadhan', 'sabse aacha sadhan', 'sabse accha sadhan', 'sarvottam sadhan', 'jeevan me safal', 'safal hone ke liye'
     ]
   },
 

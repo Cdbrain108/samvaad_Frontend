@@ -1,21 +1,25 @@
+import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 const frontendDir = path.dirname(fileURLToPath(import.meta.url))
-// The repo root, one level above frontend/. rag_scriptures/query_intent_rules.json
-// lives there and is the single source of truth for verse-count intent and
-// scripture routing, shared with rag_engine/query_intent.py. Aliasing it (rather
-// than keeping a frontend copy) is what stops the two pipelines drifting apart.
 const repoRoot = path.resolve(frontendDir, '..')
+
+// Single source of truth for query intent rules:
+// Prefers repo root if available (local dev in monolithic repo),
+// falls back to frontend/src/data/rag_scriptures (GitHub Actions and standalone builds).
+const sharedRulesDir = fs.existsSync(path.resolve(repoRoot, 'rag_scriptures', 'query_intent_rules.json'))
+  ? path.resolve(repoRoot, 'rag_scriptures')
+  : path.resolve(frontendDir, 'src', 'data', 'rag_scriptures')
 
 export default defineConfig({
   base: './',
   plugins: [react()],
   resolve: {
     alias: {
-      '@shared-rules': path.resolve(repoRoot, 'rag_scriptures'),
+      '@shared-rules': sharedRulesDir,
     },
   },
   build: {
@@ -29,9 +33,8 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    // Dev server must be allowed to read the shared rules file above frontend/.
     fs: {
-      allow: [frontendDir, path.resolve(repoRoot, 'rag_scriptures')],
+      allow: [frontendDir, sharedRulesDir],
     },
     proxy: {
       '/api': {

@@ -94,10 +94,12 @@ export default function ReasoningBlock({
     return () => clearInterval(interval);
   }, [isThinking, pearls.length]);
 
-  // Live ticking timer and auto-open/collapse based on thinking state
+  // Live ticking timer and auto-open/collapse based on thinking & framing state
+  const isLiveActive = isThinking || isFraming;
+
   useEffect(() => {
     let interval = null;
-    if (isThinking) {
+    if (isLiveActive) {
       if (!startTimeRef.current) {
         startTimeRef.current = Date.now();
       }
@@ -115,7 +117,7 @@ export default function ReasoningBlock({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isThinking, duration]);
+  }, [isLiveActive, duration]);
 
   // Progressive typewriter effect for thought stream
   useEffect(() => {
@@ -157,7 +159,7 @@ export default function ReasoningBlock({
     }
   }, [displayedThought, isThinking, isExpanded]);
 
-  const displayTime = isThinking
+  const displayTime = isLiveActive
     ? elapsed.toFixed(1)
     : (duration > 0 ? duration : elapsed).toFixed(1);
 
@@ -173,9 +175,9 @@ export default function ReasoningBlock({
       : (elapsed < 3.0 ? 0 : elapsed < 8.0 ? 1 : 2);
 
   return (
-    <div className={`reasoning-container claude-reasoning-container ${isThinking ? 'thinking-active' : 'thinking-done'}`}>
+    <div className={`reasoning-container claude-reasoning-container ${isThinking ? 'thinking-active' : (isFraming ? 'thinking-active framing-active' : 'thinking-done')}`}>
       {/* Divine Shimmering Energy Ribbon during active thinking */}
-      {isThinking && <div className="deliberation-energy-ribbon" aria-hidden="true" />}
+      {(isThinking || isFraming) && <div className="deliberation-energy-ribbon" aria-hidden="true" />}
 
       {/* Header Bar */}
       <div className="reasoning-header-bar">
@@ -188,7 +190,9 @@ export default function ReasoningBlock({
         >
           <div className="reasoning-status-row">
             <span className="reasoning-indicator">
-              {isThinking ? (
+              {isFraming ? (
+                <span className="claude-sparkle-glow framing-glow-pulse" style={{ display: 'inline-block', animation: 'spinGlow 2s linear infinite' }} aria-hidden="true">⚡</span>
+              ) : isThinking ? (
                 <span className="claude-sparkle-glow" aria-hidden="true">✨</span>
               ) : (
                 <span className="claude-check-mark" aria-hidden="true">✓</span>
@@ -198,19 +202,19 @@ export default function ReasoningBlock({
             <span className="reasoning-title-text">
               <span className="reasoning-title-desktop">
                 {isFraming
-                  ? (isEnglishView ? 'Deliberation Complete • Framing Answer...' : 'चिंतन संपन्न • उत्तर स्वरूप तैयार हो रहा है...')
+                  ? (isEnglishView ? 'Synthesizing Satsang Discourse (Framing Answer)...' : 'पूज्य महाराज जी उत्तर स्वरूप संजो रहे हैं...')
                   : (isThinking ? 'चिंतन प्रक्रिया (Spiritual Deliberation)' : 'चिंतन संपन्न (Thought Process)')}
               </span>
               <span className="reasoning-title-mobile">
                 {isFraming
-                  ? (isEnglishView ? 'Framing Answer' : 'स्वरूप संजो रहे हैं')
+                  ? (isEnglishView ? 'Framing Discourse...' : 'उत्तर संजो रहे हैं...')
                   : (isThinking ? (isEnglishView ? 'Deliberating' : 'चिंतन प्रक्रिया') : (isEnglishView ? 'Thought Complete' : 'चिंतन संपन्न'))}
               </span>
             </span>
 
-            {/* Equalizer animation while thinking */}
-            {isThinking && (
-              <div className="claude-equalizer" title="Deliberating in deep mode" aria-hidden="true">
+            {/* Equalizer animation while thinking or framing */}
+            {(isThinking || isFraming) && (
+              <div className="claude-equalizer" title={isFraming ? "Framing Satsang counsel" : "Deliberating in deep mode"} aria-hidden="true">
                 <span className="eq-bar eq-1" />
                 <span className="eq-bar eq-2" />
                 <span className="eq-bar eq-3" />
@@ -219,7 +223,7 @@ export default function ReasoningBlock({
             )}
 
             <span className="claude-timer-badge">
-              {isThinking ? `${displayTime}s...` : `${displayTime}s`}
+              {isLiveActive ? `${displayTime}s...` : `${displayTime}s`}
             </span>
           </div>
 
@@ -377,9 +381,14 @@ export default function ReasoningBlock({
               <span className="claude-block-cursor" aria-hidden="true">▋</span>
             )}
             {isFraming && (
-              <span className="chat-typing-dots" style={{ margin: '0 0 0 8px', verticalAlign: 'middle', display: 'inline-flex', gap: '4px' }} aria-hidden="true">
-                <i /><i /><i />
-              </span>
+              <div className="reasoning-framing-callout" style={{ marginTop: '8px', padding: '6px 10px', background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', color: '#f59e0b', fontSize: '0.84rem' }}>
+                <span className="chat-typing-dots" style={{ margin: 0, display: 'inline-flex', gap: '4px' }} aria-hidden="true">
+                  <i /><i /><i />
+                </span>
+                <span style={{ fontWeight: 600 }}>
+                  {isEnglishView ? 'Deliberation complete. Framing fatherly discourse...' : 'चिंतन पूर्ण हुआ। पूज्य महाराज जी उत्तर स्वरूप संजो रहे हैं...'}
+                </span>
+              </div>
             )}
           </div>
         </div>
