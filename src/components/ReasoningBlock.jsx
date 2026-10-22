@@ -376,6 +376,11 @@ export default function ReasoningBlock({
             {(isThinking || displayedThought.length < (thought || '').length) && (
               <span className="claude-block-cursor" aria-hidden="true">▋</span>
             )}
+            {isFraming && (
+              <span className="chat-typing-dots" style={{ margin: '0 0 0 8px', verticalAlign: 'middle', display: 'inline-flex', gap: '4px' }} aria-hidden="true">
+                <i /><i /><i />
+              </span>
+            )}
           </div>
         </div>
       )}
@@ -425,6 +430,14 @@ export default function ReasoningBlock({
                 {displayedThought}
                 {(isThinking || displayedThought.length < (thought || '').length) && (
                   <span className="claude-block-cursor" aria-hidden="true">▋</span>
+                )}
+                {isFraming && (
+                  <div style={{ marginTop: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#f59e0b', fontSize: '0.84rem' }}>
+                    <span className="chat-typing-dots" style={{ margin: 0, display: 'inline-flex', gap: '4px' }} aria-hidden="true">
+                      <i /><i /><i />
+                    </span>
+                    <span>{isEnglishView ? 'Framing answer...' : 'उत्तर स्वरूप तैयार हो रहा है...'}</span>
+                  </div>
                 )}
               </div>
 

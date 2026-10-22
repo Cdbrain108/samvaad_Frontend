@@ -51,52 +51,22 @@ function CopyButton({ text }) {
 
 function RespondingIndicator({ isDeep = false, isFraming = false, userQuery = '', isEnglish = false }) {
   const isEng = Boolean(isEnglish || detectQueryLanguage(userQuery) === 'english');
-  const studyQuery = isStudyQuery(userQuery);
 
-  const targetPhrase = useMemo(() => {
-    if (isFraming) {
-      return isEng
-        ? '🌸 Harmonizing divine counsel & framing answer...'
-        : '🌸 पूज्य महाराज जी उत्तर स्वरूप दे रहे हैं...';
-    }
-
-    if (studyQuery) {
-      return isEng
-        ? '📚 Devoted Study Guidance...'
-        : '📚 नित्य पावन अध्ययन चिंतन...';
-    }
-
-    if (isEng) {
-      return 'Guru ji is responding...';
-    }
-
-    return 'गुरु जी चिंतन कर रहे हैं...';
-  }, [isEng, studyQuery, isFraming]);
-
-  const [displayedText, setDisplayedText] = useState('');
-
-  useEffect(() => {
-    setDisplayedText('');
-  }, [targetPhrase]);
-
-  useEffect(() => {
-    if (!targetPhrase) return;
-    if (displayedText.length < targetPhrase.length) {
-      const timer = setTimeout(() => {
-        setDisplayedText(targetPhrase.slice(0, displayedText.length + 1));
-      }, 24);
-      return () => clearTimeout(timer);
-    }
-  }, [displayedText, targetPhrase]);
+  const textLabel = isFraming
+    ? (isEng ? 'Framing answer...' : 'उत्तर स्वरूप तैयार हो रहा है...')
+    : (isEng ? 'Guru ji is responding...' : 'पूज्य गुरु जी चिंतन कर रहे हैं...');
 
   return (
-    <p className="typing-text responding-indicator-box">
-      <span className="responding-typed-content">
-        {displayedText}
+    <div className="satsang-framing-dots-container" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.09)', border: '1px solid rgba(245, 158, 11, 0.28)', margin: '8px 0' }}>
+      <span className="chat-typing-dots" style={{ margin: 0, display: 'inline-flex', gap: '4px' }} aria-hidden="true">
+        <i />
+        <i />
+        <i />
       </span>
-      <span className="responding-typewriter-cursor" aria-hidden="true">|</span>
-      <span className="chat-typing-dots" aria-hidden="true"><i /><i /><i /></span>
-    </p>
+      <span style={{ fontSize: '0.88rem', fontStyle: 'italic', fontWeight: 500, color: '#f59e0b', letterSpacing: '0.015em' }}>
+        {textLabel}
+      </span>
+    </div>
   );
 }
 
@@ -1513,7 +1483,7 @@ export default function App() {
                           <RichText content={message.content} streaming={isLastAssistant && (isStreaming || message.isThinking || message.isFraming)} />
                         </div>
                       ) : (
-                        isLastAssistant && (isStreaming || isResponding) && (
+                        isLastAssistant && (isStreaming || isResponding || message.isFraming) && (
                           <div style={{ marginTop: (message.thought || message.isThinking) ? '14px' : '0px' }}>
                             <RespondingIndicator
                               isDeep={inferenceMode === 'deep'}
