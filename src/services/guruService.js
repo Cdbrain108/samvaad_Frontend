@@ -2255,26 +2255,6 @@ export async function streamGuruResponse(
         if (reconciledScripture) {
           scripture = reconciledScripture;
         }
-        // If content was not already streamed word-by-word, animate it down smoothly with perfect cadence
-        if (!streamedContent || streamedContent.trim() !== groqDiscourse.trim()) {
-          const words = groqDiscourse.trim().split(/(\s+)/);
-          let animatedAcc = '';
-          for (let i = 0; i < words.length; i++) {
-            if (abortSignal?.aborted) break;
-            animatedAcc += words[i];
-            if (i % 2 === 0 || i === words.length - 1) {
-              onChunk({
-                content: animatedAcc,
-                thought: currentThought,
-                isThinking: false,
-                isFraming: false,
-                thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
-                scripture
-              });
-              await new Promise(r => setTimeout(r, 16));
-            }
-          }
-        }
         streamedContent = groqDiscourse.trim();
         backendSuccess = true;
       }
