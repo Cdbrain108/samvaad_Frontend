@@ -1480,7 +1480,7 @@ export default function App() {
                       {/* Open Typography flowing directly inside the Sacred Card Window */}
                       {message.content ? (
                         <div className="rich-text">
-                          <RichText content={message.content} streaming={isLastAssistant && (isStreaming || message.isThinking || message.isFraming)} />
+                          <RichText content={message.content} streaming={isLastAssistant && (isStreaming || message.isThinking || message.isFraming)} scripture={message.scripture} />
                         </div>
                       ) : (
                         isLastAssistant && (isStreaming || isResponding || message.isFraming) && (

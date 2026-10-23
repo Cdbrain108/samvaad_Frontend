@@ -3797,3 +3797,114 @@ html, body { max-width: 100%; overflow-x: hidden; }
   border-color: rgba(217, 119, 6, 0.65) !important;
   box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18), 0 6px 24px rgba(180, 83, 9, 0.12) !important;
 }
+
+
+/* ──────────────────────────────────────────────────────────────
+   RAG Indexed Shlok Attribution Header & Denotation Badge
+────────────────────────────────────────────────────────────── */
+.rich-shlok-denotation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-bottom: 12px;
+  padding-bottom: 9px;
+  border-bottom: 1px dashed rgba(217, 119, 6, 0.28);
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: left;
+}
+
+:root[data-theme='dark'] .rich-shlok-denotation,
+.night .rich-shlok-denotation {
+  border-bottom-color: rgba(251, 191, 36, 0.22);
+}
+
+.rich-shlok-denotation-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #92400E;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  max-width: 100%;
+}
+
+:root[data-theme='dark'] .rich-shlok-denotation-ref,
+.night .rich-shlok-denotation-ref {
+  color: #FDE68A;
+}
+
+.rich-shlok-denotation-icon {
+  font-size: 13.5px;
+  flex-shrink: 0;
+}
+
+.rich-shlok-denotation-title {
+  white-space: normal;
+  word-break: break-word;
+}
+
+.rich-shlok-denotation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  background: rgba(217, 119, 6, 0.12);
+  border: 1px solid rgba(217, 119, 6, 0.28);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #B45309;
+  letter-spacing: 0.02em;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  white-space: nowrap;
+}
+
+:root[data-theme='dark'] .rich-shlok-denotation-badge,
+.night .rich-shlok-denotation-badge {
+  background: rgba(251, 191, 36, 0.14);
+  border-color: rgba(251, 191, 36, 0.32);
+  color: #FDE68A;
+}
+
+.rich-shlok-sparkle {
+  color: #D97706;
+  font-size: 11px;
+}
+
+:root[data-theme='dark'] .rich-shlok-sparkle,
+.night .rich-shlok-sparkle {
+  color: #FCD34D;
+}
+
+.rich-shlok-similarity-tag {
+  font-weight: 800;
+  color: #92400E;
+}
+
+:root[data-theme='dark'] .rich-shlok-similarity-tag,
+.night .rich-shlok-similarity-tag {
+  color: #FBBF24;
+}
+
+.rich-shlok-verses-body {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .rich-shlok-denotation {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    padding-bottom: 8px;
+  }
+  .rich-shlok-denotation-ref {
+    justify-content: center;
+    text-align: center;
+  }
+}

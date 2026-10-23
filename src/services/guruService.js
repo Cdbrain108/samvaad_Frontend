@@ -8,11 +8,59 @@
  */
 
 import { getScriptureGrounding, isCasualConversational, isDharmicOrSpiritualQuery } from './scriptureService.js';
+import { SCRIPTURE_DATABASE } from '../data/scriptureDatabase.js';
 import { analyzeQuery } from './queryIntent.js';
 import { isIntroductionOrCreatorQuery, getProjectIntroduction, getIntroductionThought } from '../data/projectIntroduction.js';
 import { isLiveCalendarQuery, searchDuckDuckGo, searchVerseOnline, getEkadashiScheduleText } from './liveSearchService.js';
 
 export { isCasualConversational, isIntroductionOrCreatorQuery, isLiveCalendarQuery, searchVerseOnline, getEkadashiScheduleText };
+
+
+function reconcileScriptureWithDiscourse(content, currentScripture) {
+  if (!content) return currentScripture;
+
+  const candidatePool = [];
+  if (currentScripture) {
+    if (Array.isArray(currentScripture.candidates)) {
+      candidatePool.push(...currentScripture.candidates);
+    }
+    candidatePool.push(currentScripture);
+  }
+
+  for (const cand of candidatePool) {
+    if (!cand || !cand.original_text) continue;
+    const words = cand.original_text.replace(/[।॥«»\n\r,]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+    if (words.length > 0) {
+      const matchCount = words.filter(w => content.includes(w)).length;
+      if (matchCount >= Math.min(2, words.length)) {
+        return {
+          ...cand,
+          score: cand.score || currentScripture?.score || 0.88,
+          candidates: candidatePool
+        };
+      }
+    }
+  }
+
+  if (Array.isArray(SCRIPTURE_DATABASE)) {
+    for (const entry of SCRIPTURE_DATABASE) {
+      if (!entry || !entry.original_text) continue;
+      const words = entry.original_text.replace(/[।॥«»\n\r,]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+      if (words.length > 0) {
+        const matchCount = words.filter(w => content.includes(w)).length;
+        if (matchCount >= Math.min(2, words.length)) {
+          return {
+            ...entry,
+            score: entry.score || 0.90,
+            candidates: [entry, ...(candidatePool.filter(c => c.id !== entry.id))]
+          };
+        }
+      }
+    }
+  }
+
+  return currentScripture;
+}
 
 const API_BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL)
   ? import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '')
@@ -165,7 +213,8 @@ Your sacred role is to deliver a warm, direct, spiritually grounding fatherly di
   * JUDICIOUSLY SELECT ONLY 1 VERSE (if genuinely relevant to the query).
   * CRITICAL FORMATTING MANDATE FOR VERSES:
     - NEVER weave the Sanskrit verse into regular prose or enclose it in regular double quotes ("...").
-    - Place the Sanskrit shloka on its OWN isolated standalone line, wrapped strictly in French guillemets:
+    - CRITICAL ATTRIBUTION RULE: When introducing a verse or shloka, you MUST explicitly name the specific scripture (e.g., "जैसे श्रीरामचरितमानस (उत्तरकाण्ड) में गोस्वामी तुलसीदास जी कहते हैं कि —" or "जैसे श्रीमद्भगवद्गीता में भगवान श्रीकृष्ण कहते हैं कि —"). NEVER use vague or generic phrases like "शास्त्रों में कहा गया है:".
+- Place the Sanskrit shloka on its OWN isolated standalone line, wrapped strictly in French guillemets:
       « [Original Sanskrit Shloka / Verse] »
     - On the IMMEDIATE next line, provide its English meaning prefixed with "Meaning: ":
       Meaning: [Heartfelt English translation of the verse]
@@ -2202,6 +2251,10 @@ export async function streamGuruResponse(
       });
 
       if (groqDiscourse && groqDiscourse.trim()) {
+        const reconciledScripture = reconcileScriptureWithDiscourse(groqDiscourse, scripture);
+        if (reconciledScripture) {
+          scripture = reconciledScripture;
+        }
         // If content was not already streamed word-by-word, animate it down smoothly with perfect cadence
         if (!streamedContent || streamedContent.trim() !== groqDiscourse.trim()) {
           const words = groqDiscourse.trim().split(/(\s+)/);

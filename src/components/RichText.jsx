@@ -1,12 +1,56 @@
 import React, { useMemo } from 'react';
 import { renderInline, intelligentSegmentResponse } from '../utils/formatters';
+import { SCRIPTURE_DATABASE } from '../data/scriptureDatabase';
+
+function findMatchedScripture(verseLines, scriptureProp) {
+  const combined = verseLines.join(' ');
+  const candidatePool = [];
+  if (scriptureProp) {
+    if (Array.isArray(scriptureProp.candidates)) {
+      candidatePool.push(...scriptureProp.candidates);
+    }
+    candidatePool.push(scriptureProp);
+  }
+
+  for (const cand of candidatePool) {
+    if (!cand || !cand.original_text) continue;
+    const keyWords = cand.original_text
+      .replace(/[।॥«»"“'_s]/gu, ' ')
+      .split(/\s+/)
+      .filter((w) => w.length > 2);
+    if (keyWords.length > 0) {
+      const matchCount = keyWords.filter((w) => combined.includes(w)).length;
+      if (matchCount >= Math.min(2, keyWords.length)) {
+        return cand;
+      }
+    }
+  }
+
+  if (Array.isArray(SCRIPTURE_DATABASE)) {
+    for (const entry of SCRIPTURE_DATABASE) {
+      if (!entry || !entry.original_text) continue;
+      const keyWords = entry.original_text
+        .replace(/[।॥«»"“'_s]/gu, ' ')
+        .split(/\s+/)
+        .filter((w) => w.length > 2);
+      if (keyWords.length > 0) {
+        const matchCount = keyWords.filter((w) => combined.includes(w)).length;
+        if (matchCount >= Math.min(2, keyWords.length)) {
+          return entry;
+        }
+      }
+    }
+  }
+
+  return scriptureProp || null;
+}
 
 /**
  * RichText Component:
  * Renders spiritual discourse cleanly and instantaneously with 0 lag.
  * Uses intelligent segmentation and multi-line verse grouping.
  */
-export default function RichText({ content, streaming = false }) {
+export default function RichText({ content, streaming = false, scripture = null }) {
   const blocks = useMemo(() => {
     if (!content) return [];
     const segmentedText = intelligentSegmentResponse(content);
