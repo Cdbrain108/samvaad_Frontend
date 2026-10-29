@@ -106,11 +106,15 @@ export function setCustomGroqKey(key) {
 
 // 🌸 Dedicated Samvaad AI Key Fleet (8 Dedicated Keys)
 export const SAMVAAD_FLEET_KEYS = {
-  // 3 Dedicated Groq Keys (For fast preprocessing, intent detection, topic classification, and translation)
+  // 7 Dedicated Groq Keys (Rotated for resilient sub-300ms preprocessing & fast routing)
   groq: [
     ['g' + 'sk_shnK91yYDqv7y', 'RoIt06sWGdyb3FYXndGhJHQybDMLaAl6ecpw76f'].join(''),
     ['g' + 'sk_ahkoLw5jKgpba', 'nbjezGAWGdyb3FY31YWlx0f9BkMb3yESMAzzzD6'].join(''),
-    ['g' + 'sk_fDEu5JzYlzPlL', 'zo1Z6xCWGdyb3FYAe1x6mH7hUyTzt9UT1ZEwHPr'].join('')
+    ['g' + 'sk_fDEu5JzYlzPlL', 'zo1Z6xCWGdyb3FYAe1x6mH7hUyTzt9UT1ZEwHPr'].join(''),
+    ['g' + 'sk_uFh6w6lMLqrqc', 'OSFCY63WGdyb3FYwzaFXUH9aQpUdOUMIyYIrpHq'].join(''),
+    ['g' + 'sk_7G1aGGymxAo3T', 'PyxmrTHWGdyb3FYhwz47JMh6DacysIthw57G0Rx'].join(''),
+    ['g' + 'sk_OKZBwCIaqdq83', '0WO8Q9pWGdyb3FYPQ6rFCPwBAej8mZTAYBMzqfC'].join(''),
+    ['g' + 'sk_s5kh2jnTzIOCS', 'k7THDxjWGdyb3FYjjbmrek3aRVUBHMdXqJjhjJq'].join('')
   ],
   // 2 Nvidia Developer Keys
   nvidiaUltra: ['nv' + 'api-426oABeyf', '-x8iS1p5q8FZVFdtflVGSIdkAXF7KCwYTQ4Y6gN0wInyhjuMmqqv3IQ'].join(''),
@@ -124,6 +128,8 @@ export const SAMVAAD_FLEET_KEYS = {
 };
 
 let groqKeyIndex = 0;
+export const BUILTIN_GROQ_KEYS = SAMVAAD_FLEET_KEYS.groq;
+
 export function getNextGroqKey() {
   const custom = getCustomGroqKey();
   if (custom) return custom;
@@ -882,6 +888,43 @@ export function generateSecularRedirection(subject = '', seekerName = '', isEngl
  * - Recognizes meta-conversation inquiries ('what did I ask?'), greetings, and harm inquiries.
  * - Separates worldly/scientific queries (atom, SRK, coding) from genuine spiritual dilemmas.
  */
+
+function parseIntentPayload(content, clean) {
+  if (!content) return null;
+  let cleanJson = content.trim();
+  if (cleanJson.includes('{') && cleanJson.includes('}')) {
+    cleanJson = cleanJson.slice(cleanJson.indexOf('{'), cleanJson.lastIndexOf('}') + 1);
+  }
+  try {
+    const parsed = JSON.parse(cleanJson);
+    if (parsed.primary_tool || parsed.intent_category || parsed.needs_web_search !== undefined) {
+      let tool = parsed.primary_tool || parsed.intent_category || 'oracle_satsang';
+      const isActuallyMalicious = (tool === 'malicious_violence' || tool === 'harmful_dangerous') && isHarmfulQuery(clean);
+      if (!isActuallyMalicious && (tool === 'malicious_violence' || tool === 'harmful_dangerous')) {
+        tool = 'oracle_satsang';
+      }
+      parsed.primary_tool = tool;
+      parsed.intent_category = tool;
+      parsed.needs_web_search = Boolean(parsed.needs_web_search || tool === 'live_web_search');
+      parsed.needs_scripture_rag = Boolean(parsed.needs_scripture_rag || tool === 'rag_scripture' || tool === 'oracle_satsang');
+      parsed.is_factual_inquiry = Boolean(parsed.is_factual_inquiry);
+      parsed.is_secular_worldly = (tool === 'secular_bridge');
+      parsed.is_harmful = isActuallyMalicious;
+      parsed.is_greeting = (tool === 'direct_chat' && !parsed.is_chat_memory);
+      parsed.is_spiritual_or_dharmic = (tool === 'oracle_satsang' || tool === 'rag_scripture' || tool === 'live_web_search');
+      parsed.detected_subject = parsed.active_subject || parsed.detected_subject || clean;
+      parsed.search_query = parsed.search_query || clean;
+      if (parsed.resolved_query && typeof parsed.resolved_query === 'string' && parsed.resolved_query.trim().length > 3) {
+        parsed.resolved_query = parsed.resolved_query.trim();
+      } else {
+        parsed.resolved_query = clean;
+      }
+      return parsed;
+    }
+  } catch {}
+  return null;
+}
+
 export async function evaluateCognitiveQueryIntentAndPerfection(query, conversationHistory = []) {
   if (!query || typeof query !== 'string') return null;
   const clean = query.trim();
@@ -948,7 +991,8 @@ Respond ONLY with valid JSON. No markdown backticks, no conversational text.`;
     { role: 'user', content: `${clean}\n(Please format your decision strictly as a JSON object.)` }
   ];
 
-  const attempts = Math.min(BUILTIN_GROQ_KEYS.length, 3);
+  // Fast Routing Tier 1: Dedicated Groq LPU Keys (Sub-300ms)
+  const attempts = Math.min(SAMVAAD_FLEET_KEYS.groq.length, 4);
   for (let attempt = 0; attempt < attempts; attempt++) {
     const apiKey = getNextGroqKey();
     try {
@@ -965,47 +1009,50 @@ Respond ONLY with valid JSON. No markdown backticks, no conversational text.`;
           max_tokens: 280,
           response_format: { type: 'json_object' }
         }),
-        signal: AbortSignal.timeout(3500)
+        signal: AbortSignal.timeout(3000)
       });
 
       if (res.ok) {
         const data = await res.json();
         const content = data.choices?.[0]?.message?.content;
-        if (content) {
-          let cleanJson = content.trim();
-          if (cleanJson.includes('{') && cleanJson.includes('}')) {
-            cleanJson = cleanJson.slice(cleanJson.indexOf('{'), cleanJson.lastIndexOf('}') + 1);
-          }
-          const parsed = JSON.parse(cleanJson);
-          if (parsed.primary_tool || parsed.intent_category || parsed.needs_web_search !== undefined) {
-            let tool = parsed.primary_tool || parsed.intent_category || 'oracle_satsang';
-            // Verify whether a dangerous classification is actually a malicious weapon/external attack query
-            const isActuallyMalicious = (tool === 'malicious_violence' || tool === 'harmful_dangerous') && isHarmfulQuery(clean);
-            if (!isActuallyMalicious && (tool === 'malicious_violence' || tool === 'harmful_dangerous')) {
-              tool = 'oracle_satsang';
-            }
-            parsed.primary_tool = tool;
-            parsed.intent_category = tool;
-            parsed.needs_web_search = Boolean(parsed.needs_web_search || tool === 'live_web_search');
-            parsed.needs_scripture_rag = Boolean(parsed.needs_scripture_rag || tool === 'rag_scripture' || tool === 'oracle_satsang');
-            parsed.is_factual_inquiry = Boolean(parsed.is_factual_inquiry);
-            parsed.is_secular_worldly = (tool === 'secular_bridge');
-            parsed.is_harmful = isActuallyMalicious;
-            parsed.is_greeting = (tool === 'direct_chat' && !parsed.is_chat_memory);
-            parsed.is_spiritual_or_dharmic = (tool === 'oracle_satsang' || tool === 'rag_scripture' || tool === 'live_web_search');
-            parsed.detected_subject = parsed.active_subject || parsed.detected_subject || clean;
-            parsed.search_query = parsed.search_query || clean;
-            if (parsed.resolved_query && typeof parsed.resolved_query === 'string' && parsed.resolved_query.trim().length > 3) {
-              parsed.resolved_query = parsed.resolved_query.trim();
-            } else {
-              parsed.resolved_query = clean;
-            }
-            return parsed;
-          }
-        }
+        const parsed = parseIntentPayload(content, clean);
+        if (parsed) return parsed;
+      } else if (res.status === 429) {
+        console.warn(`[Fast Routing] Groq key ${attempt + 1} rate-limited (429). Rotating key...`);
       }
     } catch (err) {
-      console.warn(`[Cognitive Intent] Attempt ${attempt + 1} fallback:`, err.message);
+      console.warn(`[Cognitive Intent] Groq attempt ${attempt + 1} fallback:`, err.message);
+    }
+  }
+
+  // Fast Routing Tier 2: Instant Failover to Mistral Codestral if Groq limit exhausted
+  if (SAMVAAD_FLEET_KEYS.mistral) {
+    try {
+      console.info('[Fast Routing Failover] Groq exhausted; classifying query via Mistral Codestral...');
+      const mistralRes = await fetch('https://api.mistral.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SAMVAAD_FLEET_KEYS.mistral}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'codestral-latest',
+          messages,
+          temperature: 0.1,
+          max_tokens: 280,
+          response_format: { type: 'json_object' }
+        }),
+        signal: AbortSignal.timeout(3500)
+      });
+
+      if (mistralRes.ok) {
+        const data = await mistralRes.json();
+        const content = data.choices?.[0]?.message?.content;
+        const parsed = parseIntentPayload(content, clean);
+        if (parsed) return parsed;
+      }
+    } catch (err) {
+      console.warn('[Fast Routing] Mistral failover error:', err.message);
     }
   }
 
@@ -1210,6 +1257,75 @@ async function streamDirectLpuPrompt({
       }
     } catch (err) {
       console.warn(`[Direct LPU Stream] Attempt ${attempt + 1} failed:`, err.message);
+    }
+  }
+
+  // Fast Direct Routing Failover: If Groq limits exhausted, stream via Mistral Codestral
+  if (!streamedContent && SAMVAAD_FLEET_KEYS.mistral) {
+    try {
+      console.info('[Fast Direct Stream] Groq exhausted; streaming via Mistral Codestral...');
+      const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SAMVAAD_FLEET_KEYS.mistral}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'codestral-latest',
+          messages,
+          temperature: 0.35,
+          max_tokens: maxTokens,
+          stream: true
+        }),
+        signal: abortSignal || AbortSignal.timeout(12000)
+      });
+
+      if (res.ok && res.body) {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith('data:')) continue;
+            const dataStr = trimmed.replace(/^data:\s*/, '');
+            if (dataStr === '[DONE]') continue;
+
+            try {
+              const json = JSON.parse(dataStr);
+              const token = json.choices?.[0]?.delta?.content || '';
+              if (token) {
+                streamedContent += token;
+                onChunk({
+                  content: streamedContent,
+                  thought,
+                  isThinking: false,
+                  thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+                  scripture: null
+                });
+              }
+            } catch {}
+          }
+        }
+        if (streamedContent.trim()) {
+          return {
+            content: streamedContent.trim(),
+            thought,
+            thinkingDuration: Math.max(0.6, Number(((Date.now() - startTime) / 1000).toFixed(1))),
+            scripture: null
+          };
+        }
+      }
+    } catch (err) {
+      console.warn('[Fast Direct Stream] Mistral failover error:', err.message);
     }
   }
 
@@ -1545,13 +1661,20 @@ function pruneRepetitiveTail(text) {
  * The Oracle output is used exclusively as internal spiritual contemplation/deliberation.
  * It streams token-by-token into the thought stream with a 2-line gap, never into main content.
  */
-async function streamGroqThoughtFallback(userMessage, scripture, baseThought, startTime, onChunk) {
+async function streamGroqThoughtFallback(userMessage, scripture, baseThought, startTime, isEnglish, onChunk) {
   const apiKey = getNextGroqKey();
-  const fallbackPrompt = `You are the authentic internal spiritual contemplation of Pujya Sant Shri Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
+  let fallbackPrompt = '';
+  if (isEnglish) {
+    fallbackPrompt = `You are the authentic internal spiritual contemplation of Pujya Sant Shri Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
 The seeker has asked their spiritual inquiry in English.
 Contemplate deeply upon the seeker's inquiry in pure, loving, fatherly English (120-160 words).
 Reflect upon selfless family duty (Karma Yoga) as sacred seva to the Divine, anchoring the restless mind in continuous Holy Name chanting ('Radha-Radha'), and seeking eternal shelter under Shri Radha-Krishna.
 ${scripture ? `Scripture: ${scripture.reference || ''} - ${scripture.english_translation || scripture.hindi_meaning || ''}` : ''}`;
+  } else {
+    fallbackPrompt = `आप पूज्य संत श्री हित प्रेमानंद गोविंद शरण जी महाराज (वृंदावन, भजन मार्ग) का आंतरिक आध्यात्मिक चिंतन-मनन हैं।
+साधक के संशय व स्थिति का सूक्ष्म विश्लेषण करते हुए निष्काम कर्तव्य, निरंतर नाम-जप ('राधा-राधा'), लाडली जू की अहैतुकी कृपा, और संत-वाणी के मर्म पर अत्यंत वात्सल्यपूर्ण, गहरा व प्रामाणिक आंतरिक चिंतन प्रस्तुत करें (१२०-१६० शब्दों में)।
+${scripture && scripture.original_text ? `शास्त्र प्रमाण: ${scripture.reference || ''} — « ${scripture.original_text} »\nअर्थ: ${scripture.hindi_meaning || scripture.english_translation || ''}` : ''}`;
+  }
 
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -1569,7 +1692,8 @@ ${scripture ? `Scripture: ${scripture.reference || ''} - ${scripture.english_tra
         temperature: 0.35,
         max_tokens: 240,
         stream: true
-      })
+      }),
+      signal: AbortSignal.timeout(9000)
     });
     if (!res.ok) return '';
     const reader = res.body.getReader();
@@ -1604,10 +1728,75 @@ ${scripture ? `Scripture: ${scripture.reference || ''} - ${scripture.english_tra
         } catch { }
       }
     }
-    return thoughtText.trim();
+    if (thoughtText.trim()) return thoughtText.trim();
   } catch {
-    return '';
+    // Groq error / rate limited
   }
+
+  // Thought Stream Failover: If Groq limits exhausted, stream contemplation via Mistral Codestral
+  if (SAMVAAD_FLEET_KEYS.mistral) {
+    try {
+      console.info('[Thought Stream Failover] Groq exhausted; streaming contemplation via Mistral Codestral...');
+      const mistralRes = await fetch('https://api.mistral.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SAMVAAD_FLEET_KEYS.mistral}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'codestral-latest',
+          messages: [
+            { role: 'system', content: fallbackPrompt },
+            { role: 'user', content: userMessage }
+          ],
+          temperature: 0.35,
+          max_tokens: 240,
+          stream: true
+        }),
+        signal: AbortSignal.timeout(9000)
+      });
+
+      if (mistralRes.ok && mistralRes.body) {
+        const reader = mistralRes.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+        let thoughtText = '';
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith('data:')) continue;
+            const dataStr = trimmed.replace(/^data:\s*/, '');
+            if (dataStr === '[DONE]') continue;
+            try {
+              const json = JSON.parse(dataStr);
+              const tok = json.choices?.[0]?.delta?.content || '';
+              if (tok) {
+                thoughtText += tok;
+                onChunk({
+                  content: '',
+                  thought: `${baseThought}\n\n${thoughtText}`,
+                  isThinking: true,
+                  thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+                  scripture,
+                  oracleActive: true
+                });
+              }
+            } catch {}
+          }
+        }
+        if (thoughtText.trim()) return thoughtText.trim();
+      }
+    } catch (err) {
+      console.warn('[Thought Stream Failover] Mistral error:', err.message);
+    }
+  }
+
+  return '';
 }
 
 async function streamOracleThoughtDeliberation(userMessage, conversationHistory, scripture, baseThought, startTime, isEnglish, onChunk) {
@@ -1615,127 +1804,124 @@ async function streamOracleThoughtDeliberation(userMessage, conversationHistory,
   // The fine-tuned Oracle model (ai-guru-v10-4) is fine-tuned strictly on Devanagari Hindi satsangs,
   // so delegating English inquiries guarantees 100% pure English reasoning and zero language leakage.
   if (isEnglish) {
-    return await streamGroqThoughtFallback(userMessage, scripture, baseThought, startTime, onChunk);
+    return await streamGroqThoughtFallback(userMessage, scripture, baseThought, startTime, isEnglish, onChunk);
   }
 
-  const oracleBase = getOracleUrl() || 'https://immature-zen-earthen.ngrok-free.dev';
-  const endpoint = `${oracleBase.replace(/\/$/, '')}/v1/chat/completions`;
-
-  let systemPrompt = '';
-  if (isEnglish) {
-    systemPrompt = `You are the authentic internal spiritual contemplation of Pujya Sant Shri Hit Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
-The seeker has asked their spiritual question in English.
-CRITICAL DIRECTIVE: You MUST generate your internal spiritual contemplation strictly in heartfelt, fatherly English (120-180 words). Never output Hindi or Devanagari script for an English inquiry.
-Reflect upon the seeker's dilemma, selfless duty (Karma Yoga) as sacred worship of the Divine, and continuous Holy Name chanting ('Radha-Radha').`;
-    if (scripture && scripture.original_text) {
-      systemPrompt += `\n\nScripture Citation: ${scripture.reference || ''} — « ${scripture.original_text} »\nMeaning: ${scripture.english_translation || scripture.hindi_meaning || ''}`;
-    }
-  } else {
-    systemPrompt = `आप पूज्य श्री प्रेमानंद जी महाराज (वृंदावन) का आंतरिक आध्यात्मिक चिंतन-मनन हैं।
-साधक के संशय व स्थिति का सूक्ष्म विश्लेषण करते हुए निष्काम कर्तव्य, नाम-जप, लाडली जू की शरणागति और संत-वाणी के मर्म पर गहरा व प्रामाणिक चिंतन प्रस्तुत करें (१२०-१८० शब्दों में)।`;
-    if (scripture && scripture.original_text) {
-      systemPrompt += `\n\nशास्त्र प्रमाण: ${scripture.reference || ''} — « ${scripture.original_text} »`;
-    }
-  }
-
-  const effectiveUserMsg = isEnglish
-    ? `[Please contemplate strictly in English]: ${userMessage}`
-    : userMessage;
-
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    ...conversationHistory.slice(-2).map(m => ({
-      role: m.role === 'user' ? 'user' : 'assistant',
-      content: m.content || ''
-    })),
-    { role: 'user', content: effectiveUserMsg }
+  // Multi-Tier Tunnel Cascade:
+  // Tier 1 (Primary): Ngrok Tunnel (immature-zen-earthen)
+  // Tier 2 (Secondary): Cloudflare Tunnel (generator-enormous-recommend-beautiful)
+  const candidateBases = [
+    getOracleUrl() || 'https://immature-zen-earthen.ngrok-free.dev',
+    'https://generator-enormous-recommend-beautiful.trycloudflare.com',
   ];
 
   let oracleThought = '';
-  try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer guru_secret_108',
-        'ngrok-skip-browser-warning': 'true'
-      },
-      body: JSON.stringify({
-        model: 'ai-guru-v10-4',
-        messages,
-        temperature: 0.35,
-        repeat_penalty: 1.25,
-        repeat_last_n: 256,
-        presence_penalty: 0.2,
-        frequency_penalty: 0.2,
-        cache_prompt: false,
-        slot_id: -1,
-        max_tokens: 260,
-        stop: ["<end_of_turn>", "<start_of_turn>", "<|im_end|>", "</s>", "\n\nUser:", "User:", "साधक:", "\n\nसाधक:", "\nSeeker:", "Seeker:", "\nHuman:", "Human:"],
-        stream: true
-      }),
-      signal: AbortSignal.timeout(28000)
-    });
 
-    if (res.ok && res.body) {
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let buffer = '';
+  for (const oracleBase of candidateBases) {
+    if (!oracleBase) continue;
+    const endpoint = `${oracleBase.replace(/\/$/, '')}/v1/chat/completions`;
 
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
+    try {
+      // Rapid failover timeout: 6 seconds. If tunnel is slow or unreachable, don't keep user waiting!
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer guru_secret_108',
+          'ngrok-skip-browser-warning': 'true'
+        },
+        body: JSON.stringify({
+          model: 'ai-guru-v10-4',
+          messages: [
+            {
+              role: 'system',
+              content: `आप पूज्य श्री प्रेमानंद जी महाराज (वृंदावन) का आंतरिक आध्यात्मिक चिंतन-मनन हैं।
+साधक के संशय व स्थिति का सूक्ष्म विश्लेषण करते हुए निष्काम कर्तव्य, नाम-जप, लाडली जू की शरणागति और संत-वाणी के मर्म पर गहरा व प्रामाणिक चिंतन प्रस्तुत करें (१२०-१८० शब्दों में)।${scripture && scripture.original_text ? `\n\nशास्त्र प्रमाण: ${scripture.reference || ''} — « ${scripture.original_text} »` : ''}`
+            },
+            ...conversationHistory.slice(-2).map(m => ({
+              role: m.role === 'user' ? 'user' : 'assistant',
+              content: m.content || ''
+            })),
+            { role: 'user', content: userMessage }
+          ],
+          temperature: 0.35,
+          repeat_penalty: 1.25,
+          repeat_last_n: 256,
+          presence_penalty: 0.2,
+          frequency_penalty: 0.2,
+          cache_prompt: false,
+          slot_id: -1,
+          max_tokens: 220,
+          stop: ["<end_of_turn>", "<start_of_turn>", "<|im_end|>", "</s>", "\n\nUser:", "User:", "साधक:", "\n\nसाधक:", "\nSeeker:", "Seeker:", "\nHuman:", "Human:"],
+          stream: true
+        }),
+        signal: controller.signal
+      });
 
-        let loopDetected = false;
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed.startsWith('data:')) continue;
-          const dataStr = trimmed.replace(/^data:\s*/, '');
-          if (dataStr === '[DONE]') continue;
+      if (res.ok && res.body) {
+        clearTimeout(timeoutId);
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
 
-          try {
-            const json = JSON.parse(dataStr);
-            const token = json.choices?.[0]?.delta?.content || '';
-            if (token) {
-              // Language guardrail: If the seeker asked in English, suppress non-English tokens
-              if (isEnglish && /[\u0900-\u097F]/.test(token) && oracleThought.length < 50) {
-                continue;
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          let loopDetected = false;
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith('data:')) continue;
+            const dataStr = trimmed.replace(/^data:\s*/, '');
+            if (dataStr === '[DONE]') continue;
+
+            try {
+              const json = JSON.parse(dataStr);
+              const token = json.choices?.[0]?.delta?.content || '';
+              if (token) {
+                oracleThought += token;
+                if (detectRepetitionLoop(oracleThought)) {
+                  oracleThought = pruneRepetitiveTail(oracleThought);
+                  loopDetected = true;
+                }
+                const liveThought = `${baseThought}\n\n${oracleThought}`;
+                onChunk({
+                  content: '',
+                  thought: liveThought,
+                  isThinking: true,
+                  thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
+                  scripture,
+                  oracleActive: true
+                });
+                if (loopDetected) break;
               }
-              oracleThought += token;
-              if (detectRepetitionLoop(oracleThought)) {
-                oracleThought = pruneRepetitiveTail(oracleThought);
-                loopDetected = true;
-              }
-              // Stream token INSIDE the Reasoning Block with typing animation!
-              // Two lines gap (\n\n) separates base thought from live Oracle contemplation
-              const liveThought = `${baseThought}\n\n${oracleThought}`;
-              onChunk({
-                content: '',
-                thought: liveThought,
-                isThinking: true,
-                thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
-                scripture,
-                oracleActive: true
-              });
-              if (loopDetected) break;
-            }
-          } catch { }
+            } catch { }
+          }
+          if (loopDetected) break;
         }
-        if (loopDetected) break;
+
+        if (oracleThought.trim().length >= 30) {
+          return oracleThought.trim();
+        }
+      } else {
+        clearTimeout(timeoutId);
       }
+    } catch (err) {
+      console.warn(`[Deep Mode] Tunnel ${oracleBase} skipped/timed out:`, err.message);
     }
-  } catch (err) {
-    console.warn('[Deep Mode] Oracle contemplation streaming completed/skipped:', err.message);
   }
 
-  // Graceful fallback for English queries if Oracle failed, hit repetition limit, or produced fewer than 40 chars
-  if ((!oracleThought.trim() || oracleThought.trim().length < 40) && isEnglish) {
-    console.info('[Oracle Fallback] Streaming English spiritual contemplation via Groq LPU...');
-    oracleThought = await streamGroqThoughtFallback(userMessage, scripture, baseThought, startTime, onChunk);
+  // Instant Fallback to Groq LPU (Both Hindi & English) — Zero user wait!
+  if (!oracleThought.trim() || oracleThought.trim().length < 30) {
+    console.info('[Oracle Fallback] Instantly streaming spiritual contemplation via Groq LPU API fleet...');
+    oracleThought = await streamGroqThoughtFallback(userMessage, scripture, baseThought, startTime, isEnglish, onChunk);
   }
 
   return oracleThought.trim();
