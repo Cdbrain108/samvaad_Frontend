@@ -137,7 +137,33 @@ function GuestLoginModal({ onLogin, onClose, onOpenFullLogin }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.94, y: 20 }}
         transition={{ type: 'spring', stiffness: 280, damping: 26 }}
+        style={{ position: 'relative' }}
       >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close modal and continue"
+          style={{
+            position: 'absolute',
+            top: '14px',
+            right: '14px',
+            background: 'rgba(255, 255, 255, 0.08)',
+            border: 'none',
+            borderRadius: '50%',
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#9ca3af',
+            fontSize: '1rem',
+            cursor: 'pointer',
+            zIndex: 10,
+            transition: 'background 0.2s'
+          }}
+        >
+          ✕
+        </button>
         <div className="guest-login-icon" aria-hidden="true">ॐ</div>
         <h2 className="guest-login-title">Continue Your Journey</h2>
         <p className="guest-login-desc">
@@ -366,8 +392,9 @@ export default function App() {
   const [isResponding, setIsResponding] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [userMemory, setUserMemory] = useState(null);
-  // Guest user: track how many questions they've asked (limit = 1)
-  // Use localStorage & sessionStorage so the 1 QA limit cannot be bypassed by new tabs, refreshes, or logout
+  // Guest user: track how many questions they've asked
+  // Use localStorage & sessionStorage with generous threshold and continuous bypass on dismissal
+  const [guestBypassed, setGuestBypassed] = useState(false);
   const [guestMessageCount, setGuestMessageCount] = useState(() => {
     try {
       const l = parseInt(localStorage.getItem('samvaad_guest_q_count') || '0', 10);
@@ -749,15 +776,21 @@ export default function App() {
 
   const isGuestUser = !user || user.uid === 'devotee_local';
   const getIsGuestLimitReached = () => {
+    if (guestBypassed) return false;
     const isGuest = !user || user.uid === 'devotee_local';
     if (!isGuest) return false;
     try {
       const l = parseInt(localStorage.getItem('samvaad_guest_q_count') || '0', 10);
       const s = parseInt(sessionStorage.getItem('samvaad_guest_q_count') || '0', 10);
-      return Math.max(isNaN(l) ? 0 : l, isNaN(s) ? 0 : s, guestMessageCount) >= 1;
+      return Math.max(isNaN(l) ? 0 : l, isNaN(s) ? 0 : s, guestMessageCount) >= 10;
     } catch {
-      return guestMessageCount >= 1;
+      return guestMessageCount >= 10;
     }
+  };
+
+  const handleDismissGuestModal = () => {
+    setShowGuestLoginModal(false);
+    setGuestBypassed(true);
   };
 
   const openChat = () => {
@@ -1473,6 +1506,7 @@ export default function App() {
                           isFraming={message.isFraming}
                           duration={message.thinkingDuration}
                           scripture={message.scripture}
+                          oracleActive={Boolean(message.oracleActive)}
                           isEnglish={Boolean(message.isEnglish || (index > 0 && messages[index - 1] ? detectQueryLanguage(messages[index - 1].content || '') === 'english' : false))}
                         />
                       )}
@@ -1613,7 +1647,7 @@ export default function App() {
         {showGuestLoginModal && (
           <GuestLoginModal
             onLogin={handleGuestLoginSuccess}
-            onClose={() => setShowGuestLoginModal(false)}
+            onClose={handleDismissGuestModal}
             onOpenFullLogin={() => {
               setShowGuestLoginModal(false);
               setView('login');

@@ -45,6 +45,10 @@ if (isFirebaseConfigured) {
 // Helper for friendly error messages
 const getFriendlyErrorMessage = (error) => {
   if (!error) return 'An unknown error occurred';
+  const msg = error.message || '';
+  if (msg.includes('Database is closing') || msg.includes('closing/hidden')) {
+    return 'Browser storage connection refreshed. Please click Continue with Google once more.';
+  }
   const code = error.code || '';
   switch (code) {
     case 'auth/configuration-not-found':
@@ -100,9 +104,20 @@ export const signInWithGoogle = async () => {
     return { user: null, error: 'Google sign-in is not configured in this deployment.' };
   }
   try {
+    googleProvider.setCustomParameters({ prompt: 'select_account' });
     const result = await signInWithPopup(auth, googleProvider);
     return { user: result.user, error: null };
   } catch (error) {
+    const msg = error?.message || '';
+    if (msg.includes('Database is closing') || msg.includes('closing/hidden') || error?.code === 'auth/internal-error') {
+      console.warn('[Firebase Auth] Stale database connection, retrying sign-in with fresh popup...');
+      try {
+        const retryResult = await signInWithPopup(auth, googleProvider);
+        return { user: retryResult.user, error: null };
+      } catch (retryErr) {
+        return { user: null, error: getFriendlyErrorMessage(retryErr) };
+      }
+    }
     return { user: null, error: getFriendlyErrorMessage(error) };
   }
 };

@@ -64,9 +64,11 @@ export default function ReasoningBlock({
   scripture = null,
   isEnglish = false,
   needsScriptureRag = undefined,
+  oracleActive = false,
 }) {
-  // Collapsed by default so it stays sleek and never overpowers the screen; seeker can tap anytime to expand
+  // Collapsed by default, but auto-opens when living contemplation begins so seeker sees the fine-tuned thoughts
   const [isOpen, setIsOpen] = useState(false);
+  const [userToggled, setUserToggled] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isScriptureOpen, setIsScriptureOpen] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -77,6 +79,16 @@ export default function ReasoningBlock({
 
   const isEnglishView = Boolean(isEnglish) || (thought && /^(?:🔍\s*Query Intent|Contemplating|Searching|Analyzing)/i.test(thought));
   const [displayedThought, setDisplayedThought] = useState(thought || '');
+
+  // Detect living fine-tuned contemplation inside thought
+  const hasLivingContemplation = (displayedThought || '').includes('【🧘') || (thought || '').includes('【🧘') || Boolean(oracleActive);
+
+  // Auto-expand reasoning block when living contemplation begins during thinking
+  useEffect(() => {
+    if (isThinking && hasLivingContemplation && !userToggled) {
+      setIsOpen(true);
+    }
+  }, [isThinking, hasLivingContemplation, userToggled]);
 
   const isRagActive = Boolean(scripture) || (needsScriptureRag === true);
   const stages = isRagActive
@@ -165,6 +177,22 @@ export default function ReasoningBlock({
 
   if (!thought && !isThinking && !scripture) return null;
 
+  // Split thoughts into RAG Deliberation Steps vs Fine-Tuned Living Contemplation
+  const LIVING_HEADER_REGEX = /【🧘\s*([^】]+)】/;
+  let baseThought = displayedThought;
+  let livingThought = '';
+  let livingTitle = isEnglishView
+    ? 'Living Spiritual Contemplation (Pujya Maharaj Ji Fine-Tuned Model)'
+    : 'पूज्य महाराज जी का पावन अंतःचिंतन (Living Tuned Model)';
+
+  const livingMatch = (displayedThought || '').match(LIVING_HEADER_REGEX);
+  if (livingMatch) {
+    const parts = (displayedThought || '').split(LIVING_HEADER_REGEX);
+    baseThought = parts[0]?.trim() || '';
+    livingTitle = livingMatch[1]?.trim() || livingTitle;
+    livingThought = parts[2] ? parts.slice(2).join('').trim() : '';
+  }
+
   const hasLongThought = (thought || '').length > 130;
 
   // Active step index dynamically matching stages count
@@ -184,7 +212,10 @@ export default function ReasoningBlock({
         <button
           type="button"
           className="reasoning-header-btn"
-          onClick={() => setIsOpen((prev) => !prev)}
+          onClick={() => {
+            setUserToggled(true);
+            setIsOpen((prev) => !prev);
+          }}
           aria-expanded={isOpen}
           aria-label="Toggle spiritual deliberation thoughts"
         >
@@ -222,6 +253,23 @@ export default function ReasoningBlock({
               </div>
             )}
 
+            {hasLivingContemplation && (
+              <span className="living-header-pill" style={{
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                background: 'rgba(245, 158, 11, 0.16)',
+                border: '1px solid rgba(245, 158, 11, 0.45)',
+                color: '#fbbf24',
+                padding: '2px 8px',
+                borderRadius: '6px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}>
+                <span className="living-pulse-dot" style={{ width: '5px', height: '5px' }} />
+                {isEnglishView ? 'Living Model Active' : 'पावन अंतःचिंतन'}
+              </span>
+            )}
             <span className="claude-timer-badge">
               {isLiveActive ? `${displayTime}s...` : `${displayTime}s`}
             </span>
@@ -367,16 +415,25 @@ export default function ReasoningBlock({
       {thought && !isOpen && (
         <div
           className="reasoning-stream-preview"
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            setUserToggled(true);
+            setIsOpen(true);
+          }}
           role="button"
           tabIndex={0}
           title={isEnglishView ? 'Click to expand full deliberation' : 'क्लिक करके पूर्ण चिंतन देखें'}
         >
+          {livingThought ? (
+            <div className="living-contemplation-badge" style={{ marginBottom: '4px', fontSize: '0.72rem' }}>
+              <span className="living-pulse-dot" style={{ width: '5px', height: '5px' }} />
+              <span>🧘 {isEnglishView ? 'Living Model Contemplating:' : 'पूज्य महाराज जी का पावन अंतःचिंतन:'}</span>
+            </div>
+          ) : null}
           <div
             className="reasoning-text-stream claude-thought-stream stream-preview-always"
             ref={previewStreamRef}
           >
-            {displayedThought}
+            {livingThought || displayedThought}
             {(isThinking || displayedThought.length < (thought || '').length) && (
               <span className="claude-block-cursor" aria-hidden="true">▋</span>
             )}
@@ -432,23 +489,42 @@ export default function ReasoningBlock({
             </div>
 
             <div className="reasoning-content-box claude-thinking-box">
-              <div
-                className={`reasoning-text-stream claude-thought-stream ${isExpanded ? 'stream-expanded' : 'stream-compact'}`}
-                ref={fullStreamRef}
-              >
-                {displayedThought}
-                {(isThinking || displayedThought.length < (thought || '').length) && (
-                  <span className="claude-block-cursor" aria-hidden="true">▋</span>
-                )}
-                {isFraming && (
-                  <div style={{ marginTop: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#f59e0b', fontSize: '0.84rem' }}>
-                    <span className="chat-typing-dots" style={{ margin: 0, display: 'inline-flex', gap: '4px' }} aria-hidden="true">
-                      <i /><i /><i />
-                    </span>
-                    <span>{isEnglishView ? 'Framing answer...' : 'उत्तर स्वरूप तैयार हो रहा है...'}</span>
+              {baseThought && (
+                <div
+                  className={`reasoning-text-stream claude-thought-stream ${isExpanded ? 'stream-expanded' : 'stream-compact'}`}
+                  ref={fullStreamRef}
+                >
+                  {baseThought}
+                  {(!livingThought && (isThinking || displayedThought.length < (thought || '').length)) && (
+                    <span className="claude-block-cursor" aria-hidden="true">▋</span>
+                  )}
+                </div>
+              )}
+
+              {/* Dedicated Living Tuned Model Contemplation Card */}
+              {(hasLivingContemplation || Boolean(oracleActive)) && (
+                <div className="living-contemplation-card">
+                  <div className="living-contemplation-badge">
+                    <span className="living-pulse-dot" />
+                    <span>🧘 {livingTitle}</span>
                   </div>
-                )}
-              </div>
+                  <div className="living-contemplation-text">
+                    {livingThought || (isThinking ? (isEnglishView ? 'Living contemplation flowing from inner sanctuary...' : 'पूज्य महाराज जी का पावन अंतःचिंतन प्रवाहित हो रहा है...') : '')}
+                    {(isThinking || displayedThought.length < (thought || '').length) && (
+                      <span className="claude-block-cursor" aria-hidden="true">▋</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {isFraming && (
+                <div style={{ marginTop: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#f59e0b', fontSize: '0.84rem' }}>
+                  <span className="chat-typing-dots" style={{ margin: 0, display: 'inline-flex', gap: '4px' }} aria-hidden="true">
+                    <i /><i /><i />
+                  </span>
+                  <span>{isEnglishView ? 'Framing answer...' : 'उत्तर स्वरूप तैयार हो रहा है...'}</span>
+                </div>
+              )}
 
               {hasLongThought && (
                 <div className="reasoning-expand-bar">

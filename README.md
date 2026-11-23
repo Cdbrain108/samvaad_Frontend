@@ -4,7 +4,8 @@
 > *"जब तक सांस है, तब तक आस है — भगवन्नाम का आश्रय ही जीवन का परम संबल है।"*  
 > Grounded in the eternal wisdom of Sanatan Dharma and inspired by the nectar-like satsang discourses of **Pujya Premanand Ji Maharaj (Bhajan Marg)**.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Samvaad%20AI-F59E0B?style=for-the-badge&logo=google-chrome&logoColor=white)](https://cdbrain108.github.io/samvaad_Frontend/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-samvaad--ai.web.app-F59E0B?style=for-the-badge&logo=firebase&logoColor=white)](https://samvaad-ai.web.app/)
+[![Firebase Hosting](https://img.shields.io/badge/Firebase%20Hosting-samvaad--ai-FFA000?style=for-the-badge&logo=firebase&logoColor=white)](https://samvaad-ai.web.app/)
 [![Scriptures Indexed](https://img.shields.io/badge/Scriptures-150K%2B%20Verses-D97706?style=for-the-badge&logo=scroll&logoColor=white)](#-multi-source-scriptural-rag)
 [![Architecture](https://img.shields.io/badge/Model-Gemma%204%20E4B%20IT-10B981?style=for-the-badge)](#-fine-tuned-domain-intelligence)
 [![Infrastructure](https://img.shields.io/badge/Hosting-Oracle%20Cloud%20CPU%20VM-3B82F6?style=for-the-badge)](#-zero-cost-cpu-infrastructure)

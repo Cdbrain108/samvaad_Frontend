@@ -1889,6 +1889,59 @@ html, body { max-width: 100%; overflow-x: hidden; }
   background: rgba(255, 255, 255, 0.02);
 }
 
+/* Living Tuned Model Contemplation Card */
+.living-contemplation-card {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(217, 119, 6, 0.06) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.08);
+  position: relative;
+}
+
+.living-contemplation-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fbbf24;
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.living-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+  animation: claudeDotPulse 1s infinite ease-in-out;
+}
+
+.living-contemplation-text {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: #fef3c7;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-style: italic;
+}
+
+:root[data-theme='light'] .living-contemplation-card {
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.9) 0%, rgba(253, 230, 138, 0.5) 100%) !important;
+  border: 1px solid rgba(217, 119, 6, 0.35) !important;
+}
+
+:root[data-theme='light'] .living-contemplation-badge {
+  color: #b45309 !important;
+}
+
+:root[data-theme='light'] .living-contemplation-text {
+  color: #451a03 !important;
+}
+
 .reasoning-text-stream.stream-preview-always {
   max-height: 48px;
   overflow-y: hidden;

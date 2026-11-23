@@ -20,3 +20,4 @@ scratch/
 test/
 *.tmp
 snap_*.png
+.firebase/

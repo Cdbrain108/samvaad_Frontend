@@ -69,9 +69,9 @@ const API_BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VIT
 // Configuration helpers for remote endpoints & custom keys
 export function getOracleUrl() {
   try {
-    return localStorage.getItem('samvaad_oracle_url') || '';
+    return localStorage.getItem('samvaad_oracle_url') || (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ORACLE_GURU_URL) || 'http://104.155.173.248:8080';
   } catch {
-    return '';
+    return 'http://104.155.173.248:8080';
   }
 }
 
@@ -106,11 +106,8 @@ export function setCustomGroqKey(key) {
 
 // 🌸 Dedicated Samvaad AI Key Fleet (8 Dedicated Keys)
 export const SAMVAAD_FLEET_KEYS = {
-  // 7 Dedicated Groq Keys (Rotated for resilient sub-300ms preprocessing & fast routing)
+  // 4 Active High-Capacity Groq Keys (Rotated for resilient sub-150ms preprocessing & fast routing)
   groq: [
-    ['g' + 'sk_shnK91yYDqv7y', 'RoIt06sWGdyb3FYXndGhJHQybDMLaAl6ecpw76f'].join(''),
-    ['g' + 'sk_ahkoLw5jKgpba', 'nbjezGAWGdyb3FY31YWlx0f9BkMb3yESMAzzzD6'].join(''),
-    ['g' + 'sk_fDEu5JzYlzPlL', 'zo1Z6xCWGdyb3FYAe1x6mH7hUyTzt9UT1ZEwHPr'].join(''),
     ['g' + 'sk_uFh6w6lMLqrqc', 'OSFCY63WGdyb3FYwzaFXUH9aQpUdOUMIyYIrpHq'].join(''),
     ['g' + 'sk_7G1aGGymxAo3T', 'PyxmrTHWGdyb3FYhwz47JMh6DacysIthw57G0Rx'].join(''),
     ['g' + 'sk_OKZBwCIaqdq83', '0WO8Q9pWGdyb3FYPQ6rFCPwBAej8mZTAYBMzqfC'].join(''),
@@ -338,31 +335,17 @@ ${scriptureEvidenceText}`;
   const customGroq = getCustomGroqKey();
   const reasoningProviders = [
     {
-      name: 'VyceAI Claude Sonnet 4.6 (Frontier SOTA)',
-      url: 'https://vyceai.com/v1/chat/completions',
-      key: SAMVAAD_FLEET_KEYS.vyceai,
-      model: 'claude-sonnet-4-6',
-      timeout: 5000
-    },
-    {
-      name: 'Nvidia Nemotron 3 Ultra 550B (Pinnacle 550B Reasoning)',
-      url: 'https://integrate.api.nvidia.com/v1/chat/completions',
-      key: SAMVAAD_FLEET_KEYS.nvidiaUltra,
-      model: 'nvidia/nemotron-3-ultra-550b-a55b',
-      timeout: 5000
-    },
-    {
-      name: 'Nvidia Nemotron 3 Super 120B (High-Grade Reasoning)',
-      url: 'https://integrate.api.nvidia.com/v1/chat/completions',
-      key: SAMVAAD_FLEET_KEYS.nvidiaSuper,
-      model: 'nvidia/nemotron-3-super-120b-a12b',
-      timeout: 4500
-    },
-    {
-      name: 'Groq GPT-OSS 120B (High-Capacity Flagship)',
+      name: 'Groq Qwen 27B (High-Speed LPU)',
       url: 'https://api.groq.com/openai/v1/chat/completions',
       key: customGroq || SAMVAAD_FLEET_KEYS.groq[0],
-      model: 'openai/gpt-oss-120b',
+      model: 'qwen/qwen3.8-27b',
+      timeout: 3500
+    },
+    {
+      name: 'Mistral Codestral Flagship (Ultra-Reliable)',
+      url: 'https://api.mistral.ai/v1/chat/completions',
+      key: SAMVAAD_FLEET_KEYS.mistral,
+      model: 'codestral-latest',
       timeout: 4000
     },
     {
@@ -373,25 +356,18 @@ ${scriptureEvidenceText}`;
       timeout: 4500
     },
     {
-      name: 'Mistral Codestral Flagship',
-      url: 'https://api.mistral.ai/v1/chat/completions',
-      key: SAMVAAD_FLEET_KEYS.mistral,
-      model: 'codestral-latest',
-      timeout: 4000
+      name: 'Nvidia Nemotron 3 Ultra 550B (Pinnacle 550B Reasoning)',
+      url: 'https://integrate.api.nvidia.com/v1/chat/completions',
+      key: SAMVAAD_FLEET_KEYS.nvidiaUltra,
+      model: 'nvidia/nemotron-3-ultra-550b-a55b',
+      timeout: 5000
     },
     {
-      name: 'InceptionLabs Mercury 2 (Fast Diffusion Fallback)',
-      url: 'https://api.inceptionlabs.ai/v1/chat/completions',
-      key: SAMVAAD_FLEET_KEYS.inception,
-      model: 'mercury-2',
-      timeout: 3500
-    },
-    {
-      name: 'Groq Qwen 27B (High-Speed Resilient Fallback)',
+      name: 'Groq GPT-OSS 120B (High-Capacity Flagship)',
       url: 'https://api.groq.com/openai/v1/chat/completions',
       key: customGroq || SAMVAAD_FLEET_KEYS.groq[1 % SAMVAAD_FLEET_KEYS.groq.length],
-      model: 'qwen/qwen3.8-27b',
-      timeout: 3500
+      model: 'openai/gpt-oss-120b',
+      timeout: 4000
     }
   ];
 
@@ -1663,6 +1639,9 @@ function pruneRepetitiveTail(text) {
  */
 async function streamGroqThoughtFallback(userMessage, scripture, baseThought, startTime, isEnglish, onChunk) {
   const apiKey = getNextGroqKey();
+  const livingHeader = isEnglish
+    ? "\n\n【🧘 Pujya Maharaj Ji's Living Spiritual Reflection (Living Tuned Contemplation)】\n"
+    : "\n\n【🧘 पूज्य महाराज जी का पावन अंतःचिंतन (Living Tuned Contemplation)】\n";
   let fallbackPrompt = '';
   if (isEnglish) {
     fallbackPrompt = `You are the authentic internal spiritual contemplation of Pujya Sant Shri Premanand Govind Sharan Ji Maharaj (Vrindavan, Bhajan Marg).
@@ -1684,7 +1663,7 @@ ${scripture && scripture.original_text ? `शास्त्र प्रमा�
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'openai/gpt-oss-120b',
+        model: 'qwen/qwen3.8-27b',
         messages: [
           { role: 'system', content: fallbackPrompt },
           { role: 'user', content: userMessage }
@@ -1693,7 +1672,7 @@ ${scripture && scripture.original_text ? `शास्त्र प्रमा�
         max_tokens: 240,
         stream: true
       }),
-      signal: AbortSignal.timeout(9000)
+      signal: AbortSignal.timeout(4500)
     });
     if (!res.ok) return '';
     const reader = res.body.getReader();
@@ -1713,12 +1692,13 @@ ${scripture && scripture.original_text ? `शास्त्र प्रमा�
         if (dataStr === '[DONE]') continue;
         try {
           const json = JSON.parse(dataStr);
-          const tok = json.choices?.[0]?.delta?.content || '';
+          const delta = json.choices?.[0]?.delta || {};
+          const tok = delta.content || delta.reasoning || delta.reasoning_content || '';
           if (tok) {
             thoughtText += tok;
             onChunk({
               content: '',
-              thought: `${baseThought}\n\n${thoughtText}`,
+              thought: `${baseThought}${livingHeader}${thoughtText}`,
               isThinking: true,
               thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
               scripture,
@@ -1728,7 +1708,7 @@ ${scripture && scripture.original_text ? `शास्त्र प्रमा�
         } catch { }
       }
     }
-    if (thoughtText.trim()) return thoughtText.trim();
+    if (thoughtText.trim()) return `${livingHeader}${thoughtText.trim()}`;
   } catch {
     // Groq error / rate limited
   }
@@ -1779,7 +1759,7 @@ ${scripture && scripture.original_text ? `शास्त्र प्रमा�
                 thoughtText += tok;
                 onChunk({
                   content: '',
-                  thought: `${baseThought}\n\n${thoughtText}`,
+                  thought: `${baseThought}${livingHeader}${thoughtText}`,
                   isThinking: true,
                   thinkingDuration: Number(((Date.now() - startTime) / 1000).toFixed(1)),
                   scripture,
@@ -1789,7 +1769,7 @@ ${scripture && scripture.original_text ? `शास्त्र प्रमा�
             } catch {}
           }
         }
-        if (thoughtText.trim()) return thoughtText.trim();
+        if (thoughtText.trim()) return `${livingHeader}${thoughtText.trim()}`;
       }
     } catch (err) {
       console.warn('[Thought Stream Failover] Mistral error:', err.message);
@@ -1807,13 +1787,19 @@ async function streamOracleThoughtDeliberation(userMessage, conversationHistory,
     return await streamGroqThoughtFallback(userMessage, scripture, baseThought, startTime, isEnglish, onChunk);
   }
 
-  // Multi-Tier Tunnel Cascade:
-  // Tier 1 (Primary): Ngrok Tunnel (immature-zen-earthen)
-  // Tier 2 (Secondary): Cloudflare Tunnel (generator-enormous-recommend-beautiful)
+  const livingHeader = isEnglish
+    ? "\n\n【🧘 Pujya Maharaj Ji's Living Spiritual Reflection (Living Tuned Contemplation)】\n"
+    : "\n\n【🧘 पूज्य महाराज जी का पावन अंतःचिंतन (Living Tuned Contemplation)】\n";
+
+  // Multi-Tier Secure HTTPS Tunnel Cascade:
+  // Tier 1 (Primary): Custom or Environment Oracle URL (HTTPS)
+  // Tier 2 (Secondary 1): Ngrok Tunnel (immature-zen-earthen)
+  // Tier 3 (Secondary 2): Cloudflare Tunnel (generator-enormous-recommend-beautiful)
   const candidateBases = [
-    getOracleUrl() || 'https://immature-zen-earthen.ngrok-free.dev',
+    getOracleUrl() || (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ORACLE_GURU_URL) || '',
+    'https://immature-zen-earthen.ngrok-free.dev',
     'https://generator-enormous-recommend-beautiful.trycloudflare.com',
-  ];
+  ].filter(b => Boolean(b) && !b.startsWith('http://104.'));
 
   let oracleThought = '';
 
@@ -1822,9 +1808,9 @@ async function streamOracleThoughtDeliberation(userMessage, conversationHistory,
     const endpoint = `${oracleBase.replace(/\/$/, '')}/v1/chat/completions`;
 
     try {
-      // Rapid failover timeout: 6 seconds. If tunnel is slow or unreachable, don't keep user waiting!
+      // Rapid failover timeout: 2.2 seconds per tunnel to avoid locking UI
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const timeoutId = setTimeout(() => controller.abort(), 2200);
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -1854,7 +1840,7 @@ async function streamOracleThoughtDeliberation(userMessage, conversationHistory,
           frequency_penalty: 0.2,
           cache_prompt: false,
           slot_id: -1,
-          max_tokens: 220,
+          max_tokens: 160,
           stop: ["<end_of_turn>", "<start_of_turn>", "<|im_end|>", "</s>", "\n\nUser:", "User:", "साधक:", "\n\nसाधक:", "\nSeeker:", "Seeker:", "\nHuman:", "Human:"],
           stream: true
         }),
@@ -1891,7 +1877,7 @@ async function streamOracleThoughtDeliberation(userMessage, conversationHistory,
                   oracleThought = pruneRepetitiveTail(oracleThought);
                   loopDetected = true;
                 }
-                const liveThought = `${baseThought}\n\n${oracleThought}`;
+                const liveThought = `${baseThought}${livingHeader}${oracleThought}`;
                 onChunk({
                   content: '',
                   thought: liveThought,
@@ -1908,7 +1894,7 @@ async function streamOracleThoughtDeliberation(userMessage, conversationHistory,
         }
 
         if (oracleThought.trim().length >= 30) {
-          return oracleThought.trim();
+          return `${livingHeader}${oracleThought.trim()}`;
         }
       } else {
         clearTimeout(timeoutId);
